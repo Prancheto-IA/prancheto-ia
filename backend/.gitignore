@@ -1,0 +1,30 @@
+# =============================================================
+# PRANCHETO.IA - BACKEND - GITIGNORE
+# =============================================================
+
+# Dependências instaladas (nunca commitar)
+node_modules/
+
+# Arquivo de variáveis de ambiente com dados sensíveis (NUNCA commitar)
+.env
+
+# Arquivos de log gerados em runtime
+logs/*.log
+logs/*.gz
+
+# Diretório de build (se aplicável)
+dist/
+build/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cobertura de testes
+coverage/

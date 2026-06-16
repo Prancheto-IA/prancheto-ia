@@ -1,0 +1,30 @@
+# =============================================================
+# PRANCHETO.IA - FRONTEND - GITIGNORE
+# =============================================================
+
+# Dependências instaladas (nunca commitar)
+node_modules/
+
+# Arquivo de variáveis de ambiente com dados sensíveis (NUNCA commitar)
+.env
+.env.local
+.env.production
+
+# Diretório de build gerado pelo Vite
+dist/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cobertura de testes
+coverage/
+
+# Cache do Vite
+.vite/

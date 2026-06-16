@@ -1,0 +1,83 @@
+/* =============================================================
+   PRANCHETO.IA - ESTILOS GLOBAIS
+   Importa as diretivas do TailwindCSS e define estilos base.
+   As cores customizadas (surface, surface-card, surface-border)
+   estão definidas em tailwind.config.js como chaves planas.
+   ============================================================= */
+
+/* Importação das camadas do TailwindCSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- ESTILOS BASE GLOBAIS --- */
+@layer base {
+  /* Define a fonte padrão e o fundo escuro para toda a aplicação */
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    /* bg-surface = #0f172a (definido em tailwind.config.js) */
+    @apply bg-surface text-white antialiased;
+    /* Evita scroll horizontal indesejado */
+    overflow-x: hidden;
+  }
+
+  /* Estilo padrão para scrollbars (navegadores WebKit) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* bg-surface = #0f172a */
+    @apply bg-surface;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    /* bg-surface-border = #334155 */
+    @apply bg-surface-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-500;
+  }
+}
+
+/* --- COMPONENTES REUTILIZÁVEIS (classes utilitárias customizadas) --- */
+@layer components {
+  /* Botão primário padrão */
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 active:bg-primary-800
+           text-white font-medium px-4 py-2 rounded-lg
+           transition-colors duration-150 ease-in-out
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Botão secundário (outline) */
+  .btn-secondary {
+    @apply border border-surface-border hover:border-primary-500
+           text-slate-300 hover:text-white font-medium px-4 py-2 rounded-lg
+           transition-colors duration-150 ease-in-out
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Card padrão — bg-surface-card = #1e293b */
+  .card {
+    @apply bg-surface-card border border-surface-border rounded-xl p-6;
+  }
+
+  /* Input padrão */
+  .input {
+    @apply bg-surface border border-surface-border rounded-lg px-3 py-2
+           text-white placeholder-slate-500
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+           transition-all duration-150;
+  }
+
+  /* Badge de status */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+}
