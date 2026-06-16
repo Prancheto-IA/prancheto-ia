@@ -12,19 +12,27 @@ const knex = require('knex');
 // --- CONFIGURAÇÃO DO POOL DE CONEXÕES ---
 // min: mínimo de conexões mantidas abertas (mesmo sem requisições)
 // max: máximo de conexões simultâneas permitidas
+// Suporta DATABASE_URL completa (Render fornece automaticamente via Internal Database URL)
+// OU variáveis individuais DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+const conexao = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    }
+  : {
+      host:     process.env.DB_HOST     || 'localhost',
+      port:     parseInt(process.env.DB_PORT || '5432', 10),
+      database: process.env.DB_NAME     || 'prancheto_ia',
+      user:     process.env.DB_USER     || 'postgres',
+      password: process.env.DB_PASSWORD || '',
+      ssl: process.env.NODE_ENV === 'production'
+        ? { rejectUnauthorized: false }
+        : false,
+    };
+
 const configuracaoKnex = {
   client: 'pg', // Driver do PostgreSQL
-  connection: {
-    host:     process.env.DB_HOST     || 'localhost',
-    port:     parseInt(process.env.DB_PORT || '5432', 10),
-    database: process.env.DB_NAME     || 'prancheto_ia',
-    user:     process.env.DB_USER     || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-    // SSL obrigatório em produção para criptografar dados em trânsito
-    ssl: process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
-      : false,
-  },
+  connection: conexao,
   pool: {
     min: 2,
     max: 10,

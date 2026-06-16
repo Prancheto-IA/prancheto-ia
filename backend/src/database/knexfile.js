@@ -35,17 +35,23 @@ module.exports = {
   },
 
   // --- AMBIENTE DE PRODUÇÃO ---
+  // Aceita DATABASE_URL completa (Render fornece automaticamente)
+  // OU variáveis individuais DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
   production: {
     client: 'pg',
-    connection: {
-      host:     process.env.DB_HOST,
-      port:     parseInt(process.env.DB_PORT || '5432', 10),
-      database: process.env.DB_NAME,
-      user:     process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      // SSL obrigatório em produção
-      ssl: { rejectUnauthorized: false },
-    },
+    connection: process.env.DATABASE_URL
+      ? {
+          connectionString: process.env.DATABASE_URL,
+          ssl: { rejectUnauthorized: false },
+        }
+      : {
+          host:     process.env.DB_HOST,
+          port:     parseInt(process.env.DB_PORT || '5432', 10),
+          database: process.env.DB_NAME,
+          user:     process.env.DB_USER,
+          password: process.env.DB_PASSWORD,
+          ssl: { rejectUnauthorized: false },
+        },
     pool: {
       min: 2,
       max: 10,
