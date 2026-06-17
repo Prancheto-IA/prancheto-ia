@@ -144,16 +144,20 @@ const iniciarServidor = async () => {
     });
     logger.info('✅ Seeds processados com sucesso.');
 
-    // Destrava o Super Admin na inicialização
+    // Destrava o Super Admin e garante a senha atualizada na inicialização
     const emailSuperAdmin = process.env.SUPER_ADMIN_EMAIL;
-    if (emailSuperAdmin) {
+    const senhaSuperAdmin = process.env.SUPER_ADMIN_PASSWORD;
+    if (emailSuperAdmin && senhaSuperAdmin) {
+      const bcrypt = require('bcryptjs');
+      const senhaHash = await bcrypt.hash(senhaSuperAdmin, 12);
       await db('users')
         .where({ email: emailSuperAdmin })
         .update({
+          senha_hash: senhaHash,
           tentativas_login_falhas: 0,
           bloqueado_ate: null
         });
-      logger.info('🔓 Super Admin desbloqueado/limpo com sucesso.');
+      logger.info('🔓 Super Admin desbloqueado e senha atualizada na inicialização.');
     }
 
     // Inicia o serviço de Self-Healing (monitoramento contínuo e handlers globais)
