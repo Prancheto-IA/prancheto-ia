@@ -24,7 +24,7 @@ const path       = require('path');
 
 // --- 4. IMPORTS INTERNOS ---
 const { validarEnv }         = require('./config/env');
-const { testarConexaoDB }    = require('./config/database');
+const { db, testarConexaoDB }    = require('./config/database');
 const logger                 = require('./services/logger.service');
 const errorHandler           = require('./middlewares/errorHandler');
 const securityMiddleware     = require('./middlewares/security.middleware');
@@ -126,6 +126,20 @@ const iniciarServidor = async () => {
     logger.info('Verificando conexão com o banco de dados...');
     await testarConexaoDB();
     logger.info('✅ Banco de dados conectado com sucesso.');
+
+    // Executa migrations automáticas
+    logger.info('Executando migrations automáticas...');
+    await db.migrate.latest({
+      directory: path.resolve(__dirname, 'database/migrations')
+    });
+    logger.info('✅ Migrations aplicadas com sucesso.');
+
+    // Executa seeds automáticos
+    logger.info('Executando seeds automáticos...');
+    await db.seed.run({
+      directory: path.resolve(__dirname, 'database/seeds')
+    });
+    logger.info('✅ Seeds processados com sucesso.');
 
     // Inicia o serviço de Self-Healing (monitoramento contínuo e handlers globais)
     iniciarSelfHealing();
