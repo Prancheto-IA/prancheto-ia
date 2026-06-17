@@ -80,15 +80,13 @@ const logger = winston.createLogger({
   ],
 });
 
-// --- SAÍDA NO CONSOLE (apenas em desenvolvimento) ---
-// Em produção, os logs vão apenas para arquivo para não poluir o stdout
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(), // Coloriza o nível (verde=info, vermelho=error)
-      formatoLog
-    ),
-  }));
-}
+// --- SAÍDA NO CONSOLE ---
+// Habilitado em todos os ambientes (incluindo produção)
+logger.add(new winston.transports.Console({
+  format: winston.format.combine(
+    winston.format.colorize(), // Coloriza o nível (verde=info, vermelho=error)
+    formatoLog
+  ),
+}));
 
 module.exports = logger;
