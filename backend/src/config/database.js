@@ -25,9 +25,9 @@ const conexao = process.env.DATABASE_URL
       database: process.env.DB_NAME     || 'prancheto_ia',
       user:     process.env.DB_USER     || 'postgres',
       password: process.env.DB_PASSWORD || '',
-      ssl: process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
-        : false,
+      ssl: process.env.DB_SSL === 'false'
+        ? false
+        : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
     };
 
 const configuracaoKnex = {
