@@ -38,6 +38,9 @@ validarEnv();
 // --- 6. CRIAÇÃO DA INSTÂNCIA DO EXPRESS ---
 const app = express();
 
+// Confia nos proxies reversos (como Traefik/Nginx do Easypanel) para ler o IP correto do cliente
+app.set('trust proxy', 1);
+
 // =============================================================
 // BLOCO DE MIDDLEWARES GLOBAIS
 // Ordem importa: segurança → parsing → rotas → erros
