@@ -1,301 +1,319 @@
 // =============================================================
 // PRANCHETO.IA - CONTROLLER DE AUTENTICAÇÃO
-// Gerencia login, logout e renovação de token JWT.
-//
-// Fluxo de Login:
-//   1. Valida e-mail e senha
-//   2. Verifica bloqueio por tentativas excessivas
-//   3. Compara senha com hash bcrypt
-//   4. Gera token JWT (curta duração) + refresh token (longa duração)
-//   5. Detecta se é Super Admin e retorna flag isSuperAdmin
-//   6. Registra o login no log de auditoria
+// Gerencia login, refresh de token e logout.
+// Migrado de Knex.js para @supabase/supabase-js
 // =============================================================
 
 'use strict';
 
-const bcrypt = require('bcryptjs');
-const jwt    = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
-const { db } = require('../../config/database');
-const logger = require('../../services/logger.service');
-const Sentry = require('../../config/sentry');
+const bcrypt  = require('bcryptjs');
+const jwt     = require('jsonwebtoken');
+const { supabase } = require('../../config/database');
+const logger  = require('../../services/logger.service');
 
-// Tempo máximo de bloqueio após tentativas excessivas (30 minutos)
-const MINUTOS_BLOQUEIO = 30;
-// Número de tentativas antes do bloqueio
-const MAX_TENTATIVAS   = 5;
-
-/**
- * Gera um par de tokens JWT (access token + refresh token).
- * @param {object} usuario - Dados do usuário
- * @returns {{ token: string, refreshToken: string }}
- */
+// ----------------------------------------------------------
+// HELPER: Gera o par de tokens (access + refresh)
+// ----------------------------------------------------------
 const gerarTokens = (usuario) => {
-  // Payload do token: dados mínimos necessários (não inclui senha ou dados sensíveis)
   const payload = {
-    userId:      usuario.id,
-    tenantId:    usuario.tenant_id,
-    cargo:       usuario.cargo,
+    userId:       usuario.id,
+    tenantId:     usuario.tenant_id,
+    cargo:        usuario.cargo,
     isSuperAdmin: usuario.cargo === 'super_admin',
   };
 
-  // Token de acesso: curta duração (8 horas por padrão)
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '8h',
-    issuer:    'prancheto-ia',
-    subject:   usuario.id,
   });
 
-  // Refresh token: longa duração (7 dias por padrão)
   const refreshToken = jwt.sign(
     { userId: usuario.id, tipo: 'refresh' },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-      issuer:    'prancheto-ia',
-      subject:   usuario.id,
-    }
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
   );
 
   return { token, refreshToken };
 };
 
-/**
- * POST /api/auth/login
- * Autentica o usuário e retorna os tokens JWT.
- */
-const login = async (req, res, next) => {
-  const { email, senha } = req.body;
+// ----------------------------------------------------------
+// HELPER: Registra evento no audit_log (sem lançar exceção)
+// ----------------------------------------------------------
+const registrarAudit = async (dados) => {
+  const { error } = await supabase.from('audit_logs').insert(dados);
+  if (error) logger.warn('[Auth] Falha ao registrar audit_log:', error.message);
+};
 
+// =============================================================
+// POST /api/auth/login
+// =============================================================
+const login = async (req, res, next) => {
   try {
-    // --- VALIDAÇÃO DOS CAMPOS ---
+    const { email, senha } = req.body;
+
+    // Validação básica
     if (!email || !senha) {
       return res.status(400).json({
-        erro:   'E-mail e senha são obrigatórios.',
-        codigo: 'CRM-0400',
+        sucesso:  false,
+        codigo:   'CRM-0101',
+        mensagem: 'E-mail e senha são obrigatórios.',
       });
     }
 
-    // --- BUSCA DO USUÁRIO ---
-    const usuario = await db('users')
-      .where({ email: email.toLowerCase().trim() })
-      .select(
-        'id', 'tenant_id', 'nome', 'email', 'senha_hash',
-        'cargo', 'permissoes', 'ativo',
-        'tentativas_login_falhas', 'bloqueado_ate'
-      )
-      .first();
+    // Busca o usuário pelo e-mail
+    const { data: usuarios, error: erroBusca } = await supabase
+      .from('users')
+      .select('id, tenant_id, nome, email, senha_hash, cargo, permissoes, ativo, tentativas_login_falhas, bloqueado_ate, ultimo_login')
+      .eq('email', email.toLowerCase().trim())
+      .limit(1);
 
-    // Mensagem genérica para não revelar se o e-mail existe ou não (segurança)
-    const MENSAGEM_CREDENCIAIS_INVALIDAS = 'E-mail ou senha incorretos.';
+    if (erroBusca) throw erroBusca;
 
+    const usuario = usuarios?.[0];
+
+    // Usuário não encontrado — retorna mensagem genérica (segurança)
     if (!usuario) {
       return res.status(401).json({
-        erro:   MENSAGEM_CREDENCIAIS_INVALIDAS,
-        codigo: 'CRM-0401',
+        sucesso:  false,
+        codigo:   'CRM-0102',
+        mensagem: 'E-mail ou senha incorretos.',
       });
     }
 
-    // --- VERIFICAÇÃO DE CONTA ATIVA ---
+    // Verifica se a conta está ativa
     if (!usuario.ativo) {
       return res.status(403).json({
-        erro:   'Conta desativada. Entre em contato com o suporte.',
-        codigo: 'CRM-0403',
+        sucesso:  false,
+        codigo:   'CRM-0103',
+        mensagem: 'Conta desativada. Entre em contato com o suporte.',
       });
     }
 
-    // --- VERIFICAÇÃO DE BLOQUEIO TEMPORÁRIO ---
+    // Verifica bloqueio temporário por tentativas falhas
     if (usuario.bloqueado_ate && new Date(usuario.bloqueado_ate) > new Date()) {
       const minutosRestantes = Math.ceil(
         (new Date(usuario.bloqueado_ate) - new Date()) / 60000
       );
       return res.status(403).json({
-        erro:   `Conta bloqueada por segurança. Tente novamente em ${minutosRestantes} minuto(s).`,
-        codigo: 'CRM-0403',
+        sucesso:  false,
+        codigo:   'CRM-0104',
+        mensagem: `Conta temporariamente bloqueada por segurança. Tente novamente em ${minutosRestantes} minuto(s).`,
       });
     }
 
-    // --- VERIFICAÇÃO DA SENHA ---
+    // Verifica a senha
     const senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
 
     if (!senhaCorreta) {
-      // Incrementa o contador de tentativas falhas
-      const novasTentativas = (usuario.tentativas_login_falhas || 0) + 1;
-      const atualizacao = { tentativas_login_falhas: novasTentativas };
+      // Incrementa tentativas falhas
+      const tentativas = (usuario.tentativas_login_falhas || 0) + 1;
+      const MAX_TENTATIVAS = 5;
+      const bloqueadoAte = tentativas >= MAX_TENTATIVAS
+        ? new Date(Date.now() + 15 * 60 * 1000).toISOString() // 15 minutos
+        : null;
 
-      // Bloqueia a conta após MAX_TENTATIVAS falhas
-      if (novasTentativas >= MAX_TENTATIVAS) {
-        const bloqueadoAte = new Date(Date.now() + MINUTOS_BLOQUEIO * 60 * 1000);
-        atualizacao.bloqueado_ate = bloqueadoAte;
-
-        // Alerta de segurança: notifica o Sentry
-        const mensagemAlerta = `🚨 Conta bloqueada por excesso de tentativas: ${email}`;
-        logger.warn(mensagemAlerta, { email, ip: req.ip, tentativas: novasTentativas });
-        Sentry.captureMessage(mensagemAlerta, { level: 'warning', extra: { email, ip: req.ip } });
-      }
-
-      await db('users').where({ id: usuario.id }).update(atualizacao);
+      await supabase
+        .from('users')
+        .update({
+          tentativas_login_falhas: tentativas,
+          bloqueado_ate:           bloqueadoAte,
+        })
+        .eq('id', usuario.id);
 
       return res.status(401).json({
-        erro:   MENSAGEM_CREDENCIAIS_INVALIDAS,
-        codigo: 'CRM-0401',
+        sucesso:  false,
+        codigo:   'CRM-0102',
+        mensagem: tentativas >= MAX_TENTATIVAS
+          ? 'Conta bloqueada por 15 minutos após múltiplas tentativas falhas.'
+          : 'E-mail ou senha incorretos.',
       });
     }
 
-    // --- LOGIN BEM-SUCEDIDO ---
-    // Gera os tokens JWT
+    // Login bem-sucedido — gera tokens
     const { token, refreshToken } = gerarTokens(usuario);
 
-    // Salva o hash do refresh token no banco (para invalidação no logout)
-    const refreshTokenHash = await bcrypt.hash(refreshToken, 8);
+    // Hash do refresh token para armazenar no banco
+    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
 
-    // Reseta o contador de tentativas e atualiza o último login
-    await db('users').where({ id: usuario.id }).update({
-      tentativas_login_falhas: 0,
-      bloqueado_ate:           null,
-      ultimo_login:            new Date(),
-      refresh_token_hash:      refreshTokenHash,
-    });
+    // Atualiza o usuário: zera tentativas, salva refresh token e ultimo_login
+    await supabase
+      .from('users')
+      .update({
+        tentativas_login_falhas: 0,
+        bloqueado_ate:           null,
+        ultimo_login:            new Date().toISOString(),
+        refresh_token_hash:      refreshTokenHash,
+      })
+      .eq('id', usuario.id);
 
-    // Registra o login no log de auditoria
-    await db('audit_logs').insert({
-      tenant_id:   usuario.tenant_id,
+    // Registra o login no audit_log
+    await registrarAudit({
       user_id:     usuario.id,
       user_email:  usuario.email,
       user_cargo:  usuario.cargo,
+      tenant_id:   usuario.tenant_id,
       acao:        'login',
       recurso:     'auth',
       descricao:   `Login bem-sucedido: ${usuario.email}`,
+      resultado:   'success',
       ip_address:  req.ip,
       user_agent:  req.headers['user-agent'],
       metodo_http: req.method,
       rota:        req.originalUrl,
-      resultado:   'success',
     });
 
-    logger.info(`Login bem-sucedido: ${usuario.email}`, {
-      userId:   usuario.id,
-      tenantId: usuario.tenant_id,
-      cargo:    usuario.cargo,
-    });
+    logger.info(`Login bem-sucedido: ${usuario.email}`, { userId: usuario.id });
 
-    // --- RESPOSTA ---
     return res.status(200).json({
+      sucesso: true,
       token,
       refreshToken,
       usuario: {
-        id:          usuario.id,
-        nome:        usuario.nome,
-        email:       usuario.email,
-        cargo:       usuario.cargo,
-        tenantId:    usuario.tenant_id,
+        id:           usuario.id,
+        nome:         usuario.nome,
+        email:        usuario.email,
+        cargo:        usuario.cargo,
+        tenantId:     usuario.tenant_id,
         isSuperAdmin: usuario.cargo === 'super_admin',
-        permissoes:  usuario.permissoes || {},
+        permissoes:   usuario.permissoes || {},
       },
     });
-
   } catch (erro) {
-    logger.error('Erro no processo de login', { erro: erro.message, email });
+    logger.error('[Auth] Erro no login:', erro.message);
     next(erro);
   }
 };
 
-/**
- * POST /api/auth/refresh
- * Renova o token JWT usando o refresh token.
- */
+// =============================================================
+// POST /api/auth/refresh
+// =============================================================
 const refresh = async (req, res, next) => {
-  const { refreshToken } = req.body;
-
   try {
+    const { refreshToken } = req.body;
+
     if (!refreshToken) {
       return res.status(400).json({
-        erro:   'Refresh token não fornecido.',
-        codigo: 'CRM-0400',
+        sucesso:  false,
+        codigo:   'CRM-0201',
+        mensagem: 'Refresh token não fornecido.',
       });
     }
 
-    // Verifica a validade do refresh token
+    // Verifica a assinatura do refresh token
     let payload;
     try {
-      payload = jwt.verify(refreshToken, process.env.JWT_SECRET);
+      payload = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+      );
     } catch {
       return res.status(401).json({
-        erro:   'Refresh token inválido ou expirado. Faça login novamente.',
-        codigo: 'CRM-0401',
+        sucesso:  false,
+        codigo:   'CRM-0202',
+        mensagem: 'Refresh token inválido ou expirado.',
       });
     }
 
-    // Busca o usuário e verifica se o refresh token ainda é válido
-    const usuario = await db('users')
-      .where({ id: payload.userId, ativo: true })
-      .select('id', 'tenant_id', 'cargo', 'email', 'refresh_token_hash')
-      .first();
-
-    if (!usuario || !usuario.refresh_token_hash) {
+    if (payload.tipo !== 'refresh') {
       return res.status(401).json({
-        erro:   'Sessão inválida. Faça login novamente.',
-        codigo: 'CRM-0401',
+        sucesso:  false,
+        codigo:   'CRM-0202',
+        mensagem: 'Token inválido.',
       });
     }
 
-    // Verifica se o refresh token corresponde ao armazenado no banco
+    // Busca o usuário e verifica se ainda está ativo
+    const { data: usuarios, error } = await supabase
+      .from('users')
+      .select('id, tenant_id, nome, email, cargo, permissoes, ativo, refresh_token_hash')
+      .eq('id', payload.userId)
+      .eq('ativo', true)
+      .limit(1);
+
+    if (error) throw error;
+
+    const usuario = usuarios?.[0];
+
+    if (!usuario) {
+      return res.status(401).json({
+        sucesso:  false,
+        codigo:   'CRM-0203',
+        mensagem: 'Usuário não encontrado ou inativo.',
+      });
+    }
+
+    // Verifica se o refresh token bate com o hash armazenado
+    if (!usuario.refresh_token_hash) {
+      return res.status(401).json({
+        sucesso:  false,
+        codigo:   'CRM-0204',
+        mensagem: 'Sessão encerrada. Faça login novamente.',
+      });
+    }
+
     const tokenValido = await bcrypt.compare(refreshToken, usuario.refresh_token_hash);
     if (!tokenValido) {
       return res.status(401).json({
-        erro:   'Refresh token inválido. Faça login novamente.',
-        codigo: 'CRM-0401',
+        sucesso:  false,
+        codigo:   'CRM-0204',
+        mensagem: 'Refresh token inválido.',
       });
     }
 
-    // Gera novos tokens
+    // Gera novos tokens (rotação de refresh token)
     const { token: novoToken, refreshToken: novoRefreshToken } = gerarTokens(usuario);
-    const novoRefreshTokenHash = await bcrypt.hash(novoRefreshToken, 8);
+    const novoRefreshHash = await bcrypt.hash(novoRefreshToken, 10);
 
-    await db('users').where({ id: usuario.id }).update({
-      refresh_token_hash: novoRefreshTokenHash,
-    });
+    await supabase
+      .from('users')
+      .update({ refresh_token_hash: novoRefreshHash })
+      .eq('id', usuario.id);
 
     return res.status(200).json({
+      sucesso:      true,
       token:        novoToken,
       refreshToken: novoRefreshToken,
     });
-
   } catch (erro) {
+    logger.error('[Auth] Erro no refresh:', erro.message);
     next(erro);
   }
 };
 
-/**
- * POST /api/auth/logout
- * Invalida o refresh token do usuário (logout seguro).
- */
+// =============================================================
+// POST /api/auth/logout
+// =============================================================
 const logout = async (req, res, next) => {
   try {
-    // Invalida o refresh token removendo-o do banco
-    await db('users').where({ id: req.userId }).update({
-      refresh_token_hash: null,
-    });
+    // Invalida o refresh token no banco
+    await supabase
+      .from('users')
+      .update({ refresh_token_hash: null })
+      .eq('id', req.userId);
 
-    // Registra o logout no log de auditoria
-    await db('audit_logs').insert({
-      tenant_id:   req.tenantId,
+    // Registra o logout no audit_log
+    await registrarAudit({
       user_id:     req.userId,
       user_email:  req.userEmail,
       user_cargo:  req.userCargo,
+      tenant_id:   req.tenantId,
       acao:        'logout',
       recurso:     'auth',
       descricao:   `Logout: ${req.userEmail}`,
+      resultado:   'success',
       ip_address:  req.ip,
       user_agent:  req.headers['user-agent'],
       metodo_http: req.method,
       rota:        req.originalUrl,
-      resultado:   'success',
     });
 
-    return res.status(200).json({ mensagem: 'Logout realizado com sucesso.' });
+    logger.info(`Logout: ${req.userEmail}`);
 
+    return res.status(200).json({
+      sucesso:  true,
+      mensagem: 'Logout realizado com sucesso.',
+    });
   } catch (erro) {
+    logger.error('[Auth] Erro no logout:', erro.message);
     next(erro);
   }
 };

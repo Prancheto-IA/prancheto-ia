@@ -1,69 +1,64 @@
 // =============================================================
-// PRANCHETO.IA - CONFIGURAÇÃO DO BANCO DE DADOS (PostgreSQL)
-// Utiliza Knex.js como query builder e gerenciador de migrations.
-// O pool de conexões é configurado para reutilizar conexões abertas,
-// evitando overhead de reconexão a cada requisição.
+// PRANCHETO.IA - CLIENTE SUPABASE (substitui Knex.js)
+// Usa o @supabase/supabase-js com a Service Role Key para
+// acesso irrestrito ao banco (bypassa RLS).
+//
+// VARIÁVEIS OBRIGATÓRIAS:
+//   SUPABASE_URL         → URL do projeto Supabase (ex: https://xxx.supabase.co)
+//   SUPABASE_SERVICE_KEY → Service Role Key (NÃO use a anon key no backend)
+//
+// EXPORTAÇÕES:
+//   supabase             → cliente Supabase pronto para uso
+//   testarConexaoDB()    → verifica se o banco está acessível
 // =============================================================
 
 'use strict';
 
-const knex = require('knex');
+const { createClient } = require('@supabase/supabase-js');
+const logger = require('../services/logger.service');
 
-// --- CONFIGURAÇÃO DO POOL DE CONEXÕES ---
-// min: mínimo de conexões mantidas abertas (mesmo sem requisições)
-// max: máximo de conexões simultâneas permitidas
-// Suporta DATABASE_URL completa (Render fornece automaticamente via Internal Database URL)
-// OU variáveis individuais DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
-const conexao = process.env.DATABASE_URL
-  ? {
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-    }
-  : {
-      host:     process.env.DB_HOST     || 'localhost',
-      port:     parseInt(process.env.DB_PORT || '5432', 10),
-      database: process.env.DB_NAME     || 'prancheto_ia',
-      user:     process.env.DB_USER     || 'postgres',
-      password: process.env.DB_PASSWORD || '',
-      ssl: process.env.DB_SSL === 'false'
-        ? false
-        : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
-    };
+// --- Validação das variáveis de ambiente ---
+const SUPABASE_URL         = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-const configuracaoKnex = {
-  client: 'pg', // Driver do PostgreSQL
-  connection: conexao,
-  pool: {
-    min: 2,
-    max: 10,
-    // Tempo máximo (ms) que uma conexão pode ficar ociosa antes de ser encerrada
-    idleTimeoutMillis: 30000,
-    // Tempo máximo (ms) para adquirir uma conexão do pool antes de lançar erro
-    acquireTimeoutMillis: 60000,
+if (!SUPABASE_URL) {
+  console.error('❌ ERRO FATAL: A variável de ambiente SUPABASE_URL não está definida.');
+  process.exit(1);
+}
+
+if (!SUPABASE_SERVICE_KEY) {
+  console.error('❌ ERRO FATAL: A variável de ambiente SUPABASE_SERVICE_KEY não está definida.');
+  process.exit(1);
+}
+
+// --- Criação do cliente Supabase ---
+// Usamos a Service Role Key para que o backend tenha acesso total
+// sem ser bloqueado pelas Row Level Security (RLS) policies.
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+  auth: {
+    // Desativa o gerenciamento automático de sessão (não necessário no backend)
+    autoRefreshToken:  false,
+    persistSession:    false,
+    detectSessionInUrl: false,
   },
-  // Configuração de migrations e seeds
-  migrations: {
-    directory: '../database/migrations',
-    tableName: 'knex_migrations',
-  },
-  seeds: {
-    directory: '../database/seeds',
-  },
-  // Exibe as queries SQL no console apenas em ambiente de desenvolvimento
-  debug: process.env.NODE_ENV === 'development',
-};
+});
 
-// Cria a instância única do Knex (padrão Singleton)
-const db = knex(configuracaoKnex);
-
-/**
- * Testa a conexão com o banco de dados executando uma query simples.
- * Utilizada no Health Check e na inicialização do servidor.
- * @returns {Promise<void>} Resolve se a conexão estiver OK, rejeita se falhar.
- */
+// --- Função de teste de conexão ---
+// Usada pelo Self-Healing para verificar se o banco está acessível.
 const testarConexaoDB = async () => {
-  // Executa uma query mínima para verificar se o banco responde
-  await db.raw('SELECT 1');
+  const { error } = await supabase
+    .from('tenants')
+    .select('id')
+    .limit(1);
+
+  if (error) {
+    throw new Error(`Falha na conexão com o Supabase: ${error.message}`);
+  }
+
+  return true;
 };
 
-module.exports = { db, testarConexaoDB };
+// --- Log de inicialização ---
+logger.info(`✅ Cliente Supabase inicializado. URL: ${SUPABASE_URL}`);
+
+module.exports = { supabase, testarConexaoDB };

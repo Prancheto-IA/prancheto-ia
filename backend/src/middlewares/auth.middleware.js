@@ -1,26 +1,18 @@
 // =============================================================
 // PRANCHETO.IA - MIDDLEWARE DE AUTENTICAÇÃO (JWT)
 // Verifica e decodifica o token JWT em cada requisição protegida.
-// Injeta os dados do usuário (id, tenantId, cargo) no objeto req
-// para uso nos controllers e no middleware RBAC.
-//
-// Fluxo:
-//   1. Extrai o token do header Authorization: Bearer <token>
-//   2. Verifica a assinatura e validade do token
-//   3. Busca o usuário no banco para confirmar que ainda está ativo
-//   4. Injeta req.userId, req.tenantId, req.userCargo, req.isSuperAdmin
+// Migrado de Knex.js para @supabase/supabase-js
 // =============================================================
 
 'use strict';
 
 const jwt    = require('jsonwebtoken');
-const { db } = require('../config/database');
+const { supabase } = require('../config/database');
 const logger = require('../services/logger.service');
 
 /**
  * Middleware de autenticação JWT.
  * Deve ser aplicado em todas as rotas protegidas.
- * Uso: router.get('/rota', autenticar, controller)
  */
 const autenticar = async (req, res, next) => {
   try {
@@ -41,7 +33,6 @@ const autenticar = async (req, res, next) => {
     try {
       payload = jwt.verify(token, process.env.JWT_SECRET);
     } catch (erroJwt) {
-      // Distingue token expirado de token inválido para mensagem mais clara
       if (erroJwt.name === 'TokenExpiredError') {
         return res.status(401).json({
           erro:   'Sessão expirada. Faça login novamente.',
@@ -54,13 +45,17 @@ const autenticar = async (req, res, next) => {
       });
     }
 
-    // --- 3. VERIFICAÇÃO DO USUÁRIO NO BANCO ---
-    // Confirma que o usuário ainda existe e está ativo
-    // (evita que tokens de usuários deletados/suspensos continuem funcionando)
-    const usuario = await db('users')
-      .where({ id: payload.userId, ativo: true })
-      .select('id', 'tenant_id', 'cargo', 'email', 'permissoes', 'bloqueado_ate')
-      .first();
+    // --- 3. VERIFICAÇÃO DO USUÁRIO NO BANCO (Supabase) ---
+    const { data: usuarios, error } = await supabase
+      .from('users')
+      .select('id, tenant_id, cargo, email, permissoes, bloqueado_ate')
+      .eq('id', payload.userId)
+      .eq('ativo', true)
+      .limit(1);
+
+    if (error) throw error;
+
+    const usuario = usuarios?.[0];
 
     if (!usuario) {
       return res.status(401).json({
@@ -81,17 +76,14 @@ const autenticar = async (req, res, next) => {
     }
 
     // --- 5. INJEÇÃO DOS DADOS NO REQUEST ---
-    // Disponibiliza os dados do usuário para os próximos middlewares e controllers
     req.userId       = usuario.id;
-    req.tenantId     = usuario.tenant_id;   // null para Super Admin
+    req.tenantId     = usuario.tenant_id;
     req.userCargo    = usuario.cargo;
     req.userEmail    = usuario.email;
     req.permissoes   = usuario.permissoes || {};
     req.isSuperAdmin = usuario.cargo === 'super_admin';
 
     // --- 6. SUPORTE A IMPERSONATION ---
-    // Se o token contém a flag isImpersonating, injeta os dados da sessão de impersonation.
-    // O superAdminId é usado pela rota /impersonate/stop para restaurar a sessão.
     req.isImpersonating = payload.isImpersonating === true;
     req.superAdminId    = payload.superAdminId    || null;
     req.superAdminEmail = payload.superAdminEmail || null;
@@ -100,17 +92,16 @@ const autenticar = async (req, res, next) => {
 
   } catch (erro) {
     logger.error('Erro inesperado no middleware de autenticação', {
-      erro: erro.message,
+      erro:  erro.message,
       stack: erro.stack,
     });
-    next(erro); // Passa para o errorHandler global
+    next(erro);
   }
 };
 
 /**
  * Middleware que verifica se o usuário é Super Admin.
  * Deve ser usado APÓS o middleware 'autenticar'.
- * Uso: router.get('/admin/rota', autenticar, exigirSuperAdmin, controller)
  */
 const exigirSuperAdmin = (req, res, next) => {
   if (!req.isSuperAdmin) {

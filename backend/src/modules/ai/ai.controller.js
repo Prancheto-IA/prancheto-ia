@@ -2,35 +2,17 @@
 // PRANCHETO.IA - CONTROLLER DO MÓDULO DE CHAT COM IA
 // Gerencia conversas com a OpenAI API, persistindo o histórico
 // no banco de dados para manter contexto entre mensagens.
-//
-// ENDPOINTS:
-//   GET    /api/ai/conversations          → Listar conversas do usuário
-//   POST   /api/ai/conversations          → Criar nova conversa
-//   GET    /api/ai/conversations/:id      → Buscar conversa com mensagens
-//   DELETE /api/ai/conversations/:id      → Arquivar/deletar conversa
-//   POST   /api/ai/conversations/:id/messages → Enviar mensagem e receber resposta
-//
-// SEGURANÇA:
-//   - Apenas Super Admin pode acessar (exigirSuperAdmin no router)
-//   - Chave da OpenAI fica APENAS no backend (nunca exposta ao frontend)
-//   - Histórico completo é enviado à OpenAI para manter contexto
-//   - Limite de tokens por resposta configurável via .env
-//
-// SISTEMA DE PROMPT:
-//   O system prompt instrui a IA a atuar como assistente especializado
-//   em desenvolvimento de módulos CRM para o Prancheto.IA.
+// Migrado de Knex.js para @supabase/supabase-js
 // =============================================================
 
 'use strict';
 
-const OpenAI      = require('openai');
-const { db }      = require('../../config/database');
-const logger      = require('../../services/logger.service');
+const OpenAI       = require('openai');
+const { supabase } = require('../../config/database');
+const logger       = require('../../services/logger.service');
 
 // ----------------------------------------------------------
 // INICIALIZAÇÃO DO CLIENTE OPENAI
-// O cliente é criado uma única vez (singleton) ao carregar o módulo.
-// Se a chave não estiver configurada, as rotas retornarão erro 503.
 // ----------------------------------------------------------
 let clienteOpenAI = null;
 
@@ -41,9 +23,7 @@ const inicializarOpenAI = () => {
   }
 
   try {
-    const cliente = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const cliente = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     logger.info('[AI] Cliente OpenAI inicializado com sucesso.');
     return cliente;
   } catch (erro) {
@@ -52,28 +32,26 @@ const inicializarOpenAI = () => {
   }
 };
 
-// Inicializa o cliente ao carregar o módulo
 clienteOpenAI = inicializarOpenAI();
 
 // ----------------------------------------------------------
 // CONFIGURAÇÕES PADRÃO DA IA
 // ----------------------------------------------------------
-const MODELO_PADRAO    = process.env.OPENAI_MODEL        || 'gpt-4o-mini';
-const MAX_TOKENS       = parseInt(process.env.OPENAI_MAX_TOKENS  || '2048', 10);
-const TEMPERATURA      = parseFloat(process.env.OPENAI_TEMPERATURE || '0.7');
+const MODELO_PADRAO = process.env.OPENAI_MODEL        || 'gpt-4o-mini';
+const MAX_TOKENS    = parseInt(process.env.OPENAI_MAX_TOKENS   || '2048', 10);
+const TEMPERATURA   = parseFloat(process.env.OPENAI_TEMPERATURE || '0.7');
 
-// System prompt que define o comportamento da IA
 const SYSTEM_PROMPT = `Você é um assistente especializado no Prancheto.IA, um CRM SaaS modular e multi-tenant.
 
 Seu papel é ajudar o Super Admin a:
 1. Criar e configurar novos módulos CRM (Seções, Módulos, Abas, Widgets)
 2. Gerar código JavaScript/React para componentes do sistema
-3. Sugerir estruturas de banco de dados e migrations Knex
+3. Sugerir estruturas de banco de dados para o Supabase
 4. Resolver problemas técnicos do sistema
 5. Planejar funcionalidades e arquitetura
 
 Contexto técnico do sistema:
-- Backend: Node.js + Express + PostgreSQL + Knex.js
+- Backend: Node.js + Express + Supabase (@supabase/supabase-js)
 - Frontend: React + Vite + TailwindCSS + Zustand
 - Autenticação: JWT com refresh tokens
 - Multi-tenant: isolamento por tenant_id
@@ -92,15 +70,11 @@ Seja direto, técnico e objetivo nas respostas.`;
 // HELPERS INTERNOS
 // =============================================================
 
-/**
- * Verifica se o cliente OpenAI está disponível.
- * Retorna false e envia resposta 503 se não estiver.
- */
 const verificarClienteIA = (res) => {
   if (!clienteOpenAI) {
     res.status(503).json({
-      sucesso: false,
-      codigo:  'CRM-0601',
+      sucesso:  false,
+      codigo:   'CRM-0601',
       mensagem: 'Módulo de IA não configurado. Adicione OPENAI_API_KEY ao arquivo .env e reinicie o servidor.',
     });
     return false;
@@ -108,51 +82,40 @@ const verificarClienteIA = (res) => {
   return true;
 };
 
-/**
- * Gera um título automático para a conversa baseado na primeira mensagem.
- * Trunca em 60 caracteres para caber no campo do banco.
- */
 const gerarTituloConversa = (primeiraMensagem) => {
   const titulo = primeiraMensagem.trim().substring(0, 60);
   return titulo.length < primeiraMensagem.trim().length ? `${titulo}...` : titulo;
 };
 
 // =============================================================
-// CONTROLLERS
+// GET /api/ai/conversations
+// Lista todas as conversas ativas do usuário autenticado
 // =============================================================
-
-/**
- * GET /api/ai/conversations
- * Lista todas as conversas ativas do usuário autenticado.
- * Retorna apenas metadados (sem as mensagens) para performance.
- */
 const listarConversas = async (req, res, next) => {
   try {
     const userId = req.userId;
 
     // Busca conversas ativas ordenadas pela mais recente
-    const conversas = await db('ai_conversations')
-      .where({ user_id: userId, status: 'ativa' })
-      .orderBy('atualizado_em', 'desc')
-      .select(
-        'id',
-        'titulo',
-        'modelo',
-        'total_tokens',
-        'criado_em',
-        'atualizado_em'
-      );
+    const { data: conversas, error } = await supabase
+      .from('ai_conversations')
+      .select('id, titulo, modelo, total_tokens, criado_em, atualizado_em')
+      .eq('user_id', userId)
+      .eq('status', 'ativa')
+      .order('atualizado_em', { ascending: false });
 
-    // Conta o número de mensagens de cada conversa
+    if (error) throw error;
+
+    // Conta o número de mensagens de cada conversa em paralelo
     const conversasComContagem = await Promise.all(
-      conversas.map(async (conversa) => {
-        const [{ count }] = await db('ai_messages')
-          .where({ conversation_id: conversa.id })
-          .count('id as count');
+      (conversas || []).map(async (conversa) => {
+        const { count } = await supabase
+          .from('ai_messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('conversation_id', conversa.id);
 
         return {
           ...conversa,
-          total_mensagens: parseInt(count, 10),
+          total_mensagens: count || 0,
         };
       })
     );
@@ -168,34 +131,36 @@ const listarConversas = async (req, res, next) => {
   }
 };
 
-/**
- * POST /api/ai/conversations
- * Cria uma nova conversa vazia (sem mensagens ainda).
- * O título pode ser definido pelo usuário ou gerado automaticamente
- * quando a primeira mensagem for enviada.
- */
+// =============================================================
+// POST /api/ai/conversations
+// Cria uma nova conversa vazia
+// =============================================================
 const criarConversa = async (req, res, next) => {
   try {
     if (!verificarClienteIA(res)) return;
 
-    const userId = req.userId;
-    const { titulo }      = req.body;
+    const userId      = req.userId;
+    const { titulo }  = req.body;
 
-    // Insere a nova conversa no banco
-    const [novaConversa] = await db('ai_conversations')
+    const { data: novasConversas, error } = await supabase
+      .from('ai_conversations')
       .insert({
         user_id: userId,
         titulo:  titulo || 'Nova conversa',
         modelo:  MODELO_PADRAO,
       })
-      .returning(['id', 'titulo', 'modelo', 'criado_em']);
+      .select('id, titulo, modelo, criado_em');
+
+    if (error) throw error;
+
+    const novaConversa = novasConversas?.[0];
 
     logger.info(`[AI] Nova conversa criada: ${novaConversa.id} por usuário ${userId}`);
 
     return res.status(201).json({
-      sucesso:   true,
-      mensagem:  'Conversa criada com sucesso.',
-      conversa:  novaConversa,
+      sucesso:  true,
+      mensagem: 'Conversa criada com sucesso.',
+      conversa: novaConversa,
     });
   } catch (erro) {
     logger.error('[AI] Erro ao criar conversa:', erro.message);
@@ -203,20 +168,26 @@ const criarConversa = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/ai/conversations/:id
- * Busca uma conversa específica com todas as suas mensagens.
- * Usado para carregar o histórico ao abrir uma conversa existente.
- */
+// =============================================================
+// GET /api/ai/conversations/:id
+// Busca uma conversa específica com todas as suas mensagens
+// =============================================================
 const buscarConversa = async (req, res, next) => {
   try {
-    const userId         = req.userId;
+    const userId                 = req.userId;
     const { id: conversationId } = req.params;
 
     // Busca a conversa garantindo que pertence ao usuário
-    const conversa = await db('ai_conversations')
-      .where({ id: conversationId, user_id: userId })
-      .first();
+    const { data: conversas, error: erroConversa } = await supabase
+      .from('ai_conversations')
+      .select('*')
+      .eq('id', conversationId)
+      .eq('user_id', userId)
+      .limit(1);
+
+    if (erroConversa) throw erroConversa;
+
+    const conversa = conversas?.[0];
 
     if (!conversa) {
       return res.status(404).json({
@@ -227,16 +198,19 @@ const buscarConversa = async (req, res, next) => {
     }
 
     // Busca todas as mensagens da conversa em ordem cronológica
-    const mensagens = await db('ai_messages')
-      .where({ conversation_id: conversationId })
-      .orderBy('criado_em', 'asc')
-      .select('id', 'remetente', 'conteudo', 'tokens_usados', 'criado_em');
+    const { data: mensagens, error: erroMensagens } = await supabase
+      .from('ai_messages')
+      .select('id, remetente, conteudo, tokens_usados, criado_em')
+      .eq('conversation_id', conversationId)
+      .order('criado_em', { ascending: true });
+
+    if (erroMensagens) throw erroMensagens;
 
     return res.status(200).json({
-      sucesso:   true,
-      conversa:  {
+      sucesso:  true,
+      conversa: {
         ...conversa,
-        mensagens,
+        mensagens: mensagens || [],
       },
     });
   } catch (erro) {
@@ -245,22 +219,26 @@ const buscarConversa = async (req, res, next) => {
   }
 };
 
-/**
- * DELETE /api/ai/conversations/:id
- * Arquiva uma conversa (soft delete — muda status para 'arquivada').
- * Os dados são mantidos no banco para auditoria.
- */
+// =============================================================
+// DELETE /api/ai/conversations/:id
+// Arquiva uma conversa (soft delete)
+// =============================================================
 const arquivarConversa = async (req, res, next) => {
   try {
-    const userId         = req.userId;
+    const userId                 = req.userId;
     const { id: conversationId } = req.params;
 
     // Verifica se a conversa pertence ao usuário
-    const conversa = await db('ai_conversations')
-      .where({ id: conversationId, user_id: userId })
-      .first();
+    const { data: conversas, error: erroVerif } = await supabase
+      .from('ai_conversations')
+      .select('id')
+      .eq('id', conversationId)
+      .eq('user_id', userId)
+      .limit(1);
 
-    if (!conversa) {
+    if (erroVerif) throw erroVerif;
+
+    if (!conversas?.length) {
       return res.status(404).json({
         sucesso:  false,
         codigo:   'CRM-0603',
@@ -269,9 +247,12 @@ const arquivarConversa = async (req, res, next) => {
     }
 
     // Atualiza o status para 'arquivada'
-    await db('ai_conversations')
-      .where({ id: conversationId })
-      .update({ status: 'arquivada', atualizado_em: new Date() });
+    const { error } = await supabase
+      .from('ai_conversations')
+      .update({ status: 'arquivada', atualizado_em: new Date().toISOString() })
+      .eq('id', conversationId);
+
+    if (error) throw error;
 
     logger.info(`[AI] Conversa arquivada: ${conversationId}`);
 
@@ -285,24 +266,15 @@ const arquivarConversa = async (req, res, next) => {
   }
 };
 
-/**
- * POST /api/ai/conversations/:id/messages
- * Envia uma mensagem do usuário e retorna a resposta da IA.
- *
- * FLUXO:
- *   1. Valida a mensagem do usuário
- *   2. Salva a mensagem do usuário no banco
- *   3. Carrega o histórico completo da conversa
- *   4. Envia histórico + nova mensagem para a OpenAI
- *   5. Salva a resposta da IA no banco
- *   6. Atualiza o contador de tokens e o título (se for a 1ª mensagem)
- *   7. Retorna a resposta ao frontend
- */
+// =============================================================
+// POST /api/ai/conversations/:id/messages
+// Envia uma mensagem do usuário e retorna a resposta da IA
+// =============================================================
 const enviarMensagem = async (req, res, next) => {
   try {
     if (!verificarClienteIA(res)) return;
 
-    const userId         = req.userId;
+    const userId                 = req.userId;
     const { id: conversationId } = req.params;
     const { mensagem }           = req.body;
 
@@ -317,7 +289,6 @@ const enviarMensagem = async (req, res, next) => {
 
     const mensagemLimpa = mensagem.trim();
 
-    // Limita o tamanho da mensagem para evitar abusos (10.000 caracteres)
     if (mensagemLimpa.length > 10000) {
       return res.status(400).json({
         sucesso:  false,
@@ -327,9 +298,17 @@ const enviarMensagem = async (req, res, next) => {
     }
 
     // --- Verifica se a conversa existe e pertence ao usuário ---
-    const conversa = await db('ai_conversations')
-      .where({ id: conversationId, user_id: userId, status: 'ativa' })
-      .first();
+    const { data: conversas, error: erroConversa } = await supabase
+      .from('ai_conversations')
+      .select('*')
+      .eq('id', conversationId)
+      .eq('user_id', userId)
+      .eq('status', 'ativa')
+      .limit(1);
+
+    if (erroConversa) throw erroConversa;
+
+    const conversa = conversas?.[0];
 
     if (!conversa) {
       return res.status(404).json({
@@ -340,28 +319,33 @@ const enviarMensagem = async (req, res, next) => {
     }
 
     // --- Salva a mensagem do usuário no banco ---
-    const [msgUsuario] = await db('ai_messages')
+    const { data: msgUsuarioArr, error: erroInsertUser } = await supabase
+      .from('ai_messages')
       .insert({
         conversation_id: conversationId,
         remetente:       'user',
         conteudo:        mensagemLimpa,
-        tokens_usados:   0, // Tokens do usuário são contados pela OpenAI na resposta
+        tokens_usados:   0,
       })
-      .returning(['id', 'remetente', 'conteudo', 'criado_em']);
+      .select('id, remetente, conteudo, criado_em');
+
+    if (erroInsertUser) throw erroInsertUser;
+
+    const msgUsuario = msgUsuarioArr?.[0];
 
     // --- Carrega o histórico completo da conversa ---
-    // Enviamos todo o histórico para a OpenAI manter o contexto
-    const historico = await db('ai_messages')
-      .where({ conversation_id: conversationId })
-      .orderBy('criado_em', 'asc')
-      .select('remetente', 'conteudo');
+    const { data: historico, error: erroHistorico } = await supabase
+      .from('ai_messages')
+      .select('remetente, conteudo')
+      .eq('conversation_id', conversationId)
+      .order('criado_em', { ascending: true });
+
+    if (erroHistorico) throw erroHistorico;
 
     // Formata o histórico no padrão da API OpenAI
     const mensagensOpenAI = [
-      // System prompt sempre no início
       { role: 'system', content: SYSTEM_PROMPT },
-      // Histórico da conversa (inclui a mensagem que acabamos de salvar)
-      ...historico.map((msg) => ({
+      ...(historico || []).map((msg) => ({
         role:    msg.remetente === 'user' ? 'user' : 'assistant',
         content: msg.conteudo,
       })),
@@ -379,13 +363,11 @@ const enviarMensagem = async (req, res, next) => {
         temperature: TEMPERATURA,
       });
     } catch (erroOpenAI) {
-      // Trata erros específicos da API OpenAI
       logger.error('[AI] Erro na API OpenAI:', erroOpenAI.message);
 
       // Remove a mensagem do usuário que foi salva (rollback manual)
-      await db('ai_messages').where({ id: msgUsuario.id }).delete();
+      await supabase.from('ai_messages').delete().eq('id', msgUsuario.id);
 
-      // Erros de autenticação (chave inválida)
       if (erroOpenAI.status === 401) {
         return res.status(503).json({
           sucesso:  false,
@@ -394,7 +376,6 @@ const enviarMensagem = async (req, res, next) => {
         });
       }
 
-      // Limite de rate da API
       if (erroOpenAI.status === 429) {
         return res.status(503).json({
           sucesso:  false,
@@ -403,7 +384,6 @@ const enviarMensagem = async (req, res, next) => {
         });
       }
 
-      // Outros erros da OpenAI
       return res.status(503).json({
         sucesso:  false,
         codigo:   'CRM-0609',
@@ -418,7 +398,8 @@ const enviarMensagem = async (req, res, next) => {
     const tokensTotal      = respostaOpenAI.usage?.total_tokens || 0;
 
     // --- Salva a resposta da IA no banco ---
-    const [msgAssistente] = await db('ai_messages')
+    const { data: msgAssistenteArr, error: erroInsertAI } = await supabase
+      .from('ai_messages')
       .insert({
         conversation_id: conversationId,
         remetente:       'assistant',
@@ -430,26 +411,29 @@ const enviarMensagem = async (req, res, next) => {
           total_tokens:  tokensTotal,
         },
       })
-      .returning(['id', 'remetente', 'conteudo', 'tokens_usados', 'criado_em']);
+      .select('id, remetente, conteudo, tokens_usados, criado_em');
 
-    // --- Atualiza a conversa ---
-    const atualizacoes = {
-      total_tokens: db.raw('total_tokens + ?', [tokensTotal]),
-      atualizado_em: new Date(),
+    if (erroInsertAI) throw erroInsertAI;
+
+    const msgAssistente = msgAssistenteArr?.[0];
+
+    // --- Atualiza a conversa (tokens + título automático) ---
+    const atualizacaoConversa = {
+      total_tokens:  (conversa.total_tokens || 0) + tokensTotal,
+      atualizado_em: new Date().toISOString(),
     };
 
-    // Se for a primeira mensagem, gera o título automaticamente
     if (conversa.titulo === 'Nova conversa') {
-      atualizacoes.titulo = gerarTituloConversa(mensagemLimpa);
+      atualizacaoConversa.titulo = gerarTituloConversa(mensagemLimpa);
     }
 
-    await db('ai_conversations')
-      .where({ id: conversationId })
-      .update(atualizacoes);
+    await supabase
+      .from('ai_conversations')
+      .update(atualizacaoConversa)
+      .eq('id', conversationId);
 
     logger.info(`[AI] Resposta recebida. Tokens usados: ${tokensTotal} (conversa: ${conversationId})`);
 
-    // --- Retorna a resposta ao frontend ---
     return res.status(200).json({
       sucesso:          true,
       mensagem_usuario: msgUsuario,
@@ -465,9 +449,6 @@ const enviarMensagem = async (req, res, next) => {
   }
 };
 
-// =============================================================
-// EXPORTAÇÕES
-// =============================================================
 module.exports = {
   listarConversas,
   criarConversa,

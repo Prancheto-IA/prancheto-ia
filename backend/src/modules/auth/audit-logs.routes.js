@@ -1,7 +1,7 @@
 // =============================================================
 // PRANCHETO.IA - ROTAS DE LOGS DE AUDITORIA (Super Admin)
-// Consulta os registros da tabela audit_logs para fins de
-// segurança, investigação de incidentes e conformidade LGPD.
+// Consulta os registros da tabela audit_logs.
+// Migrado de Knex.js para @supabase/supabase-js
 //
 // Prefixo: /api/admin/logs
 // Proteção: autenticar + exigirSuperAdmin
@@ -13,8 +13,8 @@ const express = require('express');
 const router  = express.Router();
 
 const { autenticar, exigirSuperAdmin } = require('../../middlewares/auth.middleware');
-const { db }    = require('../../config/database');
-const logger    = require('../../services/logger.service');
+const { supabase } = require('../../config/database');
+const logger       = require('../../services/logger.service');
 
 // Aplica autenticação + Super Admin em todas as rotas
 router.use(autenticar, exigirSuperAdmin);
@@ -38,74 +38,64 @@ router.get('/', async (req, res, next) => {
       busca,
     } = req.query;
 
-    const offset = (parseInt(pagina) - 1) * parseInt(limite);
+    const paginaNum = parseInt(pagina, 10);
+    const limiteNum = parseInt(limite, 10);
+    const offset    = (paginaNum - 1) * limiteNum;
 
-    // Query base com LEFT JOIN para trazer nome do tenant
-    let query = db('audit_logs as al')
-      .leftJoin('tenants as t', 'al.tenant_id', 't.id')
-      .select(
-        'al.id',
-        'al.acao',
-        'al.recurso',
-        'al.recurso_id',
-        'al.descricao',
-        'al.resultado',
-        'al.user_id',
-        'al.user_email',
-        'al.user_cargo',
-        'al.ip_address',
-        'al.metodo_http',
-        'al.rota',
-        'al.codigo_erro',
-        'al.criado_em',
-        'al.tenant_id',
-        't.nome as tenantNome'
-      )
-      .orderBy('al.criado_em', 'desc');
+    // --- Query de dados com paginação ---
+    let query = supabase
+      .from('audit_logs')
+      .select('id, acao, recurso, recurso_id, descricao, resultado, user_id, user_email, user_cargo, ip_address, metodo_http, rota, codigo_erro, criado_em, tenant_id', { count: 'exact' })
+      .order('criado_em', { ascending: false })
+      .range(offset, offset + limiteNum - 1);
 
-    // Filtros
-    if (acao)      query = query.where('al.acao', acao);
-    if (resultado) query = query.where('al.resultado', resultado);
-    if (tenantId)  query = query.where('al.tenant_id', tenantId);
-    if (userId)    query = query.where('al.user_id', userId);
+    if (acao)      query = query.eq('acao', acao);
+    if (resultado) query = query.eq('resultado', resultado);
+    if (tenantId)  query = query.eq('tenant_id', tenantId);
+    if (userId)    query = query.eq('user_id', userId);
     if (busca) {
-      query = query.where((q) => {
-        q.whereILike('al.user_email', `%${busca}%`)
-          .orWhereILike('al.descricao', `%${busca}%`)
-          .orWhereILike('al.rota', `%${busca}%`);
-      });
+      query = query.or(`user_email.ilike.%${busca}%,descricao.ilike.%${busca}%,rota.ilike.%${busca}%`);
     }
 
-    // Query de contagem
-    let countQuery = db('audit_logs as al').count('al.id as total');
-    if (acao)      countQuery = countQuery.where('al.acao', acao);
-    if (resultado) countQuery = countQuery.where('al.resultado', resultado);
-    if (tenantId)  countQuery = countQuery.where('al.tenant_id', tenantId);
-    if (userId)    countQuery = countQuery.where('al.user_id', userId);
-    if (busca) {
-      countQuery = countQuery.where((q) => {
-        q.whereILike('al.user_email', `%${busca}%`)
-          .orWhereILike('al.descricao', `%${busca}%`)
-          .orWhereILike('al.rota', `%${busca}%`);
-      });
+    const { data: logs, error, count } = await query;
+
+    if (error) throw error;
+
+    // Enriquece com nome do tenant (busca em paralelo para os tenant_ids únicos)
+    const tenantIds = [...new Set((logs || []).map(l => l.tenant_id).filter(Boolean))];
+    let tenantsMap = {};
+
+    if (tenantIds.length > 0) {
+      const { data: tenants } = await supabase
+        .from('tenants')
+        .select('id, nome')
+        .in('id', tenantIds);
+
+      tenantsMap = (tenants || []).reduce((acc, t) => {
+        acc[t.id] = t.nome;
+        return acc;
+      }, {});
     }
 
-    const [logs, [{ total }]] = await Promise.all([
-      query.limit(parseInt(limite)).offset(offset),
-      countQuery,
-    ]);
+    const logsEnriquecidos = (logs || []).map(log => ({
+      ...log,
+      tenantNome: log.tenant_id ? (tenantsMap[log.tenant_id] || null) : null,
+    }));
+
+    const total = count || 0;
 
     return res.json({
-      logs,
+      logs: logsEnriquecidos,
       paginacao: {
-        pagina:       parseInt(pagina),
-        limite:       parseInt(limite),
-        total:        parseInt(total),
-        totalPaginas: Math.ceil(parseInt(total) / parseInt(limite)),
+        pagina:       paginaNum,
+        limite:       limiteNum,
+        total,
+        totalPaginas: Math.ceil(total / limiteNum),
       },
     });
 
   } catch (erro) {
+    logger.error('[AuditLogs] Erro ao listar logs:', erro.message);
     next(erro);
   }
 });
@@ -116,13 +106,19 @@ router.get('/', async (req, res, next) => {
  */
 router.get('/acoes', async (req, res, next) => {
   try {
-    const acoes = await db('audit_logs')
-      .distinct('acao')
-      .orderBy('acao')
-      .pluck('acao');
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .select('acao')
+      .order('acao', { ascending: true });
+
+    if (error) throw error;
+
+    // Extrai valores únicos
+    const acoes = [...new Set((data || []).map(r => r.acao))].sort();
 
     return res.json({ acoes });
   } catch (erro) {
+    logger.error('[AuditLogs] Erro ao listar ações:', erro.message);
     next(erro);
   }
 });

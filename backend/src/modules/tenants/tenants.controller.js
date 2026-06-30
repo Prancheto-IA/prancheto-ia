@@ -1,263 +1,343 @@
 // =============================================================
-// PRANCHETO.IA - CONTROLLER DE TENANTS (Gestão de Clientes)
-// Exclusivo para a Conta Tronco (Super Admin).
-// Permite criar, listar, atualizar e suspender empresas clientes.
-//
-// Rotas:
-//   GET    /api/admin/tenants          → Listar todos os clientes
-//   POST   /api/admin/tenants          → Criar novo cliente
-//   GET    /api/admin/tenants/:id      → Detalhes de um cliente
-//   PUT    /api/admin/tenants/:id      → Atualizar dados do cliente
-//   PATCH  /api/admin/tenants/:id/status → Suspender/reativar cliente
+// PRANCHETO.IA - CONTROLLER DE TENANTS (Super Admin)
+// CRUD completo de tenants (empresas clientes).
+// Migrado de Knex.js para @supabase/supabase-js
 // =============================================================
 
 'use strict';
 
-const { db } = require('../../config/database');
-const logger = require('../../services/logger.service');
+const { supabase } = require('../../config/database');
+const logger       = require('../../services/logger.service');
 
-/**
- * GET /api/admin/tenants
- * Lista todos os tenants com paginação e filtros.
- */
+// ----------------------------------------------------------
+// HELPER: Registra evento no audit_log (sem lançar exceção)
+// ----------------------------------------------------------
+const registrarAudit = async (dados) => {
+  const { error } = await supabase.from('audit_logs').insert(dados);
+  if (error) logger.warn('[Tenants] Falha ao registrar audit_log:', error.message);
+};
+
+// =============================================================
+// GET /api/admin/tenants
+// Lista tenants com filtros e paginação
+// =============================================================
 const listarTenants = async (req, res, next) => {
   try {
     const {
-      pagina    = 1,
-      limite    = 20,
+      pagina  = 1,
+      limite  = 20,
       status,
       plano,
       busca,
     } = req.query;
 
-    const offset = (parseInt(pagina) - 1) * parseInt(limite);
+    const paginaNum = parseInt(pagina, 10);
+    const limiteNum = parseInt(limite, 10);
+    const offset    = (paginaNum - 1) * limiteNum;
 
-    // Constrói a query base
-    let query = db('tenants')
-      .select(
-        'id', 'nome', 'slug', 'email_contato',
-        'plano', 'status', 'limite_usuarios',
-        'criado_em', 'atualizado_em', 'suspenso_em'
-      )
-      .orderBy('criado_em', 'desc');
+    // --- Query de dados ---
+    let query = supabase
+      .from('tenants')
+      .select('id, nome, slug, email_contato, plano, status, limite_usuarios, criado_em, atualizado_em', { count: 'exact' })
+      .order('criado_em', { ascending: false })
+      .range(offset, offset + limiteNum - 1);
 
-    // Filtros opcionais
-    if (status) query = query.where({ status });
-    if (plano)  query = query.where({ plano });
-    if (busca)  query = query.whereILike('nome', `%${busca}%`);
+    if (status) query = query.eq('status', status);
+    if (plano)  query = query.eq('plano', plano);
+    if (busca) {
+      // ilike para busca case-insensitive em nome ou slug
+      query = query.or(`nome.ilike.%${busca}%,slug.ilike.%${busca}%,email_contato.ilike.%${busca}%`);
+    }
 
-    // Executa a query com paginação
-    const [tenants, [{ total }]] = await Promise.all([
-      query.limit(parseInt(limite)).offset(offset),
-      db('tenants').count('id as total')
-        .modify((q) => {
-          if (status) q.where({ status });
-          if (plano)  q.where({ plano });
-          if (busca)  q.whereILike('nome', `%${busca}%`);
-        }),
-    ]);
+    const { data: tenants, error, count } = await query;
 
-    // Adiciona contagem de usuários por tenant
-    const tenantsComContagem = await Promise.all(
-      tenants.map(async (tenant) => {
-        const [{ qtd_usuarios }] = await db('users')
-          .where({ tenant_id: tenant.id })
-          .count('id as qtd_usuarios');
-        return { ...tenant, qtd_usuarios: parseInt(qtd_usuarios) };
+    if (error) throw error;
+
+    // Busca contagem de usuários por tenant em paralelo
+    const tenantsComUsuarios = await Promise.all(
+      (tenants || []).map(async (tenant) => {
+        const { count: qtdUsuarios } = await supabase
+          .from('users')
+          .select('id', { count: 'exact', head: true })
+          .eq('tenant_id', tenant.id);
+
+        return { ...tenant, qtd_usuarios: qtdUsuarios || 0 };
       })
     );
 
-    res.json({
-      dados:    tenantsComContagem,
+    const total = count || 0;
+
+    return res.json({
+      tenants: tenantsComUsuarios,
       paginacao: {
-        pagina:       parseInt(pagina),
-        limite:       parseInt(limite),
-        total:        parseInt(total),
-        totalPaginas: Math.ceil(parseInt(total) / parseInt(limite)),
+        pagina:       paginaNum,
+        limite:       limiteNum,
+        total,
+        totalPaginas: Math.ceil(total / limiteNum),
       },
     });
-
   } catch (erro) {
+    logger.error('[Tenants] Erro ao listar tenants:', erro.message);
     next(erro);
   }
 };
 
-/**
- * POST /api/admin/tenants
- * Cria um novo tenant (empresa cliente).
- */
+// =============================================================
+// POST /api/admin/tenants
+// Cria um novo tenant
+// =============================================================
 const criarTenant = async (req, res, next) => {
-  const { nome, slug, email_contato, plano, limite_usuarios, configuracoes } = req.body;
-
   try {
-    // Validação básica
-    if (!nome || !slug || !email_contato) {
+    const {
+      nome,
+      slug,
+      email_contato,
+      plano         = 'starter',
+      limite_usuarios = 5,
+      configuracoes = {},
+    } = req.body;
+
+    if (!nome || !slug) {
       return res.status(400).json({
-        erro:   'Nome, slug e e-mail de contato são obrigatórios.',
-        codigo: 'CRM-0400',
+        sucesso:  false,
+        codigo:   'CRM-0301',
+        mensagem: 'Nome e slug são obrigatórios.',
       });
     }
 
     // Verifica se o slug já existe
-    const slugExistente = await db('tenants').where({ slug }).first();
-    if (slugExistente) {
+    const { data: existente } = await supabase
+      .from('tenants')
+      .select('id')
+      .eq('slug', slug.toLowerCase().trim())
+      .limit(1);
+
+    if (existente?.length > 0) {
       return res.status(409).json({
-        erro:   `O slug "${slug}" já está em uso. Escolha outro.`,
-        codigo: 'CRM-0409',
+        sucesso:  false,
+        codigo:   'CRM-0302',
+        mensagem: 'Já existe um tenant com este slug.',
       });
     }
 
     // Cria o tenant
-    const [novoTenant] = await db('tenants')
+    const { data: novosTenants, error } = await supabase
+      .from('tenants')
       .insert({
-        nome,
-        slug:           slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-        email_contato,
-        plano:          plano || 'free',
-        limite_usuarios: limite_usuarios || 5,
-        configuracoes:  JSON.stringify(configuracoes || {}),
-        status:         'active',
+        nome:            nome.trim(),
+        slug:            slug.toLowerCase().trim(),
+        email_contato:   email_contato?.trim() || null,
+        plano,
+        status:          'ativo',
+        limite_usuarios,
+        configuracoes,
       })
-      .returning(['id', 'nome', 'slug', 'email_contato', 'plano', 'status', 'criado_em']);
+      .select('id, nome, slug, email_contato, plano, status, limite_usuarios, criado_em');
 
-    // Registra no log de auditoria
-    await db('audit_logs').insert({
+    if (error) throw error;
+
+    const novoTenant = novosTenants?.[0];
+
+    await registrarAudit({
       user_id:     req.userId,
       user_email:  req.userEmail,
       user_cargo:  req.userCargo,
-      acao:        'create',
-      recurso:     'tenant',
+      acao:        'tenant_criado',
+      recurso:     'tenants',
       recurso_id:  novoTenant.id,
-      descricao:   `Novo cliente criado: ${nome} (${slug})`,
+      descricao:   `Novo tenant criado: ${nome} (${slug})`,
+      resultado:   'success',
       ip_address:  req.ip,
+      user_agent:  req.headers['user-agent'],
       metodo_http: req.method,
       rota:        req.originalUrl,
-      resultado:   'success',
     });
 
-    logger.info(`Novo tenant criado: ${nome} (${slug})`, {
-      tenantId: novoTenant.id,
-      criadoPor: req.userId,
+    logger.info(`Novo tenant criado: ${nome} (${slug})`, { tenantId: novoTenant.id });
+
+    return res.status(201).json({
+      sucesso:  true,
+      mensagem: 'Tenant criado com sucesso.',
+      tenant:   novoTenant,
     });
-
-    res.status(201).json({ dados: novoTenant });
-
   } catch (erro) {
+    logger.error('[Tenants] Erro ao criar tenant:', erro.message);
     next(erro);
   }
 };
 
-/**
- * GET /api/admin/tenants/:id
- * Retorna os detalhes completos de um tenant.
- */
+// =============================================================
+// GET /api/admin/tenants/:id
+// Retorna um tenant específico com contagem de usuários
+// =============================================================
 const obterTenant = async (req, res, next) => {
   try {
-    const tenant = await db('tenants')
-      .where({ id: req.params.id })
-      .first();
+    const { id } = req.params;
+
+    const { data: tenants, error } = await supabase
+      .from('tenants')
+      .select('*')
+      .eq('id', id)
+      .limit(1);
+
+    if (error) throw error;
+
+    const tenant = tenants?.[0];
 
     if (!tenant) {
       return res.status(404).json({
-        erro:   'Cliente não encontrado.',
-        codigo: 'CRM-0404',
+        sucesso:  false,
+        codigo:   'CRM-0303',
+        mensagem: 'Tenant não encontrado.',
       });
     }
 
-    // Busca os usuários do tenant
-    const usuarios = await db('users')
-      .where({ tenant_id: tenant.id })
-      .select('id', 'nome', 'email', 'cargo', 'ativo', 'ultimo_login', 'criado_em');
+    // Conta usuários do tenant
+    const { count: qtdUsuarios } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', id);
 
-    res.json({ dados: { ...tenant, usuarios } });
-
+    return res.json({
+      sucesso: true,
+      tenant:  { ...tenant, qtd_usuarios: qtdUsuarios || 0 },
+    });
   } catch (erro) {
+    logger.error('[Tenants] Erro ao obter tenant:', erro.message);
     next(erro);
   }
 };
 
-/**
- * PUT /api/admin/tenants/:id
- * Atualiza os dados de um tenant.
- */
+// =============================================================
+// PUT /api/admin/tenants/:id
+// Atualiza dados de um tenant
+// =============================================================
 const atualizarTenant = async (req, res, next) => {
-  const { nome, email_contato, plano, limite_usuarios, configuracoes } = req.body;
-
   try {
-    const tenant = await db('tenants').where({ id: req.params.id }).first();
+    const { id } = req.params;
+    const {
+      nome,
+      email_contato,
+      plano,
+      limite_usuarios,
+      configuracoes,
+    } = req.body;
+
+    // Verifica se o tenant existe
+    const { data: tenants } = await supabase
+      .from('tenants')
+      .select('id, nome')
+      .eq('id', id)
+      .limit(1);
+
+    const tenant = tenants?.[0];
+
     if (!tenant) {
-      return res.status(404).json({ erro: 'Cliente não encontrado.', codigo: 'CRM-0404' });
+      return res.status(404).json({
+        sucesso:  false,
+        codigo:   'CRM-0303',
+        mensagem: 'Tenant não encontrado.',
+      });
     }
 
-    const dadosAnteriores = { ...tenant };
+    // Monta objeto de atualização apenas com campos fornecidos
+    const atualizacao = { atualizado_em: new Date().toISOString() };
+    if (nome            !== undefined) atualizacao.nome            = nome.trim();
+    if (email_contato   !== undefined) atualizacao.email_contato   = email_contato?.trim() || null;
+    if (plano           !== undefined) atualizacao.plano           = plano;
+    if (limite_usuarios !== undefined) atualizacao.limite_usuarios = limite_usuarios;
+    if (configuracoes   !== undefined) atualizacao.configuracoes   = configuracoes;
 
-    await db('tenants').where({ id: req.params.id }).update({
-      nome:            nome            || tenant.nome,
-      email_contato:   email_contato   || tenant.email_contato,
-      plano:           plano           || tenant.plano,
-      limite_usuarios: limite_usuarios || tenant.limite_usuarios,
-      configuracoes:   configuracoes   ? JSON.stringify(configuracoes) : tenant.configuracoes,
-      atualizado_em:   new Date(),
+    const { data: atualizados, error } = await supabase
+      .from('tenants')
+      .update(atualizacao)
+      .eq('id', id)
+      .select('id, nome, slug, email_contato, plano, status, limite_usuarios, atualizado_em');
+
+    if (error) throw error;
+
+    await registrarAudit({
+      user_id:     req.userId,
+      user_email:  req.userEmail,
+      user_cargo:  req.userCargo,
+      acao:        'tenant_atualizado',
+      recurso:     'tenants',
+      recurso_id:  id,
+      descricao:   `Tenant atualizado: ${tenant.nome}`,
+      resultado:   'success',
+      ip_address:  req.ip,
+      user_agent:  req.headers['user-agent'],
+      metodo_http: req.method,
+      rota:        req.originalUrl,
     });
 
-    // Registra no log de auditoria
-    await db('audit_logs').insert({
-      tenant_id:        req.params.id,
-      user_id:          req.userId,
-      user_email:       req.userEmail,
-      acao:             'update',
-      recurso:          'tenant',
-      recurso_id:       req.params.id,
-      descricao:        `Cliente atualizado: ${tenant.nome}`,
-      dados_anteriores: JSON.stringify(dadosAnteriores),
-      dados_novos:      JSON.stringify(req.body),
-      ip_address:       req.ip,
-      metodo_http:      req.method,
-      rota:             req.originalUrl,
-      resultado:        'success',
+    return res.json({
+      sucesso:  true,
+      mensagem: 'Tenant atualizado com sucesso.',
+      tenant:   atualizados?.[0],
     });
-
-    res.json({ mensagem: 'Cliente atualizado com sucesso.' });
-
   } catch (erro) {
+    logger.error('[Tenants] Erro ao atualizar tenant:', erro.message);
     next(erro);
   }
 };
 
-/**
- * PATCH /api/admin/tenants/:id/status
- * Suspende ou reativa um tenant.
- */
+// =============================================================
+// PATCH /api/admin/tenants/:id/status
+// Altera o status de um tenant (ativo/suspenso/cancelado)
+// =============================================================
 const alterarStatusTenant = async (req, res, next) => {
-  const { status } = req.body;
-
   try {
-    if (!['active', 'suspended', 'cancelled'].includes(status)) {
+    const { id }     = req.params;
+    const { status } = req.body;
+
+    const statusValidos = ['ativo', 'suspenso', 'cancelado'];
+    if (!statusValidos.includes(status)) {
       return res.status(400).json({
-        erro:   'Status inválido. Use: active, suspended ou cancelled.',
-        codigo: 'CRM-0400',
+        sucesso:  false,
+        codigo:   'CRM-0304',
+        mensagem: `Status inválido. Use: ${statusValidos.join(', ')}.`,
       });
     }
 
-    const tenant = await db('tenants').where({ id: req.params.id }).first();
+    // Verifica se o tenant existe
+    const { data: tenants } = await supabase
+      .from('tenants')
+      .select('id, nome, status')
+      .eq('id', id)
+      .limit(1);
+
+    const tenant = tenants?.[0];
+
     if (!tenant) {
-      return res.status(404).json({ erro: 'Cliente não encontrado.', codigo: 'CRM-0404' });
+      return res.status(404).json({
+        sucesso:  false,
+        codigo:   'CRM-0303',
+        mensagem: 'Tenant não encontrado.',
+      });
     }
 
-    await db('tenants').where({ id: req.params.id }).update({
+    const atualizacao = {
       status,
-      suspenso_em:  status === 'suspended' ? new Date() : null,
-      atualizado_em: new Date(),
+      atualizado_em: new Date().toISOString(),
+      suspenso_em:   status === 'suspenso' ? new Date().toISOString() : null,
+    };
+
+    const { error } = await supabase
+      .from('tenants')
+      .update(atualizacao)
+      .eq('id', id);
+
+    if (error) throw error;
+
+    logger.info(`Status do tenant alterado: ${tenant.nome} → ${status}`, { tenantId: id });
+
+    return res.json({
+      sucesso:  true,
+      mensagem: `Status do tenant alterado para "${status}" com sucesso.`,
     });
-
-    logger.info(`Status do tenant alterado: ${tenant.nome} → ${status}`, {
-      tenantId:  req.params.id,
-      alteradoPor: req.userId,
-    });
-
-    res.json({ mensagem: `Cliente ${status === 'active' ? 'reativado' : 'suspenso'} com sucesso.` });
-
   } catch (erro) {
+    logger.error('[Tenants] Erro ao alterar status do tenant:', erro.message);
     next(erro);
   }
 };

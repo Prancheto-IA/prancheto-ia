@@ -1,277 +1,378 @@
 // =============================================================
-// PRANCHETO.IA - CONTROLLER DE USUÁRIOS
-// Gerencia usuários dentro de um tenant (empresa cliente).
-// Admins do tenant podem criar/editar usuários do seu próprio tenant.
-// Super Admin pode gerenciar usuários de qualquer tenant.
-//
-// Rotas:
-//   GET    /api/users          → Listar usuários do tenant
-//   POST   /api/users          → Criar novo usuário
-//   GET    /api/users/:id      → Detalhes de um usuário
-//   PUT    /api/users/:id      → Atualizar usuário
-//   PATCH  /api/users/:id/status → Ativar/desativar usuário
-//   DELETE /api/users/:id      → Remover usuário (soft delete)
+// PRANCHETO.IA - CONTROLLER DE USUÁRIOS (escopo do tenant)
+// CRUD de usuários dentro do tenant do usuário autenticado.
+// Migrado de Knex.js para @supabase/supabase-js
 // =============================================================
 
 'use strict';
 
-const bcrypt = require('bcryptjs');
-const { db } = require('../../config/database');
-const logger = require('../../services/logger.service');
+const bcrypt       = require('bcryptjs');
+const { supabase } = require('../../config/database');
+const logger       = require('../../services/logger.service');
 
-/**
- * GET /api/users
- * Lista os usuários do tenant do usuário logado.
- */
+// ----------------------------------------------------------
+// HELPER: Registra evento no audit_log (sem lançar exceção)
+// ----------------------------------------------------------
+const registrarAudit = async (dados) => {
+  const { error } = await supabase.from('audit_logs').insert(dados);
+  if (error) logger.warn('[Users] Falha ao registrar audit_log:', error.message);
+};
+
+// Campos seguros para retornar (sem senha_hash)
+const CAMPOS_USUARIO = 'id, tenant_id, nome, email, cargo, permissoes, ativo, criado_em, atualizado_em, ultimo_login';
+
+// =============================================================
+// GET /api/users
+// Lista usuários do tenant com paginação e busca
+// =============================================================
 const listarUsuarios = async (req, res, next) => {
   try {
-    const { pagina = 1, limite = 20, cargo, ativo, busca } = req.query;
-    const offset = (parseInt(pagina) - 1) * parseInt(limite);
+    const {
+      pagina = 1,
+      limite = 20,
+      busca,
+      cargo,
+      ativo,
+    } = req.query;
 
-    // Super Admin pode ver usuários de qualquer tenant via query param
-    const tenantId = req.isSuperAdmin
-      ? (req.query.tenant_id || null)
-      : req.tenantId;
+    const paginaNum = parseInt(pagina, 10);
+    const limiteNum = parseInt(limite, 10);
+    const offset    = (paginaNum - 1) * limiteNum;
 
-    let query = db('users')
-      .select('id', 'nome', 'email', 'cargo', 'ativo', 'ultimo_login', 'criado_em')
-      .orderBy('criado_em', 'desc');
+    let query = supabase
+      .from('users')
+      .select(CAMPOS_USUARIO, { count: 'exact' })
+      .eq('tenant_id', req.tenantId)
+      .order('criado_em', { ascending: false })
+      .range(offset, offset + limiteNum - 1);
 
-    // Filtra por tenant (usuários comuns só veem seu próprio tenant)
-    if (tenantId) {
-      query = query.where({ tenant_id: tenantId });
-    } else if (!req.isSuperAdmin) {
-      // Segurança: usuário sem tenant não pode listar nada
-      return res.json({ dados: [], paginacao: { total: 0 } });
+    if (cargo) query = query.eq('cargo', cargo);
+    if (ativo !== undefined) query = query.eq('ativo', ativo === 'true');
+    if (busca) {
+      query = query.or(`nome.ilike.%${busca}%,email.ilike.%${busca}%`);
     }
 
-    // Filtros opcionais
-    if (cargo)  query = query.where({ cargo });
-    if (ativo !== undefined) query = query.where({ ativo: ativo === 'true' });
-    if (busca)  query = query.where((q) => {
-      q.whereILike('nome', `%${busca}%`).orWhereILike('email', `%${busca}%`);
-    });
+    const { data: usuarios, error, count } = await query;
 
-    const [usuarios, [{ total }]] = await Promise.all([
-      query.limit(parseInt(limite)).offset(offset),
-      db('users').count('id as total')
-        .modify((q) => {
-          if (tenantId) q.where({ tenant_id: tenantId });
-          if (cargo)    q.where({ cargo });
-        }),
-    ]);
+    if (error) throw error;
 
-    res.json({
-      dados: usuarios,
+    const total = count || 0;
+
+    return res.json({
+      usuarios: usuarios || [],
       paginacao: {
-        pagina:       parseInt(pagina),
-        limite:       parseInt(limite),
-        total:        parseInt(total),
-        totalPaginas: Math.ceil(parseInt(total) / parseInt(limite)),
+        pagina:       paginaNum,
+        limite:       limiteNum,
+        total,
+        totalPaginas: Math.ceil(total / limiteNum),
       },
     });
-
   } catch (erro) {
+    logger.error('[Users] Erro ao listar usuários:', erro.message);
     next(erro);
   }
 };
 
-/**
- * POST /api/users
- * Cria um novo usuário no tenant.
- */
+// =============================================================
+// POST /api/users
+// Cria um novo usuário no tenant
+// =============================================================
 const criarUsuario = async (req, res, next) => {
-  const { nome, email, senha, cargo, permissoes } = req.body;
-
   try {
+    const {
+      nome,
+      email,
+      senha,
+      cargo       = 'member',
+      permissoes  = {},
+    } = req.body;
+
     if (!nome || !email || !senha) {
       return res.status(400).json({
-        erro:   'Nome, e-mail e senha são obrigatórios.',
-        codigo: 'CRM-0400',
+        sucesso:  false,
+        codigo:   'CRM-0501',
+        mensagem: 'Nome, e-mail e senha são obrigatórios.',
       });
     }
 
-    // Usuário comum só pode criar usuários no seu próprio tenant
-    const tenantId = req.isSuperAdmin
-      ? (req.body.tenant_id || req.tenantId)
-      : req.tenantId;
-
-    if (!tenantId) {
+    // Valida o cargo
+    const cargosValidos = ['admin', 'manager', 'member', 'viewer'];
+    if (!cargosValidos.includes(cargo)) {
       return res.status(400).json({
-        erro:   'tenant_id é obrigatório para criar usuários.',
-        codigo: 'CRM-0400',
+        sucesso:  false,
+        codigo:   'CRM-0502',
+        mensagem: `Cargo inválido. Use: ${cargosValidos.join(', ')}.`,
       });
     }
 
     // Verifica se o e-mail já existe no tenant
-    const emailExistente = await db('users')
-      .where({ email: email.toLowerCase(), tenant_id: tenantId })
-      .first();
+    const { data: existente } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email.toLowerCase().trim())
+      .eq('tenant_id', req.tenantId)
+      .limit(1);
 
-    if (emailExistente) {
+    if (existente?.length > 0) {
       return res.status(409).json({
-        erro:   'Este e-mail já está cadastrado nesta empresa.',
-        codigo: 'CRM-0409',
+        sucesso:  false,
+        codigo:   'CRM-0503',
+        mensagem: 'Já existe um usuário com este e-mail neste tenant.',
       });
     }
 
-    // Verifica o limite de usuários do tenant
-    const tenant = await db('tenants').where({ id: tenantId }).first();
-    const [{ qtd_usuarios }] = await db('users')
-      .where({ tenant_id: tenantId, ativo: true })
-      .count('id as qtd_usuarios');
+    // Verifica limite de usuários do tenant
+    const { data: tenants } = await supabase
+      .from('tenants')
+      .select('limite_usuarios')
+      .eq('id', req.tenantId)
+      .limit(1);
 
-    if (parseInt(qtd_usuarios) >= tenant.limite_usuarios) {
-      return res.status(403).json({
-        erro:   `Limite de usuários atingido (${tenant.limite_usuarios}). Faça upgrade do plano.`,
-        codigo: 'CRM-0403',
-      });
+    const tenant = tenants?.[0];
+
+    if (tenant) {
+      const { count: qtdAtual } = await supabase
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .eq('tenant_id', req.tenantId)
+        .eq('ativo', true);
+
+      if (qtdAtual >= tenant.limite_usuarios) {
+        return res.status(403).json({
+          sucesso:  false,
+          codigo:   'CRM-0504',
+          mensagem: `Limite de usuários atingido (${tenant.limite_usuarios}). Faça upgrade do plano.`,
+        });
+      }
     }
 
-    // Criptografa a senha
+    // Hash da senha
     const senhaHash = await bcrypt.hash(senha, 12);
 
     // Cria o usuário
-    const [novoUsuario] = await db('users')
+    const { data: novosUsuarios, error } = await supabase
+      .from('users')
       .insert({
-        tenant_id:  tenantId,
-        nome,
+        tenant_id:  req.tenantId,
+        nome:       nome.trim(),
         email:      email.toLowerCase().trim(),
         senha_hash: senhaHash,
-        cargo:      cargo || 'member',
-        permissoes: JSON.stringify(permissoes || {}),
+        cargo,
+        permissoes,
         ativo:      true,
       })
-      .returning(['id', 'nome', 'email', 'cargo', 'ativo', 'criado_em']);
+      .select(CAMPOS_USUARIO);
 
-    // Registra no log de auditoria
-    await db('audit_logs').insert({
-      tenant_id:   tenantId,
+    if (error) throw error;
+
+    const novoUsuario = novosUsuarios?.[0];
+
+    await registrarAudit({
       user_id:     req.userId,
       user_email:  req.userEmail,
-      acao:        'create',
-      recurso:     'user',
+      user_cargo:  req.userCargo,
+      tenant_id:   req.tenantId,
+      acao:        'usuario_criado',
+      recurso:     'users',
       recurso_id:  novoUsuario.id,
-      descricao:   `Novo usuário criado: ${nome} (${email})`,
+      descricao:   `Novo usuário criado: ${email} (${cargo})`,
+      resultado:   'success',
       ip_address:  req.ip,
+      user_agent:  req.headers['user-agent'],
       metodo_http: req.method,
       rota:        req.originalUrl,
-      resultado:   'success',
     });
 
-    logger.info(`Novo usuário criado: ${email}`, { tenantId, criadoPor: req.userId });
+    logger.info(`Novo usuário criado: ${email}`, { userId: novoUsuario.id, tenantId: req.tenantId });
 
-    res.status(201).json({ dados: novoUsuario });
-
+    return res.status(201).json({
+      sucesso:  true,
+      mensagem: 'Usuário criado com sucesso.',
+      usuario:  novoUsuario,
+    });
   } catch (erro) {
+    logger.error('[Users] Erro ao criar usuário:', erro.message);
     next(erro);
   }
 };
 
-/**
- * GET /api/users/:id
- * Retorna os detalhes de um usuário específico.
- */
+// =============================================================
+// GET /api/users/:id
+// Retorna um usuário específico do tenant
+// =============================================================
 const obterUsuario = async (req, res, next) => {
   try {
-    const query = db('users')
-      .where({ id: req.params.id })
-      .select('id', 'tenant_id', 'nome', 'email', 'cargo', 'permissoes', 'ativo', 'ultimo_login', 'criado_em');
+    const { id } = req.params;
 
-    // Usuário comum só pode ver usuários do seu tenant
-    if (!req.isSuperAdmin) {
-      query.where({ tenant_id: req.tenantId });
-    }
+    const { data: usuarios, error } = await supabase
+      .from('users')
+      .select(CAMPOS_USUARIO)
+      .eq('id', id)
+      .eq('tenant_id', req.tenantId)
+      .limit(1);
 
-    const usuario = await query.first();
+    if (error) throw error;
+
+    const usuario = usuarios?.[0];
 
     if (!usuario) {
-      return res.status(404).json({ erro: 'Usuário não encontrado.', codigo: 'CRM-0404' });
+      return res.status(404).json({
+        sucesso:  false,
+        codigo:   'CRM-0505',
+        mensagem: 'Usuário não encontrado.',
+      });
     }
 
-    res.json({ dados: usuario });
-
+    return res.json({ sucesso: true, usuario });
   } catch (erro) {
+    logger.error('[Users] Erro ao obter usuário:', erro.message);
     next(erro);
   }
 };
 
-/**
- * PUT /api/users/:id
- * Atualiza os dados de um usuário.
- */
+// =============================================================
+// PUT /api/users/:id
+// Atualiza dados de um usuário do tenant
+// =============================================================
 const atualizarUsuario = async (req, res, next) => {
-  const { nome, cargo, permissoes, senha } = req.body;
-
   try {
-    const query = db('users').where({ id: req.params.id });
-    if (!req.isSuperAdmin) query.where({ tenant_id: req.tenantId });
+    const { id } = req.params;
+    const { nome, cargo, permissoes, senha } = req.body;
 
-    const usuario = await query.first();
+    // Verifica se o usuário pertence ao tenant
+    const { data: usuarios } = await supabase
+      .from('users')
+      .select('id, nome, email')
+      .eq('id', id)
+      .eq('tenant_id', req.tenantId)
+      .limit(1);
+
+    const usuario = usuarios?.[0];
+
     if (!usuario) {
-      return res.status(404).json({ erro: 'Usuário não encontrado.', codigo: 'CRM-0404' });
+      return res.status(404).json({
+        sucesso:  false,
+        codigo:   'CRM-0505',
+        mensagem: 'Usuário não encontrado.',
+      });
     }
 
-    const atualizacao = {
-      nome:         nome        || usuario.nome,
-      cargo:        cargo       || usuario.cargo,
-      permissoes:   permissoes  ? JSON.stringify(permissoes) : usuario.permissoes,
-      atualizado_em: new Date(),
-    };
-
-    // Atualiza a senha apenas se fornecida
+    const atualizacao = { atualizado_em: new Date().toISOString() };
+    if (nome       !== undefined) atualizacao.nome       = nome.trim();
+    if (cargo      !== undefined) atualizacao.cargo      = cargo;
+    if (permissoes !== undefined) atualizacao.permissoes = permissoes;
     if (senha) {
       atualizacao.senha_hash = await bcrypt.hash(senha, 12);
     }
 
-    await db('users').where({ id: req.params.id }).update(atualizacao);
+    const { data: atualizados, error } = await supabase
+      .from('users')
+      .update(atualizacao)
+      .eq('id', id)
+      .select(CAMPOS_USUARIO);
 
-    res.json({ mensagem: 'Usuário atualizado com sucesso.' });
+    if (error) throw error;
 
+    await registrarAudit({
+      user_id:     req.userId,
+      user_email:  req.userEmail,
+      user_cargo:  req.userCargo,
+      tenant_id:   req.tenantId,
+      acao:        'usuario_atualizado',
+      recurso:     'users',
+      recurso_id:  id,
+      descricao:   `Usuário atualizado: ${usuario.email}`,
+      resultado:   'success',
+      ip_address:  req.ip,
+      user_agent:  req.headers['user-agent'],
+      metodo_http: req.method,
+      rota:        req.originalUrl,
+    });
+
+    return res.json({
+      sucesso:  true,
+      mensagem: 'Usuário atualizado com sucesso.',
+      usuario:  atualizados?.[0],
+    });
   } catch (erro) {
+    logger.error('[Users] Erro ao atualizar usuário:', erro.message);
     next(erro);
   }
 };
 
-/**
- * PATCH /api/users/:id/status
- * Ativa ou desativa um usuário.
- */
+// =============================================================
+// PATCH /api/users/:id/status
+// Ativa ou desativa um usuário do tenant
+// =============================================================
 const alterarStatusUsuario = async (req, res, next) => {
-  const { ativo } = req.body;
-
   try {
+    const { id }   = req.params;
+    const { ativo } = req.body;
+
     if (typeof ativo !== 'boolean') {
       return res.status(400).json({
-        erro:   'O campo "ativo" deve ser true ou false.',
-        codigo: 'CRM-0400',
+        sucesso:  false,
+        codigo:   'CRM-0506',
+        mensagem: 'O campo "ativo" deve ser um booleano.',
       });
     }
 
-    const query = db('users').where({ id: req.params.id });
-    if (!req.isSuperAdmin) query.where({ tenant_id: req.tenantId });
-
-    const usuario = await query.first();
-    if (!usuario) {
-      return res.status(404).json({ erro: 'Usuário não encontrado.', codigo: 'CRM-0404' });
-    }
-
-    // Impede desativar a si mesmo
-    if (req.params.id === req.userId) {
+    // Impede que o usuário desative a si mesmo
+    if (id === req.userId) {
       return res.status(400).json({
-        erro:   'Você não pode desativar sua própria conta.',
-        codigo: 'CRM-0400',
+        sucesso:  false,
+        codigo:   'CRM-0507',
+        mensagem: 'Você não pode alterar o status da sua própria conta.',
       });
     }
 
-    await db('users').where({ id: req.params.id }).update({
-      ativo,
-      atualizado_em: new Date(),
+    // Verifica se o usuário pertence ao tenant
+    const { data: usuarios } = await supabase
+      .from('users')
+      .select('id, email')
+      .eq('id', id)
+      .eq('tenant_id', req.tenantId)
+      .limit(1);
+
+    const usuario = usuarios?.[0];
+
+    if (!usuario) {
+      return res.status(404).json({
+        sucesso:  false,
+        codigo:   'CRM-0505',
+        mensagem: 'Usuário não encontrado.',
+      });
+    }
+
+    const { error } = await supabase
+      .from('users')
+      .update({ ativo, atualizado_em: new Date().toISOString() })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    await registrarAudit({
+      user_id:     req.userId,
+      user_email:  req.userEmail,
+      user_cargo:  req.userCargo,
+      tenant_id:   req.tenantId,
+      acao:        ativo ? 'usuario_ativado' : 'usuario_desativado',
+      recurso:     'users',
+      recurso_id:  id,
+      descricao:   `Usuário ${ativo ? 'ativado' : 'desativado'}: ${usuario.email}`,
+      resultado:   'success',
+      ip_address:  req.ip,
+      user_agent:  req.headers['user-agent'],
+      metodo_http: req.method,
+      rota:        req.originalUrl,
     });
 
-    res.json({ mensagem: `Usuário ${ativo ? 'ativado' : 'desativado'} com sucesso.` });
-
+    return res.json({
+      sucesso:  true,
+      mensagem: `Usuário ${ativo ? 'ativado' : 'desativado'} com sucesso.`,
+    });
   } catch (erro) {
+    logger.error('[Users] Erro ao alterar status do usuário:', erro.message);
     next(erro);
   }
 };

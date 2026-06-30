@@ -1,13 +1,10 @@
 // =============================================================
 // PRANCHETO.IA - ROTAS DE MONITORAMENTO (Super Admin)
 // Agrega métricas do sistema a partir dos dados existentes no banco.
+// Migrado de Knex.js para @supabase/supabase-js
 //
 // Prefixo: /api/admin/monitoring
 // Proteção: autenticar + exigirSuperAdmin
-//
-// ENDPOINTS:
-//   GET /api/admin/monitoring/overview   → Métricas gerais do sistema
-//   GET /api/admin/monitoring/atividade  → Atividade recente (logins, erros)
 // =============================================================
 
 'use strict';
@@ -17,172 +14,188 @@ const router  = express.Router();
 const os      = require('os');
 
 const { autenticar, exigirSuperAdmin } = require('../../middlewares/auth.middleware');
-const { db }    = require('../../config/database');
-const logger    = require('../../services/logger.service');
+const { supabase } = require('../../config/database');
+const logger       = require('../../services/logger.service');
 
 router.use(autenticar, exigirSuperAdmin);
 
+// ----------------------------------------------------------
+// HELPER: Conta registros com filtros opcionais
+// ----------------------------------------------------------
+const contarRegistros = async (tabela, filtros = {}) => {
+  let query = supabase
+    .from(tabela)
+    .select('id', { count: 'exact', head: true });
+
+  for (const [campo, valor] of Object.entries(filtros)) {
+    if (valor !== undefined) query = query.eq(campo, valor);
+  }
+
+  const { count, error } = await query;
+  if (error) throw error;
+  return count || 0;
+};
+
+// ----------------------------------------------------------
+// HELPER: Conta registros com filtro de data (>=)
+// ----------------------------------------------------------
+const contarComData = async (tabela, campoDt, dataInicio, filtrosExtras = {}) => {
+  let query = supabase
+    .from(tabela)
+    .select('id', { count: 'exact', head: true })
+    .gte(campoDt, dataInicio.toISOString());
+
+  for (const [campo, valor] of Object.entries(filtrosExtras)) {
+    query = query.eq(campo, valor);
+  }
+
+  const { count, error } = await query;
+  if (error) throw error;
+  return count || 0;
+};
+
 /**
  * GET /api/admin/monitoring/overview
- * Retorna métricas agregadas do sistema:
- *   - Totais: tenants, usuários, conversas IA, mensagens IA
- *   - Distribuição por plano
- *   - Distribuição por status de tenant
- *   - Usuários ativos vs inativos
- *   - Eventos de auditoria nas últimas 24h
- *   - Saúde do servidor (uptime, memória, CPU)
+ * Retorna métricas agregadas do sistema.
  */
 router.get('/overview', async (req, res, next) => {
   try {
     const agora    = new Date();
     const h24atras = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
     const d7atras  = new Date(agora.getTime() - 7  * 24 * 60 * 60 * 1000);
-    const d30atras = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     // Executa todas as queries em paralelo para máxima performance
     const [
-      [{ totalTenants }],
-      [{ totalUsuarios }],
-      [{ usuariosAtivos }],
-      [{ totalConversas }],
-      [{ totalMensagens }],
-      distribuicaoPlanos,
-      distribuicaoStatusTenant,
-      [{ eventosHoje }],
-      [{ errosHoje }],
-      [{ loginsHoje }],
-      [{ novosTenants7d }],
-      [{ novosUsuarios7d }],
-      [{ conversas7d }],
-      tenantsMaisAtivos,
+      totalTenants,
+      totalUsuarios,
+      usuariosAtivos,
+      totalConversas,
+      totalMensagens,
+      eventosHoje,
+      errosHoje,
+      loginsHoje,
+      novosTenants7d,
+      novosUsuarios7d,
+      conversas7d,
     ] = await Promise.all([
-      // Totais gerais
-      db('tenants').count('id as totalTenants'),
-      db('users').count('id as totalUsuarios'),
-      db('users').where({ ativo: true }).count('id as usuariosAtivos'),
-      db('ai_conversations').count('id as totalConversas'),
-      db('ai_messages').count('id as totalMensagens'),
-
-      // Distribuição por plano
-      db('tenants')
-        .select('plano')
-        .count('id as qtd')
-        .groupBy('plano')
-        .orderBy('qtd', 'desc'),
-
-      // Distribuição por status de tenant
-      db('tenants')
-        .select('status')
-        .count('id as qtd')
-        .groupBy('status'),
-
-      // Eventos de auditoria hoje
-      db('audit_logs')
-        .where('criado_em', '>=', h24atras)
-        .count('id as eventosHoje'),
-
-      // Erros nas últimas 24h
-      db('audit_logs')
-        .where('criado_em', '>=', h24atras)
-        .where('resultado', 'failure')
-        .count('id as errosHoje'),
-
-      // Logins nas últimas 24h
-      db('audit_logs')
-        .where('criado_em', '>=', h24atras)
-        .where('acao', 'login')
-        .count('id as loginsHoje'),
-
-      // Novos tenants nos últimos 7 dias
-      db('tenants')
-        .where('criado_em', '>=', d7atras)
-        .count('id as novosTenants7d'),
-
-      // Novos usuários nos últimos 7 dias
-      db('users')
-        .where('criado_em', '>=', d7atras)
-        .count('id as novosUsuarios7d'),
-
-      // Conversas IA nos últimos 7 dias
-      db('ai_conversations')
-        .where('criado_em', '>=', d7atras)
-        .count('id as conversas7d'),
-
-      // Top 5 tenants com mais usuários
-      db('tenants as t')
-        .leftJoin('users as u', 'u.tenant_id', 't.id')
-        .select('t.id', 't.nome', 't.plano', 't.status')
-        .count('u.id as qtd_usuarios')
-        .groupBy('t.id', 't.nome', 't.plano', 't.status')
-        .orderBy('qtd_usuarios', 'desc')
-        .limit(5),
+      contarRegistros('tenants'),
+      contarRegistros('users'),
+      contarRegistros('users', { ativo: true }),
+      contarRegistros('ai_conversations'),
+      contarRegistros('ai_messages'),
+      contarComData('audit_logs', 'criado_em', h24atras),
+      contarComData('audit_logs', 'criado_em', h24atras, { resultado: 'failure' }),
+      contarComData('audit_logs', 'criado_em', h24atras, { acao: 'login' }),
+      contarComData('tenants', 'criado_em', d7atras),
+      contarComData('users', 'criado_em', d7atras),
+      contarComData('ai_conversations', 'criado_em', d7atras),
     ]);
 
-    // Métricas do servidor Node.js
-    const memoriaTotal  = os.totalmem();
-    const memoriaLivre  = os.freemem();
-    const memoriaUsada  = memoriaTotal - memoriaLivre;
-    const pctMemoria    = Math.round((memoriaUsada / memoriaTotal) * 100);
-    const uptimeSegundos = process.uptime();
-    const uptimeHoras   = Math.floor(uptimeSegundos / 3600);
-    const uptimeMinutos = Math.floor((uptimeSegundos % 3600) / 60);
+    // Distribuição por plano
+    const { data: distPlanos, error: errPlanos } = await supabase
+      .from('tenants')
+      .select('plano');
+    if (errPlanos) throw errPlanos;
 
-    return res.json({
-      gerado_em: agora.toISOString(),
+    const distribuicaoPlanos = Object.entries(
+      (distPlanos || []).reduce((acc, t) => {
+        acc[t.plano] = (acc[t.plano] || 0) + 1;
+        return acc;
+      }, {})
+    ).map(([plano, qtd]) => ({ plano, qtd }));
 
-      // Totais
-      totais: {
-        tenants:       parseInt(totalTenants),
-        usuarios:      parseInt(totalUsuarios),
-        usuariosAtivos: parseInt(usuariosAtivos),
-        conversasIA:   parseInt(totalConversas),
-        mensagensIA:   parseInt(totalMensagens),
-      },
+    // Distribuição por status de tenant
+    const { data: distStatus, error: errStatus } = await supabase
+      .from('tenants')
+      .select('status');
+    if (errStatus) throw errStatus;
 
-      // Crescimento recente
-      crescimento: {
-        novosTenants7d:   parseInt(novosTenants7d),
-        novosUsuarios7d:  parseInt(novosUsuarios7d),
-        conversasIA7d:    parseInt(conversas7d),
-      },
+    const distribuicaoStatus = Object.entries(
+      (distStatus || []).reduce((acc, t) => {
+        acc[t.status] = (acc[t.status] || 0) + 1;
+        return acc;
+      }, {})
+    ).map(([status, qtd]) => ({ status, qtd }));
 
-      // Atividade nas últimas 24h
-      atividade24h: {
-        eventos:  parseInt(eventosHoje),
-        erros:    parseInt(errosHoje),
-        logins:   parseInt(loginsHoje),
-      },
+    // Top 5 tenants com mais usuários
+    const { data: todosUsuarios, error: errUsuarios } = await supabase
+      .from('users')
+      .select('tenant_id');
+    if (errUsuarios) throw errUsuarios;
 
-      // Distribuições
-      distribuicaoPlanos: distribuicaoPlanos.map(d => ({
-        plano: d.plano,
-        qtd:   parseInt(d.qtd),
-      })),
+    // Conta usuários por tenant
+    const contagemPorTenant = (todosUsuarios || []).reduce((acc, u) => {
+      if (u.tenant_id) acc[u.tenant_id] = (acc[u.tenant_id] || 0) + 1;
+      return acc;
+    }, {});
 
-      distribuicaoStatus: distribuicaoStatusTenant.map(d => ({
-        status: d.status,
-        qtd:    parseInt(d.qtd),
-      })),
+    // Busca dados dos top 5 tenants
+    const topTenantIds = Object.entries(contagemPorTenant)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([id]) => id);
 
-      // Top tenants
-      topTenants: tenantsMaisAtivos.map(t => ({
+    let topTenants = [];
+    if (topTenantIds.length > 0) {
+      const { data: tenantsDados } = await supabase
+        .from('tenants')
+        .select('id, nome, plano, status')
+        .in('id', topTenantIds);
+
+      topTenants = (tenantsDados || []).map(t => ({
         id:          t.id,
         nome:        t.nome,
         plano:       t.plano,
         status:      t.status,
-        qtdUsuarios: parseInt(t.qtd_usuarios),
-      })),
+        qtdUsuarios: contagemPorTenant[t.id] || 0,
+      })).sort((a, b) => b.qtdUsuarios - a.qtdUsuarios);
+    }
 
-      // Saúde do servidor
+    // Métricas do servidor Node.js
+    const memoriaTotal   = os.totalmem();
+    const memoriaLivre   = os.freemem();
+    const memoriaUsada   = memoriaTotal - memoriaLivre;
+    const pctMemoria     = Math.round((memoriaUsada / memoriaTotal) * 100);
+    const uptimeSegundos = process.uptime();
+    const uptimeHoras    = Math.floor(uptimeSegundos / 3600);
+    const uptimeMinutos  = Math.floor((uptimeSegundos % 3600) / 60);
+
+    return res.json({
+      gerado_em: agora.toISOString(),
+
+      totais: {
+        tenants:        totalTenants,
+        usuarios:       totalUsuarios,
+        usuariosAtivos,
+        conversasIA:    totalConversas,
+        mensagensIA:    totalMensagens,
+      },
+
+      crescimento: {
+        novosTenants7d,
+        novosUsuarios7d,
+        conversasIA7d: conversas7d,
+      },
+
+      atividade24h: {
+        eventos: eventosHoje,
+        erros:   errosHoje,
+        logins:  loginsHoje,
+      },
+
+      distribuicaoPlanos,
+      distribuicaoStatus,
+      topTenants,
+
       servidor: {
-        uptime:        `${uptimeHoras}h ${uptimeMinutos}m`,
+        uptime:         `${uptimeHoras}h ${uptimeMinutos}m`,
         uptimeSegundos: Math.floor(uptimeSegundos),
         memoriaUsadaMB: Math.round(memoriaUsada / 1024 / 1024),
         memoriaTotalMB: Math.round(memoriaTotal / 1024 / 1024),
         pctMemoria,
-        nodeVersion:   process.version,
-        plataforma:    process.platform,
-        ambiente:      process.env.NODE_ENV || 'development',
+        nodeVersion:    process.version,
+        plataforma:     process.platform,
+        ambiente:       process.env.NODE_ENV || 'development',
       },
     });
 
@@ -194,54 +207,72 @@ router.get('/overview', async (req, res, next) => {
 
 /**
  * GET /api/admin/monitoring/atividade
- * Retorna os últimos 30 eventos de auditoria agrupados por dia (últimos 7 dias).
- * Útil para gráfico de atividade.
+ * Retorna atividade agrupada por dia (últimos 7 dias) e alertas recentes.
  */
 router.get('/atividade', async (req, res, next) => {
   try {
-    // Atividade por dia nos últimos 7 dias
-    const atividadePorDia = await db('audit_logs')
-      .select(db.raw("DATE(criado_em) as dia"))
-      .count('id as total')
-      .where('criado_em', '>=', db.raw("NOW() - INTERVAL '7 days'"))
-      .groupByRaw("DATE(criado_em)")
-      .orderBy('dia', 'asc');
+    const d7atras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-    // Erros por dia nos últimos 7 dias
-    const errosPorDia = await db('audit_logs')
-      .select(db.raw("DATE(criado_em) as dia"))
-      .count('id as total')
-      .where('criado_em', '>=', db.raw("NOW() - INTERVAL '7 days'"))
-      .where('resultado', 'failure')
-      .groupByRaw("DATE(criado_em)")
-      .orderBy('dia', 'asc');
+    // Busca todos os logs dos últimos 7 dias
+    const { data: logsRecentes, error: erroLogs } = await supabase
+      .from('audit_logs')
+      .select('criado_em, resultado')
+      .gte('criado_em', d7atras.toISOString())
+      .order('criado_em', { ascending: true });
+
+    if (erroLogs) throw erroLogs;
+
+    // Agrupa por dia
+    const porDia = (logsRecentes || []).reduce((acc, log) => {
+      const dia = log.criado_em.substring(0, 10); // 'YYYY-MM-DD'
+      if (!acc[dia]) acc[dia] = { total: 0, erros: 0 };
+      acc[dia].total++;
+      if (log.resultado === 'failure') acc[dia].erros++;
+      return acc;
+    }, {});
+
+    const atividadePorDia = Object.entries(porDia)
+      .map(([dia, v]) => ({ dia, total: v.total }))
+      .sort((a, b) => a.dia.localeCompare(b.dia));
+
+    const errosPorDia = Object.entries(porDia)
+      .map(([dia, v]) => ({ dia, total: v.erros }))
+      .sort((a, b) => a.dia.localeCompare(b.dia));
 
     // Últimas 10 ações críticas (falhas e bloqueios)
-    const alertas = await db('audit_logs as al')
-      .leftJoin('tenants as t', 'al.tenant_id', 't.id')
-      .select(
-        'al.id',
-        'al.acao',
-        'al.resultado',
-        'al.user_email',
-        'al.descricao',
-        'al.ip_address',
-        'al.criado_em',
-        't.nome as tenantNome'
-      )
-      .whereIn('al.resultado', ['failure', 'blocked'])
-      .orderBy('al.criado_em', 'desc')
+    const { data: alertasRaw, error: erroAlertas } = await supabase
+      .from('audit_logs')
+      .select('id, acao, resultado, user_email, descricao, ip_address, criado_em, tenant_id')
+      .in('resultado', ['failure', 'blocked'])
+      .order('criado_em', { ascending: false })
       .limit(10);
 
+    if (erroAlertas) throw erroAlertas;
+
+    // Enriquece alertas com nome do tenant
+    const tenantIds = [...new Set((alertasRaw || []).map(a => a.tenant_id).filter(Boolean))];
+    let tenantsMap = {};
+
+    if (tenantIds.length > 0) {
+      const { data: tenants } = await supabase
+        .from('tenants')
+        .select('id, nome')
+        .in('id', tenantIds);
+
+      tenantsMap = (tenants || []).reduce((acc, t) => {
+        acc[t.id] = t.nome;
+        return acc;
+      }, {});
+    }
+
+    const alertas = (alertasRaw || []).map(a => ({
+      ...a,
+      tenantNome: a.tenant_id ? (tenantsMap[a.tenant_id] || null) : null,
+    }));
+
     return res.json({
-      atividadePorDia: atividadePorDia.map(d => ({
-        dia:   d.dia,
-        total: parseInt(d.total),
-      })),
-      errosPorDia: errosPorDia.map(d => ({
-        dia:   d.dia,
-        total: parseInt(d.total),
-      })),
+      atividadePorDia,
+      errosPorDia,
       alertas,
     });
 
