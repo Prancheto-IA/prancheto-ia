@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import { useAuthStore } from '../../../store/authStore.js';
+import { useTema } from '../../../hooks/useTema.js';
 
 const SecaoConfig = ({ titulo, descricao, children }) => (
   <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden mb-4">
@@ -46,11 +47,11 @@ const Toggle = ({ label, descricao, ativo, onChange }) => (
 
 const Configuracoes = () => {
   const { usuario } = useAuthStore();
-  const [nome, setNome]           = useState(usuario?.nome || '');
-  const [notifEmail, setNotifEmail] = useState(true);
+  const { temaEscuro, setTemaEscuro } = useTema();
+  const [nome, setNome]               = useState(usuario?.nome || '');
+  const [notifEmail, setNotifEmail]   = useState(true);
   const [notifSistema, setNotifSistema] = useState(true);
-  const [temaEscuro, setTemaEscuro]   = useState(true);
-  const [salvo, setSalvo]         = useState(false);
+  const [salvo, setSalvo]             = useState(false);
 
   const salvar = () => {
     setSalvo(true);

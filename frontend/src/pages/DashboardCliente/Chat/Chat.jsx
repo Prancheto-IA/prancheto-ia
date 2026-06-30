@@ -57,6 +57,7 @@ const Chat = () => {
       try {
         const { data } = await api.get('/ai/conversas');
         setConversas(data.conversas || []);
+        setErro(null);
       } catch (e) {
         setErro('Não foi possível carregar as conversas.');
       } finally {
@@ -121,12 +122,20 @@ const Chat = () => {
       const { data } = await api.post(`/ai/conversas/${idConversa}/mensagens`, {
         mensagem: msgUsuario.conteudo,
       });
+      // O backend retorna { resposta_ia: { conteudo, ... } }
+      const conteudoResposta = data.resposta_ia?.conteudo || data.resposta || '⚠️ Sem resposta.';
       setMensagens(prev => [...prev, {
         id: Date.now() + 1,
         remetente: 'assistant',
-        conteudo: data.resposta,
+        conteudo: conteudoResposta,
         criado_em: new Date().toISOString(),
       }]);
+      // Atualiza título da conversa se mudou
+      if (data.resposta_ia && conversaAtual) {
+        setConversas(prev => prev.map(c =>
+          c.id === idConversa ? { ...c, atualizado_em: new Date().toISOString() } : c
+        ));
+      }
     } catch {
       setMensagens(prev => [...prev, {
         id: Date.now() + 1,

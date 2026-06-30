@@ -112,35 +112,40 @@ const iniciarServidor = async () => {
     await testarConexaoDB();
     logger.info('✅ Supabase conectado com sucesso.');
 
-    // Garante que o Super Admin existe e está desbloqueado na inicialização
-    // (as tabelas já devem existir no Supabase — criadas via dashboard ou migrations SQL)
+    // Garante que o Super Admin existe e está desbloqueado na inicialização.
+    // IMPORTANTE: NÃO reseta a senha se o admin já existe — isso invalidaria
+    // tokens JWT ativos e causaria loop de login.
     const emailSuperAdmin = process.env.SUPER_ADMIN_EMAIL;
     const senhaSuperAdmin = process.env.SUPER_ADMIN_PASSWORD;
 
     if (emailSuperAdmin && senhaSuperAdmin) {
       const bcrypt = require('bcryptjs');
-      const senhaHash = await bcrypt.hash(senhaSuperAdmin, 12);
 
       // Verifica se o super admin já existe
       const { data: admins } = await supabase
         .from('users')
-        .select('id')
+        .select('id, tentativas_login_falhas, bloqueado_ate')
         .eq('email', emailSuperAdmin)
         .limit(1);
 
       if (admins?.length > 0) {
-        // Atualiza senha e desbloqueia
-        await supabase
-          .from('users')
-          .update({
-            senha_hash:              senhaHash,
-            tentativas_login_falhas: 0,
-            bloqueado_ate:           null,
-          })
-          .eq('email', emailSuperAdmin);
-        logger.info('🔓 Super Admin desbloqueado e senha atualizada na inicialização.');
+        // Apenas desbloqueia — NÃO reseta a senha para não invalidar tokens ativos
+        const admin = admins[0];
+        if (admin.tentativas_login_falhas > 0 || admin.bloqueado_ate) {
+          await supabase
+            .from('users')
+            .update({
+              tentativas_login_falhas: 0,
+              bloqueado_ate:           null,
+            })
+            .eq('email', emailSuperAdmin);
+          logger.info('🔓 Super Admin desbloqueado na inicialização.');
+        } else {
+          logger.info('✅ Super Admin verificado — sem bloqueios.');
+        }
       } else {
-        // Cria o super admin se não existir
+        // Cria o super admin apenas se não existir
+        const senhaHash = await bcrypt.hash(senhaSuperAdmin, 12);
         await supabase.from('users').insert({
           nome:                    process.env.SUPER_ADMIN_NOME || 'Super Admin',
           email:                   emailSuperAdmin,

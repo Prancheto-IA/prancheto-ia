@@ -61,7 +61,7 @@ const listarPlanos = async (req, res, next) => {
 // =============================================================
 const meuPlano = async (req, res, next) => {
   try {
-    const { tenantId } = req.usuario;
+    const tenantId = req.tenantId;
 
     if (!tenantId) {
       return res.status(200).json({
