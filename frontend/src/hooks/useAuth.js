@@ -1,13 +1,25 @@
 // =============================================================
 // PRANCHETO.IA - HOOK DE AUTENTICAÇÃO (useAuth)
 // Encapsula toda a lógica de login/logout e comunicação com a API.
-// Uso nos componentes:
-//   const { login, logout, carregando, erro } = useAuth();
+//
+// REDIRECIONAMENTO INTELIGENTE POR CARGO:
+//   - super_admin  → /admin     (Painel Administrativo)
+//   - admin/manager/member/viewer → /dashboard (Dashboard do Cliente)
 // =============================================================
 
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import api from '../services/api.js';
+
+/**
+ * Determina a rota de destino após o login baseado no cargo do usuário.
+ * @param {object} usuario - Dados do usuário retornados pelo backend
+ * @returns {string} Rota de destino
+ */
+const rotaDestino = (usuario) => {
+  if (usuario?.isSuperAdmin) return '/admin';
+  return '/dashboard';
+};
 
 /**
  * Hook customizado que fornece as ações de autenticação.
@@ -27,8 +39,8 @@ export const useAuth = () => {
   /**
    * Realiza o login do usuário.
    * Após login bem-sucedido, redireciona automaticamente:
-   *   - Super Admin → /admin (Painel Administrativo oculto)
-   *   - Usuário comum → /crm (CRM padrão)
+   *   - super_admin → /admin (Painel Administrativo oculto)
+   *   - Demais cargos → /dashboard (Dashboard do Cliente)
    *
    * @param {string} email
    * @param {string} senha
@@ -43,15 +55,10 @@ export const useAuth = () => {
       // Armazena os tokens e dados do usuário no store (Zustand + localStorage)
       loginStore(data.token, data.refreshToken, data.usuario);
 
-      // Redireciona baseado no tipo de usuário
-      if (data.usuario.isSuperAdmin) {
-        navigate('/admin', { replace: true });
-      } else {
-        navigate('/crm', { replace: true });
-      }
+      // Redireciona baseado no cargo do usuário
+      navigate(rotaDestino(data.usuario), { replace: true });
 
     } catch (erro) {
-      // O interceptor do Axios já formata a mensagem de erro do back-end
       setErroLogin(erro.message || 'Erro ao fazer login. Tente novamente.');
     } finally {
       setCarregando(false);
@@ -65,10 +72,8 @@ export const useAuth = () => {
    */
   const logout = async () => {
     try {
-      // Notifica o back-end (best-effort: não bloqueia o logout se falhar)
       await api.post('/auth/logout').catch(() => {});
     } finally {
-      // Sempre limpa o estado local, independente da resposta do servidor
       logoutStore();
       navigate('/login', { replace: true });
     }

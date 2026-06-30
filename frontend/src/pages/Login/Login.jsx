@@ -1,9 +1,10 @@
 // =============================================================
-// PRANCHETO.IA - PÁGINA DE LOGIN (versão final com API real)
+// PRANCHETO.IA - PÁGINA DE LOGIN
 // Tela de autenticação unificada para todos os tipos de usuário.
-// O sistema detecta automaticamente se o login é de um Super Admin
-// e redireciona para o Painel Administrativo oculto (/admin).
-// Usuários comuns são redirecionados para o CRM padrão (/crm).
+//
+// REDIRECIONAMENTO AUTOMÁTICO:
+//   - super_admin  → /admin     (Painel Administrativo)
+//   - Demais cargos → /dashboard (Dashboard do Cliente)
 // =============================================================
 
 import React, { useState, useEffect } from 'react';
@@ -16,7 +17,6 @@ const PaginaLogin = () => {
   const { login, carregando, erroLogin } = useAuth();
   const { token, usuario } = useAuthStore();
 
-  // Estado local do formulário
   const [email, setEmail]               = useState('');
   const [senha, setSenha]               = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -24,14 +24,11 @@ const PaginaLogin = () => {
   // Se já está autenticado, redireciona automaticamente
   useEffect(() => {
     if (token && usuario) {
-      navigate(usuario.isSuperAdmin ? '/admin' : '/crm', { replace: true });
+      const destino = usuario.isSuperAdmin ? '/admin' : '/dashboard';
+      navigate(destino, { replace: true });
     }
   }, [token, usuario, navigate]);
 
-  /**
-   * Lida com o envio do formulário de login.
-   * O hook useAuth cuida de toda a lógica de API e redirecionamento.
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     await login(email.trim(), senha);
@@ -94,7 +91,6 @@ const PaginaLogin = () => {
                   disabled={carregando}
                   className="input w-full pr-10"
                 />
-                {/* Botão para mostrar/ocultar senha */}
                 <button
                   type="button"
                   onClick={() => setMostrarSenha(!mostrarSenha)}
