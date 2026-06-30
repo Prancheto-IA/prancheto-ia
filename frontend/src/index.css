@@ -1,8 +1,7 @@
 /* =============================================================
    PRANCHETO.IA - ESTILOS GLOBAIS
-   Importa as diretivas do TailwindCSS e define estilos base.
-   As cores customizadas (surface, surface-card, surface-border)
-   estão definidas em tailwind.config.js como chaves planas.
+   Usa CSS variables para suporte a tema claro/escuro.
+   A classe 'dark' é aplicada no <html> pelo hook useTema.js.
    ============================================================= */
 
 /* Importação das camadas do TailwindCSS */
@@ -10,34 +9,59 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- CSS VARIABLES: TEMA ESCURO (padrão) --- */
+:root {
+  --color-surface:        #0f172a;
+  --color-surface-card:   #1e293b;
+  --color-surface-border: #334155;
+  --color-text-primary:   #f8fafc;
+  --color-text-secondary: #94a3b8;
+}
+
+/* --- CSS VARIABLES: TEMA CLARO --- */
+html.dark {
+  --color-surface:        #0f172a;
+  --color-surface-card:   #1e293b;
+  --color-surface-border: #334155;
+  --color-text-primary:   #f8fafc;
+  --color-text-secondary: #94a3b8;
+}
+
+html:not(.dark) {
+  --color-surface:        #f1f5f9;
+  --color-surface-card:   #ffffff;
+  --color-surface-border: #e2e8f0;
+  --color-text-primary:   #0f172a;
+  --color-text-secondary: #475569;
+}
+
 /* --- ESTILOS BASE GLOBAIS --- */
 @layer base {
-  /* Define a fonte padrão e o fundo escuro para toda a aplicação */
   html {
     @apply font-sans;
   }
 
   body {
-    /* bg-surface = #0f172a (definido em tailwind.config.js) */
-    @apply bg-surface text-white antialiased;
-    /* Evita scroll horizontal indesejado */
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    @apply antialiased;
     overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  /* Estilo padrão para scrollbars (navegadores WebKit) */
+  /* Scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    /* bg-surface = #0f172a */
-    @apply bg-surface;
+    background: var(--color-surface);
   }
 
   ::-webkit-scrollbar-thumb {
-    /* bg-surface-border = #334155 */
-    @apply bg-surface-border rounded-full;
+    background: var(--color-surface-border);
+    border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -45,9 +69,8 @@
   }
 }
 
-/* --- COMPONENTES REUTILIZÁVEIS (classes utilitárias customizadas) --- */
+/* --- COMPONENTES REUTILIZÁVEIS --- */
 @layer components {
-  /* Botão primário padrão */
   .btn-primary {
     @apply bg-primary-600 hover:bg-primary-700 active:bg-primary-800
            text-white font-medium px-4 py-2 rounded-lg
@@ -55,28 +78,30 @@
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
-  /* Botão secundário (outline) */
   .btn-secondary {
-    @apply border border-surface-border hover:border-primary-500
-           text-slate-300 hover:text-white font-medium px-4 py-2 rounded-lg
+    border: 1px solid var(--color-surface-border);
+    color: var(--color-text-secondary);
+    @apply font-medium px-4 py-2 rounded-lg
            transition-colors duration-150 ease-in-out
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
-  /* Card padrão — bg-surface-card = #1e293b */
   .card {
-    @apply bg-surface-card border border-surface-border rounded-xl p-6;
+    background-color: var(--color-surface-card);
+    border: 1px solid var(--color-surface-border);
+    @apply rounded-xl p-6;
   }
 
-  /* Input padrão */
   .input {
-    @apply bg-surface border border-surface-border rounded-lg px-3 py-2
-           text-white placeholder-slate-500
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-surface-border);
+    color: var(--color-text-primary);
+    @apply rounded-lg px-3 py-2
+           placeholder-slate-500
            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
            transition-all duration-150;
   }
 
-  /* Badge de status */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }

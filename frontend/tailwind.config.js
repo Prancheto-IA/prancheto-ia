@@ -3,6 +3,9 @@
 // =============================================================
 /** @type {import('tailwindcss').Config} */
 export default {
+  // Habilita modo escuro via classe 'dark' no elemento <html>
+  darkMode: 'class',
+
   // Define quais arquivos o Tailwind deve escanear para gerar apenas
   // as classes CSS utilizadas (tree-shaking de CSS)
   content: [
@@ -29,11 +32,11 @@ export default {
           950: '#1e1b4b',
         },
         // Cor de fundo do painel (estilo escuro profissional)
-        // Nota: 'surface' usa DEFAULT para bg-surface,
-        // 'surface-card' para bg-surface-card e 'surface-border' para bg-surface-border
-        'surface':        '#0f172a',
-        'surface-card':   '#1e293b',
-        'surface-border': '#334155',
+        // Usa CSS variables para suporte a tema claro/escuro
+        // A classe 'dark' no <html> alterna os valores via index.css
+        'surface':        'var(--color-surface)',
+        'surface-card':   'var(--color-surface-card)',
+        'surface-border': 'var(--color-surface-border)',
       },
 
       // --- FONTES ---

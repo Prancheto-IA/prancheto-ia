@@ -58,6 +58,15 @@ const rotasMonitoring         = require('../modules/monitoring/monitoring.routes
 // --- Módulo de Planos (ATIVO - todos os usuários autenticados) ---
 const rotasPlanos             = require('../modules/planos/planos.routes');
 
+// --- Módulo de Preferências do Usuário (ATIVO) ---
+const rotasPreferencias       = require('../modules/preferencias/preferencias.routes');
+
+// --- Módulo de Agenda (ATIVO) ---
+const rotasAgenda             = require('../modules/agenda/agenda.routes');
+
+// --- Módulo de Outbound (ATIVO) ---
+const rotasOutbound           = require('../modules/outbound/outbound.routes');
+
 // --- Módulo de Seções (Nível 1 da hierarquia) ---
 // const rotasSections = require('../modules/sections/sections.routes');
 
@@ -100,6 +109,15 @@ router.use('/admin/monitoring', rotasMonitoring);
 
 // Planos: lista planos e recursos disponíveis
 router.use('/planos', rotasPlanos);
+
+// Preferências do usuário: tema, notificações, idioma
+router.use('/preferencias', rotasPreferencias);
+
+// Agenda: CRUD de eventos/compromissos
+router.use('/agenda', rotasAgenda);
+
+// Outbound: CRUD de ações de prospecção
+router.use('/outbound', rotasOutbound);
 
 // router.use('/sections', rotasSections);
 // router.use('/modules',  rotasModules);

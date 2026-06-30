@@ -78,15 +78,23 @@ const Sidebar = ({ aberta, onFechar, temaEscuro, alternarTema }) => {
       )}
 
       {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 h-full w-64 bg-surface-card border-r border-surface-border
-        flex flex-col z-40 transition-transform duration-300
-        ${aberta ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto
-      `}>
+      <aside
+        className={`
+          fixed top-0 left-0 h-full w-64 flex flex-col z-40 transition-transform duration-300
+          ${aberta ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 lg:static lg:z-auto
+        `}
+        style={{
+          backgroundColor: 'var(--color-surface-card)',
+          borderRight: '1px solid var(--color-surface-border)',
+        }}
+      >
 
         {/* Logo */}
-        <div className="h-16 flex items-center gap-3 px-4 border-b border-surface-border flex-shrink-0">
+        <div
+          className="h-16 flex items-center gap-3 px-4 flex-shrink-0"
+          style={{ borderBottom: '1px solid var(--color-surface-border)' }}
+        >
           <span className="text-2xl">🧠</span>
           <span className="text-white font-bold text-lg">
             {import.meta.env.VITE_APP_NAME || 'Prancheto.IA'}
@@ -107,18 +115,19 @@ const Sidebar = ({ aberta, onFechar, temaEscuro, alternarTema }) => {
           ))}
 
           {/* Divisor */}
-          <div className="my-3 border-t border-surface-border" />
+          <div className="my-3" style={{ borderTop: '1px solid var(--color-surface-border)' }} />
 
           {/* Navegação secundária */}
           {NAV_SECUNDARIO.map((item) => (
             <ItemNav key={item.slug} item={item} onClick={onFechar} />
           ))}
 
-          {/* Toggle de tema */}
-          <div className="my-3 border-t border-surface-border" />
+          {/* Toggle de tema rápido */}
+          <div className="my-3" style={{ borderTop: '1px solid var(--color-surface-border)' }} />
           <button
             onClick={alternarTema}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all border border-transparent"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 transition-all border border-transparent"
+            style={{ color: 'var(--color-text-secondary)' }}
           >
             <span className="text-base flex-shrink-0">{temaEscuro ? '☀️' : '🌙'}</span>
             <span>{temaEscuro ? 'Tema claro' : 'Tema escuro'}</span>
@@ -126,7 +135,7 @@ const Sidebar = ({ aberta, onFechar, temaEscuro, alternarTema }) => {
         </nav>
 
         {/* Perfil do usuário */}
-        <div className="p-3 border-t border-surface-border flex-shrink-0">
+        <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid var(--color-surface-border)' }}>
           <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
             {/* Avatar */}
             <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
@@ -157,7 +166,13 @@ const Sidebar = ({ aberta, onFechar, temaEscuro, alternarTema }) => {
 // COMPONENTE: Header mobile
 // ----------------------------------------------------------
 const HeaderMobile = ({ onAbrirSidebar, mostrarVoltar, onVoltar }) => (
-  <header className="h-14 bg-surface-card border-b border-surface-border flex items-center px-4 gap-3 lg:hidden sticky top-0 z-20">
+  <header
+    className="h-14 flex items-center px-4 gap-3 lg:hidden sticky top-0 z-20"
+    style={{
+      backgroundColor: 'var(--color-surface-card)',
+      borderBottom: '1px solid var(--color-surface-border)',
+    }}
+  >
     {mostrarVoltar ? (
       <button
         onClick={onVoltar}
@@ -195,7 +210,13 @@ const HeaderMobile = ({ onAbrirSidebar, mostrarVoltar, onVoltar }) => (
 const BarraTopo = ({ mostrarVoltar, onVoltar }) => {
   if (!mostrarVoltar) return null;
   return (
-    <div className="hidden lg:flex items-center gap-2 px-6 py-3 border-b border-surface-border bg-surface-card/30">
+    <div
+      className="hidden lg:flex items-center gap-2 px-6 py-3"
+      style={{
+        borderBottom: '1px solid var(--color-surface-border)',
+        backgroundColor: 'color-mix(in srgb, var(--color-surface-card) 30%, transparent)',
+      }}
+    >
       <button
         onClick={onVoltar}
         className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm group"
