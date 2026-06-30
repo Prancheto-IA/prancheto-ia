@@ -55,6 +55,9 @@ const rotasAuditLogs          = require('../modules/auth/audit-logs.routes');
 // --- Módulo de Monitoramento (ATIVO - Super Admin) ---
 const rotasMonitoring         = require('../modules/monitoring/monitoring.routes');
 
+// --- Módulo de Planos (ATIVO - todos os usuários autenticados) ---
+const rotasPlanos             = require('../modules/planos/planos.routes');
+
 // --- Módulo de Seções (Nível 1 da hierarquia) ---
 // const rotasSections = require('../modules/sections/sections.routes');
 
@@ -94,6 +97,9 @@ router.use('/admin/logs', rotasAuditLogs);
 
 // Monitoramento (Super Admin): métricas e saúde do sistema
 router.use('/admin/monitoring', rotasMonitoring);
+
+// Planos: lista planos e recursos disponíveis
+router.use('/planos', rotasPlanos);
 
 // router.use('/sections', rotasSections);
 // router.use('/modules',  rotasModules);

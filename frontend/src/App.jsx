@@ -16,10 +16,21 @@ import BannerImpersonation from './components/BannerImpersonation/BannerImperson
 // =============================================================
 // LAZY LOADING DAS PÁGINAS
 // =============================================================
-const PaginaLogin          = lazy(() => import('./pages/Login/Login.jsx'));
-const PaginaCRM            = lazy(() => import('./pages/CRM/CRM.jsx'));
-const PaginaAdminPanel     = lazy(() => import('./pages/AdminPanel/AdminPanel.jsx'));
+const PaginaLogin            = lazy(() => import('./pages/Login/Login.jsx'));
+const PaginaCRM              = lazy(() => import('./pages/CRM/CRM.jsx'));
+const PaginaAdminPanel       = lazy(() => import('./pages/AdminPanel/AdminPanel.jsx'));
+
+// Layout do cliente (Sidebar)
+const LayoutCliente          = lazy(() => import('./pages/DashboardCliente/LayoutCliente.jsx'));
+
+// Páginas do cliente
 const PaginaDashboardCliente = lazy(() => import('./pages/DashboardCliente/DashboardCliente.jsx'));
+const PaginaAgenda           = lazy(() => import('./pages/DashboardCliente/Agenda/Agenda.jsx'));
+const PaginaChat             = lazy(() => import('./pages/DashboardCliente/Chat/Chat.jsx'));
+const PaginaRelatorios       = lazy(() => import('./pages/DashboardCliente/Relatorios/Relatorios.jsx'));
+const PaginaOutbound         = lazy(() => import('./pages/DashboardCliente/Outbound/Outbound.jsx'));
+const PaginaConfiguracoes    = lazy(() => import('./pages/DashboardCliente/Configuracoes/Configuracoes.jsx'));
+const PaginaPlanos           = lazy(() => import('./pages/DashboardCliente/Planos/Planos.jsx'));
 
 // =============================================================
 // HELPER: determina para onde redirecionar após login
@@ -73,6 +84,17 @@ const TelaCarregando = () => (
 );
 
 // =============================================================
+// WRAPPER: Layout do cliente com Sidebar
+// =============================================================
+const ClienteComLayout = ({ children }) => (
+  <RotaCliente>
+    <LayoutCliente>
+      {children}
+    </LayoutCliente>
+  </RotaCliente>
+);
+
+// =============================================================
 // COMPONENTE PRINCIPAL: APP
 // =============================================================
 const App = () => {
@@ -112,17 +134,90 @@ const App = () => {
             {/* --- PÚBLICA: LOGIN --- */}
             <Route path="/login" element={<PaginaLogin />} />
 
-            {/* --- CLIENTE: DASHBOARD (admin/manager/member/viewer) --- */}
+            {/* ============================================================
+                ÁREA DO CLIENTE (com Sidebar)
+                Todas as rotas /dashboard/* são envolvidas pelo LayoutCliente
+            ============================================================ */}
+
+            {/* Início do dashboard */}
             <Route
-              path="/dashboard/*"
+              path="/dashboard"
               element={
-                <RotaCliente>
+                <ClienteComLayout>
                   <PaginaDashboardCliente />
-                </RotaCliente>
+                </ClienteComLayout>
               }
             />
 
-            {/* --- CLIENTE: CRM (módulo interno, acessível pelo dashboard) --- */}
+            {/* Chat com IA */}
+            <Route
+              path="/dashboard/chat"
+              element={
+                <ClienteComLayout>
+                  <PaginaChat />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Agenda */}
+            <Route
+              path="/dashboard/agenda"
+              element={
+                <ClienteComLayout>
+                  <PaginaAgenda />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Relatórios */}
+            <Route
+              path="/dashboard/relatorios"
+              element={
+                <ClienteComLayout>
+                  <PaginaRelatorios />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Outbound */}
+            <Route
+              path="/dashboard/outbound"
+              element={
+                <ClienteComLayout>
+                  <PaginaOutbound />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Configurações */}
+            <Route
+              path="/dashboard/configuracoes"
+              element={
+                <ClienteComLayout>
+                  <PaginaConfiguracoes />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Planos */}
+            <Route
+              path="/dashboard/planos"
+              element={
+                <ClienteComLayout>
+                  <PaginaPlanos />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Wildcard do dashboard (redireciona para /dashboard) */}
+            <Route
+              path="/dashboard/*"
+              element={<Navigate to="/dashboard" replace />}
+            />
+
+            {/* ============================================================
+                CRM: módulo separado (sem o LayoutCliente, tem seu próprio layout)
+            ============================================================ */}
             <Route
               path="/crm/*"
               element={
@@ -132,7 +227,9 @@ const App = () => {
               }
             />
 
-            {/* --- SUPER ADMIN: PAINEL ADMINISTRATIVO (invisível para clientes) --- */}
+            {/* ============================================================
+                SUPER ADMIN: Painel Administrativo (invisível para clientes)
+            ============================================================ */}
             <Route
               path="/admin/*"
               element={
