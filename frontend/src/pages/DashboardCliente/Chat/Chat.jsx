@@ -19,18 +19,22 @@ const MensagemBolha = ({ mensagem }) => {
       </div>
 
       {/* Bolha */}
-      <div className={`
-        max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed
-        ${ehUsuario
-          ? 'bg-primary-600 text-white rounded-tr-sm'
-          : 'bg-surface-card border border-surface-border text-slate-200 rounded-tl-sm'
-        }
-      `}>
-        {mensagem.conteudo}
-        <p className={`text-xs mt-1 ${ehUsuario ? 'text-primary-200' : 'text-slate-500'}`}>
-          {new Date(mensagem.criado_em || Date.now()).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-        </p>
-      </div>
+      {ehUsuario ? (
+        <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm text-sm leading-relaxed bg-primary-600 text-white">
+          {mensagem.conteudo}
+          <p className="text-xs mt-1 text-primary-200">
+            {new Date(mensagem.criado_em || Date.now()).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+          </p>
+        </div>
+      ) : (
+        <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tl-sm text-sm leading-relaxed border"
+          style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)', color: 'var(--color-text-primary)' }}>
+          {mensagem.conteudo}
+          <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+            {new Date(mensagem.criado_em || Date.now()).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -194,13 +198,14 @@ const Chat = () => {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Header */}
-        <div className="h-14 border-b border-surface-border flex items-center px-4 gap-3 flex-shrink-0">
+        <div className="h-14 border-b flex items-center px-4 gap-3 flex-shrink-0"
+          style={{ borderColor: 'var(--color-surface-border)' }}>
           <span className="text-xl">🤖</span>
           <div>
-            <p className="text-white font-medium text-sm">
+            <p className="font-medium text-sm" style={{ color: 'var(--color-text-primary)' }}>
               {conversaAtual?.titulo || 'Chat com IA'}
             </p>
-            <p className="text-slate-500 text-xs">Powered by GPT-4o mini</p>
+            <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Powered by GPT-4o mini</p>
           </div>
         </div>
 
@@ -209,8 +214,8 @@ const Chat = () => {
           {mensagens.length === 0 && !enviando && (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <p className="text-5xl mb-4">🤖</p>
-              <h3 className="text-white font-semibold mb-2">Como posso ajudar?</h3>
-              <p className="text-slate-400 text-sm max-w-sm">
+              <h3 className="font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>Como posso ajudar?</h3>
+              <p className="text-sm max-w-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 Faça perguntas sobre seu negócio, peça análises, sugestões de vendas ou qualquer outra coisa.
               </p>
             </div>
@@ -237,7 +242,8 @@ const Chat = () => {
         </div>
 
         {/* Input */}
-        <form onSubmit={enviarMensagem} className="p-4 border-t border-surface-border flex-shrink-0">
+        <form onSubmit={enviarMensagem} className="p-4 border-t flex-shrink-0"
+          style={{ borderColor: 'var(--color-surface-border)' }}>
           {erro && (
             <p className="text-red-400 text-xs mb-2">{erro}</p>
           )}
@@ -248,7 +254,8 @@ const Chat = () => {
               onChange={e => setTexto(e.target.value)}
               placeholder="Digite sua mensagem..."
               disabled={enviando}
-              className="flex-1 bg-surface-card border border-surface-border rounded-xl px-4 py-3 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 disabled:opacity-50"
+              className="flex-1 rounded-xl px-4 py-3 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500/50 disabled:opacity-50"
+              style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
             />
             <button
               type="submit"

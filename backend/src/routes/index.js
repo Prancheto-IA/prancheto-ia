@@ -58,6 +58,9 @@ const rotasMonitoring         = require('../modules/monitoring/monitoring.routes
 // --- Módulo de Planos (ATIVO - todos os usuários autenticados) ---
 const rotasPlanos             = require('../modules/planos/planos.routes');
 
+// --- Módulo de CRM (ATIVO) ---
+const rotasCRM                = require('../modules/crm/crm.routes');
+
 // --- Módulo de Preferências do Usuário (ATIVO) ---
 const rotasPreferencias       = require('../modules/preferencias/preferencias.routes');
 
@@ -109,6 +112,9 @@ router.use('/admin/monitoring', rotasMonitoring);
 
 // Planos: lista planos e recursos disponíveis
 router.use('/planos', rotasPlanos);
+
+// CRM: contatos, interações, kanban
+router.use('/crm', rotasCRM);
 
 // Preferências do usuário: tema, notificações, idioma
 router.use('/preferencias', rotasPreferencias);

@@ -8,8 +8,6 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
 import { useAuth } from '../../hooks/useAuth.js';
-import { useTema } from '../../hooks/useTema.js';
-
 // ----------------------------------------------------------
 // ITENS DA NAVEGAÇÃO LATERAL
 // ----------------------------------------------------------
@@ -61,7 +59,7 @@ const ItemNav = ({ item, onClick }) => (
 // ----------------------------------------------------------
 // COMPONENTE: Sidebar
 // ----------------------------------------------------------
-const Sidebar = ({ aberta, onFechar, temaEscuro, alternarTema }) => {
+const Sidebar = ({ aberta, onFechar }) => {
   const { usuario } = useAuthStore();
   const { logout }  = useAuth();
   const badgeCargo  = BADGE_CARGO[usuario?.cargo] || BADGE_CARGO.member;
@@ -122,16 +120,6 @@ const Sidebar = ({ aberta, onFechar, temaEscuro, alternarTema }) => {
             <ItemNav key={item.slug} item={item} onClick={onFechar} />
           ))}
 
-          {/* Toggle de tema rápido */}
-          <div className="my-3" style={{ borderTop: '1px solid var(--color-surface-border)' }} />
-          <button
-            onClick={alternarTema}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 transition-all border border-transparent"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            <span className="text-base flex-shrink-0">{temaEscuro ? '☀️' : '🌙'}</span>
-            <span>{temaEscuro ? 'Tema claro' : 'Tema escuro'}</span>
-          </button>
         </nav>
 
         {/* Perfil do usuário */}
@@ -233,7 +221,6 @@ const BarraTopo = ({ mostrarVoltar, onVoltar }) => {
 // ----------------------------------------------------------
 const LayoutCliente = ({ children }) => {
   const [sidebarAberta, setSidebarAberta] = useState(false);
-  const { temaEscuro, alternarTema }      = useTema();
   const navigate  = useNavigate();
   const location  = useLocation();
 
@@ -247,8 +234,6 @@ const LayoutCliente = ({ children }) => {
       <Sidebar
         aberta={sidebarAberta}
         onFechar={() => setSidebarAberta(false)}
-        temaEscuro={temaEscuro}
-        alternarTema={alternarTema}
       />
 
       {/* Área de conteúdo */}

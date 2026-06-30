@@ -20,12 +20,15 @@ const saudacao = () => {
   return 'Boa noite';
 };
 
-const CardStat = ({ emoji, label, valor, cor = 'text-white' }) => (
-  <div className="bg-surface-card border border-surface-border rounded-xl p-4 flex items-center gap-4">
+const CardStat = ({ emoji, label, valor, corValor }) => (
+  <div
+    className="rounded-xl p-4 flex items-center gap-4 border"
+    style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}
+  >
     <div className="text-2xl">{emoji}</div>
     <div>
-      <p className="text-slate-400 text-xs mb-0.5">{label}</p>
-      <p className={`font-semibold text-lg ${cor}`}>{valor}</p>
+      <p className="text-xs mb-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
+      <p className="font-semibold text-lg" style={{ color: corValor || 'var(--color-text-primary)' }}>{valor}</p>
     </div>
   </div>
 );
@@ -37,10 +40,14 @@ const CardModulo = ({ emoji, titulo, descricao, disponivel = true, onClick }) =>
     className={`
       w-full text-left p-5 rounded-xl border transition-all duration-200
       ${disponivel
-        ? 'bg-surface-card border-surface-border hover:border-primary-500/50 hover:bg-primary-500/5 cursor-pointer group'
-        : 'bg-surface-card/50 border-surface-border/50 cursor-not-allowed opacity-60'
+        ? 'hover:border-primary-500/50 hover:bg-primary-500/5 cursor-pointer group'
+        : 'cursor-not-allowed opacity-60'
       }
     `}
+    style={{
+      backgroundColor: 'var(--color-surface-card)',
+      borderColor: 'var(--color-surface-border)',
+    }}
   >
     <div className="flex items-start gap-4">
       <div className={`
@@ -52,14 +59,15 @@ const CardModulo = ({ emoji, titulo, descricao, disponivel = true, onClick }) =>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-white font-medium text-sm">{titulo}</h3>
+          <h3 className="font-medium text-sm" style={{ color: 'var(--color-text-primary)' }}>{titulo}</h3>
           {!disponivel && (
-            <span className="text-xs bg-slate-700/50 text-slate-400 px-2 py-0.5 rounded-full border border-slate-600/30">
+            <span className="text-xs px-2 py-0.5 rounded-full border"
+              style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-surface-border)', color: 'var(--color-text-secondary)' }}>
               Em breve
             </span>
           )}
         </div>
-        <p className="text-slate-400 text-xs leading-relaxed">{descricao}</p>
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>{descricao}</p>
       </div>
       {disponivel && (
         <div className="text-slate-500 group-hover:text-primary-400 transition-colors flex-shrink-0 mt-1">→</div>
@@ -79,31 +87,35 @@ const DashboardCliente = () => {
 
       {/* Boas-vindas */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">
+        <div className="flex items-center gap-3 mb-1 flex-wrap">
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
             {saudacao()}, {primeiroNome}! 👋
           </h1>
           <span className={`text-xs px-2 py-1 rounded-full border ${badgeCargo.cor}`}>
             {badgeCargo.label}
           </span>
         </div>
-        <p className="text-slate-400 text-sm">
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
           Bem-vindo ao seu painel. Aqui você gerencia tudo do seu negócio.
         </p>
       </div>
 
       {/* Cards de estatísticas */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        <CardStat emoji="🏢" label="Seu plano"    valor="Starter"  cor="text-primary-400" />
-        <CardStat emoji="👥" label="Usuários"     valor="1 / 5"    cor="text-white" />
-        <CardStat emoji="📅" label="Membro desde" valor={new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })} cor="text-white" />
-        <CardStat emoji="✅" label="Status"       valor="Ativo"    cor="text-emerald-400" />
+        <CardStat emoji="🏢" label="Seu plano"    valor="Starter"  corValor="var(--color-primary-400)" />
+        <CardStat emoji="👥" label="Usuários"     valor="1 / 5" />
+        <CardStat emoji="📅" label="Membro desde" valor={new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })} />
+        <CardStat emoji="✅" label="Status"       valor="Ativo"    corValor="#34d399" />
       </div>
 
       {/* Módulos */}
       <div className="mb-6">
-        <h2 className="text-white font-semibold text-lg mb-1">Módulos do sistema</h2>
-        <p className="text-slate-400 text-sm mb-4">Acesse as ferramentas disponíveis no seu plano.</p>
+        <h2 className="font-semibold text-lg mb-1" style={{ color: 'var(--color-text-primary)' }}>
+          Módulos do sistema
+        </h2>
+        <p className="text-sm mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+          Acesse as ferramentas disponíveis no seu plano.
+        </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <CardModulo
@@ -148,8 +160,10 @@ const DashboardCliente = () => {
       {/* Banner de upgrade */}
       <div className="bg-gradient-to-r from-primary-900/40 to-violet-900/40 border border-primary-500/20 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-white font-semibold mb-1">🚀 Desbloqueie mais recursos</h3>
-          <p className="text-slate-400 text-sm">
+          <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>
+            🚀 Desbloqueie mais recursos
+          </h3>
+          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             Faça upgrade do seu plano para acessar todos os módulos e aumentar o limite de usuários.
           </p>
         </div>

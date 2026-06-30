@@ -12,19 +12,12 @@
 //   /admin/planos         → Planos e Limites
 //   /admin/seguranca      → Logs de Segurança e Auditoria
 //   /admin/monitoramento  → Monitoramento do Sistema
-//
-// MÓDULOS DISPONÍVEIS:
-//   ✅ Chat com IA          → /admin/chat
-//   ✅ Usuários             → /admin/usuarios
-//   ✅ Gestão de Clientes   → /admin/clientes
-//   ✅ Planos e Limites     → /admin/planos
-//   ✅ Segurança            → /admin/seguranca
-//   ✅ Monitoramento        → /admin/monitoramento
 // =============================================================
 
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
+import { useTema } from '../../hooks/useTema.js';
 
 // Lazy loading das sub-páginas do painel admin
 const PaginaChatIA          = lazy(() => import('./ChatIA/ChatIA.jsx'));
@@ -36,20 +29,21 @@ const PaginaMonitoramento   = lazy(() => import('./Monitoramento/Monitoramento.j
 
 // =============================================================
 // COMPONENTE: TelaCarregandoAdmin
-// Fallback do Suspense para sub-páginas do painel admin
 // =============================================================
 const TelaCarregandoAdmin = () => (
-  <div className="flex items-center justify-center flex-1 bg-surface">
+  <div
+    className="flex items-center justify-center flex-1"
+    style={{ backgroundColor: 'var(--color-surface)' }}
+  >
     <div className="flex flex-col items-center gap-3">
       <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-slate-400 text-sm">Carregando módulo...</p>
+      <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Carregando módulo...</p>
     </div>
   </div>
 );
 
 // =============================================================
 // COMPONENTE: CardModulo
-// Card clicável do dashboard do painel admin
 // =============================================================
 const CardModulo = ({ emoji, titulo, descricao, status, onClick }) => {
   const ativo = status === 'ativo';
@@ -57,24 +51,27 @@ const CardModulo = ({ emoji, titulo, descricao, status, onClick }) => {
   return (
     <div
       onClick={ativo ? onClick : undefined}
-      className={`card transition-all ${
+      className={`rounded-xl p-5 border transition-all ${
         ativo
-          ? 'hover:border-primary-600 cursor-pointer hover:bg-primary-900/10'
-          : 'opacity-70 cursor-default'
+          ? 'hover:border-primary-600/60 cursor-pointer hover:bg-primary-900/10'
+          : 'opacity-60 cursor-default'
       }`}
+      style={{
+        backgroundColor: 'var(--color-surface-card)',
+        borderColor: 'var(--color-surface-border)',
+      }}
     >
       <div className="text-3xl mb-3">{emoji}</div>
-      <h3 className="text-white font-semibold mb-1">{titulo}</h3>
-      <p className="text-slate-400 text-sm">{descricao}</p>
+      <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>{titulo}</h3>
+      <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{descricao}</p>
 
-      {/* Badge de status */}
       {ativo ? (
-        <span className="mt-3 inline-flex items-center gap-1.5 badge bg-green-900/50 text-green-400 border border-green-700/50">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+        <span className="mt-3 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           Disponível
         </span>
       ) : (
-        <span className="mt-3 inline-block badge bg-yellow-900/50 text-yellow-400 border border-yellow-700/50">
+        <span className="mt-3 inline-block text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
           Em breve
         </span>
       )}
@@ -84,13 +81,12 @@ const CardModulo = ({ emoji, titulo, descricao, status, onClick }) => {
 
 // =============================================================
 // COMPONENTE: DashboardAdmin
-// Tela principal do painel com os cards de módulos
 // =============================================================
 const DashboardAdmin = () => {
-  const navigate           = useNavigate();
+  const navigate            = useNavigate();
   const { usuario, logout } = useAuthStore();
+  const { temaEscuro, alternarTema } = useTema();
 
-  // Definição dos módulos do painel admin
   const modulos = [
     {
       emoji:    '🤖',
@@ -137,25 +133,52 @@ const DashboardAdmin = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface">
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-surface)' }}>
+
       {/* Header do Painel Admin */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-primary-800 bg-primary-950/50">
+      <header
+        className="flex items-center justify-between px-6 py-4 border-b"
+        style={{
+          backgroundColor: 'var(--color-surface-card)',
+          borderColor: 'var(--color-surface-border)',
+        }}
+      >
         <div className="flex items-center gap-3">
           <span className="text-2xl">🔐</span>
           <div>
-            <span className="text-white font-semibold">Prancheto.IA</span>
-            <span className="ml-2 badge bg-primary-900 text-primary-300 border border-primary-700">
+            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+              Prancheto.IA
+            </span>
+            <span
+              className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-300 border border-primary-500/30"
+            >
               Painel Admin
             </span>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-slate-400 text-sm">
-            Super Admin: {usuario?.nome || usuario?.email}
+          <span className="text-sm hidden sm:block" style={{ color: 'var(--color-text-secondary)' }}>
+            {usuario?.nome || usuario?.email}
           </span>
+          {/* Toggle de tema */}
+          <button
+            onClick={alternarTema}
+            className="w-9 h-9 rounded-lg flex items-center justify-center border transition-all hover:border-primary-500/50"
+            style={{
+              backgroundColor: 'var(--color-surface)',
+              borderColor: 'var(--color-surface-border)',
+            }}
+            title={temaEscuro ? 'Tema claro' : 'Tema escuro'}
+          >
+            {temaEscuro ? '☀️' : '🌙'}
+          </button>
           <button
             onClick={logout}
-            className="btn-secondary text-sm px-3 py-1.5"
+            className="text-sm px-3 py-1.5 rounded-lg border transition-colors hover:border-red-500/50 hover:text-red-400"
+            style={{
+              borderColor: 'var(--color-surface-border)',
+              color: 'var(--color-text-secondary)',
+            }}
           >
             Sair
           </button>
@@ -163,12 +186,12 @@ const DashboardAdmin = () => {
       </header>
 
       {/* Conteúdo principal */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-6 sm:p-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold text-white mb-2">
+          <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
             Painel Administrativo
           </h1>
-          <p className="text-slate-400 mb-8">
+          <p className="mb-8" style={{ color: 'var(--color-text-secondary)' }}>
             Área exclusiva da equipe fundadora. Gerencie clientes, planos e módulos do sistema.
           </p>
 
@@ -186,35 +209,19 @@ const DashboardAdmin = () => {
 
 // =============================================================
 // COMPONENTE PRINCIPAL: PaginaAdminPanel
-// Gerencia as sub-rotas do painel admin via React Router
 // =============================================================
 const PaginaAdminPanel = () => {
   return (
     <Suspense fallback={<TelaCarregandoAdmin />}>
       <Routes>
-        {/* Dashboard principal do painel admin */}
         <Route index element={<DashboardAdmin />} />
-
-        {/* Chat com IA */}
-        <Route path="chat" element={<PaginaChatIA />} />
-
-        {/* Gestão de Usuários + Impersonation */}
-        <Route path="usuarios" element={<PaginaGestaoUsuarios />} />
-
-        {/* Gestão de Clientes (Tenants) */}
-        <Route path="clientes" element={<PaginaGestaoClientes />} />
-
-        {/* Planos e Limites */}
-        <Route path="planos" element={<PaginaPlanoLimites />} />
-
-        {/* Logs de Segurança e Auditoria */}
-        <Route path="seguranca" element={<PaginaLogsSeguranca />} />
-
-        {/* Monitoramento do Sistema */}
+        <Route path="chat"          element={<PaginaChatIA />} />
+        <Route path="usuarios"      element={<PaginaGestaoUsuarios />} />
+        <Route path="clientes"      element={<PaginaGestaoClientes />} />
+        <Route path="planos"        element={<PaginaPlanoLimites />} />
+        <Route path="seguranca"     element={<PaginaLogsSeguranca />} />
         <Route path="monitoramento" element={<PaginaMonitoramento />} />
-
-        {/* Rota fallback: redireciona sub-rotas desconhecidas para o dashboard */}
-        <Route path="*" element={<DashboardAdmin />} />
+        <Route path="*"             element={<DashboardAdmin />} />
       </Routes>
     </Suspense>
   );

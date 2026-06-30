@@ -73,13 +73,14 @@ const Toggle = ({ label, descricao, ativo, onChange }) => (
       )}
     </div>
     <button
+      type="button"
       onClick={() => onChange(!ativo)}
       className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ml-4 ${
-        ativo ? 'bg-primary-600' : 'bg-slate-700'
+        ativo ? 'bg-primary-600' : 'bg-slate-600'
       }`}
     >
       <span
-        className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+        className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
           ativo ? 'translate-x-6' : 'translate-x-1'
         }`}
       />
