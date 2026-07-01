@@ -3,8 +3,9 @@
 // Interface de chat conectada ao backend (ai.controller.js).
 // =============================================================
 
-import React, { useState, useRef, useEffect } from 'react';
-import api from '../../../services/api.js';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { supabase } from '../../../lib/supabase.js';
+import { useAuthStore } from '../../../store/authStore.js';
 
 const MensagemBolha = ({ mensagem }) => {
   const ehUsuario = mensagem.remetente === 'user';
@@ -48,6 +49,7 @@ const Chat = () => {
   const [enviando, setEnviando]         = useState(false);
   const [erro, setErro]                 = useState(null);
   const fimRef = useRef(null);
+  const { usuario } = useAuthStore();
 
   // Rola para o fim ao receber nova mensagem
   useEffect(() => {
@@ -55,36 +57,58 @@ const Chat = () => {
   }, [mensagens]);
 
   // Carrega lista de conversas
+  const carregarConversas = useCallback(async () => {
+    if (!usuario?.id) return;
+    setCarregando(true);
+    try {
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .select('*')
+        .eq('user_id', usuario.id)
+        .eq('status', 'ativa')
+        .order('atualizado_em', { ascending: false });
+        
+      if (error) throw error;
+      setConversas(data || []);
+      setErro(null);
+    } catch (e) {
+      setErro('Não foi possível carregar as conversas.');
+    } finally {
+      setCarregando(false);
+    }
+  }, [usuario?.id]);
+
   useEffect(() => {
-    const carregar = async () => {
-      setCarregando(true);
-      try {
-        const { data } = await api.get('/ai/conversas');
-        setConversas(data.conversas || []);
-        setErro(null);
-      } catch (e) {
-        setErro('Não foi possível carregar as conversas.');
-      } finally {
-        setCarregando(false);
-      }
-    };
-    carregar();
-  }, []);
+    carregarConversas();
+  }, [carregarConversas]);
 
   const abrirConversa = async (conversa) => {
     setConversaAtual(conversa);
     try {
-      const { data } = await api.get(`/ai/conversas/${conversa.id}`);
-      setMensagens(data.mensagens || []);
+      const { data, error } = await supabase
+        .from('ai_messages')
+        .select('*')
+        .eq('conversation_id', conversa.id)
+        .order('criado_em', { ascending: true });
+        
+      if (error) throw error;
+      setMensagens(data || []);
     } catch {
       setMensagens([]);
     }
   };
 
   const novaConversa = async () => {
+    if (!usuario?.id) return;
     try {
-      const { data } = await api.post('/ai/conversas', { titulo: 'Nova conversa' });
-      const nova = data.conversa;
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .insert({ user_id: usuario.id, titulo: 'Nova conversa', modelo: 'gpt-4o-mini' })
+        .select('*')
+        .single();
+        
+      if (error) throw error;
+      const nova = data;
       setConversas(prev => [nova, ...prev]);
       setConversaAtual(nova);
       setMensagens([]);
@@ -95,17 +119,23 @@ const Chat = () => {
 
   const enviarMensagem = async (e) => {
     e.preventDefault();
-    if (!texto.trim() || enviando) return;
+    if (!texto.trim() || enviando || !usuario?.id) return;
 
     let idConversa = conversaAtual?.id;
 
     // Cria conversa se não existir
     if (!idConversa) {
       try {
-        const { data } = await api.post('/ai/conversas', { titulo: texto.slice(0, 50) });
-        idConversa = data.conversa.id;
-        setConversaAtual(data.conversa);
-        setConversas(prev => [data.conversa, ...prev]);
+        const { data, error } = await supabase
+          .from('ai_conversations')
+          .insert({ user_id: usuario.id, titulo: texto.slice(0, 50), modelo: 'gpt-4o-mini' })
+          .select('*')
+          .single();
+          
+        if (error) throw error;
+        idConversa = data.id;
+        setConversaAtual(data);
+        setConversas(prev => [data, ...prev]);
       } catch {
         setErro('Erro ao criar conversa.');
         return;
@@ -113,7 +143,7 @@ const Chat = () => {
     }
 
     const msgUsuario = {
-      id: Date.now(),
+      id: `temp-${Date.now()}`,
       remetente: 'user',
       conteudo: texto,
       criado_em: new Date().toISOString(),
@@ -123,25 +153,24 @@ const Chat = () => {
     setEnviando(true);
 
     try {
-      const { data } = await api.post(`/ai/conversas/${idConversa}/mensagens`, {
-        mensagem: msgUsuario.conteudo,
+      // Chama a Edge Function para IA
+      const { data, error } = await supabase.functions.invoke('chat-ai', {
+        body: { conversationId: idConversa, mensagem: msgUsuario.conteudo }
       });
-      // O backend retorna { resposta_ia: { conteudo, ... } }
-      const conteudoResposta = data.resposta_ia?.conteudo || data.resposta || '⚠️ Sem resposta.';
-      setMensagens(prev => [...prev, {
-        id: Date.now() + 1,
-        remetente: 'assistant',
-        conteudo: conteudoResposta,
-        criado_em: new Date().toISOString(),
-      }]);
-      // Atualiza título da conversa se mudou
-      if (data.resposta_ia && conversaAtual) {
-        setConversas(prev => prev.map(c =>
-          c.id === idConversa ? { ...c, atualizado_em: new Date().toISOString() } : c
-        ));
-      }
+      
+      if (error) throw error;
+      if (data?.erro) throw new Error(data.erro);
+
+      setMensagens(prev => [
+        ...prev.filter(m => m.id !== msgUsuario.id), 
+        data.mensagem_usuario,
+        data.resposta_ia
+      ]);
+      
+      // Atualiza lista de conversas
+      await carregarConversas();
     } catch {
-      setMensagens(prev => [...prev, {
+      setMensagens(prev => [...prev.filter(m => m.id !== msgUsuario.id), {
         id: Date.now() + 1,
         remetente: 'assistant',
         conteudo: '⚠️ Erro ao obter resposta. Tente novamente.',

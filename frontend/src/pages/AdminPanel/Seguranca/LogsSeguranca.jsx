@@ -15,7 +15,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
 
 // =============================================================
 // CONSTANTES
@@ -210,12 +210,8 @@ const LogsSeguranca = () => {
 
   // --- Carregar ações disponíveis para o filtro ---
   const carregarAcoes = useCallback(async () => {
-    try {
-      const resp = await api.get('/admin/logs/acoes');
-      setAcoes(resp.data?.acoes || []);
-    } catch {
-      // silencioso
-    }
+    // Definimos as ações padrão com base no EMOJI_ACAO para evitar query custosa
+    setAcoes(Object.keys(EMOJI_ACAO));
   }, []);
 
   // --- Carregar logs ---
@@ -223,19 +219,32 @@ const LogsSeguranca = () => {
     setCarregando(true);
     setErro(null);
     try {
-      const params = { pagina, limite: 30 };
-      if (busca)        params.busca     = busca;
-      if (filtroAcao)   params.acao      = filtroAcao;
-      if (filtroResult) params.resultado = filtroResult;
+      let query = supabase
+        .from('audit_logs')
+        .select('*, tenants!audit_logs_tenant_id_fkey(nome)', { count: 'exact' });
 
-      const resp = await api.get('/admin/logs', { params });
-      const { logs: lista, paginacao } = resp.data;
+      if (busca) query = query.or(`descricao.ilike.%${busca}%,user_email.ilike.%${busca}%,rota.ilike.%${busca}%`);
+      if (filtroAcao) query = query.eq('acao', filtroAcao);
+      if (filtroResult) query = query.eq('resultado', filtroResult);
 
-      setLogs(lista || []);
-      setTotal(paginacao?.total || 0);
-      setTotalPaginas(paginacao?.totalPaginas || 1);
+      const inicio = (pagina - 1) * 30;
+      const fim = inicio + 29;
+      query = query.range(inicio, fim).order('criado_em', { ascending: false });
+
+      const { data, count, error } = await query;
+      
+      if (error) throw error;
+      
+      const lista = (data || []).map(l => ({
+        ...l,
+        tenantNome: l.tenants ? l.tenants.nome : null
+      }));
+
+      setLogs(lista);
+      setTotal(count || 0);
+      setTotalPaginas(Math.ceil((count || 0) / 30) || 1);
     } catch (err) {
-      setErro(err?.response?.data?.mensagem || err?.response?.data?.erro || 'Erro ao carregar logs.');
+      setErro(err?.message || 'Erro ao carregar logs.');
     } finally {
       setCarregando(false);
     }

@@ -5,7 +5,8 @@
 // =============================================================
 
 import React, { useState, useEffect } from 'react';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
+import { useAuthStore } from '../../../store/authStore.js';
 
 // ─── Card de métrica ──────────────────────────────────────────
 const CardMetrica = ({ emoji, titulo, valor, variacao, cor = '' }) => (
@@ -61,22 +62,32 @@ const Relatorios = () => {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro]         = useState('');
 
+  const { usuario } = useAuthStore();
+
   useEffect(() => {
     const carregar = async () => {
       setCarregando(true);
       setErro('');
       try {
-        const [respContatos, respKanban, respAgenda, respOutbound] = await Promise.allSettled([
-          api.get('/crm/contatos', { params: { limite: 500 } }),
-          api.get('/crm/kanban'),
-          api.get('/agenda/eventos'),
-          api.get('/outbound/acoes'),
+        let queryContatos = supabase.from('crm_contatos').select('*');
+        if (usuario?.tenant_id) queryContatos = queryContatos.eq('tenant_id', usuario.tenant_id);
+        else if (usuario?.id) queryContatos = queryContatos.eq('responsavel_id', usuario.id);
+
+        let queryAgenda = supabase.from('agenda_eventos').select('*');
+        if (usuario?.tenant_id) queryAgenda = queryAgenda.eq('tenant_id', usuario.tenant_id);
+
+        let queryOutbound = supabase.from('outbound_acoes').select('*');
+        if (usuario?.tenant_id) queryOutbound = queryOutbound.eq('tenant_id', usuario.tenant_id);
+
+        const [respContatos, respAgenda, respOutbound] = await Promise.allSettled([
+          queryContatos,
+          queryAgenda,
+          queryOutbound,
         ]);
 
-        const contatos  = respContatos.status  === 'fulfilled' ? (respContatos.value.data.dados  || []) : [];
-        const kanban    = respKanban.status    === 'fulfilled' ? (respKanban.value.data.dados    || {}) : {};
-        const eventos   = respAgenda.status    === 'fulfilled' ? (respAgenda.value.data.dados    || []) : [];
-        const acoes     = respOutbound.status  === 'fulfilled' ? (respOutbound.value.data.dados  || []) : [];
+        const contatos  = respContatos.status  === 'fulfilled' ? (respContatos.value.data  || []) : [];
+        const eventos   = respAgenda.status    === 'fulfilled' ? (respAgenda.value.data    || []) : [];
+        const acoes     = respOutbound.status  === 'fulfilled' ? (respOutbound.value.data  || []) : [];
 
         // Métricas de CRM
         const totalContatos  = contatos.length;

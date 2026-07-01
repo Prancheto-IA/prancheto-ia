@@ -7,7 +7,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate }     from 'react-router-dom';
-import api                 from '../../../services/api.js';
+import { supabase }        from '../../../lib/supabase.js';
+import { useAuthStore }    from '../../../store/authStore.js';
 import { useErrorHandler } from '../../../hooks/useErrorHandler.js';
 import {
   BotaoVoltar,
@@ -23,6 +24,7 @@ import {
 const PaginaChatIA = () => {
   const navigate                      = useNavigate();
   const { tratarErro, tratarSucesso } = useErrorHandler();
+  const { usuario }                   = useAuthStore();
 
   // --- Estado ---
   const [conversas,       setConversas]       = useState([]);
@@ -54,16 +56,24 @@ const PaginaChatIA = () => {
   // FUNÇÃO: Carrega lista de conversas da sidebar
   // ----------------------------------------------------------
   const carregarConversas = useCallback(async () => {
+    if (!usuario?.id) return;
     try {
       setCarregandoLista(true);
-      const { data } = await api.get('/ai/conversations');
-      setConversas(data.conversas || []);
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .select('*')
+        .eq('user_id', usuario.id)
+        .eq('status', 'ativa')
+        .order('atualizado_em', { ascending: false });
+
+      if (error) throw error;
+      setConversas(data || []);
     } catch (erro) {
       tratarErro(erro, 'Erro ao carregar conversas');
     } finally {
       setCarregandoLista(false);
     }
-  }, [tratarErro]);
+  }, [usuario?.id, tratarErro]);
 
   // ----------------------------------------------------------
   // FUNÇÃO: Seleciona uma conversa e carrega suas mensagens
@@ -72,8 +82,23 @@ const PaginaChatIA = () => {
     if (conversaAtiva?.id === conversaId) return;
     try {
       setCarregandoChat(true);
-      const { data } = await api.get(`/ai/conversations/${conversaId}`);
-      setConversaAtiva(data.conversa);
+      // Busca a conversa (opcional, pois já temos na lista, mas garante os dados mais recentes)
+      const { data: conv, error: erroConv } = await supabase
+        .from('ai_conversations')
+        .select('*')
+        .eq('id', conversaId)
+        .single();
+      if (erroConv) throw erroConv;
+
+      // Busca as mensagens
+      const { data: msgs, error: erroMsgs } = await supabase
+        .from('ai_messages')
+        .select('*')
+        .eq('conversation_id', conversaId)
+        .order('criado_em', { ascending: true });
+      if (erroMsgs) throw erroMsgs;
+
+      setConversaAtiva({ ...conv, mensagens: msgs || [] });
       setTimeout(() => inputRef.current?.focus(), 100);
     } catch (erro) {
       tratarErro(erro, 'Erro ao carregar conversa');
@@ -89,7 +114,6 @@ const PaginaChatIA = () => {
     setMensagemInput('');
     setCarregando(true);
 
-    // Adiciona mensagem do usuário otimisticamente (UX responsiva)
     const msgTemp = {
       id:        `temp-${Date.now()}`,
       remetente: 'user',
@@ -103,11 +127,14 @@ const PaginaChatIA = () => {
     }));
 
     try {
-      const { data } = await api.post(`/ai/conversations/${conversaId}/messages`, {
-        mensagem: texto,
+      // Chama a Edge Function no Supabase
+      const { data, error } = await supabase.functions.invoke('chat-ai', {
+        body: { conversationId, mensagem: texto }
       });
 
-      // Substitui mensagem temporária pelas reais (usuário + IA)
+      if (error) throw error;
+      if (data?.erro) throw new Error(data.erro);
+
       setConversaAtiva((prev) => ({
         ...prev,
         mensagens: [
@@ -117,15 +144,13 @@ const PaginaChatIA = () => {
         ],
       }));
 
-      // Atualiza sidebar (tokens e título podem ter mudado)
       await carregarConversas();
     } catch (erro) {
-      // Desfaz a mensagem temporária em caso de erro
       setConversaAtiva((prev) => ({
         ...prev,
         mensagens: (prev?.mensagens || []).filter((m) => m.id !== msgTemp.id),
       }));
-      setMensagemInput(texto); // Restaura o texto para o usuário tentar novamente
+      setMensagemInput(texto); 
       tratarErro(erro, 'Erro ao enviar mensagem');
     } finally {
       setCarregando(false);
@@ -137,10 +162,16 @@ const PaginaChatIA = () => {
   // FUNÇÃO: Cria nova conversa (com prompt inicial opcional)
   // ----------------------------------------------------------
   const criarNovaConversa = useCallback(async (promptInicial = null) => {
+    if (!usuario?.id) return;
     try {
       setCarregando(true);
-      const { data } = await api.post('/ai/conversations');
-      const nova = { ...data.conversa, mensagens: [] };
+      const { data: novaoArr, error } = await supabase
+        .from('ai_conversations')
+        .insert({ user_id: usuario.id, titulo: 'Nova conversa', modelo: 'gpt-4o-mini' })
+        .select('*');
+
+      if (error) throw error;
+      const nova = { ...novaoArr[0], mensagens: [] };
 
       setConversas((prev) => [{ ...nova, total_mensagens: 0, total_tokens: 0 }, ...prev]);
       setConversaAtiva(nova);
@@ -155,7 +186,7 @@ const PaginaChatIA = () => {
       setCarregando(false);
       tratarErro(erro, 'Erro ao criar conversa');
     }
-  }, [enviarMensagemParaAPI, tratarErro]);
+  }, [usuario?.id, enviarMensagemParaAPI, tratarErro]);
 
   // ----------------------------------------------------------
   // FUNÇÃO: Envia mensagem do formulário
@@ -172,7 +203,13 @@ const PaginaChatIA = () => {
   // ----------------------------------------------------------
   const arquivarConversa = useCallback(async (conversaId) => {
     try {
-      await api.delete(`/ai/conversations/${conversaId}`);
+      const { error } = await supabase
+        .from('ai_conversations')
+        .update({ status: 'arquivada' })
+        .eq('id', conversaId);
+        
+      if (error) throw error;
+      
       setConversas((prev) => prev.filter((c) => c.id !== conversaId));
       if (conversaAtiva?.id === conversaId) setConversaAtiva(null);
       tratarSucesso('Conversa arquivada.');

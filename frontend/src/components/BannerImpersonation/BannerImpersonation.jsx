@@ -15,7 +15,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
-import api from '../../services/api.js';
+import { supabase } from '../../lib/supabase.js';
 
 // =============================================================
 // COMPONENTE PRINCIPAL
@@ -34,21 +34,23 @@ const BannerImpersonation = () => {
     setErro(null);
 
     try {
-      // Chama o backend para encerrar o impersonation e obter novo token do Super Admin
-      const resposta = await api.post('/admin/impersonate/stop');
-      const { token: novoToken } = resposta.data;
-
+      const { superAdminToken, superAdminRefreshToken } = useAuthStore.getState();
+      
       // Restaura a sessão do Super Admin no store
-      encerrarImpersonation(novoToken);
+      encerrarImpersonation();
+      
+      // Restaura a sessão no cliente do Supabase
+      if (superAdminToken) {
+        await supabase.auth.setSession({
+          access_token: superAdminToken,
+          refresh_token: superAdminRefreshToken || ''
+        });
+      }
 
       // Redireciona de volta ao painel admin
       navigate('/admin', { replace: true });
     } catch (err) {
-      const mensagem =
-        err?.response?.data?.mensagem ||
-        err?.response?.data?.erro ||
-        'Erro ao encerrar sessão. Tente novamente.';
-      setErro(mensagem);
+      setErro('Erro ao encerrar sessão. Tente novamente.');
       setEncerrando(false);
     }
   };

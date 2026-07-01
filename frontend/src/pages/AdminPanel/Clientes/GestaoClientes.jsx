@@ -17,7 +17,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
 
 // =============================================================
 // CONSTANTES
@@ -306,20 +306,34 @@ const GestaoClientes = () => {
     setCarregando(true);
     setErro(null);
     try {
-      const params = { pagina, limite: 15 };
-      if (busca)        params.busca   = busca;
-      if (filtroStatus) params.status  = filtroStatus;
-      if (filtroPlano)  params.plano   = filtroPlano;
+      let query = supabase
+        .from('tenants')
+        .select('*, users(count)', { count: 'exact' });
 
-      // Backend retorna { dados, paginacao }
-      const resp = await api.get('/admin/tenants', { params });
-      const { dados, paginacao } = resp.data;
+      if (busca) query = query.ilike('nome', `%${busca}%`);
+      if (filtroStatus) query = query.eq('status', filtroStatus);
+      if (filtroPlano) query = query.eq('plano', filtroPlano);
 
-      setClientes(dados || []);
-      setTotal(paginacao?.total || 0);
-      setTotalPaginas(paginacao?.totalPaginas || 1);
+      // Paginação
+      const inicio = (pagina - 1) * 15;
+      const fim = inicio + 14;
+      query = query.range(inicio, fim).order('criado_em', { ascending: false });
+
+      const { data, count, error } = await query;
+      
+      if (error) throw error;
+
+      // Adaptação dos dados de contagem
+      const dados = (data || []).map(c => ({
+        ...c,
+        qtd_usuarios: c.users && c.users[0] ? c.users[0].count : 0
+      }));
+
+      setClientes(dados);
+      setTotal(count || 0);
+      setTotalPaginas(Math.ceil((count || 0) / 15) || 1);
     } catch (err) {
-      setErro(err?.response?.data?.mensagem || err?.response?.data?.erro || 'Erro ao carregar clientes.');
+      setErro(err?.message || 'Erro ao carregar clientes.');
     } finally {
       setCarregando(false);
     }
@@ -337,12 +351,14 @@ const GestaoClientes = () => {
   const handleCriar = async (dados) => {
     setSalvando(true);
     try {
-      await api.post('/admin/tenants', dados);
+      const { error } = await supabase.from('tenants').insert(dados);
+      if (error) throw error;
+      
       setModalCriar(false);
       setPagina(1);
       await carregarClientes();
     } catch (err) {
-      alert(err?.response?.data?.erro || err?.response?.data?.mensagem || 'Erro ao criar cliente.');
+      alert(err?.message || 'Erro ao criar cliente.');
     } finally {
       setSalvando(false);
     }
@@ -351,11 +367,16 @@ const GestaoClientes = () => {
   const handleEditar = async (dados) => {
     setSalvando(true);
     try {
-      await api.put(`/admin/tenants/${clienteEditar.id}`, dados);
+      const { error } = await supabase
+        .from('tenants')
+        .update(dados)
+        .eq('id', clienteEditar.id);
+      if (error) throw error;
+      
       setClienteEditar(null);
       await carregarClientes();
     } catch (err) {
-      alert(err?.response?.data?.erro || err?.response?.data?.mensagem || 'Erro ao atualizar cliente.');
+      alert(err?.message || 'Erro ao atualizar cliente.');
     } finally {
       setSalvando(false);
     }
@@ -365,11 +386,16 @@ const GestaoClientes = () => {
     if (!clienteStatus) return;
     setSalvando(true);
     try {
-      await api.patch(`/admin/tenants/${clienteStatus.id}/status`, { status: novoStatus });
+      const { error } = await supabase
+        .from('tenants')
+        .update({ status: novoStatus })
+        .eq('id', clienteStatus.id);
+      if (error) throw error;
+        
       setClienteStatus(null);
       await carregarClientes();
     } catch (err) {
-      alert(err?.response?.data?.erro || err?.response?.data?.mensagem || 'Erro ao alterar status.');
+      alert(err?.message || 'Erro ao alterar status.');
     } finally {
       setSalvando(false);
     }

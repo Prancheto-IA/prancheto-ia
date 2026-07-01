@@ -4,7 +4,8 @@
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
+import { useAuthStore } from '../../../store/authStore.js';
 
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
@@ -197,6 +198,7 @@ const Agenda = () => {
   const [eventos, setEventos]             = useState([]);
   const [carregando, setCarregando]       = useState(true);
   const [excluindo, setExcluindo]         = useState(null);
+  const { usuario }                       = useAuthStore();
 
   const { primeiroDia, totalDias } = getDiasDoMes(anoAtual, mesAtual);
 
@@ -206,16 +208,22 @@ const Agenda = () => {
 
   // Carrega eventos do backend
   const carregarEventos = useCallback(async () => {
+    if (!usuario?.id) return;
     setCarregando(true);
     try {
-      const { data } = await api.get('/agenda');
-      setEventos(data.dados || []);
+      const { data, error } = await supabase
+        .from('agenda_eventos')
+        .select('*')
+        .order('data_inicio', { ascending: true });
+        
+      if (error) throw error;
+      setEventos(data || []);
     } catch (err) {
       console.error('Erro ao carregar agenda:', err);
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [usuario?.id]);
 
   useEffect(() => { carregarEventos(); }, [carregarEventos]);
 
@@ -242,19 +250,36 @@ const Agenda = () => {
   });
 
   const handleSalvar = async (dadosEvento) => {
-    if (eventoEditando) {
-      await api.put(`/agenda/${eventoEditando.id}`, dadosEvento);
-    } else {
-      await api.post('/agenda', dadosEvento);
+    try {
+      if (eventoEditando) {
+        const { error } = await supabase
+          .from('agenda_eventos')
+          .update(dadosEvento)
+          .eq('id', eventoEditando.id);
+        if (error) throw error;
+      } else {
+        const payload = {
+          ...dadosEvento,
+          criado_por: usuario.id,
+          tenant_id: usuario.tenant_id
+        };
+        const { error } = await supabase
+          .from('agenda_eventos')
+          .insert(payload);
+        if (error) throw error;
+      }
+      await carregarEventos();
+    } catch (error) {
+      throw error; // propagar para o modal exibir erro
     }
-    await carregarEventos();
   };
 
   const handleExcluir = async (id) => {
     if (!window.confirm('Excluir este evento?')) return;
     setExcluindo(id);
     try {
-      await api.delete(`/agenda/${id}`);
+      const { error } = await supabase.from('agenda_eventos').delete().eq('id', id);
+      if (error) throw error;
       setEventos(prev => prev.filter(e => e.id !== id));
     } catch (err) {
       console.error('Erro ao excluir:', err);

@@ -4,7 +4,8 @@
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
+import { useAuthStore } from '../../../store/authStore.js';
 
 const TIPOS = {
   email:    { label: 'E-mail',   emoji: '✉️' },
@@ -291,36 +292,64 @@ const Outbound = () => {
   const [acaoEditando, setAcaoEditando] = useState(null);
   const [excluindo, setExcluindo]       = useState(null);
   const [filtroStatus, setFiltroStatus] = useState('');
+  const { usuario }                     = useAuthStore();
 
   const carregarAcoes = useCallback(async () => {
+    if (!usuario?.id) return;
     setCarregando(true);
     try {
-      const params = filtroStatus ? { status: filtroStatus } : {};
-      const { data } = await api.get('/outbound', { params });
-      setAcoes(data.dados || []);
+      let query = supabase
+        .from('outbound_acoes')
+        .select('*')
+        .order('criado_em', { ascending: false });
+        
+      if (filtroStatus) {
+        query = query.eq('status', filtroStatus);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      setAcoes(data || []);
     } catch (err) {
       console.error('Erro ao carregar outbound:', err);
     } finally {
       setCarregando(false);
     }
-  }, [filtroStatus]);
+  }, [usuario?.id, filtroStatus]);
 
   useEffect(() => { carregarAcoes(); }, [carregarAcoes]);
 
   const handleSalvar = async (dadosAcao) => {
-    if (acaoEditando) {
-      await api.put(`/outbound/${acaoEditando.id}`, dadosAcao);
-    } else {
-      await api.post('/outbound', dadosAcao);
+    try {
+      if (acaoEditando) {
+        const { error } = await supabase
+          .from('outbound_acoes')
+          .update(dadosAcao)
+          .eq('id', acaoEditando.id);
+        if (error) throw error;
+      } else {
+        const payload = {
+          ...dadosAcao,
+          user_id: usuario.id,
+          tenant_id: usuario.tenant_id
+        };
+        const { error } = await supabase
+          .from('outbound_acoes')
+          .insert(payload);
+        if (error) throw error;
+      }
+      await carregarAcoes();
+    } catch (error) {
+      throw error;
     }
-    await carregarAcoes();
   };
 
   const handleExcluir = async (id) => {
     if (!window.confirm('Excluir esta ação?')) return;
     setExcluindo(id);
     try {
-      await api.delete(`/outbound/${id}`);
+      const { error } = await supabase.from('outbound_acoes').delete().eq('id', id);
+      if (error) throw error;
       setAcoes((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       console.error('Erro ao excluir:', err);
@@ -331,7 +360,12 @@ const Outbound = () => {
 
   const handleMudarStatus = async (id, novoStatus) => {
     try {
-      await api.put(`/outbound/${id}`, { status: novoStatus });
+      const { error } = await supabase
+        .from('outbound_acoes')
+        .update({ status: novoStatus })
+        .eq('id', id);
+      if (error) throw error;
+        
       setAcoes((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status: novoStatus } : a))
       );

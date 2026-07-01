@@ -9,22 +9,13 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
-import api from '../services/api.js';
+import { supabase } from '../lib/supabase.js';
 
-/**
- * Determina a rota de destino após o login baseado no cargo do usuário.
- * @param {object} usuario - Dados do usuário retornados pelo backend
- * @returns {string} Rota de destino
- */
 const rotaDestino = (usuario) => {
-  if (usuario?.isSuperAdmin) return '/admin';
+  if (usuario?.cargo === 'super_admin') return '/admin';
   return '/dashboard';
 };
 
-/**
- * Hook customizado que fornece as ações de autenticação.
- * Conecta o formulário de login à API do back-end.
- */
 export const useAuth = () => {
   const navigate = useNavigate();
   const {
@@ -36,43 +27,53 @@ export const useAuth = () => {
     erroLogin,
   } = useAuthStore();
 
-  /**
-   * Realiza o login do usuário.
-   * Após login bem-sucedido, redireciona automaticamente:
-   *   - super_admin → /admin (Painel Administrativo oculto)
-   *   - Demais cargos → /dashboard (Dashboard do Cliente)
-   *
-   * @param {string} email
-   * @param {string} senha
-   */
   const login = async (email, senha) => {
     setCarregando(true);
     setErroLogin(null);
 
     try {
-      const { data } = await api.post('/auth/login', { email, senha });
+      // 1. Autenticação via Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password: senha,
+      });
 
-      // Armazena os tokens e dados do usuário no store (Zustand + localStorage)
-      loginStore(data.token, data.refreshToken, data.usuario);
+      if (authError) throw authError;
 
-      // Redireciona baseado no cargo do usuário
-      navigate(rotaDestino(data.usuario), { replace: true });
+      // 2. Busca o perfil estendido do usuário na tabela 'users'
+      const { data: userProfile, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (profileError || !userProfile) {
+        throw new Error('Perfil de usuário não encontrado no sistema.');
+      }
+
+      // Adiciona flag conveniente
+      const usuarioCompleto = {
+        ...userProfile,
+        isSuperAdmin: userProfile.cargo === 'super_admin'
+      };
+
+      // 3. Salva no store
+      // Como o Supabase gerencia o token, não precisamos armazenar tokens customizados
+      loginStore(authData.session.access_token, authData.session.refresh_token, usuarioCompleto);
+
+      // 4. Redireciona
+      navigate(rotaDestino(usuarioCompleto), { replace: true });
 
     } catch (erro) {
-      setErroLogin(erro.message || 'Erro ao fazer login. Tente novamente.');
+      setErroLogin(erro.message || 'Erro ao fazer login. Verifique suas credenciais.');
     } finally {
       setCarregando(false);
     }
   };
 
-  /**
-   * Realiza o logout do usuário.
-   * Notifica o back-end para invalidar o refresh token,
-   * limpa o estado local e redireciona para o login.
-   */
   const logout = async () => {
     try {
-      await api.post('/auth/logout').catch(() => {});
+      await supabase.auth.signOut();
     } finally {
       logoutStore();
       navigate('/login', { replace: true });

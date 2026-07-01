@@ -15,7 +15,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
 
 // =============================================================
@@ -279,8 +279,11 @@ const GestaoUsuarios = () => {
   // --- Carregar tenants (para filtros e modal) ---
   const carregarTenants = useCallback(async () => {
     try {
-      const resp = await api.get('/admin/tenants', { params: { limite: 200 } });
-      setTenants(resp.data?.tenants || []);
+      const { data } = await supabase
+        .from('tenants')
+        .select('id, nome')
+        .order('nome', { ascending: true });
+      setTenants(data || []);
     } catch {
       // silencioso
     }
@@ -291,22 +294,31 @@ const GestaoUsuarios = () => {
     setCarregando(true);
     setErro(null);
     try {
-      const params = { pagina, limite: 15 };
-      if (busca)        params.busca    = busca;
-      if (filtroStatus) params.status   = filtroStatus;
-      if (filtroTenant) params.tenantId = filtroTenant;
+      let query = supabase
+        .from('users')
+        .select('*, tenants!users_tenant_id_fkey(nome)', { count: 'exact' });
 
-      const resp = await api.get('/admin/usuarios', { params });
-      const { usuarios: lista, paginacao } = resp.data;
+      if (busca) query = query.or(`nome.ilike.%${busca}%,email.ilike.%${busca}%`);
+      if (filtroStatus) query = query.eq('status', filtroStatus);
+      if (filtroTenant) query = query.eq('tenant_id', filtroTenant);
 
-      setUsuarios(lista || []);
-      setTotal(paginacao?.total || 0);
-      setTotalPaginas(paginacao?.totalPaginas || 1);
+      const inicio = (pagina - 1) * 15;
+      const fim = inicio + 14;
+      query = query.range(inicio, fim).order('criado_em', { ascending: false });
+
+      const { data, count, error } = await query;
+      if (error) throw error;
+      
+      const lista = (data || []).map(u => ({
+        ...u,
+        tenantNome: u.tenants ? u.tenants.nome : null
+      }));
+
+      setUsuarios(lista);
+      setTotal(count || 0);
+      setTotalPaginas(Math.ceil((count || 0) / 15) || 1);
     } catch (err) {
-      setErro(
-        err?.response?.data?.mensagem ||
-        'Erro ao carregar usuários. Tente novamente.'
-      );
+      setErro(err?.message || 'Erro ao carregar usuários. Tente novamente.');
     } finally {
       setCarregando(false);
     }
@@ -325,12 +337,17 @@ const GestaoUsuarios = () => {
   const handleCriar = async (dados) => {
     setSalvando(true);
     try {
-      await api.post('/admin/usuarios', dados);
+      const { data, error } = await supabase.functions.invoke('admin-users', {
+        body: { action: 'create', payload: dados }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       setModalCriar(false);
       setPagina(1);
       await carregarUsuarios();
     } catch (err) {
-      alert(err?.response?.data?.mensagem || 'Erro ao criar usuário.');
+      alert(err?.message || 'Erro ao criar usuário.');
     } finally {
       setSalvando(false);
     }
@@ -339,11 +356,16 @@ const GestaoUsuarios = () => {
   const handleEditar = async (dados) => {
     setSalvando(true);
     try {
-      await api.put(`/admin/usuarios/${usuarioEditar.id}`, dados);
+      const { data, error } = await supabase.functions.invoke('admin-users', {
+        body: { action: 'update', userId: usuarioEditar.id, payload: dados }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       setUsuarioEditar(null);
       await carregarUsuarios();
     } catch (err) {
-      alert(err?.response?.data?.mensagem || 'Erro ao atualizar usuário.');
+      alert(err?.message || 'Erro ao atualizar usuário.');
     } finally {
       setSalvando(false);
     }
@@ -355,11 +377,16 @@ const GestaoUsuarios = () => {
     const novoStatus = usuario.status === 'ativo' ? 'inativo' : 'ativo';
     setSalvando(true);
     try {
-      await api.patch(`/admin/usuarios/${usuario.id}/status`, { status: novoStatus });
+      const { data, error } = await supabase.functions.invoke('admin-users', {
+        body: { action: 'status', userId: usuario.id, payload: { status: novoStatus } }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       setConfirmacao(null);
       await carregarUsuarios();
     } catch (err) {
-      alert(err?.response?.data?.mensagem || 'Erro ao alterar status.');
+      alert(err?.message || 'Erro ao alterar status.');
     } finally {
       setSalvando(false);
     }
@@ -369,13 +396,30 @@ const GestaoUsuarios = () => {
   const handleImpersonar = async (usuario) => {
     setImpersonando(usuario.id);
     try {
-      const resp = await api.post(`/admin/impersonate/${usuario.id}`);
-      const { token, usuario: usuarioAlvo } = resp.data;
-      iniciarImpersonation(token, usuarioAlvo);
+      // 1. Obter o token temporário chamando a Edge Function "admin-impersonate"
+      const { data, error } = await supabase.functions.invoke('admin-impersonate', {
+        body: { targetUserId: usuario.id }
+      });
+      
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      // 2. Definir o JWT temporário do Supabase na store/localStorage
+      const { token, session } = data;
+      // Inicia impersonation na authStore customizada se necessário
+      iniciarImpersonation(token, usuario);
+      
+      // Salva sessão localmente se for usar supabase-js como impersonated (pode ser trickier)
+      // O Supabase suporta setSession() 
+      await supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token
+      });
+
       navigate('/', { replace: true });
     } catch (err) {
       alert(
-        err?.response?.data?.mensagem ||
+        err?.message ||
         'Não foi possível iniciar a sessão como este usuário.'
       );
     } finally {

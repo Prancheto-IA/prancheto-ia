@@ -8,7 +8,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../../store/authStore.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useTema } from '../../hooks/useTema.js';
-import api from '../../services/api.js';
+import { supabase } from '../../lib/supabase.js';
 
 // ─── Constantes ────────────────────────────────────────────────
 const FUNIL = [
@@ -213,8 +213,14 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
     const carregar = async () => {
       setCarregando(true);
       try {
-        const { data } = await api.get(`/crm/contatos/${contato.id}/interacoes`);
-        setInteracoes(data.dados || []);
+        const { data, error } = await supabase
+          .from('crm_interacoes')
+          .select('*')
+          .eq('contato_id', contato.id)
+          .order('criado_em', { ascending: false });
+        
+        if (error) throw error;
+        setInteracoes(data || []);
       } catch { setInteracoes([]); }
       finally { setCarregando(false); }
     };
@@ -226,10 +232,16 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
     if (!novaInteracao.trim()) return;
     setEnviando(true);
     try {
-      const { data } = await api.post(`/crm/contatos/${contato.id}/interacoes`, {
-        tipo: tipoInteracao, conteudo: novaInteracao.trim(),
-      });
-      setInteracoes(prev => [data.dados, ...prev]);
+      const registro = {
+        contato_id: contato.id,
+        tipo: tipoInteracao,
+        conteudo: novaInteracao.trim(),
+      };
+      
+      const { data, error } = await supabase.from('crm_interacoes').insert(registro).select().single();
+      if (error) throw error;
+      
+      setInteracoes(prev => [data, ...prev]);
       setNovaInteracao('');
     } catch { /* silencioso */ }
     finally { setEnviando(false); }
@@ -452,21 +464,39 @@ const PaginaCRM = () => {
   const carregarContatos = useCallback(async () => {
     setCarregando(true);
     try {
-      const params = {};
-      if (busca)        params.busca  = busca;
-      if (filtroStatus) params.status = filtroStatus;
-      const [respLista, respKanban] = await Promise.all([
-        api.get('/crm/contatos', { params }),
-        api.get('/crm/kanban'),
-      ]);
-      setContatos(respLista.data.dados || []);
-      setKanbanData(respKanban.data.dados || {});
+      let queryLista = supabase.from('crm_contatos').select('*').order('criado_em', { ascending: false });
+      
+      // Filtros
+      if (usuario?.tenant_id) queryLista = queryLista.eq('tenant_id', usuario.tenant_id);
+      else if (usuario?.id) queryLista = queryLista.eq('responsavel_id', usuario.id);
+      
+      if (filtroStatus) queryLista = queryLista.eq('status_funil', filtroStatus);
+      if (busca) queryLista = queryLista.or(`nome.ilike.%${busca}%,email.ilike.%${busca}%,empresa.ilike.%${busca}%`);
+
+      const { data: lista, error: erroLista } = await queryLista;
+      if (erroLista) throw erroLista;
+
+      setContatos(lista || []);
+
+      // Kanban (carrega todos do usuario/tenant para agrupar)
+      let queryKanban = supabase.from('crm_contatos').select('id, nome, empresa, email, status_funil, valor_estimado, atualizado_em').order('criado_em', { ascending: false });
+      if (usuario?.tenant_id) queryKanban = queryKanban.eq('tenant_id', usuario.tenant_id);
+      else if (usuario?.id) queryKanban = queryKanban.eq('responsavel_id', usuario.id);
+      
+      const { data: todos, error: erroKanban } = await queryKanban;
+      if (!erroKanban) {
+        const kanbanGrouped = {};
+        FUNIL.forEach(col => {
+           kanbanGrouped[col.key] = (todos || []).filter(c => c.status_funil === col.key);
+        });
+        setKanbanData(kanbanGrouped);
+      }
     } catch (err) {
       console.error('Erro ao carregar CRM:', err);
     } finally {
       setCarregando(false);
     }
-  }, [busca, filtroStatus]);
+  }, [busca, filtroStatus, usuario]);
 
   useEffect(() => {
     const t = setTimeout(carregarContatos, 300);
@@ -474,10 +504,16 @@ const PaginaCRM = () => {
   }, [carregarContatos]);
 
   const handleSalvar = async (dados) => {
+    // Força inserção do tenant_id/responsavel_id caso falte na criação (ou confia no RLS se habilitado)
+    if (!contatoEditando) {
+      if (usuario?.tenant_id) dados.tenant_id = usuario.tenant_id;
+      if (usuario?.id) dados.responsavel_id = usuario.id;
+    }
+    
     if (contatoEditando) {
-      await api.put(`/crm/contatos/${contatoEditando.id}`, dados);
+      await supabase.from('crm_contatos').update({ ...dados, atualizado_em: new Date().toISOString() }).eq('id', contatoEditando.id);
     } else {
-      await api.post('/crm/contatos', dados);
+      await supabase.from('crm_contatos').insert(dados);
     }
     await carregarContatos();
   };
@@ -486,7 +522,7 @@ const PaginaCRM = () => {
     if (!window.confirm('Excluir este contato e todo seu histórico?')) return;
     setExcluindo(id);
     try {
-      await api.delete(`/crm/contatos/${id}`);
+      await supabase.from('crm_contatos').delete().eq('id', id);
       setContatos(prev => prev.filter(c => c.id !== id));
       if (contatoDetalhe?.id === id) setContatoDetalhe(null);
       await carregarContatos();
@@ -496,7 +532,7 @@ const PaginaCRM = () => {
 
   const handleMudarStatus = async (id, novoStatus) => {
     try {
-      await api.put(`/crm/contatos/${id}`, { status_funil: novoStatus });
+      await supabase.from('crm_contatos').update({ status_funil: novoStatus, atualizado_em: new Date().toISOString() }).eq('id', id);
       setContatos(prev => prev.map(c => c.id === id ? { ...c, status_funil: novoStatus } : c));
       if (contatoDetalhe?.id === id) setContatoDetalhe(prev => ({ ...prev, status_funil: novoStatus }));
       await carregarContatos();

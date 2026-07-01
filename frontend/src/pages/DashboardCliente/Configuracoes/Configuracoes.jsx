@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../store/authStore.js';
 import { useTema } from '../../../hooks/useTema.js';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
 
 const SecaoConfig = ({ titulo, descricao, children }) => (
   <div
@@ -100,41 +100,55 @@ const Configuracoes = () => {
   const [salvo, setSalvo]               = useState(false);
   const [erro, setErro]                 = useState('');
 
-  // Carrega preferências do banco ao montar
   useEffect(() => {
     const carregar = async () => {
+      if (!usuario?.id) return;
       try {
-        const { data } = await api.get('/preferencias');
-        const prefs = data.dados || {};
-        // Aplica tema do banco (prioridade sobre localStorage)
+        const { data, error } = await supabase
+          .from('user_preferencias')
+          .select('*')
+          .eq('user_id', usuario.id)
+          .single();
+          
+        if (error && error.code !== 'PGRST116') throw error;
+        
+        const prefs = data || {};
         if (prefs.tema === 'escuro') setTemaEscuro(true);
         else if (prefs.tema === 'claro') setTemaEscuro(false);
-        setNotifEmail(prefs.notif_email   !== false);
+        setNotifEmail(prefs.notif_email !== false);
         setNotifSistema(prefs.notif_sistema !== false);
       } catch (err) {
-        // Se não encontrar preferências, usa os defaults
-        console.warn('Preferências não encontradas, usando defaults.');
+        console.warn('Preferências não encontradas, usando defaults.', err);
       } finally {
         setCarregando(false);
       }
     };
     carregar();
-  }, []);
+  }, [usuario?.id, setTemaEscuro]);
 
   const salvar = async () => {
     setSalvando(true);
     setErro('');
     try {
-      await api.put('/preferencias', {
-        tema:          temaEscuro ? 'escuro' : 'claro',
-        notif_email:   notifEmail,
+      const payload = {
+        user_id: usuario.id,
+        tema: temaEscuro ? 'escuro' : 'claro',
+        notif_email: notifEmail,
         notif_sistema: notifSistema,
-        idioma:        'pt-BR',
-      });
+        idioma: 'pt-BR',
+        atualizado_em: new Date().toISOString()
+      };
+      
+      const { error } = await supabase
+        .from('user_preferencias')
+        .upsert(payload, { onConflict: 'user_id' });
+        
+      if (error) throw error;
+      
       setSalvo(true);
       setTimeout(() => setSalvo(false), 2500);
     } catch (err) {
-      setErro(err?.response?.data?.mensagem || 'Erro ao salvar preferências.');
+      setErro('Erro ao salvar preferências.');
     } finally {
       setSalvando(false);
     }

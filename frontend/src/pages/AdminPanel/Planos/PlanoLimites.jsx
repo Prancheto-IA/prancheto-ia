@@ -15,7 +15,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
 
 // =============================================================
 // DEFINIÇÃO DOS PLANOS
@@ -228,10 +228,20 @@ const PlanoLimites = () => {
     setCarregando(true);
     setErro(null);
     try {
-      const resp = await api.get('/admin/tenants', { params: { limite: 200 } });
-      setTenants(resp.data?.dados || []);
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('*, users(count)', { count: 'exact' });
+        
+      if (error) throw error;
+      
+      const dados = (data || []).map(t => ({
+        ...t,
+        qtd_usuarios: t.users && t.users[0] ? t.users[0].count : 0
+      }));
+      
+      setTenants(dados);
     } catch (err) {
-      setErro(err?.response?.data?.mensagem || err?.response?.data?.erro || 'Erro ao carregar clientes.');
+      setErro(err?.message || 'Erro ao carregar clientes.');
     } finally {
       setCarregando(false);
     }
@@ -257,13 +267,19 @@ const PlanoLimites = () => {
     if (!tenantEditar) return;
     setSalvando(true);
     try {
-      await api.put(`/admin/tenants/${tenantEditar.id}`, dados);
+      const { error } = await supabase
+        .from('tenants')
+        .update(dados)
+        .eq('id', tenantEditar.id);
+        
+      if (error) throw error;
+      
       setTenantEditar(null);
       setFeedback({ tipo: 'sucesso', mensagem: `Plano de "${tenantEditar.nome}" atualizado com sucesso.` });
       setTimeout(() => setFeedback(null), 4000);
       await carregarTenants();
     } catch (err) {
-      alert(err?.response?.data?.erro || err?.response?.data?.mensagem || 'Erro ao atualizar plano.');
+      alert(err?.message || 'Erro ao atualizar plano.');
     } finally {
       setSalvando(false);
     }

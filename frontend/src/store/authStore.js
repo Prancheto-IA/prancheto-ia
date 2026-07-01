@@ -67,6 +67,9 @@ export const useAuthStore = create(
 
       /** Dados originais do Super Admin (salvos durante impersonation) */
       superAdminUsuario: null,
+      
+      /** Refresh Token original do Super Admin */
+      superAdminRefreshToken: null,
 
       // =======================================================
       // AÇÕES
@@ -88,6 +91,7 @@ export const useAuthStore = create(
           carregando:       false,
           isImpersonating:  false,
           superAdminToken:  null,
+          superAdminRefreshToken: null,
           superAdminUsuario: null,
         });
       },
@@ -105,6 +109,7 @@ export const useAuthStore = create(
           carregando:        false,
           isImpersonating:   false,
           superAdminToken:   null,
+          superAdminRefreshToken: null,
           superAdminUsuario: null,
         });
       },
@@ -135,10 +140,11 @@ export const useAuthStore = create(
        * @param {object} usuarioAlvo - Dados do usuário que está sendo impersonado
        */
       iniciarImpersonation: (tokenImpersonation, usuarioAlvo) => {
-        const { token, usuario } = get();
+        const { token, refreshToken, usuario } = get();
         set({
           // Salva a sessão original do Super Admin
           superAdminToken:   token,
+          superAdminRefreshToken: refreshToken,
           superAdminUsuario: usuario,
           // Substitui pela sessão do usuário alvo
           token:             tokenImpersonation,
@@ -154,14 +160,16 @@ export const useAuthStore = create(
        * @param {string} novoTokenSuperAdmin - Novo token JWT do Super Admin (gerado pelo backend)
        */
       encerrarImpersonation: (novoTokenSuperAdmin) => {
-        const { superAdminToken, superAdminUsuario } = get();
+        const { superAdminToken, superAdminRefreshToken, superAdminUsuario } = get();
         set({
           // Restaura a sessão do Super Admin
           token:             novoTokenSuperAdmin || superAdminToken,
+          refreshToken:      superAdminRefreshToken,
           usuario:           superAdminUsuario,
           // Limpa o estado de impersonation
           isImpersonating:   false,
           superAdminToken:   null,
+          superAdminRefreshToken: null,
           superAdminUsuario: null,
         });
       },
@@ -212,6 +220,7 @@ export const useAuthStore = create(
         usuario:           state.usuario,
         isImpersonating:   state.isImpersonating,
         superAdminToken:   state.superAdminToken,
+        superAdminRefreshToken: state.superAdminRefreshToken,
         superAdminUsuario: state.superAdminUsuario,
       }),
     }

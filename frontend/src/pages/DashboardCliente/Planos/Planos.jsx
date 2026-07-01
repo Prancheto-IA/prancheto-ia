@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../store/authStore.js';
-import api from '../../../services/api.js';
+import { supabase } from '../../../lib/supabase.js';
 
 // ----------------------------------------------------------
 // HELPERS
@@ -141,23 +141,36 @@ const Planos = () => {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro]             = useState(null);
   const [modalUpgrade, setModalUpgrade] = useState(null);
-
-  // Plano atual do tenant (vem do token JWT via usuario)
-  // Como não temos o plano no token, buscamos via API ou usamos 'starter' como padrão
-  const planoAtual = 'starter';
+  const [planoAtual, setPlanoAtual] = useState('starter');
 
   useEffect(() => {
     const carregar = async () => {
       try {
-        const { data } = await api.get('/planos');
-        setPlanos(data.planos || []);
-
-        // Organiza recursos por plano_id
+        const { data: planosData, error: erroPlanos } = await supabase
+          .from('planos')
+          .select('*, recursos_plano(*)')
+          .eq('ativo', true)
+          .order('ordem', { ascending: true });
+          
+        if (erroPlanos) throw erroPlanos;
+        
+        setPlanos(planosData || []);
+        
         const mapa = {};
-        (data.planos || []).forEach(p => {
-          mapa[p.slug] = p.recursos || [];
+        (planosData || []).forEach(p => {
+          mapa[p.slug] = p.recursos_plano || [];
         });
         setRecursos(mapa);
+        
+        if (usuario?.tenant_id) {
+          const { data: tenant } = await supabase
+            .from('tenants')
+            .select('plano')
+            .eq('id', usuario.tenant_id)
+            .single();
+          if (tenant?.plano) setPlanoAtual(tenant.plano);
+        }
+        
       } catch (e) {
         // Fallback: dados estáticos se a API não existir ainda
         setPlanos([
