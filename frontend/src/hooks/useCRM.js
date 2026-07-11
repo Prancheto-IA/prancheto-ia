@@ -183,10 +183,27 @@ export const useLeads = () => {
     return atualizar(id, { status_funil: novoStatus });
   }, [atualizar]);
 
+  /**
+   * Pendência A (FASE 3): Move um lead para outro time.
+   * Os valores em crm_valores_customizados são preservados automaticamente
+   * pois estão vinculados a campo_id, não a time_id do contato.
+   */
+  const moverParaTime = useCallback(async (id, novoTimeId) => {
+    const { data, error } = await supabase
+      .from('crm_contatos')
+      .update({ time_id: novoTimeId, atualizado_em: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    setLeads(prev => prev.map(l => l.id === id ? data : l));
+    return data;
+  }, []);
+
   return {
     leads, carregando, erro,
     carregar, criar, atualizar, excluir,
-    converterParaCliente, mudarStatus,
+    converterParaCliente, mudarStatus, moverParaTime,
   };
 };
 
@@ -247,7 +264,19 @@ export const useClientes = () => {
     setClientes(prev => prev.filter(c => c.id !== id));
   }, []);
 
-  return { clientes, carregando, erro, carregar, atualizar, excluir };
+  const moverParaTime = useCallback(async (id, novoTimeId) => {
+    const { data, error } = await supabase
+      .from('crm_contatos')
+      .update({ time_id: novoTimeId, atualizado_em: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    setClientes(prev => prev.map(c => c.id === id ? data : c));
+    return data;
+  }, []);
+
+  return { clientes, carregando, erro, carregar, atualizar, excluir, moverParaTime };
 };
 
 // ─── Hook: Interações ──────────────────────────────────────────

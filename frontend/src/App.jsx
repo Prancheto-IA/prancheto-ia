@@ -39,6 +39,19 @@ const PaginaTimes            = lazy(() => import('./pages/DashboardCliente/Organ
 const PaginaCargos           = lazy(() => import('./pages/DashboardCliente/Organizacao/Cargos.jsx'));
 const PaginaIdentidadeVisual = lazy(() => import('./pages/DashboardCliente/Organizacao/IdentidadeVisual.jsx'));
 
+// ============================================================
+// FASE 3 — Módulos
+// ============================================================
+const PaginaModulosHub       = lazy(() => import('./pages/Modulos/ModulosHub.jsx'));
+const PaginaDashboardModulo  = lazy(() => import('./pages/Modulos/Dashboard/Dashboard.jsx'));
+const PaginaCalendario       = lazy(() => import('./pages/Modulos/Calendario/Calendario.jsx'));
+const PaginaProjetos         = lazy(() => import('./pages/Modulos/Projetos/Projetos.jsx'));
+const PaginaProjetoDetalhe   = lazy(() => import('./pages/Modulos/Projetos/ProjetoDetalhe.jsx'));
+const PaginaTarefas          = lazy(() => import('./pages/Modulos/Tarefas/Tarefas.jsx'));
+const PaginaFeed             = lazy(() => import('./pages/Modulos/Feed/Feed.jsx'));
+const PaginaChatModulo       = lazy(() => import('./pages/Modulos/Chat/ChatModulo.jsx'));
+const PaginaTimesPessoas     = lazy(() => import('./pages/Modulos/TimesPessoas/TimesPessoas.jsx'));
+
 // =============================================================
 // HELPER: determina para onde redirecionar após login
 // =============================================================
@@ -256,6 +269,98 @@ const App = () => {
               element={
                 <ClienteComLayout>
                   <PaginaCRMHub />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* ============================================================
+                FASE 3 — MÓDULOS
+            ============================================================ */}
+
+            {/* Hub de configuração DnD */}
+            <Route
+              path="/modulos"
+              element={
+                <ClienteComLayout>
+                  <PaginaModulosHub />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Dashboard */}
+            <Route
+              path="/modulos/dashboard"
+              element={
+                <ClienteComLayout>
+                  <PaginaDashboardModulo />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Calendário interativo */}
+            <Route
+              path="/modulos/calendario"
+              element={
+                <ClienteComLayout>
+                  <PaginaCalendario />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Projetos */}
+            <Route
+              path="/modulos/projetos"
+              element={
+                <ClienteComLayout>
+                  <PaginaProjetos />
+                </ClienteComLayout>
+              }
+            />
+            <Route
+              path="/modulos/projetos/:id"
+              element={
+                <ClienteComLayout>
+                  <PaginaProjetoDetalhe />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Tarefas */}
+            <Route
+              path="/modulos/tarefas"
+              element={
+                <ClienteComLayout>
+                  <PaginaTarefas />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Feed */}
+            <Route
+              path="/modulos/feed"
+              element={
+                <ClienteComLayout>
+                  <PaginaFeed />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Chat */}
+            <Route
+              path="/modulos/chat"
+              element={
+                <ClienteComLayout>
+                  <PaginaChatModulo />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* Times e Pessoas */}
+            <Route
+              path="/modulos/times-pessoas"
+              element={
+                <ClienteComLayout>
+                  <PaginaTimesPessoas />
                 </ClienteComLayout>
               }
             />
