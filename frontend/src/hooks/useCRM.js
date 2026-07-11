@@ -382,10 +382,11 @@ export const useCamposCustom = () => {
   }, []);
 
   // Buscar valores de campos para um contato específico
+  // Inclui o nome do time para exibir namespace quando há conflito de label
   const buscarValores = useCallback(async (contatoId) => {
     const { data, error } = await supabase
       .from('crm_valores_customizados')
-      .select('*, campo:campo_id (id, nome, label, tipo, time_id)')
+      .select('*, campo:campo_id (id, nome, label, tipo, time_id, time:time_id (id, nome))')
       .eq('contato_id', contatoId);
     if (error) throw error;
     return data || [];

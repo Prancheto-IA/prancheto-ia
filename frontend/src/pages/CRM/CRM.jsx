@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useTema } from '../../hooks/useTema.js';
 import { supabase } from '../../lib/supabase.js';
+import { useCamposCustom } from '../../hooks/useCRM.js';
 
 // ─── Constantes ────────────────────────────────────────────────
 const FUNIL = [
@@ -209,6 +210,11 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
   const [enviando, setEnviando] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
+  // Campos customizados
+  const { buscarValores } = useCamposCustom();
+  const [valoresCampos, setValoresCampos] = useState([]);
+  const [carregandoCampos, setCarregandoCampos] = useState(true);
+
   useEffect(() => {
     const carregar = async () => {
       setCarregando(true);
@@ -226,6 +232,49 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
     };
     carregar();
   }, [contato.id]);
+
+  // Carrega valores de campos customizados do contato
+  useEffect(() => {
+    const carregarCampos = async () => {
+      setCarregandoCampos(true);
+      try {
+        const valores = await buscarValores(contato.id);
+        setValoresCampos(valores || []);
+      } catch { setValoresCampos([]); }
+      finally { setCarregandoCampos(false); }
+    };
+    carregarCampos();
+  }, [contato.id, buscarValores]);
+
+  // Agrupa valores por time e detecta labels duplicados entre times
+  // para exibir namespace "label (NomeDoTime)" quando necessário
+  const camposComNamespace = (() => {
+    if (!valoresCampos.length) return [];
+    // Conta quantos times têm cada label
+    const contagemLabel = {};
+    valoresCampos.forEach(v => {
+      const label = v.campo?.label || v.campo?.nome || '';
+      contagemLabel[label] = (contagemLabel[label] || 0) + 1;
+    });
+    return valoresCampos
+      .filter(v => v.valor != null || v.valor_json != null)
+      .map(v => {
+        const label = v.campo?.label || v.campo?.nome || 'Campo';
+        const nomeTime = v.campo?.time_id ? (v.campo?.time?.nome || null) : null;
+        const temConflito = contagemLabel[label] > 1;
+        return {
+          ...v,
+          labelExibido: temConflito && nomeTime ? `${label} (${nomeTime})` : label,
+          nomeTime,
+        };
+      })
+      // Ordena: campos do time atual do contato primeiro, depois outros
+      .sort((a, b) => {
+        const aDoTime = a.campo?.time_id === contato.time_id ? 0 : 1;
+        const bDoTime = b.campo?.time_id === contato.time_id ? 0 : 1;
+        return aDoTime - bDoTime;
+      });
+  })();
 
   const adicionarInteracao = async (e) => {
     e.preventDefault();
@@ -294,6 +343,46 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
             </button>
           ))}
         </div>
+
+        {/* Campos Customizados */}
+        {(carregandoCampos || camposComNamespace.length > 0) && (
+          <div className="px-5 py-3 border-b flex-shrink-0"
+            style={{ borderColor: 'var(--color-surface-border)' }}>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2"
+              style={{ color: 'var(--color-text-secondary)' }}>
+              Campos customizados
+            </h4>
+            {carregandoCampos ? (
+              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Carregando...</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                {camposComNamespace.map(v => (
+                  <div key={v.id} className="min-w-0">
+                    <span className="text-xs block truncate"
+                      style={{ color: 'var(--color-text-secondary)' }}
+                      title={v.labelExibido}>
+                      {v.labelExibido}
+                      {v.nomeTime && v.campo?.time_id !== contato.time_id && (
+                        <span className="ml-1 px-1 py-0.5 rounded text-[10px]"
+                          style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)' }}>
+                          {v.nomeTime}
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-sm font-medium truncate block"
+                      style={{ color: 'var(--color-text-primary)' }}>
+                      {v.valor_json != null
+                        ? (Array.isArray(v.valor_json)
+                            ? v.valor_json.join(', ')
+                            : JSON.stringify(v.valor_json))
+                        : (v.valor || '—')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Histórico de interações */}
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
