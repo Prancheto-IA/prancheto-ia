@@ -12,12 +12,14 @@ import { useAuth } from '../../hooks/useAuth.js';
 // ITENS DA NAVEGAÇÃO LATERAL
 // ----------------------------------------------------------
 const NAV_ITENS = [
-  { slug: 'dashboard',    label: 'Início',       emoji: '🏠', rota: '/dashboard',               exact: true  },
-  { slug: 'crm',          label: 'CRM',           emoji: '📋', rota: '/crm',                     exact: false },
-  { slug: 'chat_ia',      label: 'Chat com IA',   emoji: '🤖', rota: '/dashboard/chat',          exact: false },
-  { slug: 'agenda',       label: 'Agenda',        emoji: '🗓️', rota: '/dashboard/agenda',        exact: false },
-  { slug: 'relatorios',   label: 'Relatórios',    emoji: '📊', rota: '/dashboard/relatorios',    exact: false },
-  { slug: 'outbound',     label: 'Outbound',      emoji: '📧', rota: '/dashboard/outbound',      exact: false },
+  { slug: 'dashboard',    label: 'Início',        emoji: '🏠', rota: '/dashboard',                    exact: true  },
+  { slug: 'crm',          label: 'CRM',            emoji: '📋', rota: '/crm',                          exact: false },
+  { slug: 'chat_ia',      label: 'Chat com IA',    emoji: '🤖', rota: '/dashboard/chat',               exact: false },
+  { slug: 'agenda',       label: 'Agenda',         emoji: '🗓️', rota: '/dashboard/agenda',             exact: false },
+  { slug: 'relatorios',   label: 'Relatórios',     emoji: '📊', rota: '/dashboard/relatorios',         exact: false },
+  { slug: 'outbound',     label: 'Outbound',       emoji: '📧', rota: '/dashboard/outbound',           exact: false },
+  // prefixoAtivo: garante highlight em qualquer sub-rota /dashboard/organizacao/*
+  { slug: 'organizacao',  label: 'Organização',    emoji: '🏢', rota: '/dashboard/organizacao/times',  exact: false, prefixoAtivo: '/dashboard/organizacao' },
 ];
 
 const NAV_SECUNDARIO = [
@@ -33,28 +35,39 @@ const BADGE_CARGO = {
 };
 
 // Páginas onde o botão Voltar NÃO aparece (raiz do dashboard)
-const ROTAS_SEM_VOLTAR = ['/dashboard', '/crm'];
+const ROTAS_SEM_VOLTAR = ['/dashboard', '/crm', '/dashboard/organizacao'];
 
 // ----------------------------------------------------------
 // COMPONENTE: Item da Sidebar
+// Suporta `prefixoAtivo` para manter highlight em sub-rotas
+// (ex: /dashboard/organizacao/* → item Organização ativo)
 // ----------------------------------------------------------
-const ItemNav = ({ item, onClick }) => (
-  <NavLink
-    to={item.rota}
-    end={item.exact}
-    onClick={onClick}
-    className={({ isActive }) =>
-      `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-      ${isActive
-        ? 'bg-primary-500/15 text-primary-300 border border-primary-500/20'
-        : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-      }`
-    }
-  >
-    <span className="text-base flex-shrink-0">{item.emoji}</span>
-    <span className="truncate">{item.label}</span>
-  </NavLink>
-);
+const ItemNav = ({ item, onClick }) => {
+  const location = useLocation();
+  // Se o item tem prefixoAtivo, verifica se a rota atual começa com esse prefixo
+  const ativoViaPrefixo = item.prefixoAtivo
+    ? location.pathname.startsWith(item.prefixoAtivo)
+    : false;
+
+  return (
+    <NavLink
+      to={item.rota}
+      end={item.exact}
+      onClick={onClick}
+      className={({ isActive }) => {
+        const ativo = isActive || ativoViaPrefixo;
+        return `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
+        ${ativo
+          ? 'bg-primary-500/15 text-primary-300 border border-primary-500/20'
+          : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+        }`;
+      }}
+    >
+      <span className="text-base flex-shrink-0">{item.emoji}</span>
+      <span className="truncate">{item.label}</span>
+    </NavLink>
+  );
+};
 
 // ----------------------------------------------------------
 // COMPONENTE: Sidebar

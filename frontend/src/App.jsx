@@ -32,6 +32,12 @@ const PaginaOutbound         = lazy(() => import('./pages/DashboardCliente/Outbo
 const PaginaConfiguracoes    = lazy(() => import('./pages/DashboardCliente/Configuracoes/Configuracoes.jsx'));
 const PaginaPlanos           = lazy(() => import('./pages/DashboardCliente/Planos/Planos.jsx'));
 
+// Módulo Organização (Times, Cargos, Identidade Visual)
+const PaginaOrganizacao      = lazy(() => import('./pages/DashboardCliente/Organizacao/Organizacao.jsx'));
+const PaginaTimes            = lazy(() => import('./pages/DashboardCliente/Organizacao/Times.jsx'));
+const PaginaCargos           = lazy(() => import('./pages/DashboardCliente/Organizacao/Cargos.jsx'));
+const PaginaIdentidadeVisual = lazy(() => import('./pages/DashboardCliente/Organizacao/IdentidadeVisual.jsx'));
+
 // =============================================================
 // HELPER: determina para onde redirecionar após login
 // =============================================================
@@ -208,6 +214,23 @@ const App = () => {
                 </ClienteComLayout>
               }
             />
+
+            {/* ============================================================
+                ORGANIZAÇÃO: Times, Cargos e Identidade Visual
+                Sub-rotas aninhadas dentro do layout do módulo
+            ============================================================ */}
+            <Route
+              path="/dashboard/organizacao"
+              element={
+                <ClienteComLayout>
+                  <PaginaOrganizacao />
+                </ClienteComLayout>
+              }
+            >
+              <Route path="times"      element={<PaginaTimes />} />
+              <Route path="cargos"     element={<PaginaCargos />} />
+              <Route path="identidade" element={<PaginaIdentidadeVisual />} />
+            </Route>
 
             {/* Wildcard do dashboard (redireciona para /dashboard) */}
             <Route
