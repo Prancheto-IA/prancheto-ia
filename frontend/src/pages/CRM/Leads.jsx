@@ -204,6 +204,7 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
   const [enviando, setEnviando]                   = useState(false);
   const [convertendo, setConvertendo]             = useState(false);
   const [confirmarConversao, setConfirmarConversao] = useState(false);
+  const [erroConversao, setErroConversao]         = useState('');
 
   useEffect(() => { if (lead?.id) carregar(); }, [lead?.id, carregar]);
 
@@ -220,11 +221,15 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
 
   const handleConverter = async () => {
     setConvertendo(true);
+    setErroConversao('');
     try {
       await onConverter(lead.id);
       onFechar();
-    } catch { /* silencioso */ }
-    finally { setConvertendo(false); setConfirmarConversao(false); }
+    } catch (err) {
+      setErroConversao(err?.message || 'Erro ao converter o lead em cliente.');
+    } finally {
+      setConvertendo(false);
+    }
   };
 
   if (!lead) return null;
@@ -298,7 +303,7 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
               <p className="text-sm text-emerald-300 flex-1">
                 Confirmar conversão de <strong>{lead.nome}</strong> para Cliente?
               </p>
-              <button onClick={() => setConfirmarConversao(false)}
+              <button onClick={() => { setConfirmarConversao(false); setErroConversao(''); }}
                 className="text-xs px-3 py-1.5 rounded-lg border text-slate-400"
                 style={{ borderColor: 'var(--color-surface-border)' }}>
                 Cancelar
@@ -308,6 +313,9 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
                 {convertendo ? 'Convertendo...' : 'Confirmar'}
               </button>
             </div>
+          )}
+          {erroConversao && (
+            <p className="text-red-400 text-xs mt-2">{erroConversao}</p>
           )}
         </div>
 
