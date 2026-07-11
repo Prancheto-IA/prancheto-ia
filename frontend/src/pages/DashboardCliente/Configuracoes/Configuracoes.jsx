@@ -90,7 +90,8 @@ const Toggle = ({ label, descricao, ativo, onChange }) => (
 
 const Configuracoes = () => {
   const { usuario } = useAuthStore();
-  const { temaEscuro, setTemaEscuro } = useTema();
+  // sincronizarComBanco: banco prevalece sobre localStorage (fonte de verdade)
+  const { temaEscuro, setTemaEscuro, sincronizarComBanco } = useTema();
 
   const [nome, setNome]                 = useState(usuario?.nome || '');
   const [notifEmail, setNotifEmail]     = useState(true);
@@ -113,8 +114,8 @@ const Configuracoes = () => {
         if (error && error.code !== 'PGRST116') throw error;
         
         const prefs = data || {};
-        if (prefs.tema === 'escuro') setTemaEscuro(true);
-        else if (prefs.tema === 'claro') setTemaEscuro(false);
+        // Banco é a fonte de verdade: sincroniza localStorage com o valor do banco
+        sincronizarComBanco(prefs.tema || null);
         setNotifEmail(prefs.notif_email !== false);
         setNotifSistema(prefs.notif_sistema !== false);
       } catch (err) {
@@ -124,7 +125,7 @@ const Configuracoes = () => {
       }
     };
     carregar();
-  }, [usuario?.id, setTemaEscuro]);
+  }, [usuario?.id, sincronizarComBanco]);
 
   const salvar = async () => {
     setSalvando(true);

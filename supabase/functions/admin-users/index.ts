@@ -50,7 +50,7 @@ serve(async (req) => {
       if (createError) throw createError;
 
       // The trigger will automatically create the row in public.users.
-      // But we need to update the tenantId and cargo since they might not be passed correctly in metadata.
+      // Update tenantId and cargo since they might not be passed correctly in metadata.
       const { error: updateError } = await supabase
         .from('users')
         .update({
@@ -97,27 +97,40 @@ serve(async (req) => {
       });
 
     } else if (action === 'status') {
+      // BUG FIX: campo correto é 'ativo' (boolean), não 'status' (text)
+      // Converte o valor recebido para boolean de forma segura
       if (!userId) throw new Error('userId is required');
-      
-      // Update status in public.users
+      if (payload.ativo === undefined && payload.status === undefined) {
+        throw new Error('payload.ativo (boolean) é obrigatório para action=status');
+      }
+
+      // Aceita tanto payload.ativo (novo) quanto payload.status (legado) para compatibilidade
+      let novoAtivo: boolean;
+      if (payload.ativo !== undefined) {
+        novoAtivo = Boolean(payload.ativo);
+      } else {
+        // Compatibilidade com chamadas legadas que enviavam payload.status
+        novoAtivo = payload.status === 'ativo' || payload.status === true;
+      }
+
       const { error: updateError } = await supabase
         .from('users')
-        .update({ status: payload.status })
+        .update({ ativo: novoAtivo })
         .eq('id', userId);
         
-      if (updateError) throw updateError;
+      if (updateError) {
+        // Erro explícito — não silencia mais
+        throw new Error(`Erro ao atualizar status do usuário: ${updateError.message}`);
+      }
 
-      // Optionally, suspend the user in Auth to prevent login
-      // auth.admin.updateUserById { ban_duration: "1000h" } could be used for 'inativo'
-      
-      return new Response(JSON.stringify({ success: true }), {
+      return new Response(JSON.stringify({ success: true, ativo: novoAtivo }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });
 
     }
 
-    throw new Error('Invalid action');
+    throw new Error('Invalid action. Use: create | update | status');
 
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {

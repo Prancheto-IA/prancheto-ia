@@ -10,6 +10,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { supabase } from '../lib/supabase.js';
+import { useTema } from './useTema.js';
 
 const rotaDestino = (usuario) => {
   if (usuario?.cargo === 'super_admin') return '/admin';
@@ -26,6 +27,10 @@ export const useAuth = () => {
     carregando,
     erroLogin,
   } = useAuthStore();
+
+  // carregarTemaDoUsuario: busca o tema do banco após login e sincroniza
+  // Garante que o banco seja a fonte de verdade (não o localStorage)
+  const { carregarTemaDoUsuario } = useTema();
 
   const login = async (email, senha) => {
     setCarregando(true);
@@ -58,10 +63,13 @@ export const useAuth = () => {
       };
 
       // 3. Salva no store
-      // Como o Supabase gerencia o token, não precisamos armazenar tokens customizados
       loginStore(authData.session.access_token, authData.session.refresh_token, usuarioCompleto);
 
-      // 4. Redireciona
+      // 4. Sincroniza o tema com o banco (banco prevalece sobre localStorage)
+      // Não aguarda para não bloquear o redirecionamento
+      carregarTemaDoUsuario(userProfile.id).catch(() => {});
+
+      // 5. Redireciona
       navigate(rotaDestino(usuarioCompleto), { replace: true });
 
     } catch (erro) {

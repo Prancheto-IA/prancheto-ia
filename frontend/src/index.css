@@ -2,6 +2,11 @@
    PRANCHETO.IA - ESTILOS GLOBAIS
    Usa CSS variables para suporte a tema claro/escuro.
    A classe 'dark' é aplicada no <html> pelo hook useTema.js.
+   
+   ORDEM DE PRIORIDADE DO TEMA:
+   1. Banco (user_preferencias.tema) — fonte de verdade oficial
+   2. localStorage (cache para evitar flash no carregamento)
+   3. Preferência do sistema operacional (fallback)
    ============================================================= */
 
 /* Importação das camadas do TailwindCSS */
@@ -9,30 +14,23 @@
 @tailwind components;
 @tailwind utilities;
 
-/* --- CSS VARIABLES: TEMA ESCURO (padrão) --- */
+/* --- CSS VARIABLES: TEMA CLARO (padrão base — sem classe) --- */
+/* O tema claro é o padrão. O tema escuro é aplicado via html.dark */
 :root {
-  --color-surface:        #0f172a;
-  --color-surface-card:   #1e293b;
-  --color-surface-border: #334155;
-  --color-text-primary:   #f8fafc;
-  --color-text-secondary: #94a3b8;
+  --color-surface:        #f1f5f9;
+  --color-surface-card:   #ffffff;
+  --color-surface-border: #e2e8f0;
+  --color-text-primary:   #0f172a;
+  --color-text-secondary: #475569;
 }
 
-/* --- CSS VARIABLES: TEMA CLARO --- */
+/* --- CSS VARIABLES: TEMA ESCURO (override via classe html.dark) --- */
 html.dark {
   --color-surface:        #0f172a;
   --color-surface-card:   #1e293b;
   --color-surface-border: #334155;
   --color-text-primary:   #f8fafc;
   --color-text-secondary: #94a3b8;
-}
-
-html:not(.dark) {
-  --color-surface:        #f1f5f9;
-  --color-surface-card:   #ffffff;
-  --color-surface-border: #e2e8f0;
-  --color-text-primary:   #0f172a;
-  --color-text-secondary: #475569;
 }
 
 /* --- ESTILOS BASE GLOBAIS --- */
