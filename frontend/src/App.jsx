@@ -18,6 +18,7 @@ import BannerImpersonation from './components/BannerImpersonation/BannerImperson
 // =============================================================
 const PaginaLogin            = lazy(() => import('./pages/Login/Login.jsx'));
 const PaginaCRM              = lazy(() => import('./pages/CRM/CRM.jsx'));
+const PaginaCRMHub           = lazy(() => import('./pages/CRM/CRMHub.jsx'));
 const PaginaAdminPanel       = lazy(() => import('./pages/AdminPanel/AdminPanel.jsx'));
 
 // Layout do cliente (Sidebar)
@@ -239,14 +240,23 @@ const App = () => {
             />
 
             {/* ============================================================
-                CRM: módulo separado (sem o LayoutCliente, tem seu próprio layout)
+                CRM LEGADO: mantido para compatibilidade (redireciona para novo hub)
+            ============================================================ */}
+            <Route
+              path="/crm"
+              element={<Navigate to="/crm/leads" replace />}
+            />
+
+            {/* ============================================================
+                CRM HUB (FASE 2): Leads, Clientes, Campos Customizados
+                Usa o LayoutCliente (Sidebar) + abas internas
             ============================================================ */}
             <Route
               path="/crm/*"
               element={
-                <RotaCliente>
-                  <PaginaCRM />
-                </RotaCliente>
+                <ClienteComLayout>
+                  <PaginaCRMHub />
+                </ClienteComLayout>
               }
             />
 
