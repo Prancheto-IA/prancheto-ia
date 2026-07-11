@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DndContext, PointerSensor, useSensor, useSensors, useDroppable, useDraggable } from '@dnd-kit/core';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../store/authStore';
@@ -60,7 +61,8 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, di
     onFechar();
   };
 
-  const inp = 'w-full px-3 py-2 rounded-lg text-sm border border-white/10 bg-white/5 focus:outline-none focus:border-primary-500';
+  const inp = 'w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500';
+  const inpStyle = { border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onFechar}>
@@ -70,18 +72,18 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, di
           <button onClick={onFechar} className="opacity-50 hover:opacity-100 text-xl">✕</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input className={inp} placeholder="Título do evento" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} required />
+          <input className={inp} style={inpStyle} placeholder="Título do evento" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} required />
           <div className="grid grid-cols-2 gap-3">
-            <select className={inp} value={form.tipo} onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
+            <select className={inp} style={inpStyle} value={form.tipo} onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
               {Object.entries(TIPOS_EVENTO).map(([k, v]) => (
                 <option key={k} value={k}>{v.icone} {v.label}</option>
               ))}
             </select>
-            <input type="time" className={inp} value={form.hora} onChange={e => setForm(f => ({ ...f, hora: e.target.value }))} />
+            <input type="time" className={inp} style={inpStyle} value={form.hora} onChange={e => setForm(f => ({ ...f, hora: e.target.value }))} />
           </div>
-          <input type="date" className={inp} value={form.data_inicio} onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))} required />
-          <input className={inp} placeholder="Local (opcional)" value={form.local} onChange={e => setForm(f => ({ ...f, local: e.target.value }))} />
-          <textarea className={inp} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+          <input type="date" className={inp} style={inpStyle} value={form.data_inicio} onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))} required />
+          <input className={inp} style={inpStyle} placeholder="Local (opcional)" value={form.local} onChange={e => setForm(f => ({ ...f, local: e.target.value }))} />
+          <textarea className={inp} style={inpStyle} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
           <div className="flex gap-2 pt-2">
             {eventoEditando && (
               <button type="button" onClick={() => { onExcluir(eventoEditando.id); onFechar(); }}
@@ -89,7 +91,10 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, di
                 Excluir
               </button>
             )}
-            <button type="button" onClick={onFechar} className="flex-1 px-4 py-2 rounded-lg text-sm border border-white/10 hover:bg-white/5">Cancelar</button>
+            <button type="button" onClick={onFechar} className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors"
+              style={{ border: '1px solid var(--color-surface-border)' }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Cancelar</button>
             <button type="submit" className="flex-1 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium">Salvar</button>
           </div>
         </form>
@@ -153,6 +158,7 @@ const CelulaDia = ({ dia, mes, ano, eventos, hoje, onClicar, onAbrirEvento }) =>
 
 // ─── Página principal ─────────────────────────────────────────────────────────
 const Calendario = () => {
+  const navigate = useNavigate();
   const usuario = useAuthStore(s => s.usuario);
   const [eventos, setEventos] = useState([]);
   const [mesAtual, setMesAtual] = useState(new Date().getMonth());
@@ -241,6 +247,15 @@ const Calendario = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      {/* Botão Voltar */}
+      <button
+        onClick={() => navigate('/modulos')}
+        className="text-sm opacity-50 hover:opacity-100 transition-opacity"
+        title="Voltar para Módulos"
+      >
+        ← Voltar
+      </button>
+
       {/* Cabeçalho */}
       <div className="flex items-center justify-between">
         <div>
@@ -248,10 +263,19 @@ const Calendario = () => {
           <p className="text-sm opacity-50">Arraste eventos para reagendar</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={irMesAnterior} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">‹</button>
+          <button onClick={irMesAnterior}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            style={{ '--hover-bg': 'var(--color-surface-hover)' }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>‹</button>
           <button onClick={() => { setMesAtual(hoje.getMonth()); setAnoAtual(hoje.getFullYear()); }}
-            className="px-3 py-1.5 rounded-lg text-sm hover:bg-white/10 transition-colors">Hoje</button>
-          <button onClick={irProximoMes} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">›</button>
+            className="px-3 py-1.5 rounded-lg text-sm transition-colors"
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Hoje</button>
+          <button onClick={irProximoMes}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>›</button>
           <button
             onClick={() => { setEventoEditando(null); setDiaSelecionado(hoje.getDate()); setModalAberto(true); }}
             className="ml-2 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium"
@@ -263,15 +287,15 @@ const Calendario = () => {
 
       {/* Grade do calendário */}
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="rounded-xl overflow-hidden border border-white/10">
+        <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
           {/* Cabeçalho dos dias */}
-          <div className="grid grid-cols-7 border-b border-white/10">
+          <div className="grid grid-cols-7 border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
             {DIAS_SEMANA.map(d => (
               <div key={d} className="py-2 text-center text-xs font-medium opacity-50">{d}</div>
             ))}
           </div>
           {/* Células */}
-          <div className="grid grid-cols-7 gap-px bg-white/5">
+          <div className="grid grid-cols-7 gap-px" style={{ backgroundColor: 'var(--color-surface-border)' }}>
             {/* Células vazias antes do primeiro dia */}
             {Array.from({ length: primeiroDia }).map((_, i) => (
               <div key={`vazio-${i}`} className="min-h-[80px] p-1.5" style={{ backgroundColor: 'var(--color-surface)' }} />

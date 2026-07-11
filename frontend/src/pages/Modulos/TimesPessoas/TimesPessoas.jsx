@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useOrg } from '../../../hooks/useOrg';
 import { useAuthStore } from '../../../store/authStore';
 
@@ -17,23 +18,30 @@ const AvatarUsuario = ({ nome, tamanho = 10 }) => {
 };
 
 const CardMembro = ({ membro }) => (
-  <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors">
+  <div
+    className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+    onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+  >
     <AvatarUsuario nome={membro.nome} tamanho={10} />
     <div className="flex-1 min-w-0">
       <p className="text-sm font-medium truncate">{membro.nome}</p>
       <p className="text-xs opacity-40 truncate">{membro.email}</p>
     </div>
-    <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 opacity-60 flex-shrink-0 capitalize">
+    <span className="text-xs px-2 py-0.5 rounded-full opacity-60 flex-shrink-0 capitalize"
+      style={{ backgroundColor: 'var(--color-surface-border)' }}>
       {membro.cargo}
     </span>
   </div>
 );
 
 const CardTime = ({ time, membros, expandido, onToggle }) => (
-  <div className="rounded-xl border border-white/10 overflow-hidden">
+  <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-surface-border)' }}>
     <button
       onClick={onToggle}
-      className="w-full flex items-center gap-3 p-4 hover:bg-white/5 transition-colors text-left"
+      className="w-full flex items-center gap-3 p-4 transition-colors text-left"
+      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+      onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
     >
       <div
         className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
@@ -51,7 +59,7 @@ const CardTime = ({ time, membros, expandido, onToggle }) => (
       </div>
     </button>
     {expandido && (
-      <div className="border-t border-white/5 divide-y divide-white/5">
+      <div className="border-t divide-y" style={{ borderColor: 'var(--color-surface-border)' }}>
         {membros.length === 0 ? (
           <p className="text-sm opacity-40 text-center py-6">Nenhum membro neste time</p>
         ) : (
@@ -67,6 +75,7 @@ const CardTime = ({ time, membros, expandido, onToggle }) => (
 );
 
 const TimesPessoas = () => {
+  const navigate = useNavigate();
   const usuario = useAuthStore(s => s.usuario);
   const { listarTimes, listarUsuariosTenant, carregando } = useOrg();
   const [times, setTimes] = useState([]);
@@ -117,6 +126,15 @@ const TimesPessoas = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      {/* Botão Voltar */}
+      <button
+        onClick={() => navigate('/modulos')}
+        className="text-sm opacity-50 hover:opacity-100 transition-opacity"
+        title="Voltar para Módulos"
+      >
+        ← Voltar
+      </button>
+
       <div>
         <h1 className="text-2xl font-bold">Times e Pessoas</h1>
         <p className="text-sm opacity-50">
@@ -126,23 +144,28 @@ const TimesPessoas = () => {
 
       {/* Busca */}
       <input
-        className="w-full px-3 py-2 rounded-lg text-sm border border-white/10 bg-white/5 focus:outline-none focus:border-primary-500"
+        className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+        style={{ border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' }}
         placeholder="Buscar times ou pessoas..."
         value={busca}
         onChange={e => setBusca(e.target.value)}
       />
 
       {/* Abas */}
-      <div className="flex rounded-lg border border-white/10 overflow-hidden w-fit">
+      <div className="flex rounded-lg border overflow-hidden w-fit" style={{ borderColor: 'var(--color-surface-border)' }}>
         <button
           onClick={() => setAba('times')}
-          className={`px-4 py-2 text-sm transition-colors ${aba === 'times' ? 'bg-primary-600' : 'hover:bg-white/5'}`}
+          className={`px-4 py-2 text-sm transition-colors ${aba === 'times' ? 'bg-primary-600' : ''}`}
+          onMouseEnter={e => { if (aba !== 'times') e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
+          onMouseLeave={e => { if (aba !== 'times') e.currentTarget.style.backgroundColor = ''; }}
         >
           🏷️ Times ({times.length})
         </button>
         <button
           onClick={() => setAba('pessoas')}
-          className={`px-4 py-2 text-sm transition-colors ${aba === 'pessoas' ? 'bg-primary-600' : 'hover:bg-white/5'}`}
+          className={`px-4 py-2 text-sm transition-colors ${aba === 'pessoas' ? 'bg-primary-600' : ''}`}
+          onMouseEnter={e => { if (aba !== 'pessoas') e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
+          onMouseLeave={e => { if (aba !== 'pessoas') e.currentTarget.style.backgroundColor = ''; }}
         >
           👤 Pessoas ({usuarios.length})
         </button>
@@ -175,10 +198,12 @@ const TimesPessoas = () => {
 
           {/* Sem time */}
           {!busca && semTime.length > 0 && (
-            <div className="rounded-xl border border-white/10 overflow-hidden">
+            <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-surface-border)' }}>
               <button
                 onClick={() => toggleTime('sem-time')}
-                className="w-full flex items-center gap-3 p-4 hover:bg-white/5 transition-colors text-left"
+                className="w-full flex items-center gap-3 p-4 transition-colors text-left"
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
               >
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-white/5">
                   👤
@@ -190,7 +215,7 @@ const TimesPessoas = () => {
                 <span className="text-xs opacity-40">{semTime.length} membro{semTime.length !== 1 ? 's' : ''}</span>
               </button>
               {timesExpandidos['sem-time'] && (
-                <div className="border-t border-white/5 divide-y divide-white/5">
+                <div className="border-t divide-y" style={{ borderColor: 'var(--color-surface-border)' }}>
                   {semTime.map(m => (
                     <div key={m.id} className="px-4">
                       <CardMembro membro={m} />
@@ -217,7 +242,10 @@ const TimesPessoas = () => {
                 t.org_time_membros?.some(m => m.user_id === u.id)
               );
               return (
-                <div key={u.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors">
+                <div key={u.id}
+                  className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
                   <AvatarUsuario nome={u.nome} tamanho={10} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -229,7 +257,8 @@ const TimesPessoas = () => {
                     <p className="text-xs opacity-40 truncate">{u.email}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 opacity-60 capitalize">
+                    <span className="text-xs px-2 py-0.5 rounded-full opacity-60 capitalize"
+                      style={{ backgroundColor: 'var(--color-surface-border)' }}>
                       {u.cargo}
                     </span>
                     {timesDoUsuario.length > 0 && (

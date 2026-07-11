@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjetos } from '../../../hooks/useProjetos';
 
+// Estilo reutilizável para inputs com tema
+const inpStyle = { border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' };
+
 const STATUS_COR = {
   planejamento: '#94a3b8',
   em_andamento: '#3b82f6',
@@ -40,7 +43,7 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, projetoEditando }) => {
     onFechar();
   };
 
-  const inp = 'w-full px-3 py-2 rounded-lg text-sm border border-white/10 bg-white/5 focus:outline-none focus:border-primary-500';
+  const inp = 'w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onFechar}>
@@ -51,39 +54,43 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, projetoEditando }) => {
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="flex gap-2">
-            <input className="w-16 px-3 py-2 rounded-lg text-sm border border-white/10 bg-white/5 text-center" placeholder="📁" value={form.icone} onChange={e => setForm(f => ({ ...f, icone: e.target.value }))} />
-            <input className={`flex-1 ${inp}`} placeholder="Nome do projeto" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} required />
-          </div>
-          <textarea className={inp} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
-          <div className="grid grid-cols-2 gap-3">
-            <select className={inp} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-              {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-            </select>
-            <select className={inp} value={form.prioridade} onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}>
-              <option value="baixa">Baixa</option>
-              <option value="media">Média</option>
-              <option value="alta">Alta</option>
-              <option value="critica">Crítica</option>
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs opacity-50 mb-1 block">Início</label>
-              <input type="date" className={inp} value={form.data_inicio} onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))} />
+            <input className="w-16 px-3 py-2 rounded-lg text-sm text-center" style={inpStyle} placeholder="📁" value={form.icone} onChange={e => setForm(f => ({ ...f, icone: e.target.value }))} />
+              <input className={`flex-1 ${inp}`} style={inpStyle} placeholder="Nome do projeto" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} required />
             </div>
-            <div>
-              <label className="text-xs opacity-50 mb-1 block">Fim</label>
-              <input type="date" className={inp} value={form.data_fim} onChange={e => setForm(f => ({ ...f, data_fim: e.target.value }))} />
+            <textarea className={inp} style={inpStyle} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+            <div className="grid grid-cols-2 gap-3">
+              <select className={inp} style={inpStyle} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              </select>
+              <select className={inp} style={inpStyle} value={form.prioridade} onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}>
+                <option value="baixa">Baixa</option>
+                <option value="media">Média</option>
+                <option value="alta">Alta</option>
+                <option value="critica">Crítica</option>
+              </select>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs opacity-50">Cor:</label>
-            <input type="color" value={form.cor} onChange={e => setForm(f => ({ ...f, cor: e.target.value }))} className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
-          </div>
-          <div className="flex gap-2 pt-2">
-            <button type="button" onClick={onFechar} className="flex-1 px-4 py-2 rounded-lg text-sm border border-white/10 hover:bg-white/5">Cancelar</button>
-            <button type="submit" className="flex-1 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium">Salvar</button>
-          </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs opacity-50 mb-1 block">Início</label>
+                <input type="date" className={inp} style={inpStyle} value={form.data_inicio} onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))} />
+              </div>
+              <div>
+                <label className="text-xs opacity-50 mb-1 block">Fim</label>
+                <input type="date" className={inp} style={inpStyle} value={form.data_fim} onChange={e => setForm(f => ({ ...f, data_fim: e.target.value }))} />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs opacity-50">Cor:</label>
+              <input type="color" value={form.cor} onChange={e => setForm(f => ({ ...f, cor: e.target.value }))} className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button type="button" onClick={onFechar}
+                className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors"
+                style={{ border: '1px solid var(--color-surface-border)' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Cancelar</button>
+              <button type="submit" className="flex-1 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium">Salvar</button>
+            </div>
         </form>
       </div>
     </div>
@@ -131,7 +138,7 @@ const CardProjeto = ({ projeto, onClick, onEditar }) => {
           <span>Progresso</span>
           <span>{projeto.progresso}%</span>
         </div>
-        <div className="h-1.5 rounded-full bg-white/10">
+        <div className="h-1.5 rounded-full" style={{ backgroundColor: 'var(--color-surface-border)' }}>
           <div
             className="h-full rounded-full transition-all"
             style={{ width: `${projeto.progresso}%`, backgroundColor: projeto.cor }}
@@ -187,6 +194,15 @@ const Projetos = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      {/* Botão Voltar */}
+      <button
+        onClick={() => navigate('/modulos')}
+        className="text-sm opacity-50 hover:opacity-100 transition-opacity"
+        title="Voltar para Módulos"
+      >
+        ← Voltar
+      </button>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Projetos</h1>
@@ -206,9 +222,11 @@ const Projetos = () => {
           <button
             key={f.slug}
             onClick={() => setFiltroStatus(f.slug)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              filtroStatus === f.slug ? 'bg-primary-600 text-white' : 'hover:bg-white/10 opacity-60'
-            }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                filtroStatus === f.slug ? 'bg-primary-600 text-white' : 'opacity-60'
+              }`}
+              onMouseEnter={e => { if (filtroStatus !== f.slug) e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
+              onMouseLeave={e => { if (filtroStatus !== f.slug) e.currentTarget.style.backgroundColor = ''; }}
           >
             {f.label}
           </button>

@@ -54,6 +54,7 @@ const Dashboard = () => {
           resClientes,
           resTarefas,
           resTarefasMinhas,
+          resProjetosCount,
           resProjetos,
           resEventos,
           resNotif,
@@ -71,6 +72,8 @@ const Dashboard = () => {
             .neq('status', 'concluida')
             .order('data_vencimento', { ascending: true })
             .limit(5),
+          supabase.from('projetos').select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId).eq('status', 'em_andamento'),
           supabase.from('projetos').select('id, nome, status, progresso, cor, icone')
             .eq('tenant_id', tenantId).eq('status', 'em_andamento').limit(4),
           supabase.from('agenda_eventos').select('id, titulo, tipo, data_inicio, cor')
@@ -88,6 +91,7 @@ const Dashboard = () => {
           clientes: resClientes.value?.count ?? 0,
           tarefasAbertas: resTarefas.value?.count ?? 0,
           minhasTarefas: resTarefasMinhas.value?.data ?? [],
+          projetosAtivos: resProjetosCount.value?.count ?? 0,
           projetos: resProjetos.value?.data ?? [],
           eventos: resEventos.value?.data ?? [],
           notifNaoLidas: resNotif.value?.count ?? 0,
@@ -126,6 +130,17 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+      {/* Cabeçalho com Voltar */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => navigate('/modulos')}
+          className="text-sm opacity-50 hover:opacity-100 transition-opacity"
+          title="Voltar para Módulos"
+        >
+          ← Voltar
+        </button>
+      </div>
+
       {/* Saudação */}
       <div>
         <h1 className="text-2xl font-bold">
@@ -156,7 +171,7 @@ const Dashboard = () => {
           cor="#3b82f6" onClick={() => navigate('/modulos/tarefas')}
         />
         <CardKPI
-          icone="📁" label="Projetos ativos" valor={dados?.projetos?.length}
+          icone="📁" label="Projetos ativos" valor={dados?.projetosAtivos}
           cor="#6366f1" onClick={() => navigate('/modulos/projetos')}
         />
       </div>
@@ -173,7 +188,10 @@ const Dashboard = () => {
                 <div
                   key={t.id}
                   onClick={() => navigate('/modulos/tarefas')}
-                  className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors"
+                  style={{ borderRadius: '0.5rem' }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
                 >
                   <div
                     className="w-2 h-2 rounded-full flex-shrink-0"
@@ -211,7 +229,9 @@ const Dashboard = () => {
                 <div
                   key={e.id}
                   onClick={() => navigate('/modulos/calendario')}
-                  className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors"
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
                 >
                   <div
                     className="w-2 h-8 rounded-full flex-shrink-0"
@@ -245,7 +265,7 @@ const Dashboard = () => {
                   <p className="text-sm font-medium truncate">{p.nome}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full bg-white/10">
+                  <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: 'var(--color-surface-border)' }}>
                     <div
                       className="h-full rounded-full transition-all"
                       style={{ width: `${p.progresso}%`, backgroundColor: p.cor }}

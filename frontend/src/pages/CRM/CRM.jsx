@@ -40,6 +40,27 @@ const FORM_VAZIO = {
 const funilInfo = (key) => FUNIL.find(f => f.key === key) || FUNIL[0];
 
 // ─── Badge de status ───────────────────────────────────────────
+// ─── Badge de temperatura (score) ─────────────────────────────
+const BadgeScore = ({ score }) => {
+  if (score == null) return null;
+  const s = Number(score);
+  if (s >= 70) return (
+    <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#ef444422', color: '#ef4444' }} title={`Score: ${s}`}>
+      🔥 {s}
+    </span>
+  );
+  if (s >= 30) return (
+    <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#f59e0b22', color: '#f59e0b' }} title={`Score: ${s}`}>
+      🌡️ {s}
+    </span>
+  );
+  return (
+    <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#94a3b822', color: '#94a3b8' }} title={`Score: ${s}`}>
+      ❄️ {s}
+    </span>
+  );
+};
+
 const BadgeFunil = ({ status }) => {
   const f = funilInfo(status);
   return (
@@ -463,7 +484,10 @@ const KanbanView = ({ kanbanData, onAbrirContato }) => (
               <button key={c.id} onClick={() => onAbrirContato(c)}
                 className="w-full text-left p-3 rounded-xl border transition-all hover:border-primary-500/40"
                 style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
-                <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{c.nome}</p>
+                <div className="flex items-center justify-between gap-1 mb-0.5">
+                  <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{c.nome}</p>
+                  <BadgeScore score={c.score} />
+                </div>
                 {c.empresa && <p className="text-xs truncate mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{c.empresa}</p>}
                 {c.valor_estimado && (
                   <p className="text-xs text-emerald-400 mt-1">
@@ -502,6 +526,7 @@ const CardContato = ({ contato, onAbrir, onEditar, onExcluir, excluindo }) => (
       <div className="flex items-center gap-2 flex-wrap">
         <p className="font-medium text-sm truncate" style={{ color: 'var(--color-text-primary)' }}>{contato.nome}</p>
         <BadgeFunil status={contato.status_funil} />
+        {contato.tipo_registro === 'lead' && <BadgeScore score={contato.score} />}
       </div>
       <div className="flex gap-3 mt-0.5 flex-wrap">
         {contato.empresa && (

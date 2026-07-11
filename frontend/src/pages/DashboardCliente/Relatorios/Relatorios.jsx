@@ -4,7 +4,7 @@
 // + /api/agenda/eventos + /api/outbound/acoes
 // =============================================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
 
@@ -64,83 +64,123 @@ const Relatorios = () => {
 
   const { usuario } = useAuthStore();
 
+  const carregar = useCallback(async () => {
+    setCarregando(true);
+    setErro('');
+    try {
+      // Campos específicos — evita carregar campos_custom JSONB pesado
+      const camposContato = 'id, tipo_registro, status_funil, valor_estimado, origem, score, time_id';
+
+      let queryContatos = supabase.from('crm_contatos').select(camposContato);
+      if (usuario?.tenant_id) queryContatos = queryContatos.eq('tenant_id', usuario.tenant_id);
+      else if (usuario?.id) queryContatos = queryContatos.eq('responsavel_id', usuario.id);
+
+      let queryAgenda = supabase.from('agenda_eventos').select('id, data_inicio');
+      if (usuario?.tenant_id) queryAgenda = queryAgenda.eq('tenant_id', usuario.tenant_id);
+
+      let queryOutbound = supabase.from('outbound_acoes').select('id, status, tipo');
+      if (usuario?.tenant_id) queryOutbound = queryOutbound.eq('tenant_id', usuario.tenant_id);
+
+      let queryTimes = supabase.from('org_times').select('id, nome, icone, cor_primaria');
+      if (usuario?.tenant_id) queryTimes = queryTimes.eq('tenant_id', usuario.tenant_id);
+
+      const [respContatos, respAgenda, respOutbound, respTimes] = await Promise.allSettled([
+        queryContatos,
+        queryAgenda,
+        queryOutbound,
+        queryTimes,
+      ]);
+
+      const contatos  = respContatos.status  === 'fulfilled' ? (respContatos.value.data  || []) : [];
+      const eventos   = respAgenda.status    === 'fulfilled' ? (respAgenda.value.data    || []) : [];
+      const acoes     = respOutbound.status  === 'fulfilled' ? (respOutbound.value.data  || []) : [];
+      const times     = respTimes.status     === 'fulfilled' ? (respTimes.value.data     || []) : [];
+
+      // ── Separação leads vs clientes ──────────────────────────────
+      const soLeads    = contatos.filter(c => c.tipo_registro === 'lead');
+      const soClientes = contatos.filter(c => c.tipo_registro === 'cliente');
+
+      // ── Funil (apenas leads) ──────────────────────────────────────
+      const totalContatos  = contatos.length;
+      const totalLeads     = soLeads.length;
+      const totalClientes  = soClientes.length;
+      const leads          = soLeads.filter(c => c.status_funil === 'lead').length;
+      const qualificados   = soLeads.filter(c => c.status_funil === 'qualificado').length;
+      const propostas      = soLeads.filter(c => c.status_funil === 'proposta').length;
+      const negociacao     = soLeads.filter(c => c.status_funil === 'negociacao').length;
+      const fechados       = contatos.filter(c => c.status_funil === 'fechado').length;
+      const perdidos       = soLeads.filter(c => c.status_funil === 'perdido').length;
+
+      // ── Pipeline e receita ────────────────────────────────────────
+      const valorPipeline  = soLeads
+        .filter(c => !['fechado','perdido'].includes(c.status_funil))
+        .reduce((acc, c) => acc + (Number(c.valor_estimado) || 0), 0);
+
+      const valorFechado   = contatos
+        .filter(c => c.status_funil === 'fechado')
+        .reduce((acc, c) => acc + (Number(c.valor_estimado) || 0), 0);
+
+      // ── LTV de clientes ───────────────────────────────────────────
+      const ltvTotal = soClientes.reduce((acc, c) => acc + (Number(c.valor_estimado) || 0), 0);
+      const ltvMedio = soClientes.length > 0 ? ltvTotal / soClientes.length : 0;
+
+      // ── Taxa de conversão ─────────────────────────────────────────
+      const taxaConversao = totalLeads > 0 ? Math.round((fechados / totalLeads) * 100) : 0;
+
+      // ── Score distribution (apenas leads) ────────────────────────
+      const leadsQuentes = soLeads.filter(c => (c.score || 0) >= 70).length;
+      const leadsMornos  = soLeads.filter(c => (c.score || 0) >= 30 && (c.score || 0) < 70).length;
+      const leadsFrios   = soLeads.filter(c => (c.score || 0) < 30).length;
+
+      // ── Origens ───────────────────────────────────────────────────
+      const origens = contatos.reduce((acc, c) => {
+        const o = c.origem || 'manual';
+        acc[o] = (acc[o] || 0) + 1;
+        return acc;
+      }, {});
+
+      // ── Distribuição por time ─────────────────────────────────────
+      const porTime = times.map(t => ({
+        ...t,
+        total: contatos.filter(c => c.time_id === t.id).length,
+        leads: soLeads.filter(c => c.time_id === t.id).length,
+        clientes: soClientes.filter(c => c.time_id === t.id).length,
+      })).filter(t => t.total > 0);
+
+      // ── Agenda ────────────────────────────────────────────────────
+      const totalEventos   = eventos.length;
+      const hoje           = new Date();
+      const eventosHoje    = eventos.filter(e => {
+        const d = new Date(e.data_inicio);
+        return d.toDateString() === hoje.toDateString();
+      }).length;
+
+      // ── Outbound ──────────────────────────────────────────────────
+      const totalAcoes      = acoes.length;
+      const acoesPendentes  = acoes.filter(a => a.status === 'pendente').length;
+      const acoesConcluidas = acoes.filter(a => a.status === 'concluido').length;
+
+      setDados({
+        totalContatos, totalLeads, totalClientes,
+        leads, qualificados, propostas, negociacao,
+        fechados, perdidos, valorPipeline, valorFechado,
+        ltvTotal, ltvMedio, taxaConversao,
+        leadsQuentes, leadsMornos, leadsFrios,
+        origens, porTime,
+        totalEventos, eventosHoje,
+        totalAcoes, acoesPendentes, acoesConcluidas,
+      });
+    } catch (err) {
+      setErro('Erro ao carregar dados. Tente novamente.');
+      console.error(err);
+    } finally {
+      setCarregando(false);
+    }
+  }, [usuario?.tenant_id, usuario?.id]);
+
   useEffect(() => {
-    const carregar = async () => {
-      setCarregando(true);
-      setErro('');
-      try {
-        let queryContatos = supabase.from('crm_contatos').select('*');
-        if (usuario?.tenant_id) queryContatos = queryContatos.eq('tenant_id', usuario.tenant_id);
-        else if (usuario?.id) queryContatos = queryContatos.eq('responsavel_id', usuario.id);
-
-        let queryAgenda = supabase.from('agenda_eventos').select('*');
-        if (usuario?.tenant_id) queryAgenda = queryAgenda.eq('tenant_id', usuario.tenant_id);
-
-        let queryOutbound = supabase.from('outbound_acoes').select('*');
-        if (usuario?.tenant_id) queryOutbound = queryOutbound.eq('tenant_id', usuario.tenant_id);
-
-        const [respContatos, respAgenda, respOutbound] = await Promise.allSettled([
-          queryContatos,
-          queryAgenda,
-          queryOutbound,
-        ]);
-
-        const contatos  = respContatos.status  === 'fulfilled' ? (respContatos.value.data  || []) : [];
-        const eventos   = respAgenda.status    === 'fulfilled' ? (respAgenda.value.data    || []) : [];
-        const acoes     = respOutbound.status  === 'fulfilled' ? (respOutbound.value.data  || []) : [];
-
-        // Métricas de CRM
-        const totalContatos  = contatos.length;
-        const leads          = contatos.filter(c => c.status_funil === 'lead').length;
-        const qualificados   = contatos.filter(c => c.status_funil === 'qualificado').length;
-        const propostas      = contatos.filter(c => c.status_funil === 'proposta').length;
-        const negociacao     = contatos.filter(c => c.status_funil === 'negociacao').length;
-        const fechados       = contatos.filter(c => c.status_funil === 'fechado').length;
-        const perdidos       = contatos.filter(c => c.status_funil === 'perdido').length;
-
-        const valorPipeline  = contatos
-          .filter(c => !['fechado','perdido'].includes(c.status_funil))
-          .reduce((acc, c) => acc + (Number(c.valor_estimado) || 0), 0);
-
-        const valorFechado   = contatos
-          .filter(c => c.status_funil === 'fechado')
-          .reduce((acc, c) => acc + (Number(c.valor_estimado) || 0), 0);
-
-        // Origens
-        const origens = contatos.reduce((acc, c) => {
-          const o = c.origem || 'manual';
-          acc[o] = (acc[o] || 0) + 1;
-          return acc;
-        }, {});
-
-        // Métricas de agenda
-        const totalEventos   = eventos.length;
-        const hoje           = new Date();
-        const eventosHoje    = eventos.filter(e => {
-          const d = new Date(e.inicio || e.data_inicio);
-          return d.toDateString() === hoje.toDateString();
-        }).length;
-
-        // Métricas de outbound
-        const totalAcoes     = acoes.length;
-        const acoesPendentes = acoes.filter(a => a.status === 'pendente').length;
-        const acoesConcluidas = acoes.filter(a => a.status === 'concluido').length;
-
-        setDados({
-          totalContatos, leads, qualificados, propostas, negociacao,
-          fechados, perdidos, valorPipeline, valorFechado,
-          origens, totalEventos, eventosHoje,
-          totalAcoes, acoesPendentes, acoesConcluidas,
-        });
-      } catch (err) {
-        setErro('Erro ao carregar dados. Tente novamente.');
-        console.error(err);
-      } finally {
-        setCarregando(false);
-      }
-    };
     carregar();
-  }, []);
+  }, [carregar]);
 
   const fmt = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
@@ -158,8 +198,9 @@ const Relatorios = () => {
           </p>
         </div>
         <button
-          onClick={() => window.location.reload()}
-          className="text-sm px-3 py-1.5 rounded-lg border transition-colors hover:border-primary-500/50"
+          onClick={carregar}
+          disabled={carregando}
+          className="text-sm px-3 py-1.5 rounded-lg border transition-colors hover:border-primary-500/50 disabled:opacity-50"
           style={{ borderColor: 'var(--color-surface-border)', color: 'var(--color-text-secondary)' }}
           title="Atualizar dados"
         >
@@ -180,16 +221,16 @@ const Relatorios = () => {
           {/* Cards principais */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <CardMetrica
-              emoji="👥"
-              titulo="Total de contatos"
-              valor={dados.totalContatos}
-              cor="text-white"
+              emoji="🎯"
+              titulo="Total de leads"
+              valor={dados.totalLeads}
+              cor="text-primary-400"
             />
             <CardMetrica
-              emoji="🎯"
-              titulo="Leads ativos"
-              valor={dados.leads + dados.qualificados + dados.propostas + dados.negociacao}
-              cor="text-primary-400"
+              emoji="🤝"
+              titulo="Clientes ativos"
+              valor={dados.totalClientes}
+              cor="text-emerald-400"
             />
             <CardMetrica
               emoji="✅"
@@ -205,6 +246,34 @@ const Relatorios = () => {
             />
           </div>
 
+          {/* KPIs secundários */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <CardMetrica
+              emoji="📈"
+              titulo="Taxa de conversão"
+              valor={`${dados.taxaConversao}%`}
+              cor="text-blue-400"
+            />
+            <CardMetrica
+              emoji="💎"
+              titulo="LTV médio (clientes)"
+              valor={dados.ltvMedio > 0 ? `R$ ${fmt(dados.ltvMedio)}` : 'R$ 0,00'}
+              cor="text-violet-400"
+            />
+            <CardMetrica
+              emoji="🔥"
+              titulo="Leads quentes"
+              valor={dados.leadsQuentes}
+              cor="text-red-400"
+            />
+            <CardMetrica
+              emoji="❄️"
+              titulo="Leads frios"
+              valor={dados.leadsFrios}
+              cor="text-slate-400"
+            />
+          </div>
+
           {/* Pipeline + Outbound */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 
@@ -214,18 +283,18 @@ const Relatorios = () => {
               <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
                 🔽 Funil de vendas
               </h3>
-              {dados.totalContatos === 0 ? (
+              {dados.totalLeads === 0 ? (
                 <p className="text-sm text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>
-                  Nenhum contato cadastrado ainda.
+                  Nenhum lead cadastrado ainda.
                 </p>
               ) : (
                 <>
-                  <BarraProgresso label="Lead"        valor={dados.leads}        total={dados.totalContatos} cor="bg-slate-500" />
-                  <BarraProgresso label="Qualificado" valor={dados.qualificados} total={dados.totalContatos} cor="bg-blue-500" />
-                  <BarraProgresso label="Proposta"    valor={dados.propostas}    total={dados.totalContatos} cor="bg-violet-500" />
-                  <BarraProgresso label="Negociação"  valor={dados.negociacao}   total={dados.totalContatos} cor="bg-amber-500" />
-                  <BarraProgresso label="Fechado"     valor={dados.fechados}     total={dados.totalContatos} cor="bg-emerald-500" />
-                  <BarraProgresso label="Perdido"     valor={dados.perdidos}     total={dados.totalContatos} cor="bg-red-500" />
+                  <BarraProgresso label="Lead"        valor={dados.leads}        total={dados.totalLeads} cor="bg-slate-500" />
+                  <BarraProgresso label="Qualificado" valor={dados.qualificados} total={dados.totalLeads} cor="bg-blue-500" />
+                  <BarraProgresso label="Proposta"    valor={dados.propostas}    total={dados.totalLeads} cor="bg-violet-500" />
+                  <BarraProgresso label="Negociação"  valor={dados.negociacao}   total={dados.totalLeads} cor="bg-amber-500" />
+                  <BarraProgresso label="Fechado"     valor={dados.fechados}     total={dados.totalLeads} cor="bg-emerald-500" />
+                  <BarraProgresso label="Perdido"     valor={dados.perdidos}     total={dados.totalLeads} cor="bg-red-500" />
                   {dados.valorPipeline > 0 && (
                     <p className="text-xs mt-3 pt-3 border-t" style={{ borderColor: 'var(--color-surface-border)', color: 'var(--color-text-secondary)' }}>
                       Pipeline ativo:{' '}
@@ -271,6 +340,66 @@ const Relatorios = () => {
             </div>
           </div>
 
+          {/* Score distribution */}
+          {dados.totalLeads > 0 && (
+            <div className="rounded-xl border p-5 mb-6"
+              style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
+              <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
+                🌡️ Temperatura dos leads
+              </h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#ef444415' }}>
+                  <p className="text-2xl font-bold text-red-400">{dados.leadsQuentes}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>🔥 Quentes (≥70)</p>
+                </div>
+                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#f59e0b15' }}>
+                  <p className="text-2xl font-bold text-amber-400">{dados.leadsMornos}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>🌡️ Mornos (30–69)</p>
+                </div>
+                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#94a3b815' }}>
+                  <p className="text-2xl font-bold text-slate-400">{dados.leadsFrios}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>❄️ Frios (&lt;30)</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Distribuição por time */}
+          {dados.porTime?.length > 0 && (
+            <div className="rounded-xl border overflow-hidden mb-6"
+              style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
+              <div className="p-4 border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
+                <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                  🏷️ Distribuição por time
+                </h3>
+              </div>
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
+                    <th className="text-left text-xs font-medium px-4 py-3" style={{ color: 'var(--color-text-secondary)' }}>Time</th>
+                    <th className="text-right text-xs font-medium px-4 py-3" style={{ color: 'var(--color-text-secondary)' }}>Leads</th>
+                    <th className="text-right text-xs font-medium px-4 py-3" style={{ color: 'var(--color-text-secondary)' }}>Clientes</th>
+                    <th className="text-right text-xs font-medium px-4 py-3" style={{ color: 'var(--color-text-secondary)' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dados.porTime.map(t => (
+                    <tr key={t.id} className="border-b last:border-0"
+                      style={{ borderColor: 'var(--color-surface-border)' }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                        <span className="mr-1">{t.icone}</span>
+                        <span style={{ color: t.cor_primaria }}>{t.nome}</span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right text-primary-400 font-medium">{t.leads}</td>
+                      <td className="px-4 py-3 text-sm text-right text-emerald-400 font-medium">{t.clientes}</td>
+                      <td className="px-4 py-3 text-sm text-right font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           {/* Fontes de leads */}
           {Object.keys(dados.origens).length > 0 && (
             <div className="rounded-xl border overflow-hidden"
@@ -311,7 +440,7 @@ const Relatorios = () => {
           )}
 
           {/* Estado vazio */}
-          {dados.totalContatos === 0 && dados.totalAcoes === 0 && dados.totalEventos === 0 && (
+          {dados.totalContatos === 0 && dados.totalLeads === 0 && dados.totalAcoes === 0 && dados.totalEventos === 0 && (
             <div className="text-center py-12 rounded-xl border border-dashed mt-4"
               style={{ borderColor: 'var(--color-surface-border)' }}>
               <p className="text-4xl mb-3">📊</p>

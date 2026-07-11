@@ -109,7 +109,7 @@ const ProjetoDetalhe = () => {
           <span className="font-medium">Progresso geral</span>
           <span className="font-bold" style={{ color: projeto.cor }}>{projeto.progresso}%</span>
         </div>
-        <div className="h-2 rounded-full bg-white/10">
+        <div className="h-2 rounded-full" style={{ backgroundColor: 'var(--color-surface-border)' }}>
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{ width: `${projeto.progresso}%`, backgroundColor: projeto.cor }}
@@ -129,15 +129,18 @@ const ProjetoDetalhe = () => {
             {milestones.map(m => (
               <div
                 key={m.id}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors group"
+                className="flex items-center gap-3 p-3 rounded-lg transition-colors group"
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
               >
                 <button
                   onClick={() => handleToggleMilestone(m)}
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                     m.concluido
                       ? 'bg-green-500 border-green-500 text-white'
-                      : 'border-white/30 hover:border-green-500'
+                      : 'hover:border-green-500'
                   }`}
+                  style={!m.concluido ? { borderColor: 'var(--color-surface-border)' } : {}}
                 >
                   {m.concluido && <span className="text-xs">✓</span>}
                 </button>
@@ -158,7 +161,8 @@ const ProjetoDetalhe = () => {
           </div>
           <form onSubmit={handleAdicionarMilestone} className="flex gap-2">
             <input
-              className="flex-1 px-3 py-2 rounded-lg text-sm border border-white/10 bg-white/5 focus:outline-none focus:border-primary-500"
+              className="flex-1 px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+              style={{ border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' }}
               placeholder="Novo milestone..."
               value={novoMilestone}
               onChange={e => setNovoMilestone(e.target.value)}
@@ -189,7 +193,9 @@ const ProjetoDetalhe = () => {
               {tarefas.map(t => {
                 const corStatus = { pendente: '#94a3b8', em_andamento: '#3b82f6', em_revisao: '#f59e0b', concluida: '#10b981', cancelada: '#ef4444' };
                 return (
-                  <div key={t.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5">
+                  <div key={t.id} className="flex items-center gap-3 p-3 rounded-lg transition-colors"
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: corStatus[t.status] }} />
                     <p className={`text-sm flex-1 truncate ${t.status === 'concluida' ? 'line-through opacity-40' : ''}`}>
                       {t.titulo}

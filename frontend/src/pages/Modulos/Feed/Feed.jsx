@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFeed, TIPOS_POSTAGEM, EMOJIS_REACAO } from '../../../hooks/useFeed';
 import { useAuthStore } from '../../../store/authStore';
 
@@ -53,7 +54,7 @@ const CardPostagem = ({ postagem, onReagir, onComentar, onExcluir, usuarioAtual 
   };
 
   return (
-    <div className="rounded-xl p-5 space-y-4 border border-white/5">
+    <div className="rounded-xl p-5 space-y-4 border" style={{ borderColor: 'var(--color-surface-border)' }}>
       {/* Cabeçalho */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -83,8 +84,11 @@ const CardPostagem = ({ postagem, onReagir, onComentar, onExcluir, usuarioAtual 
               key={emoji}
               onClick={() => onReagir(postagem.id, emoji)}
               className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${
-                euReagi ? 'bg-primary-500/30 border border-primary-500/50' : 'bg-white/5 hover:bg-white/10'
+                euReagi ? 'bg-primary-500/30 border border-primary-500/50' : ''
               }`}
+              style={!euReagi ? { backgroundColor: 'var(--color-surface-hover)' } : {}}
+              onMouseEnter={e => { if (!euReagi) e.currentTarget.style.backgroundColor = 'var(--color-surface-border)'; }}
+              onMouseLeave={e => { if (!euReagi) e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
             >
               {emoji} {count}
             </button>
@@ -93,7 +97,7 @@ const CardPostagem = ({ postagem, onReagir, onComentar, onExcluir, usuarioAtual 
       )}
 
       {/* Ações */}
-      <div className="flex items-center gap-4 pt-1 border-t border-white/5">
+      <div className="flex items-center gap-4 pt-1 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
         <div className="relative">
           <button
             onClick={() => setMostrarEmojis(!mostrarEmojis)}
@@ -102,7 +106,7 @@ const CardPostagem = ({ postagem, onReagir, onComentar, onExcluir, usuarioAtual 
             😊 Reagir
           </button>
           {mostrarEmojis && (
-            <div className="absolute bottom-full left-0 mb-2 flex gap-1 p-2 rounded-xl border border-white/10 z-10" style={{ backgroundColor: 'var(--color-surface)' }}>
+            <div className="absolute bottom-full left-0 mb-2 flex gap-1 p-2 rounded-xl z-10" style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)' }}>
               {EMOJIS_REACAO.map(emoji => (
                 <button
                   key={emoji}
@@ -129,7 +133,7 @@ const CardPostagem = ({ postagem, onReagir, onComentar, onExcluir, usuarioAtual 
           {comentarios.map(c => (
             <div key={c.id} className="flex items-start gap-2">
               <AvatarUsuario nome={c.autor_nome || 'U'} tamanho={6} />
-              <div className="flex-1 bg-white/5 rounded-xl px-3 py-2">
+              <div className="flex-1 rounded-xl px-3 py-2" style={{ backgroundColor: 'var(--color-surface-card)' }}>
                 <p className="text-xs font-medium opacity-70">{c.autor_nome || 'Usuário'}</p>
                 <p className="text-sm">{c.conteudo}</p>
               </div>
@@ -138,7 +142,8 @@ const CardPostagem = ({ postagem, onReagir, onComentar, onExcluir, usuarioAtual 
           <form onSubmit={handleComentar} className="flex gap-2">
             <AvatarUsuario nome={usuarioAtual?.nome || 'U'} tamanho={6} />
             <input
-              className="flex-1 px-3 py-2 rounded-xl text-sm border border-white/10 bg-white/5 focus:outline-none focus:border-primary-500"
+              className="flex-1 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+              style={{ border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' }}
               placeholder="Escreva um comentário..."
               value={novoComentario}
               onChange={e => setNovoComentario(e.target.value)}
@@ -154,6 +159,7 @@ const CardPostagem = ({ postagem, onReagir, onComentar, onExcluir, usuarioAtual 
 };
 
 const Feed = () => {
+  const navigate = useNavigate();
   const usuario = useAuthStore(s => s.usuario);
   const { postagens, carregando, temMais, publicar, excluirPostagem, reagir, comentar, carregarMais } = useFeed();
   const [novaPostagem, setNovaPostagem] = useState('');
@@ -175,10 +181,19 @@ const Feed = () => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      {/* Botão Voltar */}
+      <button
+        onClick={() => navigate('/modulos')}
+        className="text-sm opacity-50 hover:opacity-100 transition-opacity"
+        title="Voltar para Módulos"
+      >
+        ← Voltar
+      </button>
+
       <h1 className="text-2xl font-bold">Feed</h1>
 
       {/* Caixa de nova postagem */}
-      <form onSubmit={handlePublicar} className="rounded-xl p-4 space-y-3 border border-white/10">
+      <form onSubmit={handlePublicar} className="rounded-xl p-4 space-y-3 border" style={{ borderColor: 'var(--color-surface-border)' }}>
         <div className="flex items-start gap-3">
           <AvatarUsuario nome={usuario?.nome || 'U'} />
           <textarea
@@ -189,7 +204,7 @@ const Feed = () => {
             onChange={e => setNovaPostagem(e.target.value)}
           />
         </div>
-        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+        <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
           <div className="flex gap-1">
             {TIPOS_POSTAGEM.map(t => (
               <button

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTarefas, STATUS_TAREFAS, PRIORIDADES } from '../../../hooks/useTarefas';
 import { useAuthStore } from '../../../store/authStore';
 
@@ -36,7 +37,8 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
     onFechar();
   };
 
-  const inp = 'w-full px-3 py-2 rounded-lg text-sm border border-white/10 bg-white/5 focus:outline-none focus:border-primary-500';
+  const inp = 'w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500';
+  const inpStyle = { border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onFechar}>
@@ -46,18 +48,18 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
           <button onClick={onFechar} className="opacity-50 hover:opacity-100 text-xl">✕</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input className={inp} placeholder="Título da tarefa" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} required />
-          <textarea className={inp} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+          <input className={inp} style={inpStyle} placeholder="Título da tarefa" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} required />
+          <textarea className={inp} style={inpStyle} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs opacity-50 mb-1 block">Status</label>
-              <select className={inp} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+              <select className={inp} style={inpStyle} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
                 {STATUS_TAREFAS.map(s => <option key={s.slug} value={s.slug}>{s.label}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs opacity-50 mb-1 block">Prioridade</label>
-              <select className={inp} value={form.prioridade} onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}>
+              <select className={inp} style={inpStyle} value={form.prioridade} onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}>
                 {PRIORIDADES.map(p => <option key={p.slug} value={p.slug}>{p.icone} {p.label}</option>)}
               </select>
             </div>
@@ -65,11 +67,11 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs opacity-50 mb-1 block">Vencimento</label>
-              <input type="date" className={inp} value={form.data_vencimento} onChange={e => setForm(f => ({ ...f, data_vencimento: e.target.value }))} />
+              <input type="date" className={inp} style={inpStyle} value={form.data_vencimento} onChange={e => setForm(f => ({ ...f, data_vencimento: e.target.value }))} />
             </div>
             <div>
               <label className="text-xs opacity-50 mb-1 block">Estimativa (h)</label>
-              <input type="number" step="0.5" min="0" className={inp} placeholder="Ex: 2.5" value={form.estimativa_h} onChange={e => setForm(f => ({ ...f, estimativa_h: e.target.value }))} />
+              <input type="number" step="0.5" min="0" className={inp} style={inpStyle} placeholder="Ex: 2.5" value={form.estimativa_h} onChange={e => setForm(f => ({ ...f, estimativa_h: e.target.value }))} />
             </div>
           </div>
           <div className="flex gap-2 pt-2">
@@ -79,7 +81,11 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
                 Excluir
               </button>
             )}
-            <button type="button" onClick={onFechar} className="flex-1 px-4 py-2 rounded-lg text-sm border border-white/10 hover:bg-white/5">Cancelar</button>
+            <button type="button" onClick={onFechar}
+              className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors"
+              style={{ border: '1px solid var(--color-surface-border)' }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Cancelar</button>
             <button type="submit" className="flex-1 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium">Salvar</button>
           </div>
         </form>
@@ -97,7 +103,10 @@ const CardTarefa = ({ tarefa, onAbrir, onMudarStatus }) => {
   return (
     <div
       onClick={() => onAbrir(tarefa)}
-      className="p-3 rounded-xl cursor-pointer hover:bg-white/5 transition-colors space-y-2 border border-white/5"
+      className="p-3 rounded-xl cursor-pointer transition-colors space-y-2 border"
+      style={{ borderColor: 'var(--color-surface-border)' }}
+      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+      onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm font-medium leading-tight">{tarefa.titulo}</p>
@@ -131,7 +140,7 @@ const ColunaKanban = ({ status, tarefas, onAbrir, onMudarStatus, onNovaTarefa })
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: status.cor }} />
         <span className="text-sm font-medium">{status.label}</span>
-        <span className="text-xs opacity-40 bg-white/10 px-1.5 py-0.5 rounded-full">{tarefas.length}</span>
+        <span className="text-xs opacity-40 px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-surface-border)' }}>{tarefas.length}</span>
       </div>
       <button
         onClick={() => onNovaTarefa(status.slug)}
@@ -150,6 +159,7 @@ const ColunaKanban = ({ status, tarefas, onAbrir, onMudarStatus, onNovaTarefa })
 );
 
 const Tarefas = () => {
+  const navigate = useNavigate();
   const usuario = useAuthStore(s => s.usuario);
   const { tarefas, kanban, carregando, criarTarefa, atualizarTarefa, excluirTarefa } = useTarefas();
   const [modalAberto, setModalAberto] = useState(false);
@@ -191,6 +201,15 @@ const Tarefas = () => {
 
   return (
     <div className="px-4 py-8 space-y-6">
+      {/* Botão Voltar */}
+      <button
+        onClick={() => navigate('/modulos')}
+        className="text-sm opacity-50 hover:opacity-100 transition-opacity"
+        title="Voltar para Módulos"
+      >
+        ← Voltar
+      </button>
+
       {/* Cabeçalho */}
       <div className="flex items-center justify-between max-w-full">
         <div>
@@ -198,16 +217,20 @@ const Tarefas = () => {
           <p className="text-sm opacity-50">{tarefas.length} tarefa{tarefas.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-white/10 overflow-hidden">
+          <div className="flex rounded-lg border overflow-hidden" style={{ borderColor: 'var(--color-surface-border)' }}>
             <button
               onClick={() => setVisao('kanban')}
-              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'kanban' ? 'bg-primary-600' : 'hover:bg-white/5'}`}
+              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'kanban' ? 'bg-primary-600' : ''}`}
+              onMouseEnter={e => { if (visao !== 'kanban') e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
+              onMouseLeave={e => { if (visao !== 'kanban') e.currentTarget.style.backgroundColor = ''; }}
             >
               Kanban
             </button>
             <button
               onClick={() => setVisao('lista')}
-              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'lista' ? 'bg-primary-600' : 'hover:bg-white/5'}`}
+              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'lista' ? 'bg-primary-600' : ''}`}
+              onMouseEnter={e => { if (visao !== 'lista') e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
+              onMouseLeave={e => { if (visao !== 'lista') e.currentTarget.style.backgroundColor = ''; }}
             >
               Lista
             </button>
@@ -223,7 +246,8 @@ const Tarefas = () => {
 
       {/* Busca */}
       <input
-        className="w-full max-w-sm px-3 py-2 rounded-lg text-sm border border-white/10 bg-white/5 focus:outline-none focus:border-primary-500"
+        className="w-full max-w-sm px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+        style={{ border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' }}
         placeholder="Buscar tarefas..."
         value={busca}
         onChange={e => setBusca(e.target.value)}
@@ -264,7 +288,9 @@ const Tarefas = () => {
                 <div
                   key={t.id}
                   onClick={() => handleAbrir(t)}
-                  className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
                 >
                   <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: status?.cor }} />
                   <p className={`flex-1 text-sm ${t.status === 'concluida' ? 'line-through opacity-40' : ''}`}>
