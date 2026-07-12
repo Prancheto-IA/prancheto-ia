@@ -122,81 +122,93 @@ export const useModulos = (timeId = null) => {
     m => !configs.some(c => c.modulo_slug === m.slug && c.ativo)
   );
 
-  // Ativa um módulo (INSERT ou UPDATE)
+  // Helper: faz upsert seguro para modulos_config.
+  // O PostgREST não suporta onConflict com índices parciais pelo nome.
+  // Estratégia: tenta UPDATE primeiro; se não encontrar registro, faz INSERT.
+  const upsertModulo = useCallback(async (slug, campos) => {
+    // Monta filtro base
+    let selectQ = supabase
+      .from('modulos_config')
+      .select('id')
+      .eq('tenant_id', tenantId)
+      .eq('modulo_slug', slug);
+
+    if (timeId) {
+      selectQ = selectQ.eq('time_id', timeId);
+    } else {
+      selectQ = selectQ.is('time_id', null);
+    }
+
+    const { data: existente } = await selectQ.maybeSingle();
+
+    if (existente?.id) {
+      // Registro existe → UPDATE
+      const { error } = await supabase
+        .from('modulos_config')
+        .update(campos)
+        .eq('id', existente.id);
+      if (error) throw error;
+    } else {
+      // Não existe → INSERT
+      const payload = {
+        tenant_id: tenantId,
+        modulo_slug: slug,
+        ...campos,
+      };
+      if (timeId) payload.time_id = timeId;
+      const { error } = await supabase
+        .from('modulos_config')
+        .insert(payload);
+      if (error) throw error;
+    }
+  }, [tenantId, timeId]);
+
+  // Ativa um módulo
   const ativarModulo = useCallback(async (slug, ordemFinal) => {
     if (!tenantId) return;
     setSalvando(true);
     try {
-      const { error } = await supabase
-        .from('modulos_config')
-        .upsert(
-          {
-            tenant_id: tenantId,
-            time_id: timeId,
-            modulo_slug: slug,
-            ativo: true,
-            ordem: ordemFinal,
-          },
-          { onConflict: 'tenant_id,time_id,modulo_slug' }
-        );
-      if (error) throw error;
+      await upsertModulo(slug, { ativo: true, ordem: ordemFinal });
       await carregar();
     } catch (err) {
       console.error('useModulos.ativarModulo:', err);
     } finally {
       setSalvando(false);
     }
-  }, [tenantId, timeId, carregar]);
+  }, [tenantId, upsertModulo, carregar]);
 
   // Desativa um módulo
   const desativarModulo = useCallback(async (slug) => {
     if (!tenantId) return;
     setSalvando(true);
     try {
-      const { error } = await supabase
-        .from('modulos_config')
-        .upsert(
-          {
-            tenant_id: tenantId,
-            time_id: timeId,
-            modulo_slug: slug,
-            ativo: false,
-            ordem: 0,
-          },
-          { onConflict: 'tenant_id,time_id,modulo_slug' }
-        );
-      if (error) throw error;
+      await upsertModulo(slug, { ativo: false, ordem: 0 });
       await carregar();
     } catch (err) {
       console.error('useModulos.desativarModulo:', err);
     } finally {
       setSalvando(false);
     }
-  }, [tenantId, timeId, carregar]);
+  }, [tenantId, upsertModulo, carregar]);
 
   // Reordena módulos ativos em batch
   const reordenar = useCallback(async (slugsOrdenados) => {
     if (!tenantId) return;
     setSalvando(true);
     try {
-      const upserts = slugsOrdenados.map((slug, idx) => ({
-        tenant_id: tenantId,
-        time_id: timeId,
-        modulo_slug: slug,
-        ativo: true,
-        ordem: idx,
-      }));
-      const { error } = await supabase
-        .from('modulos_config')
-        .upsert(upserts, { onConflict: 'tenant_id,time_id,modulo_slug' });
-      if (error) throw error;
+      // Executa upserts em paralelo para cada slug
+      await Promise.all(
+        slugsOrdenados.map((slug, idx) =>
+          upsertModulo(slug, { ativo: true, ordem: idx })
+        )
+      );
       await carregar();
     } catch (err) {
       console.error('useModulos.reordenar:', err);
     } finally {
       setSalvando(false);
     }
-  }, [tenantId, timeId, carregar]);
+  }, [tenantId, upsertModulo, carregar]);
 
   return {
     modulosAtivos,

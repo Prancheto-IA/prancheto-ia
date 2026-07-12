@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import {
   DndContext,
   DragOverlay,
@@ -136,9 +137,28 @@ const ZonaAtivos = ({ children, isEmpty }) => {
   );
 };
 
+// ─── Banner de acesso restrito (member/viewer) ────────────────────────────────
+const BannerSomenteLeitura = () => (
+  <div
+    className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm"
+  >
+    <span className="text-lg flex-shrink-0">🔒</span>
+    <div>
+      <p className="font-semibold">Visualização somente leitura</p>
+      <p className="opacity-70 mt-0.5">
+        Apenas administradores e gerentes podem ativar, desativar ou reordenar módulos.
+        Entre em contato com o admin da sua organização para fazer alterações.
+      </p>
+    </div>
+  </div>
+);
+
 // ─── Página principal ─────────────────────────────────────────────────────────
 const ModulosHub = () => {
   const navigate = useNavigate();
+  const usuario = useAuthStore(s => s.usuario);
+  const podeEditar = ['admin', 'manager'].includes(usuario?.cargo);
+
   const {
     modulosAtivos,
     modulosDisponiveis,
@@ -199,10 +219,12 @@ const ModulosHub = () => {
   };
 
   const handleAtivar = async (slug) => {
+    if (!podeEditar) return;
     await ativarModulo(slug, modulosAtivos.length);
   };
 
   const handleDesativar = async (slug) => {
+    if (!podeEditar) return;
     await desativarModulo(slug);
   };
 
@@ -224,9 +246,14 @@ const ModulosHub = () => {
       <div>
         <h1 className="text-2xl font-bold">Módulos</h1>
         <p className="text-sm opacity-60 mt-1">
-          Configure quais módulos aparecem na sua área de trabalho. Arraste para reordenar.
+          {podeEditar
+            ? 'Configure quais módulos aparecem na sua área de trabalho. Arraste para reordenar.'
+            : 'Módulos ativos na sua organização.'}
         </p>
       </div>
+
+      {/* Banner somente leitura para member/viewer */}
+      {!podeEditar && <BannerSomenteLeitura />}
 
       <DndContext
         sensors={sensors}
@@ -256,7 +283,7 @@ const ModulosHub = () => {
                     <CardModuloSortable
                       key={modulo.slug}
                       modulo={modulo}
-                      onDesativar={handleDesativar}
+                      onDesativar={podeEditar ? handleDesativar : () => {}}
                     />
                   ))}
                 </div>
@@ -283,27 +310,29 @@ const ModulosHub = () => {
             )}
           </div>
 
-          {/* ── Coluna direita: módulos disponíveis ── */}
-          <div className="space-y-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wider opacity-60">
-              Disponíveis ({modulosDisponiveis.length})
-            </h2>
-            <div className="space-y-2">
-              {modulosDisponiveis.length === 0 ? (
-                <p className="text-sm opacity-40 text-center py-8">
-                  Todos os módulos estão ativos 🎉
-                </p>
-              ) : (
-                modulosDisponiveis.map(modulo => (
-                  <CardModuloDisponivel
-                    key={modulo.slug}
-                    modulo={modulo}
-                    onAtivar={handleAtivar}
-                  />
-                ))
-              )}
+          {/* ── Coluna direita: módulos disponíveis (só para admin/manager) ── */}
+          {podeEditar && (
+            <div className="space-y-4">
+              <h2 className="text-sm font-semibold uppercase tracking-wider opacity-60">
+                Disponíveis ({modulosDisponiveis.length})
+              </h2>
+              <div className="space-y-2">
+                {modulosDisponiveis.length === 0 ? (
+                  <p className="text-sm opacity-40 text-center py-8">
+                    Todos os módulos estão ativos 🎉
+                  </p>
+                ) : (
+                  modulosDisponiveis.map(modulo => (
+                    <CardModuloDisponivel
+                      key={modulo.slug}
+                      modulo={modulo}
+                      onAtivar={handleAtivar}
+                    />
+                  ))
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <DragOverlay>
@@ -311,11 +340,13 @@ const ModulosHub = () => {
         </DragOverlay>
       </DndContext>
 
-      {/* Dica de uso */}
-      <div className="rounded-xl p-4 text-sm opacity-60 border border-dashed">
-        💡 <strong>Dica:</strong> Arraste módulos da coluna "Disponíveis" para "Ativos" para ativá-los.
-        Reordene os módulos ativos arrastando-os entre si. As alterações são salvas automaticamente.
-      </div>
+      {/* Dica de uso — só para admin/manager */}
+      {podeEditar && (
+        <div className="rounded-xl p-4 text-sm opacity-60 border border-dashed">
+          💡 <strong>Dica:</strong> Arraste módulos da coluna "Disponíveis" para "Ativos" para ativá-los.
+          Reordene os módulos ativos arrastando-os entre si. As alterações são salvas automaticamente.
+        </div>
+      )}
     </div>
   );
 };
