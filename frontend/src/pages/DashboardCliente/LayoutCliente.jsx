@@ -30,7 +30,7 @@ import { useAuth } from '../../hooks/useAuth.js';
 import { useSidebarPrefs, CATALOGO_SIDEBAR, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
 
 // Páginas onde o botão Voltar NÃO aparece (raízes do dashboard)
-const ROTAS_SEM_VOLTAR = ['/dashboard', '/crm', '/dashboard/organizacao', '/modulos'];
+const ROTAS_SEM_VOLTAR = ['/dashboard', '/crm', '/suporte', '/dashboard/organizacao', '/modulos'];
 
 const BADGE_CARGO = {
   admin:   { label: 'Admin',        cor: 'bg-violet-500/20 text-violet-300' },

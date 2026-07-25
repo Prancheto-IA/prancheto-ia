@@ -25,6 +25,7 @@ export const CATALOGO_SIDEBAR = [
   { slug: 'relatorios',   label: 'Relatórios',     emoji: '📊', rota: '/dashboard/relatorios',        exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'outbound',     label: 'Outbound',       emoji: '📧', rota: '/dashboard/outbound',          exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'organizacao',  label: 'Organização',    emoji: '🏢', rota: '/dashboard/organizacao/times', exact: false, prefixoAtivo: '/dashboard/organizacao', removivel: true  },
+  { slug: 'suporte',      label: 'Suporte',        emoji: '🎧', rota: '/suporte',                     exact: false, prefixoAtivo: '/suporte',              removivel: true  },
   { slug: 'planos',       label: 'Planos',         emoji: '🚀', rota: '/dashboard/planos',            exact: false, prefixoAtivo: null,                    removivel: false },
   { slug: 'configuracoes',label: 'Configurações',  emoji: '⚙️', rota: '/dashboard/configuracoes',    exact: false, prefixoAtivo: null,                    removivel: false },
 ];

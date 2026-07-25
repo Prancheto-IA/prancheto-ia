@@ -19,6 +19,7 @@ import BannerImpersonation from './components/BannerImpersonation/BannerImperson
 const PaginaLogin            = lazy(() => import('./pages/Login/Login.jsx'));
 const PaginaCRM              = lazy(() => import('./pages/CRM/CRM.jsx'));
 const PaginaCRMHub           = lazy(() => import('./pages/CRM/CRMHub.jsx'));
+const PaginaSuporteHub       = lazy(() => import('./pages/Suporte/SuporteHub.jsx'));
 const PaginaAdminPanel       = lazy(() => import('./pages/AdminPanel/AdminPanel.jsx'));
 
 // Layout do cliente (Sidebar)
@@ -269,6 +270,19 @@ const App = () => {
               element={
                 <ClienteComLayout>
                   <PaginaCRMHub />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* ============================================================
+                SUPORTE: Tickets, Base de Conhecimento e Status do Sistema
+                Usa o LayoutCliente (Sidebar) + abas internas
+            ============================================================ */}
+            <Route
+              path="/suporte/*"
+              element={
+                <ClienteComLayout>
+                  <PaginaSuporteHub />
                 </ClienteComLayout>
               }
             />
