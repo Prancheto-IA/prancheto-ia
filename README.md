@@ -2,6 +2,10 @@
 
 > Sistema de CRM B2B modular, escalável e seguro, com arquitetura Multi-tenant e Painel Administrativo exclusivo para a equipe fundadora.
 
+> 🌱 **Antes de codar, leia [docs/AMBIENTES.md](docs/AMBIENTES.md).**
+> Desenvolvimento e produção usam bancos Supabase separados. O documento explica
+> o fluxo `develop → preview → main → produção` e como aplicar migrations com segurança.
+
 ---
 
 ## 📋 Índice

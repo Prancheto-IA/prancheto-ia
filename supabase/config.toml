@@ -1,0 +1,28 @@
+# ==========================================================
+# PRANCHETO.IA - Configuracao do Supabase CLI
+#
+# Projetos remotos desta base de codigo:
+#   producao       ujspjhmfdinkhjccjjuo
+#   desenvolvimento jjvvzndhwxdcvbikoqce
+#
+# O CLI atua sobre o projeto atualmente linkado. Confirme sempre
+# com `supabase projects list` antes de qualquer `db push`.
+# ==========================================================
+
+project_id = "prancheto-ia"
+
+[db]
+# Deve acompanhar a versao do Postgres dos projetos remotos (17.x).
+major_version = 17
+
+[db.migrations]
+schema_paths = []
+
+[functions.admin-impersonate]
+verify_jwt = true
+
+[functions.admin-users]
+verify_jwt = true
+
+[functions.chat-ai]
+verify_jwt = true
