@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCamposCustom, TIPOS_CAMPO } from '../../hooks/useCRM.js';
+import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import { useOrg } from '../../hooks/useOrg.js';
 import { supabase } from '../../lib/supabase.js';
 
@@ -251,7 +252,7 @@ const CardCampo = ({ campo, onEditar, onExcluir }) => (
     </div>
     <div className="flex gap-2 flex-shrink-0">
       <button onClick={() => onEditar(campo)} className="text-slate-500 hover:text-primary-400 transition-colors text-sm" title="Editar">✏️</button>
-      <button onClick={() => onExcluir(campo.id)} className="text-slate-500 hover:text-red-400 transition-colors text-sm" title="Desativar">🗑️</button>
+      <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(campo.id)} className="text-slate-500 hover:text-red-400 transition-colors text-sm" title="Desativar">🗑️</button></PermissaoGuarda>
     </div>
   </div>
 );

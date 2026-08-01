@@ -15,10 +15,16 @@
 --
 -- Idempotente: pode ser reaplicado. Usa UUIDs fixos e ON CONFLICT.
 --
--- ACESSO (todos com a mesma senha)
---   admin@acme.dev     senha: prancheto-dev-2026   cargo: admin
---   gerente@acme.dev   senha: prancheto-dev-2026   cargo: manager
---   membro@acme.dev    senha: prancheto-dev-2026   cargo: member
+-- ACESSO (todos com a mesma senha: prancheto-dev-2026)
+--
+--   e-mail             users.cargo   cargo organizacional
+--   admin@acme.dev     admin         Líder Geral      (22 permissões)
+--   gerente@acme.dev   manager       Líder de Time    (16 permissões)
+--   membro@acme.dev    member        Membro de Time   ( 9 permissões)
+--
+-- Use os três para conferir as guardas da interface: o Líder Geral vê
+-- excluir e gerenciar, o Líder de Time vê gerenciar mas não excluir, e o
+-- Membro não vê nenhum dos dois.
 -- =============================================================
 
 -- ---------- TRAVA DE SEGURANCA ----------
@@ -51,19 +57,40 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- ---------- CARGOS ----------
+-- Os tres primeiros reproduzem exatamente os cargos de producao (migration
+-- 008), inclusive nas permissoes, para que o comportamento testado aqui seja
+-- o mesmo que o cliente vai ver. O quarto e so-leitura, para exercitar o caso
+-- restritivo — o que revela guarda faltando na interface.
+--
+-- Os slugs sao os de PERMISSOES_DISPONIVEIS (frontend/src/hooks/useOrg.js).
+-- Inventar slug aqui nao da erro, apenas nao corresponde a guarda alguma.
 INSERT INTO public.org_cargos (id, tenant_id, nome, descricao, ordem, e_padrao, e_sistema, permissoes)
 VALUES
   ('c0000000-0000-4000-8000-000000000001', 'd0000000-0000-4000-8000-000000000001',
-   'Administrador', 'Acesso total ao tenant', 1, false, true, '["*"]'::jsonb),
+   'Líder Geral', 'Acesso completo à organização.', 1, false, true,
+   '["crm.ver","crm.criar","crm.editar","crm.excluir","agenda.ver","agenda.criar","agenda.editar","agenda.excluir","outbound.ver","outbound.criar","outbound.editar","outbound.excluir","times.ver","times.gerenciar","usuarios.ver","usuarios.convidar","usuarios.gerenciar","cargos.ver","cargos.gerenciar","configuracoes.ver","configuracoes.editar","relatorios.ver"]'::jsonb),
+
   ('c0000000-0000-4000-8000-000000000002', 'd0000000-0000-4000-8000-000000000001',
-   'Gerente', 'Gerencia times, projetos e funil', 2, false, false,
-   '["crm.ler","crm.escrever","projetos.ler","projetos.escrever","times.ler"]'::jsonb),
+   'Líder de Time', 'Gerencia seu time. CRM, agenda e outbound sem exclusão.', 2, false, true,
+   '["crm.ver","crm.criar","crm.editar","agenda.ver","agenda.criar","agenda.editar","outbound.ver","outbound.criar","outbound.editar","times.ver","times.gerenciar","usuarios.ver","usuarios.convidar","cargos.ver","configuracoes.ver","relatorios.ver"]'::jsonb),
+
   ('c0000000-0000-4000-8000-000000000003', 'd0000000-0000-4000-8000-000000000001',
-   'Consultor', 'Operacao do dia a dia', 3, true, false,
-   '["crm.ler","crm.escrever","projetos.ler"]'::jsonb),
+   'Membro de Time', 'Visualiza e cria registros. Não exclui nem gerencia.', 3, true, true,
+   '["crm.ver","crm.criar","agenda.ver","agenda.criar","outbound.ver","outbound.criar","times.ver","usuarios.ver","relatorios.ver"]'::jsonb),
+
   ('c0000000-0000-4000-8000-000000000004', 'd0000000-0000-4000-8000-000000000001',
-   'Observador', 'Somente leitura', 4, false, false, '["crm.ler","projetos.ler"]'::jsonb)
-ON CONFLICT (id) DO NOTHING;
+   'Observador', 'Somente leitura, em toda a organização.', 4, false, false,
+   '["crm.ver","agenda.ver","outbound.ver","times.ver","usuarios.ver","cargos.ver","configuracoes.ver","relatorios.ver"]'::jsonb)
+ON CONFLICT (id) DO UPDATE SET
+  nome       = EXCLUDED.nome,
+  descricao  = EXCLUDED.descricao,
+  ordem      = EXCLUDED.ordem,
+  e_padrao   = EXCLUDED.e_padrao,
+  e_sistema  = EXCLUDED.e_sistema,
+  permissoes = EXCLUDED.permissoes;
+-- DO UPDATE, e nao DO NOTHING: ao ajustar as permissoes deste arquivo,
+-- reexecutar precisa sincronizar os cargos existentes. Com DO NOTHING o
+-- banco ficaria preso na primeira versao do seed.
 
 -- ---------- USUARIOS DE AUTENTICACAO ----------
 -- O trigger on_auth_user_created cria a linha correspondente em

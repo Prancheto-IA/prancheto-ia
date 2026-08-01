@@ -6,7 +6,11 @@
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useOrg, PERMISSOES_POR_GRUPO } from '../../../hooks/useOrg.js';
+import { useOrg, PERMISSOES_POR_GRUPO, PERMISSOES_DISPONIVEIS, SLUGS_CONHECIDOS } from '../../../hooks/useOrg.js';
+import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
+
+/** Índice slug → definição, para não varrer o catálogo a cada permissão exibida. */
+const CATALOGO_POR_SLUG = new Map(PERMISSOES_DISPONIVEIS.map(p => [p.slug, p]));
 
 // ----------------------------------------------------------
 // BADGE DE CARGO
@@ -228,9 +232,17 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
                   Permissões ({form.permissoes.length} selecionadas)
                 </label>
                 <div className="flex gap-2">
+                  {/* Ambos preservam slugs fora do catálogo: o editor não os
+                      exibe, então o admin não pode ter intenção de removê-los. */}
                   <button
                     type="button"
-                    onClick={() => setForm(f => ({ ...f, permissoes: Object.values(PERMISSOES_POR_GRUPO).flat().map(p => p.slug) }))}
+                    onClick={() => setForm(f => ({
+                      ...f,
+                      permissoes: [...new Set([
+                        ...f.permissoes.filter(s => !SLUGS_CONHECIDOS.has(s)),
+                        ...PERMISSOES_DISPONIVEIS.map(p => p.slug),
+                      ])],
+                    }))}
                     className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
                   >
                     Selecionar todas
@@ -238,7 +250,10 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
                   <span style={{ color: 'var(--color-text-secondary)' }}>·</span>
                   <button
                     type="button"
-                    onClick={() => setForm(f => ({ ...f, permissoes: [] }))}
+                    onClick={() => setForm(f => ({
+                      ...f,
+                      permissoes: f.permissoes.filter(s => !SLUGS_CONHECIDOS.has(s)),
+                    }))}
                     className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
                   >
                     Limpar
@@ -291,13 +306,14 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
   const [expandido, setExpandido] = useState(false);
   const totalPerms = cargo.permissoes?.length || 0;
 
-  // Agrupa permissões por grupo para exibição
+  // Agrupa permissões por grupo para exibição.
+  // Slugs fora do catálogo aparecem em um grupo próprio, em vez de sumirem:
+  // uma permissão invisível é impossível de revisar ou remover.
   const permsAgrupadas = (cargo.permissoes || []).reduce((acc, slug) => {
-    const perm = Object.values(PERMISSOES_POR_GRUPO).flat().find(p => p.slug === slug);
-    if (perm) {
-      if (!acc[perm.grupo]) acc[perm.grupo] = [];
-      acc[perm.grupo].push(perm.label);
-    }
+    const perm = CATALOGO_POR_SLUG.get(slug);
+    const grupo = perm ? perm.grupo : 'Fora do catálogo';
+    if (!acc[grupo]) acc[grupo] = [];
+    acc[grupo].push(perm ? perm.label : slug);
     return acc;
   }, {});
 
@@ -339,22 +355,26 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
             >
               {expandido ? '▲' : '▼'}
             </button>
-            <button
-              onClick={() => onEditar(cargo)}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors text-sm"
-              title="Editar cargo"
-            >
-              ✏️
-            </button>
-            {!cargo.e_sistema && (
+            <PermissaoGuarda permissao="cargos.gerenciar">
               <button
-                onClick={() => onExcluir(cargo.id)}
-                disabled={excluindo === cargo.id}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm disabled:opacity-50"
-                title="Excluir cargo"
+                onClick={() => onEditar(cargo)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                title="Editar cargo"
               >
-                {excluindo === cargo.id ? '⏳' : '🗑️'}
+                ✏️
               </button>
+            </PermissaoGuarda>
+            {!cargo.e_sistema && (
+              <PermissaoGuarda permissao="cargos.gerenciar">
+                <button
+                  onClick={() => onExcluir(cargo.id)}
+                  disabled={excluindo === cargo.id}
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm disabled:opacity-50"
+                  title="Excluir cargo"
+                >
+                  {excluindo === cargo.id ? '⏳' : '🗑️'}
+                </button>
+              </PermissaoGuarda>
             )}
           </div>
         </div>
@@ -478,13 +498,15 @@ const Cargos = () => {
             Defina os cargos da organização e controle o que cada um pode fazer.
           </p>
         </div>
-        <button
-          onClick={abrirCriar}
-          className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
-        >
-          <span>+</span>
-          <span>Novo cargo</span>
-        </button>
+        <PermissaoGuarda permissao="cargos.gerenciar">
+          <button
+            onClick={abrirCriar}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
+          >
+            <span>+</span>
+            <span>Novo cargo</span>
+          </button>
+        </PermissaoGuarda>
       </div>
 
       {/* Erro global */}

@@ -37,14 +37,18 @@ export const useAuthStore = create(
       usuario: null,
       // Estrutura esperada do objeto 'usuario':
       // {
-      //   id:          'uuid',
-      //   nome:        'João Silva',
-      //   email:       'joao@empresa.com',
-      //   cargo:       'gerente',
-      //   tenantId:    'uuid-do-tenant',
-      //   isSuperAdmin: false,
-      //   permissoes:  { secoes: ['comercial', 'outreach'], modulos: [...] }
+      //   id:              'uuid',
+      //   nome:            'João Silva',
+      //   email:           'joao@empresa.com',
+      //   cargo:           'manager',        // enum em users.cargo
+      //   cargo_id:        'uuid|null',      // cargo organizacional (org_cargos)
+      //   tenant_id:       'uuid',
+      //   isSuperAdmin:    false,
+      //   permissoesCargo: ['crm.ver', 'crm.criar', ...] | null
       // }
+      //
+      // permissoesCargo vem de org_cargos.permissoes, resolvido no login.
+      // null significa "não determinado" — ver temPermissao() abaixo.
 
       /** Indica se uma operação de autenticação está em andamento */
       carregando: false,
@@ -185,27 +189,32 @@ export const useAuthStore = create(
       eSuperAdmin: () => !!get().usuario?.isSuperAdmin,
 
       /**
-       * Verifica se o usuário tem permissão para acessar uma seção específica.
-       * @param {string} nomeSecao - Nome da seção (ex: 'comercial', 'outreach')
+       * Verifica se o usuário tem uma permissão do catálogo
+       * (PERMISSOES_DISPONIVEIS em hooks/useOrg.js).
+       *
+       * A lista vem de org_cargos.permissoes, carregada no login a partir
+       * de users.cargo_id.
+       *
+       * QUANDO NÃO HÁ LISTA, LIBERA.
+       * Um usuário pode não ter cargo organizacional: signup direto não
+       * define cargo_id, e sessões abertas antes desta funcionalidade têm
+       * o perfil antigo em cache no localStorage. Negar nesses casos
+       * esconderia a interface inteira de quem sempre teve acesso. Como
+       * a barreira real é o RLS no banco, liberar aqui não abre brecha —
+       * só evita travar gente de fora por falta de dado.
+       *
+       * @param {string} slug - ex.: 'crm.excluir', 'cargos.gerenciar'
        * @returns {boolean}
        */
-      temPermissaoSecao: (nomeSecao) => {
+      temPermissao: (slug) => {
         const { usuario } = get();
-        // Super Admin tem acesso a tudo
-        if (usuario?.isSuperAdmin) return true;
-        // Verifica na lista de seções permitidas
-        return usuario?.permissoes?.secoes?.includes(nomeSecao) ?? false;
-      },
+        if (!usuario) return false;
+        if (usuario.isSuperAdmin) return true;
 
-      /**
-       * Verifica se o usuário tem permissão para acessar um módulo específico.
-       * @param {string} nomeModulo - Nome do módulo
-       * @returns {boolean}
-       */
-      temPermissaoModulo: (nomeModulo) => {
-        const { usuario } = get();
-        if (usuario?.isSuperAdmin) return true;
-        return usuario?.permissoes?.modulos?.includes(nomeModulo) ?? false;
+        const lista = usuario.permissoesCargo;
+        if (!Array.isArray(lista)) return true;
+
+        return lista.includes('*') || lista.includes(slug);
       },
     }),
 
