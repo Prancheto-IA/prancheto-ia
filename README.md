@@ -3,9 +3,10 @@
 > CRM B2B modular com arquitetura multi-tenant, isolamento por Row Level Security
 > e painel administrativo exclusivo da equipe fundadora.
 
-> 🌱 **Antes de codar, leia [docs/AMBIENTES.md](docs/AMBIENTES.md).**
-> Desenvolvimento e produção usam bancos Supabase separados. O documento explica
-> o fluxo `develop → preview → main → produção` e como aplicar migrations com segurança.
+> 🌱 **Antes de codar:** [docs/FLUXO.md](docs/FLUXO.md) é o passo a passo para
+> alterar algo com segurança — onde trabalhar, comandos git, como publicar.
+> [docs/AMBIENTES.md](docs/AMBIENTES.md) detalha a separação entre os bancos de
+> desenvolvimento e produção, credenciais e migrations.
 
 ---
 
