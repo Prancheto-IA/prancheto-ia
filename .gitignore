@@ -65,3 +65,10 @@ coverage/
 # --- Arquivos temporários ---
 *.tmp
 *.temp
+.vercel
+.env*
+
+# Excecao: o template sem segredos precisa continuar versionado.
+# A regra `.env*` acima foi adicionada pelo `vercel link` e engolia
+# este arquivo — ele so sobreviveu por ja estar rastreado.
+!frontend/.env.example
