@@ -4,11 +4,25 @@
 # =============================================================
 
 # --- Variáveis de ambiente (NUNCA commitar!) ---
+# Exceção versionada: frontend/.env.example (template sem segredos)
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
 backend/.env
 frontend/.env
+frontend/.env.development
+frontend/.env.production
+
+# --- Credenciais de banco ---
+.supabase-dev-db-password.txt
+*.db-password.txt
+
+# --- Supabase CLI (estado local) ---
+supabase/.branches/
+supabase/.temp/
+supabase/.env
 
 # --- Dependências Node.js ---
 node_modules/
@@ -51,3 +65,10 @@ coverage/
 # --- Arquivos temporários ---
 *.tmp
 *.temp
+.vercel
+.env*
+
+# Excecao: o template sem segredos precisa continuar versionado.
+# A regra `.env*` acima foi adicionada pelo `vercel link` e engolia
+# este arquivo — ele so sobreviveu por ja estar rastreado.
+!frontend/.env.example
