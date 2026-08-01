@@ -1,6 +1,7 @@
 # 🧠 Prancheto.IA — CRM Modular SaaS Multi-tenant
 
-> Sistema de CRM B2B modular, escalável e seguro, com arquitetura Multi-tenant e Painel Administrativo exclusivo para a equipe fundadora.
+> CRM B2B modular com arquitetura multi-tenant, isolamento por Row Level Security
+> e painel administrativo exclusivo da equipe fundadora.
 
 > 🌱 **Antes de codar, leia [docs/AMBIENTES.md](docs/AMBIENTES.md).**
 > Desenvolvimento e produção usam bancos Supabase separados. O documento explica
@@ -10,258 +11,298 @@
 
 ## 📋 Índice
 
-1. [Pré-requisitos](#pré-requisitos)
-2. [Estrutura do Projeto](#estrutura-do-projeto)
-3. [Instalação — Back-end](#instalação--back-end)
-4. [Instalação — Front-end](#instalação--front-end)
-5. [Configuração do Banco de Dados](#configuração-do-banco-de-dados)
-6. [Variáveis de Ambiente](#variáveis-de-ambiente)
-7. [Executando o Projeto](#executando-o-projeto)
-8. [Rotas Importantes](#rotas-importantes)
-9. [Monitoramento e Segurança](#monitoramento-e-segurança)
-10. [Stack Tecnológica](#stack-tecnológica)
+1. [Arquitetura](#-arquitetura)
+2. [Pré-requisitos](#-pré-requisitos)
+3. [Primeira execução](#-primeira-execução)
+4. [Estrutura do projeto](#-estrutura-do-projeto)
+5. [Banco de dados](#-banco-de-dados)
+6. [Edge Functions](#-edge-functions)
+7. [Rotas e navegação](#-rotas-e-navegação)
+8. [Controle de acesso](#-controle-de-acesso)
+9. [Monitoramento](#-monitoramento)
+10. [Stack](#-stack)
+
+---
+
+## 🏗 Arquitetura
+
+**Não existe servidor de aplicação próprio.** O front-end React conversa direto
+com o Supabase, que cumpre o papel de back-end:
+
+```
+   React (Vite)
+        │
+        │  @supabase/supabase-js
+        ▼
+   ┌─────────────────────────────────────┐
+   │  Supabase                           │
+   │                                     │
+   │   Auth        sessão e cadastro     │
+   │   PostgreSQL  dados + RLS           │
+   │   Edge Funcs  operações privilegiadas│
+   └─────────────────────────────────────┘
+```
+
+A consequência mais importante disso: **o isolamento entre clientes é
+responsabilidade do banco, não do front-end.** Cada tabela tem Row Level
+Security ativo, e as políticas decidem o que cada usuário enxerga a partir de
+`auth.uid()`. Não há camada intermediária para confiar — uma policy mal escrita
+é um vazamento entre tenants.
+
+Por isso, ao mexer em qualquer tabela, a pergunta não é só "o dado está certo?",
+mas "quem consegue ver esse dado?".
 
 ---
 
 ## ✅ Pré-requisitos
 
-Antes de começar, certifique-se de ter instalado na sua máquina:
-
-| Ferramenta | Versão Mínima | Download |
+| Ferramenta | Versão | Observação |
 |---|---|---|
-| **Node.js** | 18.x ou superior | https://nodejs.org |
-| **npm** | 9.x ou superior | (incluído com Node.js) |
-| **PostgreSQL** | 14.x ou superior | https://www.postgresql.org/download |
-| **Git** | Qualquer versão recente | https://git-scm.com |
+| **Node.js** | 18+ (usamos 24.x) | https://nodejs.org |
+| **npm** | 9+ | vem com o Node |
+| **Git** | recente | https://git-scm.com |
+| **Supabase CLI** | 2.x | `npm i -g supabase` — só para migrations |
+
+Não é necessário instalar PostgreSQL: o banco é gerenciado pelo Supabase.
+Se precisar de `psql` ou `pg_dump` para inspeção, veja
+[docs/AMBIENTES.md](docs/AMBIENTES.md#conectando-direto-no-banco).
 
 ---
 
-## 📁 Estrutura do Projeto
+## 🚀 Primeira execução
+
+```bash
+git clone https://github.com/Prancheto-IA/prancheto-ia.git
+cd prancheto-ia/frontend
+npm install
+```
+
+Crie o arquivo de ambiente a partir do template:
+
+```bash
+cp .env.example .env.development
+```
+
+Preencha com as credenciais do projeto Supabase **de desenvolvimento**
+(Dashboard → Project Settings → API). Depois:
+
+```bash
+npm run dev
+# http://localhost:5173
+```
+
+O Vite carrega `.env.development` automaticamente — você já está no banco de
+desenvolvimento, sem passo extra.
+
+### Dados para testar
+
+`supabase/seed.sql` popula o banco de dev com um tenant fictício, times, funil
+de CRM, projetos e tarefas. Instruções e credenciais de acesso em
+[docs/AMBIENTES.md](docs/AMBIENTES.md#dados-de-teste-seed).
+
+### Scripts
+
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento (banco de dev) |
+| `npm run build` | Build de produção (banco de produção) |
+| `npm run preview` | Serve o build localmente |
+| `npm run lint` | ESLint, sem tolerância a warnings |
+
+---
+
+## 📁 Estrutura do projeto
 
 ```
 prancheto-ia/
-├── backend/          # API RESTful (Node.js + Express + PostgreSQL)
-├── frontend/         # Interface React (Vite + TailwindCSS)
-├── plans/            # Documentação de arquitetura
-└── README.md         # Este arquivo
+├── frontend/                  Aplicação React
+│   └── src/
+│       ├── pages/             Telas, agrupadas por área
+│       ├── components/        Componentes compartilhados
+│       ├── hooks/             Acesso a dados e regras de negócio
+│       ├── store/             Estado global (Zustand)
+│       ├── lib/supabase.js    Client do Supabase + guard de ambiente
+│       └── utils/
+│
+├── supabase/
+│   ├── migrations/            Histórico versionado do schema
+│   ├── migrations_legado/     Arquivo histórico — não é executado
+│   ├── functions/             Edge Functions (Deno)
+│   ├── seed.sql               Dados de desenvolvimento
+│   └── config.toml
+│
+├── docs/AMBIENTES.md          Separação dev/produção e fluxo de trabalho
+└── plans/                     Documentação de arquitetura
 ```
+
+### Onde fica a lógica
+
+Os **hooks** concentram o acesso a dados: cada um encapsula as consultas
+Supabase de um domínio e devolve estado pronto para a tela. Ao adicionar uma
+funcionalidade, o caminho natural é estender o hook existente, não consultar o
+Supabase direto do componente.
+
+| Hook | Domínio |
+|---|---|
+| `useAuth` | Sessão, login, cargo do usuário |
+| `usePermission` | Checagem de permissões na interface |
+| `useCRM` | Leads, clientes, funil, campos customizados |
+| `useProjetos` · `useTarefas` | Projetos, milestones, tarefas |
+| `useOrg` | Times, cargos, membros |
+| `useChat` · `useFeed` | Chat interno e feed |
+| `useSuporte` · `useBaseConhecimento` · `useStatusSistema` | Módulo de suporte |
+| `useModulos` · `useSidebarPrefs` · `useTema` | Preferências e navegação |
+| `useErrorHandler` | Tratamento uniforme de erros |
 
 ---
 
-## 🔧 Instalação — Back-end
+## 🗄 Banco de dados
 
-> ⚠️ **ATENÇÃO — INSTALAÇÃO DE DEPENDÊNCIAS NECESSÁRIA**
-> Os comandos abaixo instalam todas as bibliotecas do back-end.
-> Execute-os UMA VEZ antes de iniciar o servidor pela primeira vez.
+O schema vive em `supabase/migrations/` e tem como ponto de partida a
+**baseline** `20260801000000_baseline_producao.sql`, gerada a partir do estado
+real da produção: 41 tabelas, 109 políticas de RLS, 85 índices, 14 funções,
+16 triggers.
+
+### Regra que não se quebra
+
+**Nada é alterado pelo SQL Editor do dashboard.** Foi assim que 11 tabelas
+fundamentais do sistema acabaram sem histórico algum, e o que motivou a
+baseline. Toda mudança nasce de:
 
 ```bash
-# 1. Entre na pasta do back-end
-cd prancheto-ia/backend
-
-# 2. Instale todas as dependências
-npm install
+supabase migration new nome_descritivo
 ```
 
-**Dependências que serão instaladas:**
-- `express` — Servidor HTTP
-- `pg` — Driver do PostgreSQL
-- `knex` — Query builder e migrations
-- `bcryptjs` — Criptografia de senhas
-- `jsonwebtoken` — Autenticação JWT
-- `dotenv` — Variáveis de ambiente
-- `winston` — Logs estruturados
-- `express-rate-limit` — Proteção contra força bruta
-- `helmet` — Headers de segurança HTTP
-- `cors` — Controle de origens permitidas
-- `@sentry/node` — Monitoramento de erros em produção
-- `uuid` — Geração de IDs únicos
+Aplica-se primeiro no ambiente de desenvolvimento, testa-se, e só depois
+promove para produção. O passo a passo está em
+[docs/AMBIENTES.md](docs/AMBIENTES.md#alterações-no-banco-de-dados).
+
+### Multi-tenancy
+
+O isolamento se apoia em duas funções `SECURITY DEFINER` que evitam recursão
+infinita nas políticas:
+
+- `public.get_user_tenant_id()` — tenant do usuário autenticado
+- `public.get_user_cargo()` — cargo do usuário autenticado
+
+Além do tenant, o CRM filtra por **time**: um contato é visível para quem é
+membro do time dono do registro ou para quem é o responsável direto por ele.
+
+### Cadastro de usuários
+
+O trigger `on_auth_user_created` em `auth.users` cria a linha correspondente em
+`public.users`. Signup direto entra com `tenant_id` nulo e `ativo = false` —
+o RLS bloqueia o acesso até que um admin associe a pessoa a um tenant.
+
+`supabase/migrations_legado/` guarda as migrations anteriores à baseline. Não
+são mais executadas, mas documentam decisões que ainda valem — veja o
+[README de lá](supabase/migrations_legado/README.md).
 
 ---
 
-## 🎨 Instalação — Front-end
+## ⚡ Edge Functions
 
-> ⚠️ **ATENÇÃO — INSTALAÇÃO DE DEPENDÊNCIAS NECESSÁRIA**
-> Os comandos abaixo instalam todas as bibliotecas do front-end.
+Operações que exigem privilégio acima do usuário e por isso não podem rodar no
+browser. Ficam em `supabase/functions/`, escritas em TypeScript sobre Deno.
+
+| Função | Responsabilidade |
+|---|---|
+| `admin-users` | Criação e gestão de usuários com `service_role` |
+| `admin-impersonate` | Permite ao super admin assumir a sessão de um cliente |
+| `chat-ai` | Intermedia as chamadas ao provedor de IA, sem expor a chave |
+
+Deploy:
 
 ```bash
-# 1. Entre na pasta do front-end
-cd prancheto-ia/frontend
-
-# 2. Instale todas as dependências
-npm install
+supabase functions deploy <nome>
 ```
 
-**Dependências que serão instaladas:**
-- `react` + `react-dom` — Framework de UI
-- `react-router-dom` — Roteamento de páginas
-- `axios` — Cliente HTTP para chamadas à API
-- `zustand` — Gerenciamento de estado global
-- `@sentry/react` — Monitoramento de erros no front-end
-- `tailwindcss` — Framework de CSS utilitário
-- `vite` + `@vitejs/plugin-react` — Bundler e servidor de desenvolvimento
+Segredos são configurados com `supabase secrets set`, nunca no código.
 
 ---
 
-## 🗄️ Configuração do Banco de Dados
+## 🔗 Rotas e navegação
 
-> ⚠️ **ATENÇÃO — AÇÃO NECESSÁRIA NO BANCO DE DADOS**
+Todas as páginas usam lazy loading. As rotas do cliente compartilham o
+`LayoutCliente`, que fornece a sidebar.
 
-### 1. Crie o banco de dados no PostgreSQL
-
-Abra o terminal do PostgreSQL (psql) ou use uma ferramenta como DBeaver/pgAdmin e execute:
-
-```sql
-CREATE DATABASE prancheto_ia;
-```
-
-### 2. Execute as migrations
-
-Após configurar o arquivo `.env` (próximo passo), execute:
-
-```bash
-cd prancheto-ia/backend
-npm run migrate
-```
-
-### 3. Execute os seeds (dados iniciais)
-
-Cria a Conta Tronco (Super Admin) e os planos base:
-
-```bash
-npm run seed
-```
-
----
-
-## 🔐 Variáveis de Ambiente
-
-### Back-end
-
-```bash
-# 1. Copie o arquivo de exemplo
-cd prancheto-ia/backend
-copy .env.example .env   # Windows
-# cp .env.example .env   # Mac/Linux
-
-# 2. Abra o arquivo .env e preencha os valores
-```
-
-**Variáveis obrigatórias:**
-
-| Variável | Descrição | Exemplo |
+| Rota | Área | Acesso |
 |---|---|---|
-| `DB_HOST` | Host do PostgreSQL | `localhost` |
-| `DB_PORT` | Porta do PostgreSQL | `5432` |
-| `DB_NAME` | Nome do banco | `prancheto_ia` |
-| `DB_USER` | Usuário do banco | `postgres` |
-| `DB_PASSWORD` | Senha do banco | `sua_senha` |
-| `JWT_SECRET` | Chave secreta JWT | (gere com o comando abaixo) |
+| `/login` | Autenticação | Pública |
+| `/dashboard` | Início, agenda, chat, relatórios, outbound, configurações, planos | Cliente |
+| `/dashboard/organizacao/*` | Times, cargos, identidade visual | Cliente |
+| `/crm/*` | Leads, clientes, campos customizados | Cliente |
+| `/modulos/*` | Dashboard, calendário, projetos, tarefas, feed, chat, times | Cliente |
+| `/suporte/*` | Tickets, base de conhecimento, status do sistema | Cliente |
+| `/admin/*` | Gestão de clientes, usuários, planos, monitoramento, logs | Super admin |
 
-**Gerar JWT_SECRET seguro:**
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-```
-
-### Front-end
-
-```bash
-cd prancheto-ia/frontend
-copy .env.example .env   # Windows
-# cp .env.example .env   # Mac/Linux
-```
+A rota `/` redireciona conforme o cargo: super admin vai para `/admin`, os
+demais para `/dashboard`.
 
 ---
 
-## ▶️ Executando o Projeto
+## 🔐 Controle de acesso
 
-### Modo Desenvolvimento (recomendado para início)
+Cinco cargos, validados por `CHECK` na tabela `users`:
 
-**Terminal 1 — Back-end:**
-```bash
-cd prancheto-ia/backend
-npm run dev
-# Servidor rodando em: http://localhost:3001
-```
+| Cargo | Alcance |
+|---|---|
+| `super_admin` | Equipe fundadora. Acessa `/admin`, atravessa tenants |
+| `admin` | Administra o próprio tenant |
+| `manager` | Gerencia times, projetos e funil |
+| `member` | Operação do dia a dia |
+| `viewer` | Somente leitura |
 
-**Terminal 2 — Front-end:**
-```bash
-cd prancheto-ia/frontend
-npm run dev
-# Interface rodando em: http://localhost:5173
-```
+O que de fato barra o acesso é o **RLS no banco**. As rotas protegidas em
+`App.jsx` (`RotaPrivada`, `RotaCliente`, `RotaSuperAdmin`) são conveniência de
+navegação, não segurança: esconder uma tela não impede uma requisição.
 
-### Modo Produção
+### Permissões granulares — ainda não ligadas
 
-```bash
-# Back-end
-cd prancheto-ia/backend
-npm start
+Existe um segundo nível de permissões por tenant, em `org_cargos.permissoes`
+(JSON, ex.: `["crm.ler","crm.escrever"]`). A infraestrutura está pronta no
+banco, e há um hook `usePermission` e um componente `<PermissaoGuarda>`
+escritos para consumi-la.
 
-# Front-end (gera build otimizado)
-cd prancheto-ia/frontend
-npm run build
-npm run preview
-```
+**Nada disso está em uso.** Hoje `usePermission` é importado apenas por
+`PermissaoGuarda`, que por sua vez não é usado em tela nenhuma. Na prática, as
+permissões gravadas em `org_cargos` não alteram o comportamento da interface —
+o que vale é o cargo em `users.cargo` e as políticas de RLS.
 
----
-
-## 🔗 Rotas Importantes
-
-| Rota | Método | Descrição | Autenticação |
-|---|---|---|---|
-| `/api/health` | GET | Health Check (monitor externo) | ❌ Pública |
-| `/api/status` | GET | Status da API | ❌ Pública |
-| `/api/auth/login` | POST | Login de usuários | ❌ Pública |
-| `/api/auth/refresh` | POST | Renovar token JWT | ✅ Token |
-| `/api/users` | GET | Listar usuários do tenant | ✅ Token + RBAC |
-| `/api/sections` | GET | Biblioteca de Seções | ✅ Token + RBAC |
-| `/api/admin/tenants` | GET | Gestão de clientes | ✅ Super Admin |
+Ao ligar isso, lembre-se de que a checagem na interface precisa ter uma policy
+correspondente no banco. Sem o par, é decoração.
 
 ---
 
-## 🛡️ Monitoramento e Segurança
+## 📊 Monitoramento
 
-### Health Check (Better Stack / UptimeRobot)
+**Sentry** captura erros do front-end. Configure `VITE_SENTRY_DSN` apenas em
+produção — em desenvolvimento, deixe vazio para não poluir os alertas.
 
-Configure seu monitor externo para verificar a URL:
-```
-GET http://seu-dominio.com/api/health
-```
-Resposta esperada quando tudo está OK:
-```json
-{ "status": "ok", "timestamp": "...", "ambiente": "production" }
-```
+A amostragem de performance é de 10% em produção e 100% fora dela
+(`src/main.jsx`). O `Sentry.ErrorBoundary` em `App.jsx` evita tela branca:
+mostra uma mensagem amigável com opção de tentar novamente.
 
-### Sentry (Monitoramento de Erros)
-
-1. Crie uma conta em https://sentry.io
-2. Crie dois projetos: um para `Node.js` (back-end) e um para `React` (front-end)
-3. Copie os DSNs e cole nas variáveis `SENTRY_DSN` (back-end) e `VITE_SENTRY_DSN` (front-end)
-
-### Logs
-
-Os logs são salvos automaticamente em:
-- `backend/logs/app.log` — Todos os eventos
-- `backend/logs/errors.log` — Apenas erros críticos
+O módulo de suporte tem uma página de **Status do Sistema** (`/suporte/status`)
+alimentada pelas tabelas `suporte_status_componentes` e
+`suporte_status_incidentes`.
 
 ---
 
-## 🧰 Stack Tecnológica
+## 🧰 Stack
 
 | Camada | Tecnologia |
 |---|---|
-| Back-end | Node.js 18+ + Express 4 |
-| Banco de Dados | PostgreSQL 14+ |
-| ORM/Migrations | Knex.js |
-| Autenticação | JWT + bcryptjs |
-| Front-end | React 18 + Vite 5 |
+| Interface | React 18 + Vite 5 |
 | Estilo | TailwindCSS 3 |
-| Estado Global | Zustand |
-| HTTP Client | Axios |
+| Estado global | Zustand |
+| Rotas | React Router 6 |
+| Drag and drop | dnd-kit |
+| Backend | Supabase (PostgreSQL 17, Auth, Edge Functions) |
+| Segurança de dados | Row Level Security |
 | Monitoramento | Sentry |
-| Logs | Winston |
-| Segurança | Helmet + express-rate-limit |
+| Hospedagem | Vercel |
 
 ---
 
-*Prancheto.IA © 2024 — Todos os direitos reservados.*
+*Prancheto.IA © 2026 — Todos os direitos reservados.*
