@@ -1,35 +1,51 @@
 // =============================================================
-// PRANCHETO.IA - COMPONENTE DE GUARDA DE PERMISSÃO
-// Renderiza children apenas se o usuário tiver a permissão necessária.
-// Se não tiver permissão, retorna null (invisível — sem mensagem de erro,
-// sem rota exposta, sem indicação de que o recurso existe).
+// PRANCHETO.IA - GUARDA DE PERMISSÃO
 //
-// Uso:
-//   <PermissaoGuarda tipo="secao" nome="comercial">
-//     <ModuloComercial />
+// Renderiza o conteúdo apenas se o usuário tiver a permissão exigida.
+// Sem permissão, renderiza o fallback (por padrão nada) — o recurso
+// simplesmente não aparece, sem mensagem de erro nem pista de que existe.
+//
+//   <PermissaoGuarda permissao="cargos.gerenciar">
+//     <BotaoNovoCargo />
 //   </PermissaoGuarda>
 //
-//   <PermissaoGuarda tipo="cargo" nome={['admin', 'manager']}>
-//     <BotaoDeletar />
+//   <PermissaoGuarda permissao={['crm.editar', 'crm.excluir']} modo="alguma">
+//     <MenuDeAcoes />
 //   </PermissaoGuarda>
+//
+//   <PermissaoGuarda cargo={['admin']} fallback={<AvisoSemAcesso />}>
+//     <ConfiguracoesAvancadas />
+//   </PermissaoGuarda>
+//
+// Isto é controle de interface. A barreira real é o RLS no banco.
 // =============================================================
 
-import React from 'react';
 import { usePermission } from '../../hooks/usePermission.js';
 
 /**
- * Componente de guarda de permissão RBAC.
- * @param {'secao'|'modulo'|'aba'|'widget'|'cargo'} tipo - Tipo de permissão
- * @param {string|string[]} nome - Nome do recurso ou lista de cargos
- * @param {React.ReactNode} children - Conteúdo a renderizar se tiver permissão
- * @param {React.ReactNode} fallback - Conteúdo alternativo (padrão: null)
+ * @param {string|string[]} [permissao] - Slug do catálogo, ou lista deles
+ * @param {'todas'|'alguma'} [modo] - Como avaliar a lista (padrão: 'todas')
+ * @param {string|string[]} [cargo] - Cargo do sistema (users.cargo)
+ * @param {React.ReactNode} children
+ * @param {React.ReactNode} [fallback] - Alternativa quando não há permissão
  */
-const PermissaoGuarda = ({ tipo, nome, children, fallback = null }) => {
-  const { temPermissao } = usePermission();
+const PermissaoGuarda = ({
+  permissao,
+  modo = 'todas',
+  cargo,
+  children,
+  fallback = null,
+}) => {
+  const { pode, podeAlguma, podeTodas, temCargo } = usePermission();
 
-  // Verifica a permissão — se não tiver, renderiza o fallback (invisível por padrão)
-  if (!temPermissao(tipo, nome)) {
-    return fallback;
+  if (cargo && !temCargo(cargo)) return fallback;
+
+  if (permissao) {
+    const liberado = Array.isArray(permissao)
+      ? (modo === 'alguma' ? podeAlguma(permissao) : podeTodas(permissao))
+      : pode(permissao);
+
+    if (!liberado) return fallback;
   }
 
   return children;

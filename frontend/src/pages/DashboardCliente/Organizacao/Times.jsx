@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOrg } from '../../../hooks/useOrg.js';
 import { useAuthStore } from '../../../store/authStore.js';
+import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
 
 // ----------------------------------------------------------
 // CONSTANTES
@@ -363,21 +364,25 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
             >
               {expandido ? '▲' : '▼'}
             </button>
-            <button
-              onClick={() => onEditar(time)}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors text-sm"
-              title="Editar time"
-            >
-              ✏️
-            </button>
-            <button
-              onClick={() => onExcluir(time.id)}
-              disabled={excluindo === time.id}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm disabled:opacity-50"
-              title="Excluir time"
-            >
-              {excluindo === time.id ? '⏳' : '🗑️'}
-            </button>
+            <PermissaoGuarda permissao="times.gerenciar">
+              <button
+                onClick={() => onEditar(time)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                title="Editar time"
+              >
+                ✏️
+              </button>
+            </PermissaoGuarda>
+            <PermissaoGuarda permissao="times.gerenciar">
+              <button
+                onClick={() => onExcluir(time.id)}
+                disabled={excluindo === time.id}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm disabled:opacity-50"
+                title="Excluir time"
+              >
+                {excluindo === time.id ? '⏳' : '🗑️'}
+              </button>
+            </PermissaoGuarda>
           </div>
         </div>
 
@@ -430,32 +435,36 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
                       {m.usuario?.email}
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleRemover(m.usuario?.id)}
-                    disabled={removendo === m.usuario?.id}
-                    className="text-xs text-slate-500 hover:text-red-400 transition-colors disabled:opacity-50 flex-shrink-0"
-                    title="Remover do time"
-                  >
-                    {removendo === m.usuario?.id ? '⏳' : '✕'}
-                  </button>
+                  <PermissaoGuarda permissao="times.gerenciar">
+                    <button
+                      onClick={() => handleRemover(m.usuario?.id)}
+                      disabled={removendo === m.usuario?.id}
+                      className="text-xs text-slate-500 hover:text-red-400 transition-colors disabled:opacity-50 flex-shrink-0"
+                      title="Remover do time"
+                    >
+                      {removendo === m.usuario?.id ? '⏳' : '✕'}
+                    </button>
+                  </PermissaoGuarda>
                 </div>
               ))}
             </div>
           )}
 
           {/* Botão adicionar membro */}
-          <div className="p-3">
-            <button
-              onClick={() => setModalMembro(true)}
-              className="w-full py-2 rounded-lg text-sm font-medium transition-colors border border-dashed"
-              style={{
-                borderColor: 'var(--color-surface-border)',
-                color: 'var(--color-text-secondary)',
-              }}
-            >
-              + Adicionar membro
-            </button>
-          </div>
+          <PermissaoGuarda permissao="times.gerenciar">
+            <div className="p-3">
+              <button
+                onClick={() => setModalMembro(true)}
+                className="w-full py-2 rounded-lg text-sm font-medium transition-colors border border-dashed"
+                style={{
+                  borderColor: 'var(--color-surface-border)',
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
+                + Adicionar membro
+              </button>
+            </div>
+          </PermissaoGuarda>
         </div>
       )}
 
@@ -570,13 +579,15 @@ const Times = () => {
             Organize sua equipe em times e gerencie os membros de cada um.
           </p>
         </div>
-        <button
-          onClick={abrirCriar}
-          className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
-        >
-          <span>+</span>
-          <span>Novo time</span>
-        </button>
+        <PermissaoGuarda permissao="times.gerenciar">
+          <button
+            onClick={abrirCriar}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
+          >
+            <span>+</span>
+            <span>Novo time</span>
+          </button>
+        </PermissaoGuarda>
       </div>
 
       {/* Erro global */}

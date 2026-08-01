@@ -10,6 +10,7 @@ import {
   funilInfo, tipoInfo, origemInfo,
   formatarMoeda, tempoRelativo,
 } from '../../hooks/useCRM.js';
+import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 
 // ─── Componentes auxiliares ────────────────────────────────────
 const Spinner = () => (
@@ -270,7 +271,7 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
           </div>
           <div className="flex gap-2 flex-shrink-0 ml-3">
             <button onClick={() => onEditar(lead)} className="text-slate-400 hover:text-primary-400 transition-colors" title="Editar">✏️</button>
-            <button onClick={() => onExcluir(lead.id)} className="text-slate-400 hover:text-red-400 transition-colors" title="Excluir">🗑️</button>
+            <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(lead.id)} className="text-slate-400 hover:text-red-400 transition-colors" title="Excluir">🗑️</button></PermissaoGuarda>
             <button onClick={onFechar} className="text-slate-400 hover:text-white transition-colors text-lg">✕</button>
           </div>
         </div>
@@ -477,7 +478,7 @@ const LinhaLead = ({ lead, onAbrir, onEditar, onExcluir }) => (
     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
       <div className="flex gap-2">
         <button onClick={() => onEditar(lead)} className="text-slate-500 hover:text-primary-400 transition-colors text-sm">✏️</button>
-        <button onClick={() => onExcluir(lead.id)} className="text-slate-500 hover:text-red-400 transition-colors text-sm">🗑️</button>
+        <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(lead.id)} className="text-slate-500 hover:text-red-400 transition-colors text-sm">🗑️</button></PermissaoGuarda>
       </div>
     </td>
   </tr>

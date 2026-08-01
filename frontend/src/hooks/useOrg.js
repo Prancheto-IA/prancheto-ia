@@ -9,15 +9,34 @@ import { supabase } from '../lib/supabase.js';
 import { useAuthStore } from '../store/authStore.js';
 
 // ----------------------------------------------------------
-// LISTA COMPLETA DE PERMISSÕES DISPONÍVEIS
-// Usada para montar o editor de permissões dos cargos
+// CATÁLOGO DE PERMISSÕES
+//
+// Fonte única da verdade: estes slugs são os mesmos gravados em
+// org_cargos.permissoes. Editor de cargos e verificação em tela
+// leem daqui — se divergirem, a permissão vira decoração.
+//
+// Historicamente havia duas listas incompatíveis: a do seed no banco
+// (times.*, usuarios.*, cargos.*, configuracoes.*) e a desta tela
+// (org.*, config.*). Só 13 dos slugs coincidiam, e os 9 que existiam
+// apenas no banco ficavam invisíveis para o admin. Prevaleceu o
+// vocabulário do banco, para não reescrever dados de produção.
+//
+// São exatamente os 22 slugs presentes nos dados. Um slug que ninguém
+// possui esconderia o recurso de todo mundo, já que a verificação passou
+// a ser real — foi o que quase aconteceu ao inventar 'identidade.editar'
+// para uma tela que hoje qualquer administrador edita.
+//
+// Ao criar uma permissão nova, faça as três coisas na mesma mudança:
+// acrescente o slug aqui, use-o no <PermissaoGuarda> da tela, e conceda-o
+// aos cargos existentes por migration. Sem o terceiro passo, a
+// funcionalidade some para quem já a tinha.
 // ----------------------------------------------------------
 export const PERMISSOES_DISPONIVEIS = [
   // CRM
-  { slug: 'crm.ver',     label: 'Ver contatos',      grupo: 'CRM' },
-  { slug: 'crm.criar',   label: 'Criar contatos',     grupo: 'CRM' },
-  { slug: 'crm.editar',  label: 'Editar contatos',    grupo: 'CRM' },
-  { slug: 'crm.excluir', label: 'Excluir contatos',   grupo: 'CRM' },
+  { slug: 'crm.ver',     label: 'Ver contatos',    grupo: 'CRM' },
+  { slug: 'crm.criar',   label: 'Criar contatos',  grupo: 'CRM' },
+  { slug: 'crm.editar',  label: 'Editar contatos', grupo: 'CRM' },
+  { slug: 'crm.excluir', label: 'Excluir contatos', grupo: 'CRM' },
   // Agenda
   { slug: 'agenda.ver',     label: 'Ver eventos',     grupo: 'Agenda' },
   { slug: 'agenda.criar',   label: 'Criar eventos',   grupo: 'Agenda' },
@@ -29,22 +48,24 @@ export const PERMISSOES_DISPONIVEIS = [
   { slug: 'outbound.editar',  label: 'Editar ações',  grupo: 'Outbound' },
   { slug: 'outbound.excluir', label: 'Excluir ações', grupo: 'Outbound' },
   // Relatórios
-  { slug: 'relatorios.ver',      label: 'Ver relatórios',      grupo: 'Relatórios' },
-  { slug: 'relatorios.exportar', label: 'Exportar relatórios', grupo: 'Relatórios' },
-  // Chat IA
-  { slug: 'chat_ia.usar',   label: 'Usar Chat com IA',   grupo: 'Chat IA' },
-  // Organização
-  { slug: 'org.ver',          label: 'Ver organização',       grupo: 'Organização' },
-  { slug: 'org.gerenciar',    label: 'Gerenciar times',       grupo: 'Organização' },
-  { slug: 'org.cargos',       label: 'Gerenciar cargos',      grupo: 'Organização' },
-  { slug: 'org.identidade',   label: 'Editar identidade visual', grupo: 'Organização' },
-  // Configurações
-  { slug: 'config.ver',    label: 'Ver configurações',    grupo: 'Configurações' },
-  { slug: 'config.editar', label: 'Editar configurações', grupo: 'Configurações' },
-  // Planos
-  { slug: 'planos.ver',    label: 'Ver planos',    grupo: 'Planos' },
-  { slug: 'planos.editar', label: 'Gerenciar planos', grupo: 'Planos' },
+  { slug: 'relatorios.ver', label: 'Ver relatórios', grupo: 'Relatórios' },
+  // Times
+  { slug: 'times.ver',       label: 'Ver times',       grupo: 'Times' },
+  { slug: 'times.gerenciar', label: 'Gerenciar times', grupo: 'Times' },
+  // Usuários
+  { slug: 'usuarios.ver',       label: 'Ver usuários',       grupo: 'Usuários' },
+  { slug: 'usuarios.convidar',  label: 'Convidar usuários',  grupo: 'Usuários' },
+  { slug: 'usuarios.gerenciar', label: 'Gerenciar usuários', grupo: 'Usuários' },
+  // Cargos
+  { slug: 'cargos.ver',       label: 'Ver cargos',       grupo: 'Cargos' },
+  { slug: 'cargos.gerenciar', label: 'Gerenciar cargos', grupo: 'Cargos' },
+  // Configurações (inclui a identidade visual da organização)
+  { slug: 'configuracoes.ver',    label: 'Ver configurações',    grupo: 'Configurações' },
+  { slug: 'configuracoes.editar', label: 'Editar configurações', grupo: 'Configurações' },
 ];
+
+/** Conjunto de slugs conhecidos, para detectar permissões fora do catálogo. */
+export const SLUGS_CONHECIDOS = new Set(PERMISSOES_DISPONIVEIS.map(p => p.slug));
 
 // Agrupa permissões por grupo para exibição no editor
 export const PERMISSOES_POR_GRUPO = PERMISSOES_DISPONIVEIS.reduce((acc, p) => {

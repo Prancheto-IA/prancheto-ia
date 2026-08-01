@@ -17,6 +17,26 @@ const rotaDestino = (usuario) => {
   return '/dashboard';
 };
 
+/**
+ * Busca as permissões do cargo organizacional do usuário.
+ * Retorna null quando não há cargo definido ou a consulta falha —
+ * null é tratado como "não determinado" e não restringe a interface.
+ */
+const carregarPermissoesCargo = async (cargoId) => {
+  if (!cargoId) return null;
+  try {
+    const { data, error } = await supabase
+      .from('org_cargos')
+      .select('permissoes')
+      .eq('id', cargoId)
+      .single();
+    if (error || !data) return null;
+    return Array.isArray(data.permissoes) ? data.permissoes : null;
+  } catch {
+    return null;
+  }
+};
+
 export const useAuth = () => {
   const navigate = useNavigate();
   const {
@@ -56,10 +76,16 @@ export const useAuth = () => {
         throw new Error('Perfil de usuário não encontrado no sistema.');
       }
 
-      // Adiciona flag conveniente
+      // 3. Resolve as permissões do cargo organizacional (org_cargos).
+      // Falha aqui não impede o login: permissoesCargo fica null e
+      // temPermissao() libera, deixando o RLS como barreira — melhor que
+      // trancar o usuário fora por uma consulta que não respondeu.
+      const permissoesCargo = await carregarPermissoesCargo(userProfile.cargo_id);
+
       const usuarioCompleto = {
         ...userProfile,
-        isSuperAdmin: userProfile.cargo === 'super_admin'
+        isSuperAdmin: userProfile.cargo === 'super_admin',
+        permissoesCargo,
       };
 
       // 3. Salva no store

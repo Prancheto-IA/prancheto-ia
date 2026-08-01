@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOrg } from '../../../hooks/useOrg.js';
 import { useAuthStore } from '../../../store/authStore.js';
+import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
 
 // ----------------------------------------------------------
 // CONSTANTES
@@ -377,26 +378,37 @@ const IdentidadeVisual = () => {
         </div>
       </div>
 
-      {/* Botões de ação */}
+      {/* Botões de ação — sem permissão, a tela vira somente leitura */}
       <div className="flex items-center gap-3 mt-6">
-        <button
-          onClick={salvar}
-          disabled={salvando}
-          className="px-6 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors disabled:opacity-50"
+        <PermissaoGuarda
+          permissao="configuracoes.editar"
+          fallback={
+            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              Você pode visualizar a identidade visual, mas não alterá-la.
+            </p>
+          }
         >
-          {salvando ? 'Salvando...' : 'Salvar identidade visual'}
-        </button>
-        <button
-          onClick={restaurarPadrao}
-          className="px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-          style={{
-            backgroundColor: 'var(--color-surface-card)',
-            color: 'var(--color-text-secondary)',
-            border: '1px solid var(--color-surface-border)',
-          }}
-        >
-          Restaurar padrão
-        </button>
+          <button
+            onClick={salvar}
+            disabled={salvando}
+            className="px-6 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors disabled:opacity-50"
+          >
+            {salvando ? 'Salvando...' : 'Salvar identidade visual'}
+          </button>
+        </PermissaoGuarda>
+        <PermissaoGuarda permissao="configuracoes.editar">
+          <button
+            onClick={restaurarPadrao}
+            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            style={{
+              backgroundColor: 'var(--color-surface-card)',
+              color: 'var(--color-text-secondary)',
+              border: '1px solid var(--color-surface-border)',
+            }}
+          >
+            Restaurar padrão
+          </button>
+        </PermissaoGuarda>
         {salvo && (
           <span className="text-emerald-400 text-sm flex items-center gap-1">
             ✓ Salvo com sucesso!

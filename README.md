@@ -257,20 +257,39 @@ O que de fato barra o acesso é o **RLS no banco**. As rotas protegidas em
 `App.jsx` (`RotaPrivada`, `RotaCliente`, `RotaSuperAdmin`) são conveniência de
 navegação, não segurança: esconder uma tela não impede uma requisição.
 
-### Permissões granulares — ainda não ligadas
+### Permissões granulares
 
-Existe um segundo nível de permissões por tenant, em `org_cargos.permissoes`
-(JSON, ex.: `["crm.ler","crm.escrever"]`). A infraestrutura está pronta no
-banco, e há um hook `usePermission` e um componente `<PermissaoGuarda>`
-escritos para consumi-la.
+Cada tenant define seus próprios cargos organizacionais em `org_cargos`, com
+uma lista de permissões em JSON. O catálogo é `PERMISSOES_DISPONIVEIS`
+(`src/hooks/useOrg.js`) — 22 slugs no formato `recurso.acao`, como `crm.excluir`
+ou `times.gerenciar`.
 
-**Nada disso está em uso.** Hoje `usePermission` é importado apenas por
-`PermissaoGuarda`, que por sua vez não é usado em tela nenhuma. Na prática, as
-permissões gravadas em `org_cargos` não alteram o comportamento da interface —
-o que vale é o cargo em `users.cargo` e as políticas de RLS.
+O vínculo é `users.cargo_id`. No login, `useAuth` resolve a lista e a guarda em
+`usuario.permissoesCargo`; a verificação fica em `authStore.temPermissao(slug)`.
 
-Ao ligar isso, lembre-se de que a checagem na interface precisa ter uma policy
-correspondente no banco. Sem o par, é decoração.
+Na tela, use o componente:
+
+```jsx
+<PermissaoGuarda permissao="crm.excluir">
+  <BotaoExcluir />
+</PermissaoGuarda>
+```
+
+Ou o hook, para casos pontuais: `const { pode } = usePermission()`.
+
+**Sem lista, libera.** Um usuário pode não ter cargo organizacional — signup
+direto não define `cargo_id`. Negar nesse caso esconderia a interface inteira
+de quem sempre teve acesso, então `temPermissao` retorna `true` quando não há
+lista. Como a barreira real é o RLS, isso não abre brecha.
+
+**Ao criar uma permissão nova, faça as três coisas juntas:** adicione o slug ao
+catálogo, use-o na tela, e conceda-o aos cargos existentes por migration. Sem o
+terceiro passo, a funcionalidade desaparece para quem já a usava — a
+verificação é real, e um slug que ninguém possui esconde o recurso de todos.
+
+**Isto continua sendo controle de interface.** Esconder um botão não impede a
+requisição. Uma permissão que precise ser garantida exige também a policy
+equivalente em PostgreSQL.
 
 ---
 
