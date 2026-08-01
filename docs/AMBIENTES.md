@@ -225,6 +225,16 @@ gravar em dados reais.
 Nenhum arquivo `.env` real é versionado. O único que entra no git é
 `frontend/.env.example`, que não contém valores.
 
-A senha do banco de desenvolvimento fica em `.supabase-dev-db-password.txt`,
-na raiz e fora do git. Guarde-a no seu gerenciador de senhas — ela não pode
-ser consultada depois, apenas redefinida no dashboard.
+A senha do banco de desenvolvimento fica em:
+
+```
+%LOCALAPPDATA%\prancheto\dev-db-password.txt
+```
+
+Fora do repositório **e fora do OneDrive**, de propósito. O `.gitignore` impede
+que um segredo entre no git, mas não impede que ele sincronize para a nuvem —
+qualquer arquivo dentro da pasta do projeto sobe para o OneDrive, ignorado pelo
+git ou não.
+
+Guarde-a também no seu gerenciador de senhas: o Supabase não exibe a senha
+depois de criada, apenas permite redefinir.
