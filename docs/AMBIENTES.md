@@ -3,6 +3,9 @@
 Este documento descreve como desenvolvimento e produção são separados, e qual
 o caminho que uma alteração percorre até chegar ao cliente.
 
+> Procurando o passo a passo do dia a dia — comandos git, como publicar?
+> Está em [FLUXO.md](FLUXO.md). Aqui ficam os detalhes de infraestrutura.
+
 ---
 
 ## Visão geral
