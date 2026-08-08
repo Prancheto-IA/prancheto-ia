@@ -68,19 +68,19 @@ INSERT INTO public.org_cargos (id, tenant_id, nome, descricao, ordem, e_padrao, 
 VALUES
   ('c0000000-0000-4000-8000-000000000001', 'd0000000-0000-4000-8000-000000000001',
    'Líder Geral', 'Acesso completo à organização.', 1, false, true,
-   '["crm.ver","crm.criar","crm.editar","crm.excluir","agenda.ver","agenda.criar","agenda.editar","agenda.excluir","outbound.ver","outbound.criar","outbound.editar","outbound.excluir","times.ver","times.gerenciar","usuarios.ver","usuarios.convidar","usuarios.gerenciar","cargos.ver","cargos.gerenciar","configuracoes.ver","configuracoes.editar","relatorios.ver"]'::jsonb),
+   '["crm.ver","crm.criar","crm.editar","crm.excluir","agenda.ver","agenda.criar","agenda.editar","agenda.excluir","outbound.ver","outbound.criar","outbound.editar","outbound.excluir","times.ver","times.gerenciar","usuarios.ver","usuarios.convidar","usuarios.gerenciar","cargos.ver","cargos.gerenciar","configuracoes.ver","configuracoes.editar","relatorios.ver","perfil.editar_proprio"]'::jsonb),
 
   ('c0000000-0000-4000-8000-000000000002', 'd0000000-0000-4000-8000-000000000001',
    'Líder de Time', 'Gerencia seu time. CRM, agenda e outbound sem exclusão.', 2, false, true,
-   '["crm.ver","crm.criar","crm.editar","agenda.ver","agenda.criar","agenda.editar","outbound.ver","outbound.criar","outbound.editar","times.ver","times.gerenciar","usuarios.ver","usuarios.convidar","cargos.ver","configuracoes.ver","relatorios.ver"]'::jsonb),
+   '["crm.ver","crm.criar","crm.editar","agenda.ver","agenda.criar","agenda.editar","outbound.ver","outbound.criar","outbound.editar","times.ver","times.gerenciar","usuarios.ver","usuarios.convidar","cargos.ver","configuracoes.ver","relatorios.ver","perfil.editar_proprio"]'::jsonb),
 
   ('c0000000-0000-4000-8000-000000000003', 'd0000000-0000-4000-8000-000000000001',
    'Membro de Time', 'Visualiza e cria registros. Não exclui nem gerencia.', 3, true, true,
-   '["crm.ver","crm.criar","agenda.ver","agenda.criar","outbound.ver","outbound.criar","times.ver","usuarios.ver","relatorios.ver"]'::jsonb),
+   '["crm.ver","crm.criar","agenda.ver","agenda.criar","outbound.ver","outbound.criar","times.ver","usuarios.ver","relatorios.ver","perfil.editar_proprio"]'::jsonb),
 
   ('c0000000-0000-4000-8000-000000000004', 'd0000000-0000-4000-8000-000000000001',
    'Observador', 'Somente leitura, em toda a organização.', 4, false, false,
-   '["crm.ver","agenda.ver","outbound.ver","times.ver","usuarios.ver","cargos.ver","configuracoes.ver","relatorios.ver"]'::jsonb)
+   '["crm.ver","agenda.ver","outbound.ver","times.ver","usuarios.ver","cargos.ver","configuracoes.ver","relatorios.ver","perfil.editar_proprio"]'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   nome       = EXCLUDED.nome,
   descricao  = EXCLUDED.descricao,

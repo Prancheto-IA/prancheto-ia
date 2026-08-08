@@ -6,7 +6,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOrg } from '../../../hooks/useOrg.js';
-import { useAuthStore } from '../../../store/authStore.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
 
 // ----------------------------------------------------------
@@ -484,7 +483,6 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
 // PÁGINA PRINCIPAL: TIMES
 // ----------------------------------------------------------
 const Times = () => {
-  const { usuario } = useAuthStore();
   const {
     carregando,
     listarTimes,

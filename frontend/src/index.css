@@ -22,6 +22,25 @@
   --color-surface-border: #e2e8f0;
   --color-text-primary:   #0f172a;
   --color-text-secondary: #475569;
+
+  /* --- PALETA PRIMARY: a marca do produto ---
+     É também o fallback quando o tenant não aplica identidade própria.
+     Os valores são canais RGB, e não hex, porque o Tailwind injeta a
+     opacidade das classes com barra (bg-primary-500/15) dentro de
+     rgb(<canais> / <alpha-value>) — ver tailwind.config.js.
+     utils/identidadeVisual.js sobrescreve estas variáveis no <html>
+     quando a organização liga a própria identidade visual. */
+  --color-primary-50:  240 244 255;
+  --color-primary-100: 224 233 255;
+  --color-primary-200: 199 214 254;
+  --color-primary-300: 165 184 252;
+  --color-primary-400: 129 145 248;
+  --color-primary-500:  99 102 241;
+  --color-primary-600:  79  70 229;
+  --color-primary-700:  67  56 202;
+  --color-primary-800:  55  48 163;
+  --color-primary-900:  49  46 129;
+  --color-primary-950:  30  27  75;
 }
 
 /* --- CSS VARIABLES: TEMA ESCURO (override via classe html.dark) --- */

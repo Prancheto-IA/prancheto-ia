@@ -17,19 +17,24 @@ export default {
     extend: {
       // --- PALETA DE CORES DO PRANCHETO.IA ---
       colors: {
-        // Cor primária da marca
+        // Cor primária da marca.
+        // Os tons vêm de CSS variables (definidas em index.css) para que a
+        // organização possa substituí-los pela própria cor em tempo de
+        // execução — ver utils/identidadeVisual.js. O formato precisa ser
+        // rgb(<canais> / <alpha-value>) para que classes com opacidade,
+        // como bg-primary-500/15, continuem funcionando.
         primary: {
-          50:  '#f0f4ff',
-          100: '#e0e9ff',
-          200: '#c7d6fe',
-          300: '#a5b8fc',
-          400: '#8191f8',
-          500: '#6366f1', // Cor principal
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          50:  'rgb(var(--color-primary-50)  / <alpha-value>)',
+          100: 'rgb(var(--color-primary-100) / <alpha-value>)',
+          200: 'rgb(var(--color-primary-200) / <alpha-value>)',
+          300: 'rgb(var(--color-primary-300) / <alpha-value>)',
+          400: 'rgb(var(--color-primary-400) / <alpha-value>)',
+          500: 'rgb(var(--color-primary-500) / <alpha-value>)', // Cor principal
+          600: 'rgb(var(--color-primary-600) / <alpha-value>)',
+          700: 'rgb(var(--color-primary-700) / <alpha-value>)',
+          800: 'rgb(var(--color-primary-800) / <alpha-value>)',
+          900: 'rgb(var(--color-primary-900) / <alpha-value>)',
+          950: 'rgb(var(--color-primary-950) / <alpha-value>)',
         },
         // Cor de fundo do painel (estilo escuro profissional)
         // Usa CSS variables para suporte a tema claro/escuro
@@ -40,8 +45,10 @@ export default {
       },
 
       // --- FONTES ---
+      // --brand-fonte é definida pela identidade visual da organização;
+      // sem ela, o app usa Inter como sempre.
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--brand-fonte, Inter)', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
 

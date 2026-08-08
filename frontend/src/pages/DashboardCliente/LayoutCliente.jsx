@@ -7,9 +7,13 @@
 //   - Modal de personalização da sidebar com DnD (P4)
 //   - Bloco de usuário fixo no rodapé da sidebar (P3)
 //   - Scroll interno na área de navegação (P3)
+//
+// É também o ponto onde a identidade visual da organização entra em cena:
+// carrega o tenant uma vez e o tenantStore aplica as cores no documento,
+// valendo para toda a área do cliente.
 // =============================================================
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   DndContext,
@@ -26,17 +30,43 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useAuthStore } from '../../store/authStore.js';
-import { useAuth } from '../../hooks/useAuth.js';
-import { useSidebarPrefs, CATALOGO_SIDEBAR, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
+import { useTenantStore } from '../../store/tenantStore.js';
+import { useAuth, carregarPermissoesCargo } from '../../hooks/useAuth.js';
+import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
 
 // Páginas onde o botão Voltar NÃO aparece (raízes do dashboard)
 const ROTAS_SEM_VOLTAR = ['/dashboard', '/crm', '/suporte', '/dashboard/organizacao', '/modulos'];
+
+const NOME_PRODUTO = import.meta.env.VITE_APP_NAME || 'Prancheto.IA';
 
 const BADGE_CARGO = {
   admin:   { label: 'Admin',        cor: 'bg-violet-500/20 text-violet-300' },
   manager: { label: 'Gerente',      cor: 'bg-blue-500/20 text-blue-300' },
   member:  { label: 'Membro',       cor: 'bg-emerald-500/20 text-emerald-300' },
   viewer:  { label: 'Visualizador', cor: 'bg-slate-500/20 text-slate-300' },
+};
+
+// ----------------------------------------------------------
+// COMPONENTE: Marca (logo da organização + nome do produto)
+// Cai no ícone padrão quando a organização não tem logo, e também
+// quando a URL salva não carrega — logo quebrado é pior que nenhum.
+// ----------------------------------------------------------
+const Marca = ({ className = 'text-2xl' }) => {
+  const logoUrl = useTenantStore((s) => s.tenant?.logo_url);
+  const [falhou, setFalhou] = useState(false);
+
+  useEffect(() => { setFalhou(false); }, [logoUrl]);
+
+  if (!logoUrl || falhou) return <span className={className}>🧠</span>;
+
+  return (
+    <img
+      src={logoUrl}
+      alt=""
+      className="h-7 w-7 rounded object-contain flex-shrink-0"
+      onError={() => setFalhou(true)}
+    />
+  );
 };
 
 // ----------------------------------------------------------
@@ -249,13 +279,11 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
           >
             ↺ Restaurar padrão
           </button>
+          {/* Usava a variável --color-primary, que nunca existiu: o botão
+              ficava sem fundo. A classe é a mesma dos demais botões primários. */}
           <button
             onClick={onFechar}
-            className="w-full text-sm font-medium py-2 rounded-lg transition-colors"
-            style={{
-              backgroundColor: 'var(--color-primary)',
-              color: '#fff',
-            }}
+            className="w-full text-sm font-medium py-2 rounded-lg bg-primary-600 hover:bg-primary-500 text-white transition-colors"
           >
             Concluído
           </button>
@@ -299,7 +327,9 @@ const Sidebar = ({ aberta, onFechar }) => {
           lg:translate-x-0 lg:static lg:z-auto lg:h-screen
         `}
         style={{
-          backgroundColor: 'var(--color-surface-card)',
+          // --brand-superficie só existe quando a organização aplica a
+          // própria identidade visual; sem ela, a superfície do tema vale.
+          backgroundColor: 'var(--brand-superficie, var(--color-surface-card))',
           borderRight: '1px solid var(--color-surface-border)',
         }}
       >
@@ -308,9 +338,14 @@ const Sidebar = ({ aberta, onFechar }) => {
           className="h-16 flex items-center gap-3 px-4 flex-shrink-0"
           style={{ borderBottom: '1px solid var(--color-surface-border)' }}
         >
-          <span className="text-2xl">🧠</span>
-          <span className="text-white font-bold text-lg">
-            {import.meta.env.VITE_APP_NAME || 'Prancheto.IA'}
+          <Marca />
+          {/* Era text-white fixo, invisível no tema claro. Com identidade
+              aplicada, segue a cor de acento sobre a cor secundária. */}
+          <span
+            className="font-bold text-lg truncate"
+            style={{ color: 'var(--brand-contraste, var(--color-text-primary))' }}
+          >
+            {NOME_PRODUTO}
           </span>
           {/* Botão fechar mobile */}
           <button
@@ -398,9 +433,9 @@ const HeaderMobile = ({ onAbrirSidebar, mostrarVoltar, onVoltar }) => (
         ☰
       </button>
     )}
-    <span className="text-2xl">🧠</span>
-    <span className="text-white font-bold">
-      {import.meta.env.VITE_APP_NAME || 'Prancheto.IA'}
+    <Marca />
+    <span className="font-bold truncate" style={{ color: 'var(--color-text-primary)' }}>
+      {NOME_PRODUTO}
     </span>
     {mostrarVoltar && (
       <button
@@ -445,6 +480,24 @@ const LayoutCliente = ({ children }) => {
   const [sidebarAberta, setSidebarAberta] = useState(false);
   const navigate  = useNavigate();
   const location  = useLocation();
+
+  // Carrega a organização uma única vez por sessão. O tenantStore aplica a
+  // identidade visual no documento, então isto vale para a área inteira.
+  const tenantId        = useAuthStore((s) => s.usuario?.tenant_id);
+  const carregarTenant  = useTenantStore((s) => s.carregar);
+  useEffect(() => { carregarTenant(tenantId); }, [tenantId, carregarTenant]);
+
+  // Revalida as permissões do cargo. A lista vem do login e fica em cache no
+  // localStorage: sem isto, alteração de cargo feita pelo administrador só
+  // valeria para quem fizesse logout e login de novo.
+  const cargoId          = useAuthStore((s) => s.usuario?.cargo_id);
+  const atualizarUsuario = useAuthStore((s) => s.atualizarUsuario);
+  useEffect(() => {
+    if (!cargoId) return;
+    carregarPermissoesCargo(cargoId).then((lista) => {
+      if (Array.isArray(lista)) atualizarUsuario({ permissoesCargo: lista });
+    });
+  }, [cargoId, atualizarUsuario]);
 
   const mostrarVoltar = !ROTAS_SEM_VOLTAR.includes(location.pathname);
   const voltar = () => navigate(-1);
