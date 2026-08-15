@@ -10,6 +10,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 
 import { useAuthStore } from './store/authStore.js';
+import { useSessaoSincronizada } from './hooks/useSessaoSincronizada.js';
 import ToastContainer from './components/ui/Toast.jsx';
 import BannerImpersonation from './components/BannerImpersonation/BannerImpersonation.jsx';
 
@@ -118,6 +119,12 @@ const ClienteComLayout = ({ children }) => (
 // COMPONENTE PRINCIPAL: APP
 // =============================================================
 const App = () => {
+  // Antes de montar qualquer rota: o usuario guardado ainda e o dono da
+  // sessao? Renderizar primeiro e conferir depois faria a interface
+  // aparecer com dados de outra conta ate a resposta chegar.
+  const { verificando } = useSessaoSincronizada();
+  if (verificando) return <TelaCarregando />;
+
   return (
     <Sentry.ErrorBoundary
       fallback={({ error, resetError }) => (
