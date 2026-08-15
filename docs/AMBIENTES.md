@@ -12,6 +12,7 @@ o caminho que uma alteração percorre até chegar ao cliente.
 
 | | Desenvolvimento | Produção |
 |---|---|---|
+| **URL** | https://prancheto-dev.vercel.app | https://prancheto-prod.vercel.app |
 | **Projeto Supabase** | `prancheto-ia-dev` | `Prancheto-IA's Project` |
 | **Ref** | `jjvvzndhwxdcvbikoqce` | `ujspjhmfdinkhjccjjuo` |
 | **Branch git** | `develop` | `main` |
@@ -21,6 +22,26 @@ o caminho que uma alteração percorre até chegar ao cliente.
 
 Os dois bancos são fisicamente separados. Nada que você faça em desenvolvimento
 alcança a produção.
+
+### URLs
+
+Ambas seguem a última publicação da sua branch, sem passo manual:
+
+| Endereço | Aponta para |
+|---|---|
+| https://prancheto-dev.vercel.app | `develop` — banco de desenvolvimento |
+| https://prancheto-prod.vercel.app | `main` — banco de produção |
+| https://prancheto-ia.vercel.app | `main` — o endereço original, mantido |
+
+`prancheto-dev` existe para que outras pessoas testem sem precisar de conta na
+Vercel nem de máquina configurada. Para isso a **Vercel Authentication foi
+desligada**: antes, todo preview redirecionava para o login da Vercel e só
+membros do time entravam.
+
+A consequência é que o ambiente de desenvolvimento ficou publicamente
+alcançável. O login da aplicação continua exigido e os dados são do seed, mas
+trate a URL como divulgável: não coloque em `prancheto-dev` nada que não possa
+vazar. Para voltar a fechar, é em Project Settings → Deployment Protection.
 
 ---
 
@@ -219,7 +240,19 @@ As variáveis são definidas por ambiente no painel da Vercel
 | `VITE_APP_ENV` | `production` | `development` |
 
 Marcar cada variável apenas no ambiente correto é o que impede um preview de
-gravar em dados reais.
+gravar em dados reais. Isso está correto hoje: conferido pelo bundle publicado,
+`prancheto-dev` conecta apenas no Supabase de desenvolvimento e `prancheto-prod`
+apenas no de produção.
+
+> **Divergência conhecida.** O `VITE_APP_NAME` do Preview não está com o sufixo
+> `[DEV]`: o bundle publicado em `prancheto-dev` traz `Prancheto.IA`, igual ao de
+> produção. Ou seja, dentro da aplicação as duas são indistinguíveis — só a URL
+> diferencia. A tabela acima descreve o desejado, não o que está configurado.
+
+Para conferir a qual banco um deploy conecta, sem depender do painel, procure a
+URL do Supabase dentro do bundle publicado. O ref de produção aparece em todos
+os bundles como constante do guarda em `lib/supabase.js`, então procurar só pelo
+ref engana — procure a URL completa `https://<ref>.supabase.co`.
 
 ---
 
