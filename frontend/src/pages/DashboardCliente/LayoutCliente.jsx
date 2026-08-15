@@ -33,11 +33,10 @@ import { useAuthStore } from '../../store/authStore.js';
 import { useTenantStore } from '../../store/tenantStore.js';
 import { useAuth, carregarPermissoesCargo } from '../../hooks/useAuth.js';
 import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
+import { NOME_PRODUTO } from '../../lib/ambiente.js';
 
 // Páginas onde o botão Voltar NÃO aparece (raízes do dashboard)
 const ROTAS_SEM_VOLTAR = ['/dashboard', '/crm', '/suporte', '/dashboard/organizacao', '/modulos'];
-
-const NOME_PRODUTO = import.meta.env.VITE_APP_NAME || 'Prancheto.IA';
 
 // Dois tons por cargo: o escuro para o tema claro, o claro para o escuro.
 // A classe .badge-cargo (index.css) escolhe qual usar. Antes eram só os tons

@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useTema } from '../../hooks/useTema.js';
 import { supabase } from '../../lib/supabase.js';
+import { NOME_PRODUTO } from '../../lib/ambiente.js';
 import { useCamposCustom } from '../../hooks/useCRM.js';
 
 // ─── Constantes ────────────────────────────────────────────────
@@ -669,7 +670,7 @@ const PaginaCRM = () => {
         <div className="flex items-center gap-3">
           <span className="text-2xl">🧠</span>
           <span className="font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>
-            {import.meta.env.VITE_APP_NAME || 'Prancheto.IA'}
+            {NOME_PRODUTO}
           </span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-300 border border-primary-500/30">CRM</span>
         </div>

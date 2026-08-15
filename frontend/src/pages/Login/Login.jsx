@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { useTema } from '../../hooks/useTema.js';
+import { NOME_PRODUTO } from '../../lib/ambiente.js';
 
 const PaginaLogin = () => {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ const PaginaLogin = () => {
         <div className="text-center mb-8 animate-fade-in">
           <div className="text-5xl mb-4">🧠</div>
           <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-            {import.meta.env.VITE_APP_NAME || 'Prancheto.IA'}
+            {NOME_PRODUTO}
           </h1>
           <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             Faça login para acessar o sistema

@@ -12,7 +12,12 @@ import ReactDOM from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 
 import App from './App.jsx';
+import { aplicarTituloDoAmbiente } from './lib/ambiente.js';
 import './index.css'; // Estilos globais do TailwindCSS
+
+// Marca o ambiente no titulo da aba. Com dev e producao abertos lado a
+// lado, o titulo e a unica parte visivel da aba em segundo plano.
+aplicarTituloDoAmbiente();
 
 // =============================================================
 // INICIALIZAÇÃO DO SENTRY (Front-end)
