@@ -129,7 +129,10 @@ const PaginaChatIA = () => {
     try {
       // Chama a Edge Function no Supabase
       const { data, error } = await supabase.functions.invoke('chat-ai', {
-        body: { conversationId, mensagem: texto }
+        // O parametro se chama conversaId. Usar 'conversationId' solto aqui
+        // lancava ReferenceError antes de a requisicao sair, e o catch
+        // abaixo exibia "Erro ao enviar mensagem" — o chat nunca funcionou.
+        body: { conversationId: conversaId, mensagem: texto }
       });
 
       if (error) throw error;
