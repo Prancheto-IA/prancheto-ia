@@ -94,12 +94,14 @@ export const gerarRampaPrimaria = (hex) => {
 const VAR_CONTRASTE  = '--brand-contraste';
 const VAR_SUPERFICIE = '--brand-superficie';
 const VAR_FONTE      = '--brand-fonte';
+const VAR_NAV_ATIVA  = '--sidebar-primaria-ativa';
 
 const TODAS_AS_VARS = [
   ...TONS.map((tom) => `--color-primary-${tom}`),
   VAR_CONTRASTE,
   VAR_SUPERFICIE,
   VAR_FONTE,
+  VAR_NAV_ATIVA,
 ];
 
 const ID_LINK_FONTE = 'prancheto-fonte-marca';
@@ -153,6 +155,12 @@ export const aplicarIdentidadeNoDOM = (identidade) => {
     if (rampa) raiz.style.setProperty(nome, rampa[tom]);
     else raiz.style.removeProperty(nome);
   });
+
+  // O item ativo da navegação lateral fica sobre a cor secundária, que é
+  // escura por definição — então o tom claro serve nos dois temas, e não
+  // apenas no escuro como no padrão de index.css.
+  if (rampa) raiz.style.setProperty(VAR_NAV_ATIVA, `rgb(${rampa[300]})`);
+  else raiz.style.removeProperty(VAR_NAV_ATIVA);
 
   const definirCor = (nome, hex) => {
     if (paraRgb(hex)) raiz.style.setProperty(nome, hex.trim());

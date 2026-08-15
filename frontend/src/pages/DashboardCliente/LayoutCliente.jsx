@@ -39,11 +39,14 @@ const ROTAS_SEM_VOLTAR = ['/dashboard', '/crm', '/suporte', '/dashboard/organiza
 
 const NOME_PRODUTO = import.meta.env.VITE_APP_NAME || 'Prancheto.IA';
 
+// Dois tons por cargo: o escuro para o tema claro, o claro para o escuro.
+// A classe .badge-cargo (index.css) escolhe qual usar. Antes eram só os tons
+// claros, ilegíveis sobre a barra branca do tema claro.
 const BADGE_CARGO = {
-  admin:   { label: 'Admin',        cor: 'bg-violet-500/20 text-violet-300' },
-  manager: { label: 'Gerente',      cor: 'bg-blue-500/20 text-blue-300' },
-  member:  { label: 'Membro',       cor: 'bg-emerald-500/20 text-emerald-300' },
-  viewer:  { label: 'Visualizador', cor: 'bg-slate-500/20 text-slate-300' },
+  admin:   { label: 'Admin',        rgb: '124  58 237', rgbClaro: '196 181 253' },
+  manager: { label: 'Gerente',      rgb: ' 37  99 235', rgbClaro: '147 197 253' },
+  member:  { label: 'Membro',       rgb: '  5 150 105', rgbClaro: '110 231 183' },
+  viewer:  { label: 'Visualizador', rgb: ' 71  85 105', rgbClaro: '203 213 225' },
 };
 
 // ----------------------------------------------------------
@@ -83,14 +86,9 @@ const ItemNav = ({ item, onClick }) => {
       to={item.rota}
       end={item.exact}
       onClick={onClick}
-      className={({ isActive }) => {
-        const ativo = isActive || ativoViaPrefixo;
-        return `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-        ${ativo
-          ? 'bg-primary-500/15 text-primary-300 border border-primary-500/20'
-          : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-        }`;
-      }}
+      className={({ isActive }) =>
+        `nav-lateral ${isActive || ativoViaPrefixo ? 'nav-lateral-ativo' : ''}`
+      }
     >
       <span className="text-base flex-shrink-0">{item.emoji}</span>
       <span className="truncate">{item.label}</span>
@@ -117,6 +115,10 @@ const ItemSortableModal = ({ item, onToggle }) => {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    // O modal fica sobre a superfície do tema, não sobre a barra: aqui as
+    // cores seguem o tema, e não a identidade da organização.
+    backgroundColor: item.visivel ? 'var(--color-hover-surface)' : 'transparent',
+    borderColor: item.visivel ? 'transparent' : 'var(--color-surface-border)',
   };
 
   return (
@@ -124,16 +126,14 @@ const ItemSortableModal = ({ item, onToggle }) => {
       ref={setNodeRef}
       style={style}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all ${
-        item.visivel
-          ? 'border-transparent bg-white/5'
-          : 'border-dashed opacity-50'
+        item.visivel ? '' : 'border-dashed opacity-60'
       }`}
     >
       {/* Handle de drag */}
       <button
         {...attributes}
         {...listeners}
-        className="text-slate-500 hover:text-slate-300 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
+        className="acao-sutil cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
         title="Arrastar para reordenar"
       >
         ⠿
@@ -143,14 +143,14 @@ const ItemSortableModal = ({ item, onToggle }) => {
       <span className="flex-1 text-sm truncate">{item.label}</span>
 
       {fixo ? (
-        <span className="text-xs opacity-30 flex-shrink-0" title="Item fixo — não pode ser ocultado">🔒</span>
+        <span className="text-xs opacity-40 flex-shrink-0" title="Item fixo — não pode ser ocultado">🔒</span>
       ) : (
         <button
           onClick={() => onToggle(item.slug)}
           className={`flex-shrink-0 text-xs px-2 py-1 rounded-md transition-colors ${
             item.visivel
-              ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10'
-              : 'text-emerald-400 hover:bg-emerald-500/10'
+              ? 'acao-sutil hover:text-red-500 hover:bg-red-500/10'
+              : 'text-emerald-500 hover:bg-emerald-500/10'
           }`}
           title={item.visivel ? 'Ocultar da sidebar' : 'Mostrar na sidebar'}
         >
@@ -228,10 +228,7 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
             <h2 className="text-sm font-semibold">Personalizar barra lateral</h2>
             <p className="text-xs opacity-50 mt-0.5">Arraste para reordenar • clique para ocultar</p>
           </div>
-          <button
-            onClick={onFechar}
-            className="text-slate-500 hover:text-white transition-colors text-lg"
-          >
+          <button onClick={onFechar} className="acao-sutil text-lg">
             ✕
           </button>
         </div>
@@ -275,7 +272,7 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
           )}
           <button
             onClick={handleResetar}
-            className="w-full text-xs text-slate-500 hover:text-slate-300 transition-colors py-1.5 rounded-lg hover:bg-white/5"
+            className="acao-sutil acao-sutil-bloco w-full text-xs py-1.5 rounded-lg"
           >
             ↺ Restaurar padrão
           </button>
@@ -343,15 +340,12 @@ const Sidebar = ({ aberta, onFechar }) => {
               aplicada, segue a cor de acento sobre a cor secundária. */}
           <span
             className="font-bold text-lg truncate"
-            style={{ color: 'var(--brand-contraste, var(--color-text-primary))' }}
+            style={{ color: 'var(--sidebar-texto)' }}
           >
             {NOME_PRODUTO}
           </span>
           {/* Botão fechar mobile */}
-          <button
-            onClick={onFechar}
-            className="ml-auto text-slate-500 hover:text-white lg:hidden"
-          >
+          <button onClick={onFechar} className="acao-lateral ml-auto lg:hidden">
             ✕
           </button>
         </div>
@@ -371,8 +365,19 @@ const Sidebar = ({ aberta, onFechar }) => {
               {primeiroNome[0]?.toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium truncate">{primeiroNome}</p>
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${badgeCargo.cor}`}>
+              <p
+                className="text-sm font-medium truncate"
+                style={{ color: 'var(--sidebar-texto)' }}
+              >
+                {primeiroNome}
+              </p>
+              <span
+                className="badge-cargo"
+                style={{
+                  '--badge-cargo-rgb':       badgeCargo.rgb,
+                  '--badge-cargo-rgb-claro': badgeCargo.rgbClaro,
+                }}
+              >
                 {badgeCargo.label}
               </span>
             </div>
@@ -380,7 +385,7 @@ const Sidebar = ({ aberta, onFechar }) => {
             <button
               onClick={() => setModalAberto(true)}
               title="Personalizar barra lateral"
-              className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0 text-base"
+              className="acao-lateral flex-shrink-0 text-base"
             >
               ✏️
             </button>
@@ -388,7 +393,7 @@ const Sidebar = ({ aberta, onFechar }) => {
             <button
               onClick={logout}
               title="Sair"
-              className="text-slate-500 hover:text-red-400 transition-colors flex-shrink-0 text-lg"
+              className="acao-lateral flex-shrink-0 text-lg hover:text-red-500"
             >
               🚪
             </button>
@@ -418,18 +423,11 @@ const HeaderMobile = ({ onAbrirSidebar, mostrarVoltar, onVoltar }) => (
     }}
   >
     {mostrarVoltar ? (
-      <button
-        onClick={onVoltar}
-        className="text-slate-400 hover:text-white transition-colors text-xl flex items-center gap-1"
-        title="Voltar"
-      >
+      <button onClick={onVoltar} className="acao-sutil text-xl flex items-center gap-1" title="Voltar">
         ←
       </button>
     ) : (
-      <button
-        onClick={onAbrirSidebar}
-        className="text-slate-400 hover:text-white transition-colors text-xl"
-      >
+      <button onClick={onAbrirSidebar} className="acao-sutil text-xl" title="Abrir menu">
         ☰
       </button>
     )}
@@ -438,10 +436,7 @@ const HeaderMobile = ({ onAbrirSidebar, mostrarVoltar, onVoltar }) => (
       {NOME_PRODUTO}
     </span>
     {mostrarVoltar && (
-      <button
-        onClick={onAbrirSidebar}
-        className="ml-auto text-slate-400 hover:text-white transition-colors"
-      >
+      <button onClick={onAbrirSidebar} className="acao-sutil ml-auto" title="Abrir menu">
         ☰
       </button>
     )}
@@ -461,10 +456,7 @@ const BarraTopo = ({ mostrarVoltar, onVoltar }) => {
         backgroundColor: 'color-mix(in srgb, var(--color-surface-card) 30%, transparent)',
       }}
     >
-      <button
-        onClick={onVoltar}
-        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm group"
-      >
+      <button onClick={onVoltar} className="acao-sutil flex items-center gap-2 text-sm group">
         <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
         <span>Voltar</span>
       </button>
