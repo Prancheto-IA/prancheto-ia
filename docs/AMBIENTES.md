@@ -244,10 +244,14 @@ gravar em dados reais. Isso está correto hoje: conferido pelo bundle publicado,
 `prancheto-dev` conecta apenas no Supabase de desenvolvimento e `prancheto-prod`
 apenas no de produção.
 
-> **Divergência conhecida.** O `VITE_APP_NAME` do Preview não está com o sufixo
-> `[DEV]`: o bundle publicado em `prancheto-dev` traz `Prancheto.IA`, igual ao de
-> produção. Ou seja, dentro da aplicação as duas são indistinguíveis — só a URL
-> diferencia. A tabela acima descreve o desejado, não o que está configurado.
+O sufixo `[DEV]` **não depende mais desta tabela**. Ele é derivado em
+`frontend/src/lib/ambiente.js`, a partir de `VITE_APP_ENV`, e aplicado ao nome do
+produto e ao título da aba. `VITE_APP_NAME` define apenas o nome base; se vier
+com um sufixo entre colchetes, ele é descartado antes de o derivado ser aplicado.
+
+O motivo é histórico: por semanas o `VITE_APP_NAME` do Preview não trazia o
+`[DEV]` que esta tabela promete, e dev e produção ficaram indistinguíveis dentro
+da aplicação sem ninguém notar. Configuração de painel diverge em silêncio.
 
 Para conferir a qual banco um deploy conecta, sem depender do painel, procure a
 URL do Supabase dentro do bundle publicado. O ref de produção aparece em todos
