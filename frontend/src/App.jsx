@@ -32,7 +32,6 @@ const PaginaChat             = lazy(() => import('./pages/DashboardCliente/Chat/
 const PaginaRelatorios       = lazy(() => import('./pages/DashboardCliente/Relatorios/Relatorios.jsx'));
 const PaginaOutbound         = lazy(() => import('./pages/DashboardCliente/Outbound/Outbound.jsx'));
 const PaginaConfiguracoes    = lazy(() => import('./pages/DashboardCliente/Configuracoes/Configuracoes.jsx'));
-const PaginaPlanos           = lazy(() => import('./pages/DashboardCliente/Planos/Planos.jsx'));
 
 // Módulo Organização (Times, Cargos, Identidade Visual)
 const PaginaOrganizacao      = lazy(() => import('./pages/DashboardCliente/Organizacao/Organizacao.jsx'));
@@ -220,14 +219,12 @@ const App = () => {
               }
             />
 
-            {/* Planos */}
+            {/* Planos deixou de ser página própria: o plano da organização
+                virou uma aba de Configurações. A rota antiga permanece como
+                redirecionamento, para não quebrar links já salvos. */}
             <Route
               path="/dashboard/planos"
-              element={
-                <ClienteComLayout>
-                  <PaginaPlanos />
-                </ClienteComLayout>
-              }
+              element={<Navigate to="/dashboard/configuracoes?aba=plano" replace />}
             />
 
             {/* ============================================================

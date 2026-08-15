@@ -7,6 +7,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase.js';
 import { useAuthStore } from '../store/authStore.js';
+import { COLUNAS_TENANT } from '../store/tenantStore.js';
 
 // ----------------------------------------------------------
 // CATÁLOGO DE PERMISSÕES
@@ -62,6 +63,13 @@ export const PERMISSOES_DISPONIVEIS = [
   // Configurações (inclui a identidade visual da organização)
   { slug: 'configuracoes.ver',    label: 'Ver configurações',    grupo: 'Configurações' },
   { slug: 'configuracoes.editar', label: 'Editar configurações', grupo: 'Configurações' },
+  // Perfil próprio
+  //
+  // Liberada por padrão: a migration que criou o slug concedeu-o a todos
+  // os cargos existentes, e quem não tem cargo organizacional já passa
+  // pelo "sem lista, libera" de temPermissao(). O chefe da empresa pode
+  // desmarcá-la para restringir cargos específicos.
+  { slug: 'perfil.editar_proprio', label: 'Editar os próprios dados', grupo: 'Perfil' },
 ];
 
 /** Conjunto de slugs conhecidos, para detectar permissões fora do catálogo. */
@@ -79,7 +87,11 @@ export const PERMISSOES_POR_GRUPO = PERMISSOES_DISPONIVEIS.reduce((acc, p) => {
 // ----------------------------------------------------------
 export const useOrg = () => {
   const { usuario } = useAuthStore();
-  const tenantId = usuario?.tenantId;
+  // O store guarda a linha de 'users' como ela vem do banco, então o campo
+  // é tenant_id. Ler 'tenantId' aqui devolvia undefined e derrubava a tela
+  // de Organização inteira: criar time e cargo lançavam "Tenant não
+  // identificado", e as listagens voltavam vazias.
+  const tenantId = usuario?.tenant_id;
 
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro]             = useState(null);
@@ -285,19 +297,11 @@ export const useOrg = () => {
   // IDENTIDADE VISUAL DO TENANT
   // ========================================================
 
-  /** Busca os dados do tenant (logo + identidade visual) */
-  const buscarTenant = useCallback(async () => {
-    if (!tenantId) return null;
-    const { data, error } = await supabase
-      .from('tenants')
-      .select('id, nome, logo_url, identidade_visual, plano')
-      .eq('id', tenantId)
-      .single();
-    if (error) throw error;
-    return data;
-  }, [tenantId]);
-
-  /** Atualiza a identidade visual do tenant */
+  /**
+   * Atualiza logo e identidade visual do tenant.
+   * Devolve a linha atualizada com as mesmas colunas do tenantStore, para
+   * que a tela possa alimentá-lo sem uma segunda consulta.
+   */
   const atualizarIdentidadeVisual = useCallback(async ({ logo_url, identidade_visual }) => {
     if (!tenantId) throw new Error('Tenant não identificado');
     const payload = { atualizado_em: new Date().toISOString() };
@@ -308,9 +312,13 @@ export const useOrg = () => {
       .from('tenants')
       .update(payload)
       .eq('id', tenantId)
-      .select()
-      .single();
+      .select(COLUNAS_TENANT)
+      .maybeSingle();
     if (error) throw error;
+    // Sem permissão, o RLS filtra a linha em silêncio e o UPDATE não alcança
+    // nada. maybeSingle() em vez de single() para transformar isso em uma
+    // mensagem legível, e não no erro de coerção do PostgREST.
+    if (!data) throw new Error('Você não tem permissão para alterar a identidade visual desta organização.');
     return data;
   }, [tenantId]);
 
@@ -332,7 +340,6 @@ export const useOrg = () => {
     removerMembro,
     listarUsuariosTenant,
     // Identidade visual
-    buscarTenant,
     atualizarIdentidadeVisual,
   };
 };

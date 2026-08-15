@@ -2,29 +2,28 @@
 // PRANCHETO.IA - IDENTIDADE VISUAL DA ORGANIZAÇÃO
 // Permite editar logo, cores e fonte da organização.
 // Acessível via /dashboard/organizacao/identidade
+//
+// O que é salvo aqui vale para a interface de todos os membros, mas
+// somente com a chave "Aplicar na interface" ligada — ver
+// utils/identidadeVisual.js para o porquê e para onde cada cor vai.
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOrg } from '../../../hooks/useOrg.js';
 import { useAuthStore } from '../../../store/authStore.js';
+import { useTenantStore } from '../../../store/tenantStore.js';
+import {
+  FONTES_DISPONIVEIS,
+  IDENTIDADE_PADRAO,
+  gerarRampaPrimaria,
+  normalizarIdentidade,
+} from '../../../utils/identidadeVisual.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
 
-// ----------------------------------------------------------
-// CONSTANTES
-// ----------------------------------------------------------
-const FONTES_DISPONIVEIS = [
-  { label: 'Inter (padrão)', valor: 'Inter' },
-  { label: 'Roboto',         valor: 'Roboto' },
-  { label: 'Poppins',        valor: 'Poppins' },
-  { label: 'Nunito',         valor: 'Nunito' },
-  { label: 'Open Sans',      valor: 'Open Sans' },
-];
-
-const COR_PADRAO = {
-  cor_primaria:   '#1e3a5f',
-  cor_secundaria: '#000000',
-  cor_acento:     '#ffffff',
-  fonte:          'Inter',
+/** Tom claro da primária, como o usado nos itens ativos da navegação real. */
+const tomClaro = (hex) => {
+  const rampa = gerarRampaPrimaria(hex);
+  return rampa ? `rgb(${rampa[300]})` : hex;
 };
 
 // ----------------------------------------------------------
@@ -43,6 +42,7 @@ const SeletorCor = ({ label, descricao, valor, onChange }) => (
         {valor}
       </span>
       <label className="relative cursor-pointer">
+        <span className="sr-only">{label}</span>
         <input
           type="color"
           value={valor}
@@ -59,16 +59,55 @@ const SeletorCor = ({ label, descricao, valor, onChange }) => (
 );
 
 // ----------------------------------------------------------
-// COMPONENTE: Preview da identidade visual
+// COMPONENTE: Chave de ativação
 // ----------------------------------------------------------
-const PreviewIdentidade = ({ tenant, identidade }) => {
+const ChaveAplicar = ({ ativo, onChange }) => (
+  <div
+    className="rounded-xl p-4 flex items-start justify-between gap-4"
+    style={{
+      backgroundColor: 'var(--color-surface-card)',
+      border: `1px solid ${ativo ? 'rgb(var(--color-primary-500) / 0.4)' : 'var(--color-surface-border)'}`,
+    }}
+  >
+    <div className="min-w-0">
+      <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+        Aplicar na interface
+      </p>
+      <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+        {ativo
+          ? 'A interface usa as cores, a fonte e o logo da sua organização.'
+          : 'A interface usa as cores padrão do Prancheto.IA. Ligue para usar as suas.'}
+      </p>
+    </div>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={ativo}
+      aria-label="Aplicar a identidade visual na interface"
+      onClick={() => onChange(!ativo)}
+      className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
+        ativo ? 'bg-primary-600' : 'bg-slate-600'
+      }`}
+    >
+      <span
+        className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+          ativo ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
+    </button>
+  </div>
+);
+
+// ----------------------------------------------------------
+// COMPONENTE: Preview da identidade visual
+// Reproduz onde cada cor realmente cai: secundária no fundo da barra
+// lateral, acento no texto sobre ela, primária nos destaques do conteúdo.
+// ----------------------------------------------------------
+const PreviewIdentidade = ({ nomeOrganizacao, logoUrl, identidade }) => {
   const { cor_primaria, cor_secundaria, cor_acento, fonte } = identidade;
 
   return (
-    <div
-      className="rounded-xl overflow-hidden"
-      style={{ border: '1px solid var(--color-surface-border)' }}
-    >
+    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-surface-border)' }}>
       {/* Header do preview */}
       <div
         className="px-4 py-2 text-xs font-medium"
@@ -81,48 +120,50 @@ const PreviewIdentidade = ({ tenant, identidade }) => {
         Preview
       </div>
 
-      {/* Conteúdo do preview */}
-      <div style={{ backgroundColor: cor_secundaria, fontFamily: fonte }}>
-        {/* Barra de navegação simulada */}
-        <div
-          className="flex items-center gap-3 px-4 py-3"
-          style={{ backgroundColor: cor_primaria }}
-        >
-          {tenant?.logo_url ? (
-            <img src={tenant.logo_url} alt="Logo" className="h-6 w-auto object-contain" />
-          ) : (
-            <div
-              className="w-6 h-6 rounded flex items-center justify-center text-xs font-bold"
-              style={{ backgroundColor: cor_acento, color: cor_primaria }}
-            >
-              {tenant?.nome?.[0]?.toUpperCase() || 'P'}
+      <div className="flex" style={{ fontFamily: fonte, minHeight: '190px' }}>
+        {/* Barra lateral simulada */}
+        <div className="w-32 flex-shrink-0 p-2.5 space-y-2" style={{ backgroundColor: cor_secundaria }}>
+          <div className="flex items-center gap-1.5">
+            {logoUrl ? (
+              <img src={logoUrl} alt="" className="h-5 w-5 rounded object-contain" />
+            ) : (
+              <span className="text-sm">🧠</span>
+            )}
+            <span className="text-xs font-bold truncate" style={{ color: cor_acento }}>
+              {nomeOrganizacao || 'Organização'}
+            </span>
+          </div>
+
+          <div
+            className="px-2 py-1.5 rounded-md text-xs font-medium"
+            style={{
+              backgroundColor: `${cor_primaria}26`,
+              color: tomClaro(cor_primaria),
+            }}
+          >
+            Início
+          </div>
+          {['CRM', 'Agenda'].map((item) => (
+            <div key={item} className="px-2 py-1.5 rounded-md text-xs" style={{ color: `${cor_acento}99` }}>
+              {item}
             </div>
-          )}
-          <span className="text-sm font-bold" style={{ color: cor_acento, fontFamily: fonte }}>
-            {tenant?.nome || 'Minha Organização'}
-          </span>
+          ))}
         </div>
 
         {/* Conteúdo simulado */}
-        <div className="p-4 space-y-3">
-          <div
-            className="h-2 rounded-full w-3/4"
-            style={{ backgroundColor: `${cor_primaria}40` }}
-          />
-          <div
-            className="h-2 rounded-full w-1/2"
-            style={{ backgroundColor: `${cor_primaria}25` }}
-          />
-          <div className="flex gap-2 mt-3">
+        <div className="flex-1 p-4 space-y-3" style={{ backgroundColor: 'var(--color-surface)' }}>
+          <div className="h-2 rounded-full w-3/4" style={{ backgroundColor: `${cor_primaria}40` }} />
+          <div className="h-2 rounded-full w-1/2" style={{ backgroundColor: `${cor_primaria}25` }} />
+          <div className="flex gap-2 pt-1">
             <div
               className="px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ backgroundColor: cor_primaria, color: cor_acento, fontFamily: fonte }}
+              style={{ backgroundColor: cor_primaria, color: cor_acento }}
             >
               Botão primário
             </div>
             <div
               className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-              style={{ borderColor: cor_primaria, color: cor_primaria, fontFamily: fonte }}
+              style={{ borderColor: cor_primaria, color: cor_primaria }}
             >
               Secundário
             </div>
@@ -137,64 +178,54 @@ const PreviewIdentidade = ({ tenant, identidade }) => {
 // PÁGINA PRINCIPAL: IDENTIDADE VISUAL
 // ----------------------------------------------------------
 const IdentidadeVisual = () => {
-  const { usuario } = useAuthStore();
-  const { buscarTenant, atualizarIdentidadeVisual } = useOrg();
+  const tenantId = useAuthStore((s) => s.usuario?.tenant_id);
+  const { atualizarIdentidadeVisual } = useOrg();
 
-  const [tenant, setTenant]         = useState(null);
-  const [identidade, setIdentidade] = useState(COR_PADRAO);
+  const tenant          = useTenantStore((s) => s.tenant);
+  const carregandoOrg   = useTenantStore((s) => s.carregando);
+  const carregarTenant  = useTenantStore((s) => s.carregar);
+  const definirTenant   = useTenantStore((s) => s.definir);
+
+  const [identidade, setIdentidade] = useState(IDENTIDADE_PADRAO);
   const [logoUrl, setLogoUrl]       = useState('');
-  const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando]     = useState(false);
   const [salvo, setSalvo]           = useState(false);
   const [erro, setErro]             = useState('');
 
-  const carregar = useCallback(async () => {
-    setCarregando(true);
-    try {
-      const data = await buscarTenant();
-      if (data) {
-        setTenant(data);
-        setLogoUrl(data.logo_url || '');
-        setIdentidade({
-          cor_primaria:   data.identidade_visual?.cor_primaria   || COR_PADRAO.cor_primaria,
-          cor_secundaria: data.identidade_visual?.cor_secundaria || COR_PADRAO.cor_secundaria,
-          cor_acento:     data.identidade_visual?.cor_acento     || COR_PADRAO.cor_acento,
-          fonte:          data.identidade_visual?.fonte          || COR_PADRAO.fonte,
-        });
-      }
-    } catch (err) {
-      setErro('Erro ao carregar dados da organização.');
-    } finally {
-      setCarregando(false);
-    }
-  }, [buscarTenant]);
+  useEffect(() => { carregarTenant(tenantId); }, [tenantId, carregarTenant]);
 
-  useEffect(() => { carregar(); }, [carregar]);
+  // Sincroniza o formulário com o que está salvo, inclusive após gravar.
+  useEffect(() => {
+    if (!tenant) return;
+    setIdentidade(normalizarIdentidade(tenant.identidade_visual));
+    setLogoUrl(tenant.logo_url || '');
+  }, [tenant]);
 
-  const salvar = async () => {
+  const salvar = useCallback(async () => {
     setSalvando(true);
     setErro('');
     try {
-      await atualizarIdentidadeVisual({
-        logo_url:          logoUrl || null,
+      const atualizado = await atualizarIdentidadeVisual({
+        logo_url:          logoUrl.trim() || null,
         identidade_visual: identidade,
       });
+      // Alimenta o store: as cores novas passam a valer na hora, sem recarregar.
+      definirTenant(atualizado);
       setSalvo(true);
       setTimeout(() => setSalvo(false), 2500);
-      await carregar();
     } catch (err) {
       setErro(err.message || 'Erro ao salvar identidade visual.');
     } finally {
       setSalvando(false);
     }
-  };
+  }, [atualizarIdentidadeVisual, definirTenant, identidade, logoUrl]);
 
   const restaurarPadrao = () => {
-    setIdentidade(COR_PADRAO);
+    setIdentidade(IDENTIDADE_PADRAO);
     setLogoUrl('');
   };
 
-  if (carregando) {
+  if (!tenant && carregandoOrg) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -240,7 +271,7 @@ const IdentidadeVisual = () => {
             <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
               <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>Logo</h3>
               <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-                URL pública da imagem do logo (PNG, SVG recomendado).
+                Aparece na barra lateral, no lugar do ícone padrão.
               </p>
             </div>
             <div className="p-5">
@@ -253,7 +284,7 @@ const IdentidadeVisual = () => {
                   {logoUrl ? (
                     <img
                       src={logoUrl}
-                      alt="Logo preview"
+                      alt="Logo da organização"
                       className="w-full h-full object-contain p-1"
                       onError={(e) => { e.target.style.display = 'none'; }}
                     />
@@ -271,10 +302,15 @@ const IdentidadeVisual = () => {
                 </div>
               </div>
 
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+              <label
+                className="block text-xs font-medium mb-1.5"
+                style={{ color: 'var(--color-text-secondary)' }}
+                htmlFor="identidade-logo-url"
+              >
                 URL do logo
               </label>
               <input
+                id="identidade-logo-url"
                 type="url"
                 value={logoUrl}
                 onChange={(e) => setLogoUrl(e.target.value)}
@@ -302,19 +338,19 @@ const IdentidadeVisual = () => {
             <div className="px-5 py-2">
               <SeletorCor
                 label="Cor primária"
-                descricao="Cor principal da marca (barras, botões, destaques)."
+                descricao="Botões, itens ativos, destaques e badges em toda a interface."
                 valor={identidade.cor_primaria}
                 onChange={(v) => setIdentidade(i => ({ ...i, cor_primaria: v }))}
               />
               <SeletorCor
                 label="Cor secundária"
-                descricao="Cor de fundo e superfícies."
+                descricao="Fundo da barra lateral. Use um tom escuro."
                 valor={identidade.cor_secundaria}
                 onChange={(v) => setIdentidade(i => ({ ...i, cor_secundaria: v }))}
               />
               <SeletorCor
                 label="Cor de acento"
-                descricao="Cor de texto sobre a cor primária."
+                descricao="Texto e logo sobre a barra lateral e sobre a cor primária."
                 valor={identidade.cor_acento}
                 onChange={(v) => setIdentidade(i => ({ ...i, cor_acento: v }))}
               />
@@ -330,10 +366,15 @@ const IdentidadeVisual = () => {
               <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>Tipografia</h3>
             </div>
             <div className="p-5">
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+              <label
+                className="block text-xs font-medium mb-1.5"
+                style={{ color: 'var(--color-text-secondary)' }}
+                htmlFor="identidade-fonte"
+              >
                 Fonte principal
               </label>
               <select
+                id="identidade-fonte"
                 value={identidade.fonte}
                 onChange={(e) => setIdentidade(i => ({ ...i, fonte: e.target.value }))}
                 className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
@@ -347,11 +388,17 @@ const IdentidadeVisual = () => {
           </div>
         </div>
 
-        {/* Coluna direita: preview */}
+        {/* Coluna direita: preview e ativação */}
         <div className="space-y-4">
           <PreviewIdentidade
-            tenant={{ ...tenant, logo_url: logoUrl }}
+            nomeOrganizacao={tenant?.nome}
+            logoUrl={logoUrl}
             identidade={identidade}
+          />
+
+          <ChaveAplicar
+            ativo={identidade.aplicar}
+            onChange={(v) => setIdentidade(i => ({ ...i, aplicar: v }))}
           />
 
           {/* Info */}
@@ -366,9 +413,9 @@ const IdentidadeVisual = () => {
               {[
                 'As cores são salvas por organização e visíveis para todos os membros.',
                 'O preview mostra uma simulação de como ficará a interface.',
-                'Alterações entram em vigor após salvar.',
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                'Alterações entram em vigor após salvar, com a chave ligada.',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                   <span className="text-primary-400 flex-shrink-0 mt-0.5">•</span>
                   {item}
                 </li>

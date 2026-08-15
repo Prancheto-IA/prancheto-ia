@@ -126,6 +126,21 @@ export const useAuthStore = create(
         set({ token: novoToken });
       },
 
+      /**
+       * Mescla campos no perfil do usuário logado, preservando a sessão.
+       *
+       * Usado quando a própria pessoa edita seus dados em Configurações: o
+       * store é a origem do nome exibido na sidebar e nos avatares, então
+       * sem isto a interface só mostraria o nome novo depois de novo login.
+       *
+       * @param {object} campos - Campos da linha de 'users' a sobrescrever
+       */
+      atualizarUsuario: (campos) => {
+        const { usuario } = get();
+        if (!usuario) return;
+        set({ usuario: { ...usuario, ...campos } });
+      },
+
       /** Define o estado de carregamento durante operações assíncronas */
       setCarregando: (valor) => set({ carregando: valor }),
 

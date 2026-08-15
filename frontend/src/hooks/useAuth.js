@@ -9,6 +9,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
+import { useTenantStore } from '../store/tenantStore.js';
 import { supabase } from '../lib/supabase.js';
 import { useTema } from './useTema.js';
 
@@ -21,8 +22,13 @@ const rotaDestino = (usuario) => {
  * Busca as permissões do cargo organizacional do usuário.
  * Retorna null quando não há cargo definido ou a consulta falha —
  * null é tratado como "não determinado" e não restringe a interface.
+ *
+ * Exportada porque o login não é o único momento em que a lista precisa ser
+ * resolvida: ela fica em cache no localStorage, então o LayoutCliente a
+ * revalida a cada carga do app. Sem isso, mudança de cargo — ou permissão
+ * nova concedida por migration — só valeria depois de novo login.
  */
-const carregarPermissoesCargo = async (cargoId) => {
+export const carregarPermissoesCargo = async (cargoId) => {
   if (!cargoId) return null;
   try {
     const { data, error } = await supabase
@@ -110,6 +116,9 @@ export const useAuth = () => {
       await supabase.auth.signOut();
     } finally {
       logoutStore();
+      // Descarta a identidade visual da organização: sem isto, a marca de
+      // um cliente ficaria aplicada na tela de login e na sessão seguinte.
+      useTenantStore.getState().limpar();
       navigate('/login', { replace: true });
     }
   };
