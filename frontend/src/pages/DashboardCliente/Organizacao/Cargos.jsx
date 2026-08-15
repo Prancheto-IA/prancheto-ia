@@ -6,7 +6,13 @@
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useOrg, PERMISSOES_POR_GRUPO, PERMISSOES_DISPONIVEIS, SLUGS_CONHECIDOS } from '../../../hooks/useOrg.js';
+import {
+  useOrg,
+  PERMISSOES_POR_GRUPO,
+  PERMISSOES_DISPONIVEIS,
+  SLUGS_CONHECIDOS,
+  PERMISSOES_PADRAO_CARGO_NOVO,
+} from '../../../hooks/useOrg.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
 
 /** Índice slug → definição, para não varrer o catálogo a cada permissão exibida. */
@@ -76,8 +82,13 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
                     ? 'bg-primary-600'
                     : algunsMarcados
                     ? 'bg-primary-600/50'
-                    : 'bg-transparent border border-slate-600'
+                    : 'bg-transparent border'
                 }`}
+                style={
+                  todosMarcados || algunsMarcados
+                    ? undefined
+                    : { borderColor: 'var(--color-control-border)' }
+                }
               >
                 {(todosMarcados || algunsMarcados) && (
                   <span className="text-white text-xs leading-none">
@@ -100,15 +111,19 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
                     type="button"
                     onClick={() => toggle(perm.slug)}
                     disabled={desabilitado}
-                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-left transition-all disabled:cursor-not-allowed ${
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-left border transition-all disabled:cursor-not-allowed ${
                       marcado
-                        ? 'bg-primary-500/15 text-primary-300 border border-primary-500/30'
-                        : 'text-slate-400 border border-transparent hover:bg-white/5 hover:text-white'
+                        ? 'bg-primary-500/15 border-primary-500/30'
+                        : 'acao-sutil acao-sutil-bloco border-transparent'
                     }`}
+                    style={marcado ? { color: 'var(--color-primaria-contraste)' } : undefined}
                   >
-                    <span className={`w-3 h-3 rounded flex-shrink-0 flex items-center justify-center ${
-                      marcado ? 'bg-primary-600' : 'border border-slate-600'
-                    }`}>
+                    <span
+                      className={`w-3 h-3 rounded flex-shrink-0 flex items-center justify-center ${
+                        marcado ? 'bg-primary-600' : 'border'
+                      }`}
+                      style={marcado ? undefined : { borderColor: 'var(--color-control-border)' }}
+                    >
                       {marcado && <span className="text-white text-xs leading-none">✓</span>}
                     </span>
                     {perm.label}
@@ -126,8 +141,16 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
 // ----------------------------------------------------------
 // MODAL: Criar / Editar Cargo
 // ----------------------------------------------------------
+// O cargo novo abre com as permissões liberadas por padrão já marcadas —
+// desmarcar é uma decisão do chefe, não o ponto de partida.
+const formVazio = () => ({
+  nome: '',
+  descricao: '',
+  permissoes: [...PERMISSOES_PADRAO_CARGO_NOVO],
+});
+
 const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
-  const [form, setForm] = useState({ nome: '', descricao: '', permissoes: [] });
+  const [form, setForm] = useState(formVazio);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
 
@@ -139,7 +162,7 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
         permissoes: cargoEditando.permissoes || [],
       });
     } else {
-      setForm({ nome: '', descricao: '', permissoes: [] });
+      setForm(formVazio());
     }
     setErro('');
   }, [cargoEditando, aberto]);
@@ -183,7 +206,7 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
             </h2>
             {eSistema && <BadgeSistema />}
           </div>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white transition-colors text-xl">✕</button>
+          <button onClick={onFechar} className="acao-sutil text-xl">✕</button>
         </div>
 
         {/* Form */}
@@ -243,7 +266,8 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
                         ...PERMISSOES_DISPONIVEIS.map(p => p.slug),
                       ])],
                     }))}
-                    className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
+                    className="text-xs transition-colors hover:opacity-80"
+                    style={{ color: 'var(--color-primaria-contraste)' }}
                   >
                     Selecionar todas
                   </button>
@@ -254,7 +278,7 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
                       ...f,
                       permissoes: f.permissoes.filter(s => !SLUGS_CONHECIDOS.has(s)),
                     }))}
-                    className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                    className="acao-sutil text-xs"
                   >
                     Limpar
                   </button>
@@ -350,7 +374,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => setExpandido(e => !e)}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors text-sm"
+              className="acao-sutil acao-sutil-bloco p-1.5 rounded-lg text-sm"
               title={expandido ? 'Recolher' : 'Ver permissões'}
             >
               {expandido ? '▲' : '▼'}
@@ -358,7 +382,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
             <PermissaoGuarda permissao="cargos.gerenciar">
               <button
                 onClick={() => onEditar(cargo)}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                className="acao-sutil acao-sutil-bloco p-1.5 rounded-lg text-sm"
                 title="Editar cargo"
               >
                 ✏️
@@ -369,7 +393,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
                 <button
                   onClick={() => onExcluir(cargo.id)}
                   disabled={excluindo === cargo.id}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm disabled:opacity-50"
+                  className="acao-sutil p-1.5 rounded-lg text-sm hover:text-red-500 hover:bg-red-500/10 disabled:opacity-50"
                   title="Excluir cargo"
                 >
                   {excluindo === cargo.id ? '⏳' : '🗑️'}
@@ -398,7 +422,8 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
                     {labels.map((label) => (
                       <span
                         key={label}
-                        className="text-xs px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-300"
+                        className="text-xs px-2 py-0.5 rounded-full bg-primary-500/10"
+                        style={{ color: 'var(--color-primaria-contraste)' }}
                       >
                         {label}
                       </span>

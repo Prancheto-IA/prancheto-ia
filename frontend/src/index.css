@@ -45,6 +45,18 @@
   /* Fundo de estados de hover em superfícies do tema. */
   --color-hover-surface: rgb(15 23 42 / 0.06);
 
+  /* Borda de controle de formulário — caixa de marcar, campo vazio.
+     Não serve --color-surface-border: ela separa blocos grandes e, no tema
+     claro, é fraca demais para desenhar um controle que precisa ser notado. */
+  --color-control-border: #94a3b8;
+
+  /* Tom da primária legível sobre a superfície do tema: escuro no claro,
+     claro no escuro. Vale para texto e ícone em estado selecionado.
+     É parente de --sidebar-primaria-ativa, mas separado de propósito: aquela
+     é sobrescrita pela identidade da organização, cujo fundo é sempre
+     escuro. Esta acompanha o tema, sempre. */
+  --color-primaria-contraste: rgb(var(--color-primary-700));
+
   /* --- BARRA LATERAL ---
      Estas cores se referem à superfície da própria barra, e não ao tema,
      porque a organização pode aplicar um fundo próprio (--brand-superficie)
@@ -72,8 +84,10 @@ html.dark {
   --color-text-secondary: #94a3b8;
 
   --color-hover-surface:  rgb(255 255 255 / 0.06);
+  --color-control-border: #475569;
 
-  --sidebar-primaria-ativa: rgb(var(--color-primary-300));
+  --color-primaria-contraste: rgb(var(--color-primary-300));
+  --sidebar-primaria-ativa:   rgb(var(--color-primary-300));
 }
 
 /* --- ESTILOS BASE GLOBAIS --- */

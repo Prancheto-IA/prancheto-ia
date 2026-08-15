@@ -69,11 +69,27 @@ export const PERMISSOES_DISPONIVEIS = [
   // os cargos existentes, e quem não tem cargo organizacional já passa
   // pelo "sem lista, libera" de temPermissao(). O chefe da empresa pode
   // desmarcá-la para restringir cargos específicos.
-  { slug: 'perfil.editar_proprio', label: 'Editar os próprios dados', grupo: 'Perfil' },
+  { slug: 'perfil.editar_proprio', label: 'Editar os próprios dados', grupo: 'Perfil', padrao: true },
 ];
 
 /** Conjunto de slugs conhecidos, para detectar permissões fora do catálogo. */
 export const SLUGS_CONHECIDOS = new Set(PERMISSOES_DISPONIVEIS.map(p => p.slug));
+
+/**
+ * Permissões que um cargo já nasce tendo.
+ *
+ * Marcar 'padrao' no catálogo não basta para o cargo criado depois: a coluna
+ * org_cargos.permissoes é NOT NULL DEFAULT '[]', então um cargo salvo sem
+ * nada marcado nega tudo, item liberado por padrão inclusive. O "sem lista,
+ * libera" de temPermissao() não cobre esse caso — vale só para quem não tem
+ * cargo algum, e um array vazio é uma lista.
+ *
+ * Marcar aqui é o que faz a promessa "o padrão é permitir" valer para o
+ * cargo que o chefe criar amanhã, sem tirar dele a opção de desmarcar.
+ */
+export const PERMISSOES_PADRAO_CARGO_NOVO = PERMISSOES_DISPONIVEIS
+  .filter(p => p.padrao)
+  .map(p => p.slug);
 
 // Agrupa permissões por grupo para exibição no editor
 export const PERMISSOES_POR_GRUPO = PERMISSOES_DISPONIVEIS.reduce((acc, p) => {
@@ -122,7 +138,7 @@ export const useOrg = () => {
   }, [tenantId]);
 
   /** Cria um novo cargo */
-  const criarCargo = useCallback(async ({ nome, descricao, permissoes = [], ordem = 99 }) => {
+  const criarCargo = useCallback(async ({ nome, descricao, permissoes = PERMISSOES_PADRAO_CARGO_NOVO, ordem = 99 }) => {
     if (!tenantId) throw new Error('Tenant não identificado');
     const { data, error } = await supabase
       .from('org_cargos')
