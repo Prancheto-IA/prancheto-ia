@@ -5,8 +5,9 @@
 // A aba fica na URL (?aba=plano) para que o endereço seja compartilhável
 // e para que /dashboard/planos possa redirecionar direto para cá.
 //
-// O nome é gravado em users.nome, sujeito à permissão
+// Nome e telefone são gravados em 'users', sujeitos à permissão
 // 'perfil.editar_proprio' — liberada por padrão, restringível por cargo.
+// O e-mail fica fora: é a credencial de login, espelhada de auth.users.
 // As demais preferências vivem em user_preferencias.
 // =============================================================
 
@@ -24,7 +25,10 @@ const ABAS = [
   { slug: 'plano', label: 'Plano', emoji: '🚀' },
 ];
 
-const NOME_MAX = 120;
+const NOME_MAX     = 120;
+// Espelha a constraint users_telefone_tamanho: cortar aqui evita a viagem
+// até o banco só para receber a violação de volta.
+const TELEFONE_MAX = 32;
 
 const SecaoConfig = ({ titulo, descricao, children }) => (
   <div
@@ -129,9 +133,10 @@ const TabAba = ({ aba, ativa, onSelecionar }) => (
     onClick={() => onSelecionar(aba.slug)}
     className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap border ${
       ativa
-        ? 'bg-primary-500/15 text-primary-300 border-primary-500/20'
-        : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+        ? 'bg-primary-500/15 border-primary-500/20'
+        : 'acao-sutil acao-sutil-bloco border-transparent'
     }`}
+    style={ativa ? { color: 'var(--color-primaria-contraste)' } : undefined}
   >
     <span className="text-base">{aba.emoji}</span>
     <span>{aba.label}</span>
@@ -150,6 +155,7 @@ const Configuracoes = () => {
     : 'geral';
 
   const [nome, setNome]                 = useState(usuario?.nome || '');
+  const [telefone, setTelefone]         = useState(usuario?.telefone || '');
   const [notifEmail, setNotifEmail]     = useState(true);
   const [notifSistema, setNotifSistema] = useState(true);
   const [carregando, setCarregando]     = useState(true);
@@ -157,7 +163,7 @@ const Configuracoes = () => {
   const [salvo, setSalvo]               = useState(false);
   const [erro, setErro]                 = useState('');
 
-  const podeEditarNome = pode('perfil.editar_proprio');
+  const podeEditarPerfil = pode('perfil.editar_proprio');
 
   useEffect(() => {
     const carregar = async () => {
@@ -190,9 +196,11 @@ const Configuracoes = () => {
   };
 
   const salvar = async () => {
-    const nomeLimpo = nome.trim();
+    const nomeLimpo     = nome.trim();
+    // Telefone vazio é ausência de telefone: grava null, como o gatilho espera.
+    const telefoneLimpo = telefone.trim() || null;
 
-    if (podeEditarNome && !nomeLimpo) {
+    if (podeEditarPerfil && !nomeLimpo) {
       setErro('O nome não pode ficar vazio.');
       return;
     }
@@ -200,19 +208,27 @@ const Configuracoes = () => {
     setSalvando(true);
     setErro('');
     try {
-      // Perfil: só toca em users.nome quando há permissão e algo mudou.
+      // Perfil: só toca em 'users' quando há permissão e algo mudou.
       // O RLS e o gatilho no banco barram a gravação de quem não pode, mas
       // evitar a requisição deixa o retorno mais claro para quem pode.
-      if (podeEditarNome && nomeLimpo !== (usuario?.nome || '')) {
+      const alterouPerfil =
+        nomeLimpo     !== (usuario?.nome     || '') ||
+        telefoneLimpo !== (usuario?.telefone || null);
+
+      if (podeEditarPerfil && alterouPerfil) {
         const { data, error } = await supabase
           .from('users')
-          .update({ nome: nomeLimpo, atualizado_em: new Date().toISOString() })
+          .update({
+            nome:          nomeLimpo,
+            telefone:      telefoneLimpo,
+            atualizado_em: new Date().toISOString(),
+          })
           .eq('id', usuario.id)
-          .select('nome')
+          .select('nome, telefone')
           .single();
         if (error) throw error;
         // Reflete na sidebar e nos avatares sem exigir novo login.
-        atualizarUsuario({ nome: data.nome });
+        atualizarUsuario({ nome: data.nome, telefone: data.telefone });
       }
 
       const { error: erroPrefs } = await supabase
@@ -301,13 +317,23 @@ const Configuracoes = () => {
               label="Nome completo"
               valor={nome}
               placeholder="Seu nome"
-              disabled={!podeEditarNome}
+              disabled={!podeEditarPerfil}
               maxLength={NOME_MAX}
-              ajuda={podeEditarNome
+              ajuda={podeEditarPerfil
                 ? undefined
-                : 'Seu cargo não permite alterar o próprio nome. Fale com o administrador da organização.'}
+                : 'Seu cargo não permite alterar os próprios dados. Fale com o administrador da organização.'}
               onChange={(e) => setNome(e.target.value)}
             />
+            <CampoTexto
+              label="Telefone"
+              valor={telefone}
+              placeholder="(11) 99999-0000"
+              disabled={!podeEditarPerfil}
+              maxLength={TELEFONE_MAX}
+              onChange={(e) => setTelefone(e.target.value)}
+            />
+            {/* E-mail é a credencial de login, espelhada de auth.users.
+                Trocá-lo exige o fluxo de confirmação do Supabase Auth. */}
             <CampoTexto label="E-mail"  valor={usuario?.email || ''} disabled />
             <CampoTexto label="Cargo"   valor={usuario?.cargo || ''} disabled />
           </SecaoConfig>
