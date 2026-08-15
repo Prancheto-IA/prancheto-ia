@@ -1,10 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
+import { ambiente, isProducao } from './ambiente.js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const ambiente = import.meta.env.VITE_APP_ENV || import.meta.env.MODE;
-export const isProducao = ambiente === 'production';
+// Reexportados por compatibilidade: quem ja importava daqui continua
+// funcionando, mas quem decide agora e lib/ambiente.js.
+export { ambiente, isProducao };
 
 const REF_PRODUCAO = 'ujspjhmfdinkhjccjjuo';
 
