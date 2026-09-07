@@ -18,7 +18,6 @@ import BannerImpersonation from './components/BannerImpersonation/BannerImperson
 // LAZY LOADING DAS PÁGINAS
 // =============================================================
 const PaginaLogin            = lazy(() => import('./pages/Login/Login.jsx'));
-const PaginaCRM              = lazy(() => import('./pages/CRM/CRM.jsx'));
 const PaginaCRMHub           = lazy(() => import('./pages/CRM/CRMHub.jsx'));
 const PaginaSuporteHub       = lazy(() => import('./pages/Suporte/SuporteHub.jsx'));
 const PaginaAdminPanel       = lazy(() => import('./pages/AdminPanel/AdminPanel.jsx'));
@@ -60,15 +59,6 @@ const rotaParaUsuario = (usuario) => {
   if (!usuario) return '/login';
   if (usuario.isSuperAdmin) return '/admin';
   return '/dashboard';
-};
-
-// =============================================================
-// ROTA PRIVADA: exige autenticação
-// =============================================================
-const RotaPrivada = ({ children }) => {
-  const { token } = useAuthStore();
-  if (!token) return <Navigate to="/login" replace />;
-  return children;
 };
 
 // =============================================================

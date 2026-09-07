@@ -39,20 +39,6 @@ const PaginaChatIA = () => {
   const inputRef      = useRef(null);
 
   // ----------------------------------------------------------
-  // Carrega lista de conversas ao montar
-  // ----------------------------------------------------------
-  useEffect(() => {
-    carregarConversas();
-  }, []);
-
-  // ----------------------------------------------------------
-  // Rola para o final quando chegam novas mensagens
-  // ----------------------------------------------------------
-  useEffect(() => {
-    fimDaListaRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversaAtiva?.mensagens, carregando]);
-
-  // ----------------------------------------------------------
   // FUNÇÃO: Carrega lista de conversas da sidebar
   // ----------------------------------------------------------
   const carregarConversas = useCallback(async () => {
@@ -74,6 +60,20 @@ const PaginaChatIA = () => {
       setCarregandoLista(false);
     }
   }, [usuario?.id, tratarErro]);
+
+  // ----------------------------------------------------------
+  // Carrega lista de conversas ao montar (e se o usuário mudar)
+  // ----------------------------------------------------------
+  useEffect(() => {
+    carregarConversas();
+  }, [carregarConversas]);
+
+  // ----------------------------------------------------------
+  // Rola para o final quando chegam novas mensagens
+  // ----------------------------------------------------------
+  useEffect(() => {
+    fimDaListaRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [conversaAtiva?.mensagens, carregando]);
 
   // ----------------------------------------------------------
   // FUNÇÃO: Seleciona uma conversa e carrega suas mensagens
@@ -129,7 +129,10 @@ const PaginaChatIA = () => {
     try {
       // Chama a Edge Function no Supabase
       const { data, error } = await supabase.functions.invoke('chat-ai', {
-        body: { conversationId, mensagem: texto }
+        // O parametro se chama conversaId. Usar 'conversationId' solto aqui
+        // lancava ReferenceError antes de a requisicao sair, e o catch
+        // abaixo exibia "Erro ao enviar mensagem" — o chat nunca funcionou.
+        body: { conversationId: conversaId, mensagem: texto }
       });
 
       if (error) throw error;

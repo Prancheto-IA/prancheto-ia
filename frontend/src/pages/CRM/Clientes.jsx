@@ -4,10 +4,10 @@
 // Herança de histórico completo do período como Lead
 // =============================================================
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   useClientes, useInteracoes, useDocumentos,
-  TIPOS_INTERACAO, ORIGENS,
+  TIPOS_INTERACAO,
   tipoInfo, origemInfo,
   formatarMoeda, formatarData, formatarDataHora, tempoRelativo,
 } from '../../hooks/useCRM.js';
@@ -340,6 +340,139 @@ const LinhaCliente = ({ cliente, onAbrir, onEditar, onExcluir }) => (
   </tr>
 );
 
+// Campos editáveis de um cliente já convertido. Origem, valor estimado e
+// status de funil são histórico do período como Lead — editam-se em Leads,
+// não aqui.
+const FORM_VAZIO = {
+  nome: '', email: '', telefone: '', empresa: '', cargo: '', observacoes: '',
+};
+
+const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
+  const [form, setForm]         = useState(FORM_VAZIO);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro]         = useState('');
+
+  useEffect(() => {
+    if (cliente) {
+      setForm({
+        nome:        cliente.nome        || '',
+        email:       cliente.email       || '',
+        telefone:    cliente.telefone    || '',
+        empresa:     cliente.empresa     || '',
+        cargo:       cliente.cargo       || '',
+        observacoes: cliente.observacoes || '',
+      });
+      setErro('');
+    }
+  }, [cliente]);
+
+  if (!cliente) return null;
+
+  const set = (campo) => (e) => setForm(f => ({ ...f, [campo]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.nome.trim()) { setErro('Nome é obrigatório.'); return; }
+    setSalvando(true);
+    setErro('');
+    try {
+      await onSalvar({
+        nome:        form.nome.trim(),
+        email:       form.email.trim()    || null,
+        telefone:    form.telefone.trim() || null,
+        empresa:     form.empresa.trim()  || null,
+        cargo:       form.cargo.trim()    || null,
+        observacoes: form.observacoes.trim() || null,
+      });
+      onFechar();
+    } catch (err) {
+      setErro(err.message || 'Erro ao salvar cliente.');
+    } finally {
+      setSalvando(false);
+    }
+  };
+
+  const inputStyle = {
+    backgroundColor: 'var(--color-surface)',
+    border: '1px solid var(--color-surface-border)',
+    color: 'var(--color-text-primary)',
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="rounded-xl p-6 w-full max-w-lg my-4 border"
+        style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>
+            ✏️ Editar Cliente
+          </h3>
+          <button onClick={onFechar} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome *</label>
+              <input type="text" value={form.nome} onChange={set('nome')} placeholder="João Silva"
+                className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                style={inputStyle} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Empresa</label>
+              <input type="text" value={form.empresa} onChange={set('empresa')} placeholder="Acme Corp"
+                className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                style={inputStyle} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>E-mail</label>
+              <input type="email" value={form.email} onChange={set('email')} placeholder="joao@empresa.com"
+                className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                style={inputStyle} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Telefone</label>
+              <input type="text" value={form.telefone} onChange={set('telefone')} placeholder="(11) 99999-9999"
+                className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                style={inputStyle} />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Cargo</label>
+            <input type="text" value={form.cargo} onChange={set('cargo')} placeholder="CEO"
+              className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              style={inputStyle} />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Observações</label>
+            <textarea value={form.observacoes} onChange={set('observacoes')} rows={2} placeholder="Notas sobre o cliente..."
+              className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none"
+              style={inputStyle} />
+          </div>
+
+          {erro && <p className="text-red-400 text-xs">{erro}</p>}
+
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onFechar}
+              className="flex-1 py-2 rounded-lg text-sm transition-colors"
+              style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-secondary)' }}>
+              Cancelar
+            </button>
+            <button type="submit" disabled={salvando}
+              className="flex-1 bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+              {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 // ─── Página Principal: Clientes ────────────────────────────────
 const PaginaClientes = () => {
   const { clientes, carregando, erro, carregar, atualizar, excluir } = useClientes();
@@ -362,6 +495,12 @@ const PaginaClientes = () => {
     setPainelCliente(null);
   };
 
+  const handleSalvarEdicao = async (dados) => {
+    const atualizado = await atualizar(clienteEditando.id, dados);
+    if (painelCliente?.id === clienteEditando.id) setPainelCliente(atualizado);
+    setClienteEditando(null);
+  };
+
   const handleExcluir = async (id) => {
     if (!window.confirm('Excluir este cliente?')) return;
     await excluir(id);
@@ -370,7 +509,6 @@ const PaginaClientes = () => {
 
   // Métricas resumidas
   const totalLTV    = clientes.reduce((s, c) => s + (c.ltv || 0), 0);
-  const mediaLTV    = clientes.length ? totalLTV / clientes.length : 0;
   const novos30dias = clientes.filter(c => {
     const d = c.convertido_em || c.criado_em;
     return d && (Date.now() - new Date(d).getTime()) < 30 * 86400000;
@@ -504,6 +642,13 @@ const PaginaClientes = () => {
           onExcluir={handleExcluir}
         />
       )}
+
+      {/* Modal de edição */}
+      <ModalCliente
+        cliente={clienteEditando}
+        onFechar={() => setClienteEditando(null)}
+        onSalvar={handleSalvarEdicao}
+      />
     </div>
   );
 };

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run build
+
+  rls-tests:
+    runs-on: ubuntu-latest
+    # Só em develop: são testes de integração contra o Supabase de DEV
+    # (criam/apagam um tenant descartável a cada execução). Nunca em main —
+    # produção nem entra na equação aqui.
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
+      (github.event_name == 'pull_request' && github.base_ref == 'develop')
+    defaults:
+      run:
+        working-directory: tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # vitest 5 exige Node ^22.12/^24/>=26 — 20 (usado no job de
+          # build-and-lint) não serve aqui.
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - run: npm ci
+
+      - run: npm test
+        env:
+          # URL e anon key do projeto de DEV — publicas por definicao (mesmo
+          # valor que já vai em todo bundle do frontend, ver frontend/.env.development
+          # e o comentario em frontend/.env.example: "segura para o browser,
+          # o isolamento real vem das policies de RLS"). Só a service_role
+          # key abaixo e secreta.
+          SUPABASE_URL: https://jjvvzndhwxdcvbikoqce.supabase.co
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqdnZ6bmRod3hkY3ZiaWtvcWNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NDY3MTIsImV4cCI6MjEwMTEyMjcxMn0.n4kJfhYWvqba96Z3ZxbTqUg6flVMD0yF02PHxiBRzLQ
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

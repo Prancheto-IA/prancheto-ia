@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjetos } from '../../../hooks/useProjetos';
 
@@ -21,15 +21,36 @@ const STATUS_LABEL = {
   cancelado:    'Cancelado',
 };
 
-const PRIORIDADE_COR = { baixa: '#94a3b8', media: '#3b82f6', alta: '#f59e0b', critica: '#ef4444' };
-
 const FORM_VAZIO = {
   nome: '', descricao: '', status: 'planejamento', prioridade: 'media',
   cor: '#6366f1', icone: '📁', data_inicio: '', data_fim: '',
 };
 
-const ModalProjeto = ({ aberto, onFechar, onSalvar, projetoEditando }) => {
-  const [form, setForm] = useState(projetoEditando || FORM_VAZIO);
+const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }) => {
+  const [form, setForm] = useState(FORM_VAZIO);
+
+  // O modal nunca desmonta (só retorna null quando fechado), então o form
+  // precisa ser resincronizado aqui sempre que o projeto a editar mudar —
+  // sem isso ele reaproveitava os dados do último projeto aberto. Só os
+  // campos editáveis entram no form: projetoEditando também traz colunas
+  // de sistema e relações (projeto_membros, projeto_milestones) que não
+  // podem ir num payload de update.
+  useEffect(() => {
+    if (projetoEditando) {
+      setForm({
+        nome:        projetoEditando.nome        || '',
+        descricao:   projetoEditando.descricao   || '',
+        status:      projetoEditando.status      || 'planejamento',
+        prioridade:  projetoEditando.prioridade  || 'media',
+        cor:         projetoEditando.cor         || '#6366f1',
+        icone:       projetoEditando.icone       || '📁',
+        data_inicio: projetoEditando.data_inicio || '',
+        data_fim:    projetoEditando.data_fim    || '',
+      });
+    } else {
+      setForm(FORM_VAZIO);
+    }
+  }, [projetoEditando, aberto]);
 
   if (!aberto) return null;
 
@@ -84,6 +105,12 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, projetoEditando }) => {
               <input type="color" value={form.cor} onChange={e => setForm(f => ({ ...f, cor: e.target.value }))} className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
             </div>
             <div className="flex gap-2 pt-2">
+              {projetoEditando && (
+                <button type="button" onClick={() => { onExcluir(projetoEditando.id); onFechar(); }}
+                  className="px-4 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10">
+                  Excluir
+                </button>
+              )}
               <button type="button" onClick={onFechar}
                 className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors"
                 style={{ border: '1px solid var(--color-surface-border)' }}
@@ -258,6 +285,7 @@ const Projetos = () => {
         aberto={modalAberto}
         onFechar={() => { setModalAberto(false); setProjetoEditando(null); }}
         onSalvar={handleSalvar}
+        onExcluir={excluirProjeto}
         projetoEditando={projetoEditando}
       />
     </div>

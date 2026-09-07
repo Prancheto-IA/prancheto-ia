@@ -250,28 +250,24 @@ const Agenda = () => {
   });
 
   const handleSalvar = async (dadosEvento) => {
-    try {
-      if (eventoEditando) {
-        const { error } = await supabase
-          .from('agenda_eventos')
-          .update(dadosEvento)
-          .eq('id', eventoEditando.id);
-        if (error) throw error;
-      } else {
-        const payload = {
-          ...dadosEvento,
-          criado_por: usuario.id,
-          tenant_id: usuario.tenant_id
-        };
-        const { error } = await supabase
-          .from('agenda_eventos')
-          .insert(payload);
-        if (error) throw error;
-      }
-      await carregarEventos();
-    } catch (error) {
-      throw error; // propagar para o modal exibir erro
+    if (eventoEditando) {
+      const { error } = await supabase
+        .from('agenda_eventos')
+        .update(dadosEvento)
+        .eq('id', eventoEditando.id);
+      if (error) throw error;
+    } else {
+      const payload = {
+        ...dadosEvento,
+        criado_por: usuario.id,
+        tenant_id: usuario.tenant_id
+      };
+      const { error } = await supabase
+        .from('agenda_eventos')
+        .insert(payload);
+      if (error) throw error;
     }
+    await carregarEventos();
   };
 
   const handleExcluir = async (id) => {

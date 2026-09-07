@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTarefas, STATUS_TAREFAS, PRIORIDADES } from '../../../hooks/useTarefas';
-import { useAuthStore } from '../../../store/authStore';
 
 const FORM_VAZIO = {
   titulo: '', descricao: '', status: 'pendente', prioridade: 'media',
@@ -9,9 +8,16 @@ const FORM_VAZIO = {
 };
 
 const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) => {
-  const [form, setForm] = useState(() => {
+  const [form, setForm] = useState(FORM_VAZIO);
+
+  // O modal nunca desmonta (só retorna null quando fechado), então o form
+  // precisa ser resincronizado aqui sempre que a tarefa a editar mudar —
+  // um useState(() => ...) só roda uma vez, na primeira montagem, e depois
+  // disso toda edição reabria com os campos da primeira tarefa aberta (ou
+  // vazios, se a primeira abertura foi "Nova tarefa").
+  useEffect(() => {
     if (tarefaEditando) {
-      return {
+      setForm({
         titulo: tarefaEditando.titulo || '',
         descricao: tarefaEditando.descricao || '',
         status: tarefaEditando.status || 'pendente',
@@ -20,10 +26,11 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
           ? new Date(tarefaEditando.data_vencimento).toISOString().split('T')[0]
           : '',
         estimativa_h: tarefaEditando.estimativa_h || '',
-      };
+      });
+    } else {
+      setForm(FORM_VAZIO);
     }
-    return FORM_VAZIO;
-  });
+  }, [tarefaEditando, aberto]);
 
   if (!aberto) return null;
 
@@ -94,7 +101,7 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
   );
 };
 
-const CardTarefa = ({ tarefa, onAbrir, onMudarStatus }) => {
+const CardTarefa = ({ tarefa, onAbrir }) => {
   const prioridade = PRIORIDADES.find(p => p.slug === tarefa.prioridade) || PRIORIDADES[1];
   const checklist = tarefa.tarefa_checklist || [];
   const checkConcluidos = checklist.filter(c => c.concluido).length;
@@ -134,7 +141,7 @@ const CardTarefa = ({ tarefa, onAbrir, onMudarStatus }) => {
   );
 };
 
-const ColunaKanban = ({ status, tarefas, onAbrir, onMudarStatus, onNovaTarefa }) => (
+const ColunaKanban = ({ status, tarefas, onAbrir, onNovaTarefa }) => (
   <div className="flex flex-col gap-3 min-w-[240px] w-full">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -152,7 +159,7 @@ const ColunaKanban = ({ status, tarefas, onAbrir, onMudarStatus, onNovaTarefa })
     </div>
     <div className="space-y-2 min-h-[100px]">
       {tarefas.map(t => (
-        <CardTarefa key={t.id} tarefa={t} onAbrir={onAbrir} onMudarStatus={onMudarStatus} />
+        <CardTarefa key={t.id} tarefa={t} onAbrir={onAbrir} />
       ))}
     </div>
   </div>
@@ -160,7 +167,6 @@ const ColunaKanban = ({ status, tarefas, onAbrir, onMudarStatus, onNovaTarefa })
 
 const Tarefas = () => {
   const navigate = useNavigate();
-  const usuario = useAuthStore(s => s.usuario);
   const { tarefas, kanban, carregando, criarTarefa, atualizarTarefa, excluirTarefa } = useTarefas();
   const [modalAberto, setModalAberto] = useState(false);
   const [tarefaEditando, setTarefaEditando] = useState(null);
@@ -263,7 +269,6 @@ const Tarefas = () => {
                   status={s}
                   tarefas={kanban[s.slug] || []}
                   onAbrir={handleAbrir}
-                  onMudarStatus={(id, novoStatus) => atualizarTarefa(id, { status: novoStatus })}
                   onNovaTarefa={handleNovaTarefa}
                 />
               </div>

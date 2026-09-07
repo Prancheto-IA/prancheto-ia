@@ -320,28 +320,24 @@ const Outbound = () => {
   useEffect(() => { carregarAcoes(); }, [carregarAcoes]);
 
   const handleSalvar = async (dadosAcao) => {
-    try {
-      if (acaoEditando) {
-        const { error } = await supabase
-          .from('outbound_acoes')
-          .update(dadosAcao)
-          .eq('id', acaoEditando.id);
-        if (error) throw error;
-      } else {
-        const payload = {
-          ...dadosAcao,
-          user_id: usuario.id,
-          tenant_id: usuario.tenant_id
-        };
-        const { error } = await supabase
-          .from('outbound_acoes')
-          .insert(payload);
-        if (error) throw error;
-      }
-      await carregarAcoes();
-    } catch (error) {
-      throw error;
+    if (acaoEditando) {
+      const { error } = await supabase
+        .from('outbound_acoes')
+        .update(dadosAcao)
+        .eq('id', acaoEditando.id);
+      if (error) throw error;
+    } else {
+      const payload = {
+        ...dadosAcao,
+        user_id: usuario.id,
+        tenant_id: usuario.tenant_id
+      };
+      const { error } = await supabase
+        .from('outbound_acoes')
+        .insert(payload);
+      if (error) throw error;
     }
+    await carregarAcoes();
   };
 
   const handleExcluir = async (id) => {

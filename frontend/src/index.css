@@ -223,3 +223,35 @@ html.dark {
     --badge-tom: var(--badge-cargo-rgb-claro);
   }
 }
+
+/* =============================================================
+   RESGATE DO TEMA CLARO
+   =============================================================
+   O sistema nasceu só com tema escuro, e as telas foram escritas com
+   cores fixas desse tempo. Quando o tema claro chegou, 63 pontos em
+   telas do cliente passaram a ficar ilegíveis — texto branco sobre
+   branco, tom claro da primária sobre fundo claro.
+
+   Corrigir cada ponto à mão seria trocar 63 classes e continuar
+   dependendo de ninguém repetir o idioma antigo amanhã. Estas regras
+   reapontam as utilidades no tema claro, de uma vez e para sempre.
+   Só cor de texto: fundo nenhum é afetado.
+
+   A dívida real continua sendo o idioma. Em código novo, use
+   .acao-sutil e --color-primaria-contraste; estas regras existem para
+   o que já está escrito, não como permissão para escrever mais.
+   ============================================================= */
+
+/* Tons claros da primária como cor de texto não têm contraste sobre
+   fundo claro. No tema escuro seguem como estão. */
+html:not(.dark) .text-primary-300,
+html:not(.dark) .text-primary-400 {
+  color: var(--color-primaria-contraste);
+}
+
+/* 'hover:text-white' é o pior caso: o item some justamente quando o
+   mouse chega nele. A exceção é quando o hover também pinta um fundo
+   escuro — aí o branco está correto e a regra se afasta. */
+html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-primary"]):hover {
+  color: var(--color-text-primary);
+}

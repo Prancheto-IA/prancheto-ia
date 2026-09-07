@@ -7,7 +7,7 @@
 // =============================================================
 
 import React from 'react';
-import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import PaginaLeads            from './Leads.jsx';
 import PaginaClientes         from './Clientes.jsx';
 import PaginaCamposCustomizados from './CamposCustomizados.jsx';
@@ -20,8 +20,6 @@ const ABAS = [
 ];
 
 const NavCRM = () => {
-  const location = useLocation();
-
   return (
     <div
       className="border-b flex-shrink-0"
