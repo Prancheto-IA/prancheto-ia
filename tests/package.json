@@ -1,0 +1,17 @@
+{
+  "name": "prancheto-ia-rls-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Testes de integracao de isolamento entre tenants e permissoes por cargo (RLS), contra o Supabase de desenvolvimento.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.2"
+  }
+}
