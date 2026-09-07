@@ -94,7 +94,7 @@ const TimesPessoas = () => {
       setUsuarios(us || []);
     };
     carregar();
-  }, []);
+  }, [listarTimes, listarUsuariosTenant]);
 
   const toggleTime = (timeId) => {
     setTimesExpandidos(prev => ({ ...prev, [timeId]: !prev[timeId] }));

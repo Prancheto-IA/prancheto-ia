@@ -46,7 +46,6 @@ const Dashboard = () => {
       setCarregando(true);
       try {
         const hoje = new Date();
-        const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString();
         const fimSemana = new Date(hoje.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
         const [

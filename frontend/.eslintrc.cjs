@@ -46,19 +46,17 @@ module.exports = {
     // catch generico. E o tipo de defeito que so o lint acha barato.
     // (no-undef vem de eslint:recommended.)
 
-    // AVISO: divida existente, nao defeito novo. Sao 27 ocorrencias hoje;
-    // subir para 'error' antes de zera-las tornaria o lint intransponivel
-    // no primeiro dia, e lint intransponivel e lint desligado. A regra
-    // aperta conforme a lista encolhe.
-    'react-hooks/exhaustive-deps': 'warn',
-    'no-unused-vars': ['warn', {
+    // ERRO: a lista inicial de 27 avisos foi zerada (ver commit que
+    // introduziu esta config). A regra apertou conforme a lista encolheu.
+    'react-hooks/exhaustive-deps': 'error',
+    'no-unused-vars': ['error', {
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_',
       // catch (e) sem uso do erro e idioma comum aqui, e legivel.
       caughtErrors: 'none',
     }],
-    'no-useless-catch': 'warn',
-    'no-empty': 'warn',
+    'no-useless-catch': 'error',
+    'no-empty': 'error',
     'react-refresh/only-export-components': 'off',
   },
 };

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFeed, TIPOS_POSTAGEM, EMOJIS_REACAO } from '../../../hooks/useFeed';
 import { useAuthStore } from '../../../store/authStore';

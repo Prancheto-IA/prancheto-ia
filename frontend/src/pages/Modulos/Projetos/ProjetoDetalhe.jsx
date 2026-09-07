@@ -36,7 +36,6 @@ const ProjetoDetalhe = () => {
 
   const milestones = (projeto.projeto_milestones || []).sort((a, b) => a.ordem - b.ordem);
   const concluidos = milestones.filter(m => m.concluido).length;
-  const progressoMilestones = milestones.length > 0 ? Math.round((concluidos / milestones.length) * 100) : 0;
 
   const handleAdicionarMilestone = async (e) => {
     e.preventDefault();

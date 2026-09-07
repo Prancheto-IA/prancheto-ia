@@ -3,7 +3,7 @@
 // Funil de entrada: triagem, qualificação, scoring e conversão
 // =============================================================
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   useLeads, useInteracoes,
   FUNIL_LEAD, TIPOS_INTERACAO, ORIGENS,
@@ -32,11 +32,14 @@ const BadgeScore = ({ score }) => {
 };
 
 // ─── Modal: Criar/Editar Lead ──────────────────────────────────
+// FORM_VAZIO fora do componente: referência estável entre renders, para
+// poder entrar na dependência do useEffect abaixo sem causar loop.
+const FORM_VAZIO = {
+  nome: '', email: '', telefone: '', empresa: '', cargo: '',
+  origem: 'manual', status_funil: 'lead', valor_estimado: '', observacoes: '',
+};
+
 const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
-  const FORM_VAZIO = {
-    nome: '', email: '', telefone: '', empresa: '', cargo: '',
-    origem: 'manual', status_funil: 'lead', valor_estimado: '', observacoes: '',
-  };
   const [form, setForm]         = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
@@ -234,12 +237,6 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
   };
 
   if (!lead) return null;
-
-  const inputStyle = {
-    backgroundColor: 'var(--color-surface)',
-    border: '1px solid var(--color-surface-border)',
-    color: 'var(--color-text-primary)',
-  };
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">

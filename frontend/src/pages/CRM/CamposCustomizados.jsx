@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import { useCamposCustom, TIPOS_CAMPO } from '../../hooks/useCRM.js';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import { useOrg } from '../../hooks/useOrg.js';
-import { supabase } from '../../lib/supabase.js';
 
 // ─── Componentes auxiliares ────────────────────────────────────
 const Spinner = () => (
@@ -24,12 +23,15 @@ const BadgeTipo = ({ tipo }) => {
 };
 
 // ─── Modal: Criar/Editar Campo ─────────────────────────────────
+// Fora do componente: referência estável entre renders, para poder
+// entrar na dependência do useEffect abaixo sem causar loop.
+const FORM_VAZIO = {
+  nome: '', label: '', tipo: 'text',
+  time_id: '', modulo: 'crm',
+  obrigatorio: false, opcoes: '',
+};
+
 const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
-  const FORM_VAZIO = {
-    nome: '', label: '', tipo: 'text',
-    time_id: '', modulo: 'crm',
-    obrigatorio: false, opcoes: '',
-  };
   const [form, setForm]         = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');

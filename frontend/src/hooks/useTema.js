@@ -33,7 +33,9 @@ const lerTemaCache = () => {
   try {
     const salvo = localStorage.getItem(CHAVE_STORAGE);
     if (salvo !== null) return salvo === 'escuro';
-  } catch {}
+  } catch {
+    // localStorage indisponível (modo privado/quota) — cai no fallback do SO abaixo
+  }
   // Fallback: preferência do sistema operacional
   return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true;
 };
@@ -42,7 +44,9 @@ const lerTemaCache = () => {
 const salvarTemaCache = (escuro) => {
   try {
     localStorage.setItem(CHAVE_STORAGE, escuro ? 'escuro' : 'claro');
-  } catch {}
+  } catch {
+    // localStorage indisponível (modo privado/quota) — tema segue só em memória
+  }
 };
 
 export const useTema = () => {

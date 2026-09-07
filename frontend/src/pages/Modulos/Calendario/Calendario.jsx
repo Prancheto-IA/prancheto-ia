@@ -22,8 +22,11 @@ const getDiasDoMes = (ano, mes) => {
 };
 
 // ─── Modal de evento ──────────────────────────────────────────────────────────
+// FORM_VAZIO fora do componente: referência estável entre renders, para
+// poder entrar na dependência do useEffect abaixo sem causar loop.
+const FORM_VAZIO = { titulo: '', tipo: 'reuniao', data_inicio: '', hora: '09:00', descricao: '', local: '' };
+
 const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, diaSelecionado, mesAtual, anoAtual }) => {
-  const FORM_VAZIO = { titulo: '', tipo: 'reuniao', data_inicio: '', hora: '09:00', descricao: '', local: '' };
   const [form, setForm] = useState(FORM_VAZIO);
 
   useEffect(() => {
