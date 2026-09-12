@@ -15,7 +15,7 @@ import { useAuthStore } from '../store/authStore.js';
 
 // ─── Constantes ────────────────────────────────────────────────
 export const FUNIL_LEAD = [
-  { key: 'lead',        label: 'Lead',        cor: 'bg-slate-500/20 text-slate-300 border-slate-500/30',    emoji: '🎯' },
+  { key: 'lead',        label: 'Lead',        cor: 'badge-neutro',    emoji: '🎯' },
   { key: 'qualificado', label: 'Qualificado', cor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',       emoji: '✅' },
   { key: 'proposta',    label: 'Proposta',    cor: 'bg-violet-500/20 text-violet-300 border-violet-500/30', emoji: '📄' },
   { key: 'negociacao',  label: 'Negociação',  cor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',    emoji: '🤝' },

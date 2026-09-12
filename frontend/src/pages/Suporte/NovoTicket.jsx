@@ -16,7 +16,7 @@ const FORM_VAZIO = {
 };
 
 const inputBase =
-  'w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50';
+  'w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50';
 
 const NovoTicket = () => {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ const NovoTicket = () => {
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-white">Abrir novo ticket</h2>
-        <p className="text-slate-400 text-sm mt-1">
+        <p className="text-muted text-sm mt-1">
           Descreva sua solicitação e nossa equipe entrará em contato.
         </p>
       </div>
@@ -68,7 +68,7 @@ const NovoTicket = () => {
         className="bg-surface-card border border-surface-border rounded-xl p-6 space-y-4"
       >
         <div>
-          <label className="block text-slate-300 text-xs font-medium mb-1">Assunto *</label>
+          <label className="block text-muted text-xs font-medium mb-1">Assunto *</label>
           <input
             type="text"
             value={form.assunto}
@@ -80,7 +80,7 @@ const NovoTicket = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Categoria</label>
+            <label className="block text-muted text-xs font-medium mb-1">Categoria</label>
             <select value={form.categoria} onChange={set('categoria')} className={inputBase}>
               {Object.entries(CATEGORIA_TICKET).map(([k, v]) => (
                 <option key={k} value={k}>{v.emoji} {v.label}</option>
@@ -88,7 +88,7 @@ const NovoTicket = () => {
             </select>
           </div>
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Prioridade</label>
+            <label className="block text-muted text-xs font-medium mb-1">Prioridade</label>
             <select value={form.prioridade} onChange={set('prioridade')} className={inputBase}>
               {Object.entries(PRIORIDADE_TICKET).map(([k, v]) => (
                 <option key={k} value={k}>{v.label}</option>
@@ -98,7 +98,7 @@ const NovoTicket = () => {
         </div>
 
         <div>
-          <label className="block text-slate-300 text-xs font-medium mb-1">Descrição</label>
+          <label className="block text-muted text-xs font-medium mb-1">Descrição</label>
           <textarea
             value={form.descricao}
             onChange={set('descricao')}
@@ -114,7 +114,7 @@ const NovoTicket = () => {
           <button
             type="button"
             onClick={() => navigate('/suporte/meus')}
-            className="flex-1 bg-surface border border-surface-border text-slate-300 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
+            className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
           >
             Cancelar
           </button>

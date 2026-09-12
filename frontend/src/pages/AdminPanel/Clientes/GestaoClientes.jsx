@@ -30,7 +30,7 @@ const PLANOS = [
 ];
 
 const BADGE_PLANO = {
-  free:       'bg-slate-700/50 text-slate-300 border-slate-600/50',
+  free:       'badge-neutro',
   starter:    'bg-blue-900/50 text-blue-300 border-blue-700/50',
   pro:        'bg-purple-900/50 text-purple-300 border-purple-700/50',
   enterprise: 'bg-amber-900/50 text-amber-300 border-amber-700/50',
@@ -39,7 +39,7 @@ const BADGE_PLANO = {
 const BADGE_STATUS = {
   active:    'bg-green-900/50 text-green-400 border-green-700/50',
   suspended: 'bg-red-900/50 text-red-400 border-red-700/50',
-  cancelled: 'bg-slate-700/50 text-slate-400 border-slate-600/50',
+  cancelled: 'badge-neutro',
 };
 
 const LABEL_STATUS = {
@@ -121,16 +121,16 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
     >
       <div className="bg-surface border border-primary-800 rounded-xl shadow-2xl w-full max-w-lg">
         <div className="flex items-center justify-between px-6 py-4 border-b border-primary-800">
-          <h2 className="text-white font-semibold text-lg">
+          <h2 className="font-semibold text-lg">
             {editando ? '✏️ Editar Cliente' : '➕ Novo Cliente'}
           </h2>
-          <button onClick={onFechar} className="text-slate-400 hover:text-white transition-colors text-xl leading-none">×</button>
+          <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-xl leading-none">×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Nome */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Nome da empresa</label>
+            <label className="block text-sm font-medium text-muted mb-1">Nome da empresa</label>
             <input
               type="text"
               value={form.nome}
@@ -144,8 +144,8 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
 
           {/* Slug */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
-              Slug <span className="text-slate-500 font-normal">(identificador único)</span>
+            <label className="block text-sm font-medium text-muted mb-1">
+              Slug <span className="text-muted font-normal">(identificador único)</span>
             </label>
             <input
               type="text"
@@ -155,13 +155,13 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
               className={`input w-full font-mono text-sm ${erros.slug ? 'border-red-500' : ''}`}
               disabled={salvando || editando}
             />
-            {editando && <p className="text-slate-500 text-xs mt-1">Slug não pode ser alterado.</p>}
+            {editando && <p className="text-muted text-xs mt-1">Slug não pode ser alterado.</p>}
             {erros.slug && <p className="text-red-400 text-xs mt-1">{erros.slug}</p>}
           </div>
 
           {/* E-mail de contato */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">E-mail de contato</label>
+            <label className="block text-sm font-medium text-muted mb-1">E-mail de contato</label>
             <input
               type="email"
               value={form.email_contato}
@@ -176,7 +176,7 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
           {/* Plano + Limite de usuários (lado a lado) */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Plano</label>
+              <label className="block text-sm font-medium text-muted mb-1">Plano</label>
               <select
                 value={form.plano}
                 onChange={(e) => atualizar('plano', e.target.value)}
@@ -189,7 +189,7 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Limite de usuários</label>
+              <label className="block text-sm font-medium text-muted mb-1">Limite de usuários</label>
               <input
                 type="number"
                 min="1"
@@ -242,8 +242,8 @@ const ModalStatusTenant = ({ tenant, onConfirmar, onCancelar, confirmando }) => 
       onClick={(e) => e.target === e.currentTarget && onCancelar()}
     >
       <div className="bg-surface border border-primary-800 rounded-xl shadow-2xl w-full max-w-sm p-6">
-        <h3 className="text-white font-semibold text-lg mb-1">Alterar status</h3>
-        <p className="text-slate-400 text-sm mb-4">
+        <h3 className="font-semibold text-lg mb-1">Alterar status</h3>
+        <p className="text-muted text-sm mb-4">
           Cliente: <strong className="text-white">{tenant.nome}</strong>
         </p>
 
@@ -411,11 +411,11 @@ const GestaoClientes = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/admin')}
-            className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1"
+            className="text-muted hover:text-white transition-colors text-sm flex items-center gap-1"
           >
             ← Voltar
           </button>
-          <span className="text-slate-600">|</span>
+          <span className="text-muted">|</span>
           <span className="text-2xl">🏢</span>
           <div>
             <span className="text-white font-semibold">Gestão de Clientes</span>
@@ -439,7 +439,7 @@ const GestaoClientes = () => {
           {/* Filtros */}
           <div className="flex flex-wrap gap-3 items-center">
             <div className="relative flex-1 min-w-[200px]">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">🔍</span>
               <input
                 type="text"
                 value={busca}
@@ -471,7 +471,7 @@ const GestaoClientes = () => {
               ))}
             </select>
 
-            <span className="text-slate-400 text-sm whitespace-nowrap">
+            <span className="text-muted text-sm whitespace-nowrap">
               {total} cliente{total !== 1 ? 's' : ''}
             </span>
           </div>
@@ -483,13 +483,13 @@ const GestaoClientes = () => {
             ) : erro ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="text-4xl">⚠️</span>
-                <p className="text-slate-400 text-sm">{erro}</p>
+                <p className="text-muted text-sm">{erro}</p>
                 <button onClick={carregarClientes} className="btn-secondary text-sm">Tentar novamente</button>
               </div>
             ) : clientes.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="text-4xl">🏢</span>
-                <p className="text-slate-400 text-sm">
+                <p className="text-muted text-sm">
                   {busca || filtroStatus || filtroPlano
                     ? 'Nenhum cliente encontrado com os filtros aplicados.'
                     : 'Nenhum cliente cadastrado ainda.'}
@@ -500,13 +500,13 @@ const GestaoClientes = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-primary-800 bg-primary-950/30">
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Empresa</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Slug</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Plano</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Usuários</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Status</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Criado em</th>
-                      <th className="text-right px-4 py-3 text-slate-400 font-medium">Ações</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Empresa</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Slug</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Plano</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Usuários</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Status</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Criado em</th>
+                      <th className="text-right px-4 py-3 text-muted font-medium">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-primary-800/50">
@@ -520,14 +520,14 @@ const GestaoClientes = () => {
                             </div>
                             <div className="min-w-0">
                               <p className="text-white font-medium truncate">{c.nome}</p>
-                              <p className="text-slate-400 text-xs truncate">{c.email_contato}</p>
+                              <p className="text-muted text-xs truncate">{c.email_contato}</p>
                             </div>
                           </div>
                         </td>
 
                         {/* Slug */}
                         <td className="px-4 py-3">
-                          <span className="font-mono text-xs text-slate-400 bg-primary-900/50 px-2 py-0.5 rounded">
+                          <span className="font-mono text-xs text-muted bg-primary-900/50 px-2 py-0.5 rounded">
                             {c.slug}
                           </span>
                         </td>
@@ -543,7 +543,7 @@ const GestaoClientes = () => {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1.5">
                             <span className="text-white font-medium">{c.qtd_usuarios ?? 0}</span>
-                            <span className="text-slate-500 text-xs">/ {c.limite_usuarios}</span>
+                            <span className="text-muted text-xs">/ {c.limite_usuarios}</span>
                           </div>
                           {/* Barra de progresso */}
                           <div className="w-16 h-1 bg-primary-800 rounded-full mt-1 overflow-hidden">
@@ -566,7 +566,7 @@ const GestaoClientes = () => {
                         </td>
 
                         {/* Criado em */}
-                        <td className="px-4 py-3 text-slate-400 text-xs">
+                        <td className="px-4 py-3 text-muted text-xs">
                           {c.criado_em
                             ? new Date(c.criado_em).toLocaleDateString('pt-BR')
                             : '—'}
@@ -579,7 +579,7 @@ const GestaoClientes = () => {
                             <button
                               onClick={() => navigate(`/admin/usuarios?tenantId=${c.id}`)}
                               title="Ver usuários deste cliente"
-                              className="p-1.5 rounded-md text-slate-400 hover:bg-primary-800 hover:text-white transition-colors"
+                              className="p-1.5 rounded-md text-muted hover:bg-primary-800 hover:text-white transition-colors"
                             >
                               <span className="text-base">👥</span>
                             </button>
@@ -588,7 +588,7 @@ const GestaoClientes = () => {
                             <button
                               onClick={() => setClienteEditar(c)}
                               title="Editar cliente"
-                              className="p-1.5 rounded-md text-slate-400 hover:bg-primary-800 hover:text-white transition-colors"
+                              className="p-1.5 rounded-md text-muted hover:bg-primary-800 hover:text-white transition-colors"
                             >
                               <span className="text-base">✏️</span>
                             </button>
@@ -625,7 +625,7 @@ const GestaoClientes = () => {
               >
                 ← Anterior
               </button>
-              <span className="text-slate-400 text-sm">Página {pagina} de {totalPaginas}</span>
+              <span className="text-muted text-sm">Página {pagina} de {totalPaginas}</span>
               <button
                 onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
                 disabled={pagina === totalPaginas || carregando}

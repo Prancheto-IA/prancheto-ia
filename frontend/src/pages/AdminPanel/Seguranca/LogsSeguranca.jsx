@@ -92,13 +92,13 @@ const LinhaLog = ({ log }) => {
         className="hover:bg-primary-900/20 transition-colors cursor-pointer"
       >
         {/* Data/hora */}
-        <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">
+        <td className="px-4 py-3 text-muted text-xs whitespace-nowrap">
           {formatarDataHora(log.criado_em)}
         </td>
 
         {/* Ação */}
         <td className="px-4 py-3">
-          <span className="flex items-center gap-1.5 text-sm text-slate-300">
+          <span className="flex items-center gap-1.5 text-sm text-muted">
             <span>{emoji}</span>
             <span className="font-mono text-xs">{log.acao}</span>
           </span>
@@ -106,15 +106,15 @@ const LinhaLog = ({ log }) => {
 
         {/* Usuário */}
         <td className="px-4 py-3">
-          <p className="text-white text-sm truncate max-w-[180px]">{log.user_email || '—'}</p>
+          <p className="text-sm truncate max-w-[180px]">{log.user_email || '—'}</p>
           {log.user_cargo && (
-            <p className="text-slate-500 text-xs">{log.user_cargo}</p>
+            <p className="text-muted text-xs">{log.user_cargo}</p>
           )}
         </td>
 
         {/* Cliente */}
-        <td className="px-4 py-3 text-slate-400 text-sm">
-          {log.tenantNome || <span className="text-slate-600 italic">Super Admin</span>}
+        <td className="px-4 py-3 text-muted text-sm">
+          {log.tenantNome || <span className="text-muted italic">Super Admin</span>}
         </td>
 
         {/* Resultado */}
@@ -126,13 +126,13 @@ const LinhaLog = ({ log }) => {
         </td>
 
         {/* IP */}
-        <td className="px-4 py-3 text-slate-500 text-xs font-mono">
+        <td className="px-4 py-3 text-muted text-xs font-mono">
           {log.ip_address || '—'}
         </td>
 
         {/* Expandir */}
         <td className="px-4 py-3 text-right">
-          <span className="text-slate-500 text-xs">{expandido ? '▲' : '▼'}</span>
+          <span className="text-muted text-xs">{expandido ? '▲' : '▼'}</span>
         </td>
       </tr>
 
@@ -269,11 +269,11 @@ const LogsSeguranca = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/admin')}
-            className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1"
+            className="text-muted hover:text-white transition-colors text-sm flex items-center gap-1"
           >
             ← Voltar
           </button>
-          <span className="text-slate-600">|</span>
+          <span className="text-muted">|</span>
           <span className="text-2xl">🛡️</span>
           <div>
             <span className="text-white font-semibold">Logs de Segurança</span>
@@ -282,7 +282,7 @@ const LogsSeguranca = () => {
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-slate-400 text-sm">
+        <div className="flex items-center gap-2 text-muted text-sm">
           <span>🔒</span>
           <span>Registros imutáveis — somente leitura</span>
         </div>
@@ -296,7 +296,7 @@ const LogsSeguranca = () => {
           <div className="flex flex-wrap gap-3 items-center">
             {/* Busca */}
             <div className="relative flex-1 min-w-[220px]">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">🔍</span>
               <input
                 type="text"
                 value={busca}
@@ -333,7 +333,7 @@ const LogsSeguranca = () => {
             </select>
 
             {/* Contador */}
-            <span className="text-slate-400 text-sm whitespace-nowrap">
+            <span className="text-muted text-sm whitespace-nowrap">
               {total.toLocaleString('pt-BR')} evento{total !== 1 ? 's' : ''}
             </span>
 
@@ -356,13 +356,13 @@ const LogsSeguranca = () => {
             ) : erro ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="text-4xl">⚠️</span>
-                <p className="text-slate-400 text-sm">{erro}</p>
+                <p className="text-muted text-sm">{erro}</p>
                 <button onClick={carregarLogs} className="btn-secondary text-sm">Tentar novamente</button>
               </div>
             ) : logs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="text-4xl">🛡️</span>
-                <p className="text-slate-400 text-sm">
+                <p className="text-muted text-sm">
                   {busca || filtroAcao || filtroResult
                     ? 'Nenhum evento encontrado com os filtros aplicados.'
                     : 'Nenhum evento de auditoria registrado ainda.'}
@@ -373,12 +373,12 @@ const LogsSeguranca = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-primary-800 bg-primary-950/30">
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium whitespace-nowrap">Data/Hora</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Ação</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Usuário</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Cliente</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Resultado</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">IP</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium whitespace-nowrap">Data/Hora</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Ação</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Usuário</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Cliente</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Resultado</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">IP</th>
                       <th className="px-4 py-3" />
                     </tr>
                   </thead>
@@ -402,7 +402,7 @@ const LogsSeguranca = () => {
               >
                 ← Anterior
               </button>
-              <span className="text-slate-400 text-sm">Página {pagina} de {totalPaginas}</span>
+              <span className="text-muted text-sm">Página {pagina} de {totalPaginas}</span>
               <button
                 onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
                 disabled={pagina === totalPaginas || carregando}
@@ -414,7 +414,7 @@ const LogsSeguranca = () => {
           )}
 
           {/* Nota de conformidade */}
-          <p className="text-center text-slate-600 text-xs">
+          <p className="text-center text-muted text-xs">
             🔒 Logs de auditoria são imutáveis por design — nenhum registro pode ser editado ou excluído.
             Conformidade com LGPD Art. 37.
           </p>

@@ -25,9 +25,9 @@ const DEFINICAO_PLANOS = [
     id:          'free',
     label:       'Free',
     emoji:       '🆓',
-    cor:         'border-slate-600 bg-slate-800/30',
-    corBadge:    'bg-slate-700/50 text-slate-300 border-slate-600/50',
-    corTexto:    'text-slate-300',
+    cor:         'border-[rgb(var(--color-neutro-rgb)/0.5)] bg-[rgb(var(--color-neutro-rgb)/0.12)]',
+    corBadge:    'badge-neutro',
+    corTexto:    'text-[rgb(var(--color-neutro-rgb))]',
     limiteDefault: 5,
     descricao:   'Para testar o sistema. Sem suporte dedicado.',
     recursos:    ['Até 5 usuários', 'Módulos básicos', 'Suporte via e-mail'],
@@ -88,11 +88,11 @@ const CardPlano = ({ plano, qtdClientes, onClick }) => (
       <span className={`badge border ${plano.corBadge} text-xs`}>{plano.label}</span>
     </div>
     <p className={`text-2xl font-bold ${plano.corTexto} mb-1`}>{qtdClientes}</p>
-    <p className="text-slate-400 text-sm">cliente{qtdClientes !== 1 ? 's' : ''}</p>
-    <p className="text-slate-500 text-xs mt-2">{plano.descricao}</p>
+    <p className="text-muted text-sm">cliente{qtdClientes !== 1 ? 's' : ''}</p>
+    <p className="text-muted text-xs mt-2">{plano.descricao}</p>
     <ul className="mt-3 space-y-1">
       {plano.recursos.map((r, i) => (
-        <li key={i} className="text-xs text-slate-400 flex items-center gap-1.5">
+        <li key={i} className="text-xs text-muted flex items-center gap-1.5">
           <span className="text-green-500">✓</span> {r}
         </li>
       ))}
@@ -127,16 +127,16 @@ const ModalEditarPlano = ({ tenant, onSalvar, onFechar, salvando }) => {
       <div className="bg-surface border border-primary-800 rounded-xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b border-primary-800">
           <div>
-            <h2 className="text-white font-semibold text-lg">📦 Editar Plano</h2>
-            <p className="text-slate-400 text-sm">{tenant.nome}</p>
+            <h2 className="font-semibold text-lg">📦 Editar Plano</h2>
+            <p className="text-muted text-sm">{tenant.nome}</p>
           </div>
-          <button onClick={onFechar} className="text-slate-400 hover:text-white transition-colors text-xl leading-none">×</button>
+          <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-xl leading-none">×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {/* Seleção de plano */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-3">Plano</label>
+            <label className="block text-sm font-medium text-muted mb-3">Plano</label>
             <div className="grid grid-cols-2 gap-2">
               {DEFINICAO_PLANOS.map(p => (
                 <button
@@ -154,11 +154,11 @@ const ModalEditarPlano = ({ tenant, onSalvar, onFechar, salvando }) => {
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span>{p.emoji}</span>
-                    <span className={`font-semibold text-sm ${plano === p.id ? p.corTexto : 'text-slate-300'}`}>
+                    <span className={`font-semibold text-sm ${plano === p.id ? p.corTexto : 'text-muted'}`}>
                       {p.label}
                     </span>
                   </div>
-                  <p className="text-slate-500 text-xs">{p.descricao}</p>
+                  <p className="text-muted text-xs">{p.descricao}</p>
                 </button>
               ))}
             </div>
@@ -166,10 +166,10 @@ const ModalEditarPlano = ({ tenant, onSalvar, onFechar, salvando }) => {
 
           {/* Limite de usuários */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
+            <label className="block text-sm font-medium text-muted mb-1">
               Limite de usuários
               {planoSelecionado && (
-                <span className="ml-2 text-slate-500 font-normal text-xs">
+                <span className="ml-2 text-muted font-normal text-xs">
                   (padrão {plano}: {planoSelecionado.limiteDefault})
                 </span>
               )}
@@ -184,7 +184,7 @@ const ModalEditarPlano = ({ tenant, onSalvar, onFechar, salvando }) => {
               disabled={salvando}
             />
             {erro && <p className="text-red-400 text-xs mt-1">{erro}</p>}
-            <p className="text-slate-500 text-xs mt-1">
+            <p className="text-muted text-xs mt-1">
               Atualmente: {tenant.qtd_usuarios ?? 0} usuário{(tenant.qtd_usuarios ?? 0) !== 1 ? 's' : ''} ativos
             </p>
           </div>
@@ -295,11 +295,11 @@ const PlanoLimites = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/admin')}
-            className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1"
+            className="text-muted hover:text-white transition-colors text-sm flex items-center gap-1"
           >
             ← Voltar
           </button>
-          <span className="text-slate-600">|</span>
+          <span className="text-muted">|</span>
           <span className="text-2xl">📦</span>
           <div>
             <span className="text-white font-semibold">Planos e Limites</span>
@@ -332,14 +332,14 @@ const PlanoLimites = () => {
           ) : erro ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <span className="text-4xl">⚠️</span>
-              <p className="text-slate-400 text-sm">{erro}</p>
+              <p className="text-muted text-sm">{erro}</p>
               <button onClick={carregarTenants} className="btn-secondary text-sm">Tentar novamente</button>
             </div>
           ) : (
             <>
               {/* Seção: Visão geral dos planos */}
               <section>
-                <h2 className="text-white font-semibold text-lg mb-4">Visão Geral dos Planos</h2>
+                <h2 className="font-semibold text-lg mb-4">Visão Geral dos Planos</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {DEFINICAO_PLANOS.map(plano => (
                     <CardPlano
@@ -351,7 +351,7 @@ const PlanoLimites = () => {
                   ))}
                 </div>
                 {filtroPlano && (
-                  <p className="text-slate-400 text-sm mt-3">
+                  <p className="text-muted text-sm mt-3">
                     Filtrando por plano: <strong className="text-white">{DEFINICAO_PLANOS.find(p => p.id === filtroPlano)?.label}</strong>
                     <button onClick={() => setFiltroPlano('')} className="ml-2 text-primary-400 hover:text-primary-300 underline text-xs">
                       Limpar filtro
@@ -363,11 +363,11 @@ const PlanoLimites = () => {
               {/* Seção: Tabela de clientes por plano */}
               <section>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-white font-semibold text-lg">
+                  <h2 className="font-semibold text-lg">
                     Clientes ({tenantsFiltrados.length})
                   </h2>
                   <div className="relative w-64">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">🔍</span>
                     <input
                       type="text"
                       value={busca}
@@ -382,18 +382,18 @@ const PlanoLimites = () => {
                   {tenantsFiltrados.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 gap-3">
                       <span className="text-4xl">📦</span>
-                      <p className="text-slate-400 text-sm">Nenhum cliente encontrado.</p>
+                      <p className="text-muted text-sm">Nenhum cliente encontrado.</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-primary-800 bg-primary-950/30">
-                            <th className="text-left px-4 py-3 text-slate-400 font-medium">Cliente</th>
-                            <th className="text-left px-4 py-3 text-slate-400 font-medium">Plano atual</th>
-                            <th className="text-left px-4 py-3 text-slate-400 font-medium">Usuários</th>
-                            <th className="text-left px-4 py-3 text-slate-400 font-medium">Uso</th>
-                            <th className="text-right px-4 py-3 text-slate-400 font-medium">Ação</th>
+                            <th className="text-left px-4 py-3 text-muted font-medium">Cliente</th>
+                            <th className="text-left px-4 py-3 text-muted font-medium">Plano atual</th>
+                            <th className="text-left px-4 py-3 text-muted font-medium">Usuários</th>
+                            <th className="text-left px-4 py-3 text-muted font-medium">Uso</th>
+                            <th className="text-right px-4 py-3 text-muted font-medium">Ação</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-primary-800/50">
@@ -413,7 +413,7 @@ const PlanoLimites = () => {
                                     </div>
                                     <div className="min-w-0">
                                       <p className="text-white font-medium truncate">{t.nome}</p>
-                                      <p className="text-slate-500 text-xs font-mono">{t.slug}</p>
+                                      <p className="text-muted text-xs font-mono">{t.slug}</p>
                                     </div>
                                   </div>
                                 </td>
@@ -428,7 +428,7 @@ const PlanoLimites = () => {
                                 {/* Usuários */}
                                 <td className="px-4 py-3">
                                   <span className="text-white font-medium">{qtdUsuarios}</span>
-                                  <span className="text-slate-500 text-xs"> / {t.limite_usuarios}</span>
+                                  <span className="text-muted text-xs"> / {t.limite_usuarios}</span>
                                 </td>
 
                                 {/* Barra de uso */}
@@ -442,7 +442,7 @@ const PlanoLimites = () => {
                                     </div>
                                     <span className={`text-xs font-medium ${
                                       pctUso >= 90 ? 'text-red-400' :
-                                      pctUso >= 70 ? 'text-amber-400' : 'text-slate-400'
+                                      pctUso >= 70 ? 'text-amber-400' : 'text-muted'
                                     }`}>
                                       {Math.round(pctUso)}%
                                     </span>

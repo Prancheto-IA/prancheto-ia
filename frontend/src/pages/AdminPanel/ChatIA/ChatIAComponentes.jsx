@@ -41,7 +41,7 @@ export const ItemConversa = ({ conversa, ativa, onClick, onArquivar }) => (
     onClick={onClick}
   >
     {/* Título truncado */}
-    <p className={`text-sm font-medium truncate pr-6 ${ativa ? 'text-white' : 'text-slate-300'}`}>
+    <p className={`text-sm font-medium truncate pr-6 ${ativa ? 'text-white' : 'text-muted'}`}>
       {conversa.titulo}
     </p>
 
@@ -144,7 +144,7 @@ export const BolhaMensagem = ({ mensagem }) => {
               {linha.split(/(\*\*.*?\*\*)/g).map((trecho, j) => {
                 if (trecho.startsWith('**') && trecho.endsWith('**')) {
                   return (
-                    <strong key={j} className="font-semibold text-white">
+                    <strong key={j} className="font-semibold">
                       {trecho.slice(2, -2)}
                     </strong>
                   );
@@ -176,7 +176,7 @@ export const BolhaMensagem = ({ mensagem }) => {
         <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
           ehUsuario
             ? 'bg-primary-700 text-white rounded-tr-sm'
-            : 'bg-surface-card text-slate-200 rounded-tl-sm border border-surface-border'
+            : 'bg-surface-card rounded-tl-sm border border-surface-border'
         }`}>
           <div className="whitespace-pre-wrap break-words">
             {ehUsuario ? mensagem.conteudo : formatarConteudo(mensagem.conteudo)}
@@ -185,12 +185,12 @@ export const BolhaMensagem = ({ mensagem }) => {
 
         {/* Rodapé: hora + botão copiar (apenas para respostas da IA) */}
         <div className={`flex items-center gap-2 mt-1 px-1 ${ehUsuario ? 'flex-row-reverse' : 'flex-row'}`}>
-          <span className="text-xs text-slate-600">{formatarHora(mensagem.criado_em)}</span>
+          <span className="text-xs text-muted">{formatarHora(mensagem.criado_em)}</span>
 
           {!ehUsuario && (
             <button
               onClick={() => copiarTexto(mensagem.conteudo)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-slate-500 hover:text-slate-300 flex items-center gap-1"
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-muted hover:text-white flex items-center gap-1"
             >
               {copiado ? (
                 <span className="text-green-400 flex items-center gap-1">
@@ -250,8 +250,8 @@ const SUGESTOES_PROMPT = [
 export const TelaVazia = ({ onNovaConversa, carregando }) => (
   <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
     <div className="text-6xl mb-4">🤖</div>
-    <h2 className="text-xl font-semibold text-white mb-2">Chat com IA</h2>
-    <p className="text-slate-400 mb-6 max-w-sm">
+    <h2 className="text-xl font-semibold mb-2">Chat com IA</h2>
+    <p className="text-muted mb-6 max-w-sm">
       Converse com a IA para criar módulos, gerar código, planejar funcionalidades
       e resolver problemas técnicos do Prancheto.IA.
     </p>
@@ -290,7 +290,7 @@ export const TelaVazia = ({ onNovaConversa, carregando }) => (
           className="text-left p-3 rounded-lg border border-surface-border hover:border-primary-600 bg-surface-card hover:bg-primary-900/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="text-lg mr-2">{s.emoji}</span>
-          <span className="text-sm text-slate-300">{s.texto}</span>
+          <span className="text-sm text-muted">{s.texto}</span>
         </button>
       ))}
     </div>

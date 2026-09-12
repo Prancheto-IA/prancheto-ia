@@ -13,7 +13,7 @@ import { useAuthStore } from '../../store/authStore.js';
 import { useUIStore } from '../../store/uiStore.js';
 
 const inputBase =
-  'w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50';
+  'w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50';
 
 const formatarDataHora = (valor) =>
   valor ? new Date(valor).toLocaleString('pt-BR') : '';
@@ -27,7 +27,7 @@ const BannerGeral = ({ componentes }) => {
     return (
       <div className="bg-surface-card border border-surface-border rounded-xl p-5 mb-6">
         <p className="text-white font-medium">Nenhum componente monitorado</p>
-        <p className="text-slate-400 text-sm mt-1">Adicione componentes para acompanhar a disponibilidade.</p>
+        <p className="text-muted text-sm mt-1">Adicione componentes para acompanhar a disponibilidade.</p>
       </div>
     );
   }
@@ -46,7 +46,7 @@ const BannerGeral = ({ componentes }) => {
           <p className="text-white font-semibold">
             {todosOperacionais ? 'Todos os sistemas operacionais' : 'Alguns sistemas com instabilidade'}
           </p>
-          <p className="text-slate-400 text-sm">
+          <p className="text-muted text-sm">
             {componentes.filter((c) => c.status === 'operacional').length} de {componentes.length} componentes operacionais
           </p>
         </div>
@@ -100,22 +100,22 @@ const ModalComponente = ({ aberto, componenteEditando, onFechar, onSalvar }) => 
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md my-4">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-white font-semibold">{componenteEditando ? 'Editar componente' : 'Novo componente'}</h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white text-lg">✕</button>
+          <h3 className="font-semibold">{componenteEditando ? 'Editar componente' : 'Novo componente'}</h3>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Nome *</label>
+            <label className="block text-muted text-xs font-medium mb-1">Nome *</label>
             <input type="text" value={form.nome} placeholder="Ex: API, Banco de dados, Chat"
               onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))} className={inputBase} />
           </div>
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Descrição</label>
+            <label className="block text-muted text-xs font-medium mb-1">Descrição</label>
             <input type="text" value={form.descricao} placeholder="Opcional"
               onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} className={inputBase} />
           </div>
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Status</label>
+            <label className="block text-muted text-xs font-medium mb-1">Status</label>
             <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} className={inputBase}>
               {Object.entries(STATUS_COMPONENTE).map(([k, v]) => (
                 <option key={k} value={k}>{v.emoji} {v.label}</option>
@@ -125,7 +125,7 @@ const ModalComponente = ({ aberto, componenteEditando, onFechar, onSalvar }) => 
           {erro && <p className="text-red-400 text-xs">{erro}</p>}
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
-              className="flex-1 bg-surface border border-surface-border text-slate-300 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">Cancelar</button>
+              className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">Cancelar</button>
             <button type="submit" disabled={salvando}
               className="flex-1 bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
               {salvando ? 'Salvando...' : 'Salvar'}
@@ -172,23 +172,23 @@ const ModalIncidente = ({ aberto, componentes, onFechar, onSalvar }) => {
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md my-4">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-white font-semibold">Registrar incidente</h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white text-lg">✕</button>
+          <h3 className="font-semibold">Registrar incidente</h3>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Título *</label>
+            <label className="block text-muted text-xs font-medium mb-1">Título *</label>
             <input type="text" value={form.titulo} placeholder="Ex: Lentidão na API"
               onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))} className={inputBase} />
           </div>
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Descrição</label>
+            <label className="block text-muted text-xs font-medium mb-1">Descrição</label>
             <textarea value={form.descricao} rows={3} placeholder="O que está acontecendo..."
               onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} className={`${inputBase} resize-none`} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Impacto</label>
+              <label className="block text-muted text-xs font-medium mb-1">Impacto</label>
               <select value={form.impacto} onChange={(e) => setForm((f) => ({ ...f, impacto: e.target.value }))} className={inputBase}>
                 {Object.entries(IMPACTO_INCIDENTE).map(([k, v]) => (
                   <option key={k} value={k}>{v.label}</option>
@@ -196,7 +196,7 @@ const ModalIncidente = ({ aberto, componentes, onFechar, onSalvar }) => {
               </select>
             </div>
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Componente</label>
+              <label className="block text-muted text-xs font-medium mb-1">Componente</label>
               <select value={form.componente_id} onChange={(e) => setForm((f) => ({ ...f, componente_id: e.target.value }))} className={inputBase}>
                 <option value="">Geral</option>
                 {componentes.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
@@ -206,7 +206,7 @@ const ModalIncidente = ({ aberto, componentes, onFechar, onSalvar }) => {
           {erro && <p className="text-red-400 text-xs">{erro}</p>}
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
-              className="flex-1 bg-surface border border-surface-border text-slate-300 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">Cancelar</button>
+              className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">Cancelar</button>
             <button type="submit" disabled={salvando}
               className="flex-1 bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
               {salvando ? 'Salvando...' : 'Registrar'}
@@ -226,19 +226,19 @@ const LinhaComponente = ({ componente, podeEditar, onMudarStatus, onEditar, onEx
       <span className="text-lg">{s.emoji}</span>
       <div className="min-w-0 flex-1">
         <p className="text-white text-sm font-medium truncate">{componente.nome}</p>
-        {componente.descricao && <p className="text-slate-500 text-xs truncate">{componente.descricao}</p>}
+        {componente.descricao && <p className="text-muted text-xs truncate">{componente.descricao}</p>}
       </div>
       {podeEditar ? (
         <div className="flex items-center gap-2 flex-shrink-0">
           <select
             value={componente.status}
             onChange={(e) => onMudarStatus(componente.id, e.target.value)}
-            className="bg-surface border border-surface-border rounded-lg px-2 py-1.5 text-slate-300 text-xs focus:outline-none focus:border-primary-500/50"
+            className="bg-surface border border-surface-border rounded-lg px-2 py-1.5 text-muted text-xs focus:outline-none focus:border-primary-500/50"
           >
             {Object.entries(STATUS_COMPONENTE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
-          <button onClick={() => onEditar(componente)} className="text-slate-500 hover:text-primary-400 text-sm" title="Editar">✏️</button>
-          <button onClick={() => onExcluir(componente.id)} className="text-slate-500 hover:text-red-400 text-sm" title="Excluir">🗑️</button>
+          <button onClick={() => onEditar(componente)} className="text-muted hover:text-primary-400 text-sm" title="Editar">✏️</button>
+          <button onClick={() => onExcluir(componente.id)} className="text-muted hover:text-red-400 text-sm" title="Excluir">🗑️</button>
         </div>
       ) : (
         <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.cor + '22', color: s.cor }}>
@@ -263,11 +263,11 @@ const CardIncidente = ({ incidente, componente, podeEditar, onResolver, onExclui
             {incidente.resolvido
               ? <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Resolvido</span>
               : <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">Ativo</span>}
-            {componente && <span className="text-slate-500 text-xs">• {componente.nome}</span>}
+            {componente && <span className="text-muted text-xs">• {componente.nome}</span>}
           </div>
           <p className="text-white text-sm font-medium mt-2">{incidente.titulo}</p>
-          {incidente.descricao && <p className="text-slate-400 text-xs mt-1">{incidente.descricao}</p>}
-          <p className="text-slate-500 text-xs mt-2">📅 {formatarDataHora(incidente.criado_em)}</p>
+          {incidente.descricao && <p className="text-muted text-xs mt-1">{incidente.descricao}</p>}
+          <p className="text-muted text-xs mt-2">📅 {formatarDataHora(incidente.criado_em)}</p>
         </div>
         {podeEditar && (
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -277,7 +277,7 @@ const CardIncidente = ({ incidente, componente, podeEditar, onResolver, onExclui
                 ✓ Resolver
               </button>
             )}
-            <button onClick={() => onExcluir(incidente.id)} className="text-slate-500 hover:text-red-400 text-sm" title="Excluir">🗑️</button>
+            <button onClick={() => onExcluir(incidente.id)} className="text-muted hover:text-red-400 text-sm" title="Excluir">🗑️</button>
           </div>
         )}
       </div>
@@ -365,7 +365,7 @@ const StatusSistema = () => {
     return (
       <div className="text-center py-16">
         <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-slate-400 text-sm">Carregando...</p>
+        <p className="text-muted text-sm">Carregando...</p>
       </div>
     );
   }
@@ -376,13 +376,13 @@ const StatusSistema = () => {
       <div className="flex items-center justify-between mb-6 gap-3">
         <div>
           <h2 className="text-xl font-bold text-white">Status do Sistema</h2>
-          <p className="text-slate-400 text-sm mt-1">Disponibilidade dos serviços e incidentes.</p>
+          <p className="text-muted text-sm mt-1">Disponibilidade dos serviços e incidentes.</p>
         </div>
         {podeEditar && (
           <div className="flex gap-2 flex-shrink-0">
             <button
               onClick={() => setModalIncidente(true)}
-              className="bg-surface border border-surface-border text-slate-300 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
+              className="bg-surface border border-surface-border text-muted px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
             >
               Registrar incidente
             </button>
@@ -417,10 +417,10 @@ const StatusSistema = () => {
 
       {/* Incidentes ativos */}
       <div className="mb-8">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">Incidentes ativos</h3>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted mb-3">Incidentes ativos</h3>
         {incidentesAtivos.length === 0 ? (
           <div className="bg-surface-card border border-surface-border rounded-xl p-5 text-center">
-            <p className="text-slate-400 text-sm">✅ Nenhum incidente ativo no momento.</p>
+            <p className="text-muted text-sm">✅ Nenhum incidente ativo no momento.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -441,7 +441,7 @@ const StatusSistema = () => {
       {/* Histórico */}
       {incidentesResolvidos.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">Histórico</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted mb-3">Histórico</h3>
           <div className="space-y-3">
             {incidentesResolvidos.map((i) => (
               <CardIncidente

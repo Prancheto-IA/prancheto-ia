@@ -16,7 +16,7 @@ const Spinner = () => (
 const BadgeTipo = ({ tipo }) => {
   const t = TIPOS_CAMPO.find(t => t.key === tipo) || TIPOS_CAMPO[0];
   return (
-    <span className="text-xs px-2 py-0.5 rounded-full border bg-slate-500/20 text-slate-300 border-slate-500/30">
+    <span className="text-xs px-2 py-0.5 rounded-full border badge-neutro">
       {t.label}
     </span>
   );
@@ -123,7 +123,7 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
           <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>
             {campoEditando ? '✏️ Editar Campo' : '🧩 Novo Campo'}
           </h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -147,7 +147,7 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
               placeholder="Ex: valor_proposta"
               className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500 font-mono"
               style={inputStyle} />
-            <p className="text-xs mt-1 text-slate-500">
+            <p className="text-xs mt-1 text-muted">
               Usado como variável: {'{{'}{form.nome || 'nome_do_campo'}{'}}'} 
             </p>
           </div>
@@ -188,7 +188,7 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
                 <option key={t.id} value={t.id}>{t.icone} {t.nome}</option>
               ))}
             </select>
-            <p className="text-xs mt-1 text-slate-500">
+            <p className="text-xs mt-1 text-muted">
               Campos de times diferentes com o mesmo nome coexistem com namespace próprio.
             </p>
           </div>
@@ -234,7 +234,7 @@ const CardCampo = ({ campo, onEditar, onExcluir }) => (
           <span className="text-xs text-red-400">* obrigatório</span>
         )}
       </div>
-      <p className="text-xs font-mono mt-0.5 text-slate-500">
+      <p className="text-xs font-mono mt-0.5 text-muted">
         {'{{'}{campo.nome}{'}}'}
       </p>
       <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -243,18 +243,18 @@ const CardCampo = ({ campo, onEditar, onExcluir }) => (
             {campo.time.icone} {campo.time.nome}
           </span>
         ) : (
-          <span className="text-xs text-slate-500">🌐 Global</span>
+          <span className="text-xs text-muted">🌐 Global</span>
         )}
         {campo.opcoes?.length > 0 && (
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-muted">
             {campo.opcoes.length} opções
           </span>
         )}
       </div>
     </div>
     <div className="flex gap-2 flex-shrink-0">
-      <button onClick={() => onEditar(campo)} className="text-slate-500 hover:text-primary-400 transition-colors text-sm" title="Editar">✏️</button>
-      <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(campo.id)} className="text-slate-500 hover:text-red-400 transition-colors text-sm" title="Desativar">🗑️</button></PermissaoGuarda>
+      <button onClick={() => onEditar(campo)} className="text-muted hover:text-primary-400 transition-colors text-sm" title="Editar">✏️</button>
+      <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(campo.id)} className="text-muted hover:text-red-400 transition-colors text-sm" title="Desativar">🗑️</button></PermissaoGuarda>
     </div>
   </div>
 );

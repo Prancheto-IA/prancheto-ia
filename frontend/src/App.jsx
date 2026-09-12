@@ -89,7 +89,7 @@ const TelaCarregando = () => (
   <div className="flex items-center justify-center min-h-screen bg-surface">
     <div className="flex flex-col items-center gap-4">
       <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-slate-400 text-sm">Carregando Prancheto.IA...</p>
+      <p className="text-muted text-sm">Carregando Prancheto.IA...</p>
     </div>
   </div>
 );
@@ -121,11 +121,11 @@ const App = () => {
         <div className="flex items-center justify-center min-h-screen bg-surface p-8">
           <div className="bg-surface-card border border-surface-border rounded-xl p-8 max-w-md w-full text-center">
             <div className="text-4xl mb-4">⚠️</div>
-            <h1 className="text-white text-xl font-semibold mb-2">Algo deu errado</h1>
-            <p className="text-slate-400 text-sm mb-6">
+            <h1 className="text-xl font-semibold mb-2">Algo deu errado</h1>
+            <p className="text-muted text-sm mb-6">
               Ocorreu um erro inesperado. Nossa equipe foi notificada automaticamente.
             </p>
-            <p className="text-slate-500 text-xs font-mono mb-6 bg-slate-800 p-2 rounded">
+            <p className="text-muted text-xs font-mono mb-6 bg-surface border border-surface-border p-2 rounded">
               {error?.message || 'Erro desconhecido'}
             </p>
             <button
@@ -398,7 +398,7 @@ const App = () => {
                 <div className="flex items-center justify-center min-h-screen bg-surface">
                   <div className="text-center">
                     <h1 className="text-6xl font-bold text-primary-500 mb-4">404</h1>
-                    <p className="text-slate-400 mb-6">Página não encontrada</p>
+                    <p className="text-muted mb-6">Página não encontrada</p>
                     <a href="/dashboard" className="text-primary-400 hover:text-primary-300 underline">
                       Voltar ao início
                     </a>
