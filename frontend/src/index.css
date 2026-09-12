@@ -73,6 +73,13 @@
      claro. Com identidade aplicada, utils/identidadeVisual.js sobrescreve
      esta variável — o fundo da barra ali é escuro por definição. */
   --sidebar-primaria-ativa: rgb(var(--color-primary-700));
+
+  /* Tom neutro (cinza) para o badge de status/plano/cargo sem categoria
+     própria — "Lead", "Visualizador", "Gratuito", "Cancelado" etc. Os
+     demais badges do funil/status usam cor semântica (azul, âmbar...) e
+     mantêm contraste em qualquer tema porque texto e fundo compartilham o
+     mesmo matiz; o cinza não tem essa sorte e precisa de um tom por tema. */
+  --color-neutro-rgb: 100 116 139;
 }
 
 /* --- CSS VARIABLES: TEMA ESCURO (override via classe html.dark) --- */
@@ -88,6 +95,7 @@ html.dark {
 
   --color-primaria-contraste: rgb(var(--color-primary-300));
   --sidebar-primaria-ativa:   rgb(var(--color-primary-300));
+  --color-neutro-rgb: 148 163 184;
 }
 
 /* --- ESTILOS BASE GLOBAIS --- */
@@ -221,6 +229,15 @@ html.dark {
 
   html.dark .badge-cargo {
     --badge-tom: var(--badge-cargo-rgb-claro);
+  }
+
+  /* Badge neutro (cinza): mesma forma do badge-cargo, para status/plano/
+     cargo sem cor própria. Substitui as classes fixas
+     bg-slate-.../text-slate-.../border-slate-..., ilegíveis no tema claro. */
+  .badge-neutro {
+    background-color: rgb(var(--color-neutro-rgb) / 0.15);
+    border-color: rgb(var(--color-neutro-rgb) / 0.3);
+    color: rgb(var(--color-neutro-rgb));
   }
 }
 

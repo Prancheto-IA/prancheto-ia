@@ -88,7 +88,7 @@ const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
           <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
             {timeEditando ? '✏️ Editar Time' : '➕ Novo Time'}
           </h2>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white transition-colors text-xl">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-xl">✕</button>
         </div>
 
         {/* Form */}
@@ -176,7 +176,7 @@ const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
                   title={cor.label}
                   onClick={() => setForm(f => ({ ...f, cor_primaria: cor.valor }))}
                   className={`w-7 h-7 rounded-full transition-all ${
-                    form.cor_primaria === cor.valor ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-800 scale-110' : 'hover:scale-105'
+                    form.cor_primaria === cor.valor ? 'ring-2 ring-white ring-offset-2 ring-offset-[var(--color-surface-card)] scale-110' : 'hover:scale-105'
                   }`}
                   style={{ backgroundColor: cor.valor }}
                 />
@@ -246,7 +246,7 @@ const ModalAdicionarMembro = ({ aberto, onFechar, onAdicionar, membrosAtuais, to
           <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
             👤 Adicionar Membro
           </h2>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white transition-colors text-xl">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-xl">✕</button>
         </div>
 
         <div className="p-4">
@@ -358,7 +358,7 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => setExpandido(e => !e)}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors text-sm"
+              className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-white/10 transition-colors text-sm"
               title={expandido ? 'Recolher' : 'Ver membros'}
             >
               {expandido ? '▲' : '▼'}
@@ -366,7 +366,7 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
             <PermissaoGuarda permissao="times.gerenciar">
               <button
                 onClick={() => onEditar(time)}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-white/10 transition-colors text-sm"
                 title="Editar time"
               >
                 ✏️
@@ -376,7 +376,7 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
               <button
                 onClick={() => onExcluir(time.id)}
                 disabled={excluindo === time.id}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm disabled:opacity-50"
+                className="p-1.5 rounded-lg text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm disabled:opacity-50"
                 title="Excluir time"
               >
                 {excluindo === time.id ? '⏳' : '🗑️'}
@@ -438,7 +438,7 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
                     <button
                       onClick={() => handleRemover(m.usuario?.id)}
                       disabled={removendo === m.usuario?.id}
-                      className="text-xs text-slate-500 hover:text-red-400 transition-colors disabled:opacity-50 flex-shrink-0"
+                      className="text-xs text-muted hover:text-red-400 transition-colors disabled:opacity-50 flex-shrink-0"
                       title="Remover do time"
                     >
                       {removendo === m.usuario?.id ? '⏳' : '✕'}

@@ -55,7 +55,7 @@ const ToastItem = ({ id, tipo, mensagem }) => {
       <p className={`text-sm flex-1 ${estilo.texto}`}>{mensagem}</p>
       <button
         onClick={() => removerNotificacao(id)}
-        className="text-slate-400 hover:text-white transition-colors flex-shrink-0 ml-2"
+        className="text-muted hover:text-white transition-colors flex-shrink-0 ml-2"
         aria-label="Fechar notificação"
       >
         ✕

@@ -19,8 +19,8 @@ const Spinner = () => (
 );
 
 const BadgeLTV = ({ ltv }) => {
-  if (!ltv || ltv === 0) return <span className="text-xs text-slate-500">LTV: —</span>;
-  const cor = ltv >= 10000 ? 'text-emerald-400' : ltv >= 1000 ? 'text-amber-400' : 'text-slate-400';
+  if (!ltv || ltv === 0) return <span className="text-xs text-muted">LTV: —</span>;
+  const cor = ltv >= 10000 ? 'text-emerald-400' : ltv >= 1000 ? 'text-amber-400' : 'text-muted';
   return <span className={`text-xs font-bold ${cor}`}>💎 {formatarMoeda(ltv)}</span>;
 };
 
@@ -28,7 +28,7 @@ const BadgeTempo = ({ convertidoEm, criadoEm }) => {
   const inicio = convertidoEm || criadoEm;
   if (!inicio) return null;
   const dias = Math.floor((Date.now() - new Date(inicio).getTime()) / 86400000);
-  const cor = dias >= 365 ? 'text-emerald-400' : dias >= 90 ? 'text-amber-400' : 'text-slate-400';
+  const cor = dias >= 365 ? 'text-emerald-400' : dias >= 90 ? 'text-amber-400' : 'text-muted';
   const label = dias >= 365
     ? `${Math.floor(dias / 365)}a ${Math.floor((dias % 365) / 30)}m`
     : dias >= 30
@@ -96,9 +96,9 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0 ml-3">
-            <button onClick={() => onEditar(cliente)} className="text-slate-400 hover:text-primary-400 transition-colors" title="Editar">✏️</button>
-            <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(cliente.id)} className="text-slate-400 hover:text-red-400 transition-colors" title="Excluir">🗑️</button></PermissaoGuarda>
-            <button onClick={onFechar} className="text-slate-400 hover:text-white transition-colors text-lg">✕</button>
+            <button onClick={() => onEditar(cliente)} className="text-muted hover:text-primary-400 transition-colors" title="Editar">✏️</button>
+            <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(cliente.id)} className="text-muted hover:text-red-400 transition-colors" title="Excluir">🗑️</button></PermissaoGuarda>
+            <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-lg">✕</button>
           </div>
         </div>
 
@@ -130,7 +130,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
           ].map(a => (
             <button key={a.key}
               onClick={() => setAba(a.key)}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${aba === a.key ? 'border-primary-500 text-primary-300' : 'border-transparent text-slate-400 hover:text-white'}`}>
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${aba === a.key ? 'border-primary-500 text-primary-300' : 'border-transparent text-muted hover:text-white'}`}>
               {a.label}
             </button>
           ))}
@@ -169,7 +169,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
                         </div>
                         <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{int.conteudo}</p>
                         {int.criado_por_user && (
-                          <p className="text-xs mt-0.5 text-slate-500">por {int.criado_por_user.nome}</p>
+                          <p className="text-xs mt-0.5 text-muted">por {int.criado_por_user.nome}</p>
                         )}
                       </div>
                     </div>
@@ -190,7 +190,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
                   <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                     Nenhum documento anexado.
                   </p>
-                  <p className="text-xs mt-1 text-slate-500">
+                  <p className="text-xs mt-1 text-muted">
                     Upload de documentos disponível em breve.
                   </p>
                 </div>
@@ -255,7 +255,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
               {TIPOS_INTERACAO.filter(t => t.key !== 'conversao').map(t => (
                 <button key={t.key} type="button"
                   onClick={() => setTipoInteracao(t.key)}
-                  className={`text-xs px-2 py-1 rounded-full border transition-all ${tipoInteracao === t.key ? 'bg-primary-500/20 text-primary-300 border-primary-500/30' : 'text-slate-500 border-slate-700 hover:border-slate-500'}`}>
+                  className={`text-xs px-2 py-1 rounded-full border transition-all ${tipoInteracao === t.key ? 'bg-primary-500/20 text-primary-300 border-primary-500/30' : 'text-muted border-slate-700 hover:border-slate-500'}`}>
                   {t.emoji} {t.label}
                 </button>
               ))}
@@ -333,8 +333,8 @@ const LinhaCliente = ({ cliente, onAbrir, onEditar, onExcluir }) => (
     </td>
     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
       <div className="flex gap-2">
-        <button onClick={() => onEditar(cliente)} className="text-slate-500 hover:text-primary-400 transition-colors text-sm">✏️</button>
-        <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(cliente.id)} className="text-slate-500 hover:text-red-400 transition-colors text-sm">🗑️</button></PermissaoGuarda>
+        <button onClick={() => onEditar(cliente)} className="text-muted hover:text-primary-400 transition-colors text-sm">✏️</button>
+        <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(cliente.id)} className="text-muted hover:text-red-400 transition-colors text-sm">🗑️</button></PermissaoGuarda>
       </div>
     </td>
   </tr>
@@ -406,7 +406,7 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
           <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>
             ✏️ Editar Cliente
           </h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -556,12 +556,12 @@ const PaginaClientes = () => {
         />
         <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
           <button onClick={() => setVista('cards')}
-            className={`px-3 py-2 text-sm transition-colors ${vista === 'cards' ? 'bg-primary-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`px-3 py-2 text-sm transition-colors ${vista === 'cards' ? 'bg-primary-600 text-white' : 'text-muted hover:text-white'}`}
             style={vista !== 'cards' ? { backgroundColor: 'var(--color-surface-card)' } : {}}>
             🃏 Cards
           </button>
           <button onClick={() => setVista('lista')}
-            className={`px-3 py-2 text-sm transition-colors ${vista === 'lista' ? 'bg-primary-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`px-3 py-2 text-sm transition-colors ${vista === 'lista' ? 'bg-primary-600 text-white' : 'text-muted hover:text-white'}`}
             style={vista !== 'lista' ? { backgroundColor: 'var(--color-surface-card)' } : {}}>
             📋 Lista
           </button>

@@ -9,7 +9,7 @@ import { useAuthStore } from '../../store/authStore.js';
 import { useUIStore } from '../../store/uiStore.js';
 
 const inputBase =
-  'w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50';
+  'w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50';
 
 const FORM_ARTIGO_VAZIO = { titulo: '', categoria_id: '', conteudo: '', publicado: true };
 
@@ -23,22 +23,22 @@ const LeitorArtigo = ({ artigo, categoria, podeEditar, onFechar, onEditar, onExc
         <div className="flex items-start justify-between gap-3 p-5 border-b border-surface-border">
           <div className="min-w-0">
             {categoria && (
-              <span className="text-xs text-slate-400">{categoria.icone} {categoria.nome}</span>
+              <span className="text-xs text-muted">{categoria.icone} {categoria.nome}</span>
             )}
-            <h3 className="text-white font-semibold text-lg">{artigo.titulo}</h3>
+            <h3 className="font-semibold text-lg">{artigo.titulo}</h3>
             {!artigo.publicado && (
               <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300">
                 Rascunho
               </span>
             )}
           </div>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white text-lg flex-shrink-0">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg flex-shrink-0">✕</button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5">
           {artigo.conteudo
-            ? <p className="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">{artigo.conteudo}</p>
-            : <p className="text-slate-500 text-sm">Este artigo ainda não tem conteúdo.</p>}
+            ? <p className="text-muted text-sm whitespace-pre-wrap leading-relaxed">{artigo.conteudo}</p>
+            : <p className="text-muted text-sm">Este artigo ainda não tem conteúdo.</p>}
         </div>
 
         {podeEditar && (
@@ -109,13 +109,13 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-2xl my-4">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-white font-semibold">{artigoEditando ? 'Editar artigo' : 'Novo artigo'}</h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white text-lg">✕</button>
+          <h3 className="font-semibold">{artigoEditando ? 'Editar artigo' : 'Novo artigo'}</h3>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Título *</label>
+            <label className="block text-muted text-xs font-medium mb-1">Título *</label>
             <input
               type="text"
               value={form.titulo}
@@ -126,7 +126,7 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
           </div>
 
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Categoria</label>
+            <label className="block text-muted text-xs font-medium mb-1">Categoria</label>
             <select
               value={form.categoria_id}
               onChange={(e) => setForm((f) => ({ ...f, categoria_id: e.target.value }))}
@@ -140,7 +140,7 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
           </div>
 
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Conteúdo</label>
+            <label className="block text-muted text-xs font-medium mb-1">Conteúdo</label>
             <textarea
               value={form.conteudo}
               onChange={(e) => setForm((f) => ({ ...f, conteudo: e.target.value }))}
@@ -150,7 +150,7 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
             />
           </div>
 
-          <label className="flex items-center gap-2 text-slate-300 text-sm cursor-pointer">
+          <label className="flex items-center gap-2 text-muted text-sm cursor-pointer">
             <input
               type="checkbox"
               checked={form.publicado}
@@ -164,7 +164,7 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
-              className="flex-1 bg-surface border border-surface-border text-slate-300 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">
+              className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">
               Cancelar
             </button>
             <button type="submit" disabled={salvando}
@@ -203,13 +203,13 @@ const ModalCategorias = ({ aberto, categorias, onFechar, onCriar, onExcluir }) =
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md my-4">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-white font-semibold">Categorias</h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white text-lg">✕</button>
+          <h3 className="font-semibold">Categorias</h3>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
 
         <form onSubmit={handleAdd} className="flex gap-2 mb-4">
           <input value={icone} onChange={(e) => setIcone(e.target.value)}
-            className="w-14 bg-surface border border-surface-border rounded-lg px-2 py-2 text-white text-sm text-center" />
+            className="w-14 bg-surface border border-surface-border rounded-lg px-2 py-2 text-sm text-center" />
           <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nova categoria"
             className={inputBase} />
           <button type="submit" disabled={salvando || !nome.trim()}
@@ -220,13 +220,13 @@ const ModalCategorias = ({ aberto, categorias, onFechar, onCriar, onExcluir }) =
 
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {categorias.length === 0 ? (
-            <p className="text-slate-500 text-sm text-center py-4">Nenhuma categoria criada.</p>
+            <p className="text-muted text-sm text-center py-4">Nenhuma categoria criada.</p>
           ) : (
             categorias.map((c) => (
               <div key={c.id} className="flex items-center gap-2 bg-surface border border-surface-border rounded-lg px-3 py-2">
                 <span>{c.icone}</span>
-                <span className="text-slate-300 text-sm flex-1 truncate">{c.nome}</span>
-                <button onClick={() => onExcluir(c.id)} className="text-slate-500 hover:text-red-400 text-sm">🗑️</button>
+                <span className="text-muted text-sm flex-1 truncate">{c.nome}</span>
+                <button onClick={() => onExcluir(c.id)} className="text-muted hover:text-red-400 text-sm">🗑️</button>
               </div>
             ))
           )}
@@ -248,9 +248,9 @@ const CardArtigo = ({ artigo, categoria, onClick }) => (
         <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 flex-shrink-0">Rascunho</span>
       )}
     </div>
-    {categoria && <p className="text-slate-500 text-xs mt-1">{categoria.icone} {categoria.nome}</p>}
-    {artigo.conteudo && <p className="text-slate-400 text-xs mt-2 line-clamp-2">{artigo.conteudo}</p>}
-    <p className="text-slate-500 text-xs mt-3">👁️ {artigo.visualizacoes || 0} visualizaç{(artigo.visualizacoes === 1) ? 'ão' : 'ões'}</p>
+    {categoria && <p className="text-muted text-xs mt-1">{categoria.icone} {categoria.nome}</p>}
+    {artigo.conteudo && <p className="text-muted text-xs mt-2 line-clamp-2">{artigo.conteudo}</p>}
+    <p className="text-muted text-xs mt-3">👁️ {artigo.visualizacoes || 0} visualizaç{(artigo.visualizacoes === 1) ? 'ão' : 'ões'}</p>
   </div>
 );
 
@@ -332,13 +332,13 @@ const BaseConhecimento = () => {
       <div className="flex items-center justify-between mb-6 gap-3">
         <div>
           <h2 className="text-xl font-bold text-white">Base de Conhecimento</h2>
-          <p className="text-slate-400 text-sm mt-1">Artigos e tutoriais para tirar dúvidas.</p>
+          <p className="text-muted text-sm mt-1">Artigos e tutoriais para tirar dúvidas.</p>
         </div>
         {podeEditar && (
           <div className="flex gap-2 flex-shrink-0">
             <button
               onClick={() => setModalCategorias(true)}
-              className="bg-surface border border-surface-border text-slate-300 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
+              className="bg-surface border border-surface-border text-muted px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
             >
               Categorias
             </button>
@@ -369,7 +369,7 @@ const BaseConhecimento = () => {
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filtroCategoria === c.id
                 ? 'bg-primary-600 text-white'
-                : 'bg-surface-card border border-surface-border text-slate-400 hover:text-white'
+                : 'bg-surface-card border border-surface-border text-muted hover:text-white'
             }`}
           >
             {c.icone} {c.nome}
@@ -381,13 +381,13 @@ const BaseConhecimento = () => {
       {carregando ? (
         <div className="text-center py-16">
           <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-slate-400 text-sm">Carregando...</p>
+          <p className="text-muted text-sm">Carregando...</p>
         </div>
       ) : artigosFiltrados.length === 0 ? (
         <div className="text-center py-16 bg-surface-card border border-surface-border rounded-xl">
           <p className="text-5xl mb-4">📚</p>
           <p className="text-white font-medium mb-1">Nenhum artigo encontrado</p>
-          <p className="text-slate-400 text-sm">
+          <p className="text-muted text-sm">
             {busca || filtroCategoria !== 'todas'
               ? 'Ajuste a busca ou o filtro de categoria.'
               : 'Ainda não há artigos na base de conhecimento.'}

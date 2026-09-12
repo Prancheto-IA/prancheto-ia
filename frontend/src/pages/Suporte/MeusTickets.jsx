@@ -47,19 +47,19 @@ const CardTicket = ({ ticket, onClick }) => {
           </div>
           <div className="min-w-0">
             <p className="text-white font-medium text-sm truncate">{ticket.assunto}</p>
-            <p className="text-slate-500 text-xs">{categoria.label}</p>
+            <p className="text-muted text-xs">{categoria.label}</p>
           </div>
         </div>
         <BadgeStatus status={ticket.status} />
       </div>
 
       {ticket.descricao && (
-        <p className="text-slate-400 text-xs mt-3 line-clamp-2">{ticket.descricao}</p>
+        <p className="text-muted text-xs mt-3 line-clamp-2">{ticket.descricao}</p>
       )}
 
       <div className="flex items-center gap-3 mt-3 flex-wrap">
         <span className="text-xs" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
-        <span className="text-slate-500 text-xs">📅 {formatarData(ticket.criado_em)}</span>
+        <span className="text-muted text-xs">📅 {formatarData(ticket.criado_em)}</span>
       </div>
     </div>
   );
@@ -113,35 +113,35 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
               <span className="text-lg">{categoria.emoji}</span>
               <BadgeStatus status={ticket.status} />
             </div>
-            <h3 className="text-white font-semibold truncate">{ticket.assunto}</h3>
+            <h3 className="font-semibold truncate">{ticket.assunto}</h3>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               <span className="text-xs" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
-              <span className="text-slate-500 text-xs">📅 {formatarData(ticket.criado_em)}</span>
+              <span className="text-muted text-xs">📅 {formatarData(ticket.criado_em)}</span>
             </div>
           </div>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white text-lg flex-shrink-0">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg flex-shrink-0">✕</button>
         </div>
 
         {/* Conteúdo */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {ticket.descricao && (
-            <p className="text-slate-300 text-sm whitespace-pre-wrap">{ticket.descricao}</p>
+            <p className="text-muted text-sm whitespace-pre-wrap">{ticket.descricao}</p>
           )}
 
           <div className="border-t border-surface-border/50 pt-4">
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-3">Mensagens</p>
+            <p className="text-muted text-xs font-medium uppercase tracking-wider mb-3">Mensagens</p>
             {carregandoMsgs ? (
               <div className="flex justify-center py-6">
                 <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
               </div>
             ) : mensagens.length === 0 ? (
-              <p className="text-slate-500 text-sm">Nenhuma mensagem ainda.</p>
+              <p className="text-muted text-sm">Nenhuma mensagem ainda.</p>
             ) : (
               <div className="space-y-3">
                 {mensagens.map((m) => (
                   <div key={m.id} className="bg-surface border border-surface-border rounded-lg p-3">
-                    <p className="text-slate-300 text-sm whitespace-pre-wrap">{m.conteudo}</p>
-                    <p className="text-slate-500 text-xs mt-1">
+                    <p className="text-muted text-sm whitespace-pre-wrap">{m.conteudo}</p>
+                    <p className="text-muted text-xs mt-1">
                       {new Date(m.criado_em).toLocaleString('pt-BR')}
                     </p>
                   </div>
@@ -160,13 +160,13 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
                 onChange={(e) => setTexto(e.target.value)}
                 placeholder="Escreva uma resposta..."
                 rows={2}
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
               />
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => onMudarStatus(ticket.id, 'resolvido')}
-                  className="flex-1 bg-surface border border-surface-border text-slate-300 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
+                  className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
                 >
                   Marcar como resolvido
                 </button>
@@ -182,7 +182,7 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
           ) : (
             <button
               onClick={() => onMudarStatus(ticket.id, 'aberto')}
-              className="w-full bg-surface border border-surface-border text-slate-300 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
+              className="w-full bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
             >
               Reabrir ticket
             </button>
@@ -252,7 +252,7 @@ const MeusTickets = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-bold text-white">Meus Tickets</h2>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-muted text-sm mt-1">
             {meusTickets.length} ticket{meusTickets.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -273,7 +273,7 @@ const MeusTickets = () => {
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filtroStatus === f.slug
                 ? 'bg-primary-600 text-white'
-                : 'bg-surface-card border border-surface-border text-slate-400 hover:text-white'
+                : 'bg-surface-card border border-surface-border text-muted hover:text-white'
             }`}
           >
             {f.label}
@@ -285,13 +285,13 @@ const MeusTickets = () => {
       {carregando ? (
         <div className="text-center py-16">
           <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-slate-400 text-sm">Carregando...</p>
+          <p className="text-muted text-sm">Carregando...</p>
         </div>
       ) : ticketsFiltrados.length === 0 ? (
         <div className="text-center py-16 bg-surface-card border border-surface-border rounded-xl">
           <p className="text-5xl mb-4">📨</p>
           <p className="text-white font-medium mb-1">Nenhum ticket encontrado</p>
-          <p className="text-slate-400 text-sm mb-5">
+          <p className="text-muted text-sm mb-5">
             {filtroStatus !== 'todos'
               ? `Você não tem tickets com status "${STATUS_TICKET[filtroStatus]?.label}".`
               : 'Você ainda não abriu nenhum ticket de suporte.'}

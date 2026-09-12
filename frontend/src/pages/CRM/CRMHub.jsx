@@ -48,7 +48,7 @@ const NavCRM = () => {
               `px-4 py-2.5 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
                 isActive
                   ? 'border-primary-500 text-primary-300'
-                  : 'border-transparent text-slate-400 hover:text-white hover:border-slate-500'
+                  : 'border-transparent text-muted hover:text-white hover:border-slate-500'
               }`
             }
           >

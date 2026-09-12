@@ -14,7 +14,7 @@ import { useCamposCustom } from '../../hooks/useCRM.js';
 
 // ─── Constantes ────────────────────────────────────────────────
 const FUNIL = [
-  { key: 'lead',        label: 'Lead',        cor: 'bg-slate-500/20 text-slate-300 border-slate-500/30' },
+  { key: 'lead',        label: 'Lead',        cor: 'badge-neutro' },
   { key: 'qualificado', label: 'Qualificado', cor: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
   { key: 'proposta',    label: 'Proposta',    cor: 'bg-violet-500/20 text-violet-300 border-violet-500/30' },
   { key: 'negociacao',  label: 'Negociação',  cor: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
@@ -130,7 +130,7 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
           <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
             {contatoEditando ? 'Editar Contato' : 'Novo Contato'}
           </h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -346,11 +346,11 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
           </div>
           <div className="flex gap-2 flex-shrink-0 ml-3">
             <button onClick={() => onEditar(contato)}
-              className="text-slate-400 hover:text-primary-400 transition-colors text-sm" title="Editar">✏️</button>
+              className="text-muted hover:text-primary-400 transition-colors text-sm" title="Editar">✏️</button>
             <button onClick={() => onExcluir(contato.id)}
-              className="text-slate-400 hover:text-red-400 transition-colors text-sm" title="Excluir">🗑️</button>
+              className="text-muted hover:text-red-400 transition-colors text-sm" title="Excluir">🗑️</button>
             <button onClick={onFechar}
-              className="text-slate-400 hover:text-slate-200 transition-colors text-lg ml-1">✕</button>
+              className="text-muted hover:text-white transition-colors text-lg ml-1">✕</button>
           </div>
         </div>
 
@@ -550,9 +550,9 @@ const CardContato = ({ contato, onAbrir, onEditar, onExcluir, excluindo }) => (
         </span>
       )}
       <button onClick={() => onEditar(contato)}
-        className="text-slate-500 hover:text-primary-400 transition-colors text-sm p-1" title="Editar">✏️</button>
+        className="text-muted hover:text-primary-400 transition-colors text-sm p-1" title="Editar">✏️</button>
       <button onClick={() => onExcluir(contato.id)} disabled={excluindo === contato.id}
-        className="text-slate-500 hover:text-red-400 transition-colors text-sm p-1 disabled:opacity-50" title="Excluir">
+        className="text-muted hover:text-red-400 transition-colors text-sm p-1 disabled:opacity-50" title="Excluir">
         {excluindo === contato.id ? '⏳' : '🗑️'}
       </button>
     </div>
@@ -676,14 +676,14 @@ const PaginaCRM = () => {
         </div>
         <div className="flex items-center gap-3">
           <button onClick={alternarTema}
-            className="text-slate-400 hover:text-white transition-colors text-lg" title="Alternar tema">
+            className="text-muted hover:text-white transition-colors text-lg" title="Alternar tema">
             {temaEscuro ? '☀️' : '🌙'}
           </button>
           <span className="text-sm hidden sm:block" style={{ color: 'var(--color-text-secondary)' }}>
             {usuario?.nome?.split(' ')[0] || 'Usuário'}
           </span>
           <button onClick={logout}
-            className="text-slate-500 hover:text-red-400 transition-colors text-lg" title="Sair">
+            className="text-muted hover:text-red-400 transition-colors text-lg" title="Sair">
             🚪
           </button>
         </div>
@@ -717,7 +717,7 @@ const PaginaCRM = () => {
         <div className="flex flex-col sm:flex-row gap-3 mb-5">
           {/* Busca */}
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">🔍</span>
             <input
               type="text"
               value={busca}

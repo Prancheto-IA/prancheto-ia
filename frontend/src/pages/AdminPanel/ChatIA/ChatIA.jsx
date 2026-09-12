@@ -268,7 +268,7 @@ const PaginaChatIA = () => {
         {/* SIDEBAR */}
         <aside className="hidden lg:flex flex-col w-72 flex-shrink-0 border-r border-surface-border bg-surface">
           <div className="p-3 border-b border-surface-border">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-1">
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider px-1">
               Conversas
             </p>
           </div>
@@ -282,8 +282,8 @@ const PaginaChatIA = () => {
               ))
             ) : conversas.length === 0 ? (
               <div className="p-4 text-center">
-                <p className="text-slate-500 text-sm">Nenhuma conversa ainda.</p>
-                <p className="text-slate-600 text-xs mt-1">Clique em "Nova Conversa" para começar.</p>
+                <p className="text-muted text-sm">Nenhuma conversa ainda.</p>
+                <p className="text-muted text-xs mt-1">Clique em "Nova Conversa" para começar.</p>
               </div>
             ) : (
               conversas.map((conversa) => (
@@ -298,7 +298,7 @@ const PaginaChatIA = () => {
             )}
           </div>
           <div className="p-3 border-t border-surface-border">
-            <p className="text-xs text-slate-600 text-center">Modelo: gpt-4o-mini</p>
+            <p className="text-xs text-muted text-center">Modelo: gpt-4o-mini</p>
           </div>
         </aside>
 
@@ -311,10 +311,10 @@ const PaginaChatIA = () => {
               {/* Cabeçalho do chat */}
               <div className="flex items-center px-4 py-3 border-b border-surface-border flex-shrink-0">
                 <div>
-                  <h2 className="text-white font-medium text-sm truncate max-w-md">
+                  <h2 className="font-medium text-sm truncate max-w-md">
                     {conversaAtiva.titulo}
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-muted mt-0.5">
                     {(conversaAtiva.mensagens || []).length} mensagens
                     {conversaAtiva.total_tokens > 0 && (
                       <> · {conversaAtiva.total_tokens?.toLocaleString()} tokens</>
@@ -330,15 +330,15 @@ const PaginaChatIA = () => {
                     <div key={i} className={`flex gap-3 ${i % 2 === 0 ? '' : 'flex-row-reverse'}`}>
                       <div className="w-8 h-8 rounded-full bg-surface-card animate-pulse flex-shrink-0" />
                       <div className={`rounded-2xl p-4 animate-pulse ${i % 2 === 0 ? 'bg-surface-card w-2/3' : 'bg-primary-900/30 w-1/2'}`}>
-                        <div className="h-3 bg-slate-700 rounded w-full mb-2" />
-                        <div className="h-3 bg-slate-700 rounded w-3/4" />
+                        <div className="h-3 bg-[rgb(var(--color-neutro-rgb)/0.25)] rounded w-full mb-2" />
+                        <div className="h-3 bg-[rgb(var(--color-neutro-rgb)/0.25)] rounded w-3/4" />
                       </div>
                     </div>
                   ))
                 ) : (conversaAtiva.mensagens || []).length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <span className="text-4xl mb-3">💬</span>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-muted text-sm">
                       Conversa criada! Digite sua primeira mensagem abaixo.
                     </p>
                   </div>
@@ -393,7 +393,7 @@ const PaginaChatIA = () => {
                     <span className="hidden sm:inline">{carregando ? 'Enviando...' : 'Enviar'}</span>
                   </button>
                 </form>
-                <p className="text-xs text-slate-600 mt-2 text-center">
+                <p className="text-xs text-muted mt-2 text-center">
                   Enter para enviar · Shift+Enter para nova linha
                 </p>
               </div>

@@ -42,6 +42,11 @@ export default {
         'surface':        'var(--color-surface)',
         'surface-card':   'var(--color-surface-card)',
         'surface-border': 'var(--color-surface-border)',
+
+        // Texto secundário/discreto que acompanha o tema (rótulos, legendas,
+        // texto de apoio). Substitui as antigas cores fixas do slate
+        // (text-slate-400/500/600), que ficavam claras demais no tema claro.
+        'muted': 'var(--color-text-secondary)',
       },
 
       // --- FONTES ---

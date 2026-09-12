@@ -10,7 +10,7 @@ const BADGE_CARGO = {
   admin:   { label: 'Administrador', cor: 'bg-violet-500/20 text-violet-300 border-violet-500/30' },
   manager: { label: 'Gerente',       cor: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
   member:  { label: 'Membro',        cor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
-  viewer:  { label: 'Visualizador',  cor: 'bg-slate-500/20 text-slate-300 border-slate-500/30' },
+  viewer:  { label: 'Visualizador',  cor: 'badge-neutro' },
 };
 
 const saudacao = () => {
@@ -52,7 +52,7 @@ const CardModulo = ({ emoji, titulo, descricao, disponivel = true, onClick }) =>
     <div className="flex items-start gap-4">
       <div className={`
         text-2xl w-12 h-12 flex items-center justify-center rounded-lg flex-shrink-0
-        ${disponivel ? 'bg-primary-500/10 group-hover:bg-primary-500/20' : 'bg-slate-700/30'}
+        ${disponivel ? 'bg-primary-500/10 group-hover:bg-primary-500/20' : 'bg-[rgb(var(--color-neutro-rgb)/0.12)]'}
         transition-colors
       `}>
         {emoji}
@@ -70,7 +70,7 @@ const CardModulo = ({ emoji, titulo, descricao, disponivel = true, onClick }) =>
         <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>{descricao}</p>
       </div>
       {disponivel && (
-        <div className="text-slate-500 group-hover:text-primary-400 transition-colors flex-shrink-0 mt-1">→</div>
+        <div className="text-muted group-hover:text-primary-400 transition-colors flex-shrink-0 mt-1">→</div>
       )}
     </div>
   </button>

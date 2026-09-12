@@ -20,7 +20,7 @@ const CardMetrica = ({ emoji, titulo, valor, variacao, cor = '' }) => (
             ? 'bg-emerald-500/20 text-emerald-300'
             : variacao < 0
               ? 'bg-red-500/20 text-red-300'
-              : 'bg-slate-500/20 text-slate-400'
+              : 'badge-neutro'
         }`}>
           {variacao > 0 ? '↑' : variacao < 0 ? '↓' : '—'} {Math.abs(variacao)}%
         </span>
@@ -270,7 +270,7 @@ const Relatorios = () => {
               emoji="❄️"
               titulo="Leads frios"
               valor={dados.leadsFrios}
-              cor="text-slate-400"
+              cor="text-muted"
             />
           </div>
 
@@ -357,7 +357,7 @@ const Relatorios = () => {
                   <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>🌡️ Mornos (30–69)</p>
                 </div>
                 <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#94a3b815' }}>
-                  <p className="text-2xl font-bold text-slate-400">{dados.leadsFrios}</p>
+                  <p className="text-2xl font-bold text-muted">{dados.leadsFrios}</p>
                   <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>❄️ Frios (&lt;30)</p>
                 </div>
               </div>

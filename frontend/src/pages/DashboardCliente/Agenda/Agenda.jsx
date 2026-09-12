@@ -14,7 +14,7 @@ const TIPOS_EVENTO = {
   tarefa:   { label: 'Tarefa',   cor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
   lembrete: { label: 'Lembrete', cor: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' },
   ligacao:  { label: 'Ligação',  cor: 'bg-violet-500/20 text-violet-300 border-violet-500/30' },
-  outro:    { label: 'Outro',    cor: 'bg-slate-500/20 text-slate-300 border-slate-500/30' },
+  outro:    { label: 'Outro',    cor: 'badge-neutro' },
 };
 
 const getDiasDoMes = (ano, mes) => ({
@@ -86,30 +86,30 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, diaSelecionado, mesAtual, ano
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
       <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-white font-semibold">{eventoEditando ? 'Editar Evento' : 'Novo Evento'}</h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white text-lg">✕</button>
+          <h3 className="font-semibold">{eventoEditando ? 'Editar Evento' : 'Novo Evento'}</h3>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Título */}
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Título *</label>
+            <label className="block text-muted text-xs font-medium mb-1">Título *</label>
             <input
               type="text"
               value={form.titulo}
               onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))}
               placeholder="Ex: Reunião com cliente"
-              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
+              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
             />
           </div>
 
           {/* Tipo */}
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Tipo</label>
+            <label className="block text-muted text-xs font-medium mb-1">Tipo</label>
             <select
               value={form.tipo}
               onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}
-              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500/50"
+              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500/50"
             >
               {Object.entries(TIPOS_EVENTO).map(([k, v]) => (
                 <option key={k} value={k}>{v.label}</option>
@@ -120,46 +120,46 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, diaSelecionado, mesAtual, ano
           {/* Horários */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Início</label>
+              <label className="block text-muted text-xs font-medium mb-1">Início</label>
               <input
                 type="time"
                 value={form.hora}
                 onChange={e => setForm(f => ({ ...f, hora: e.target.value }))}
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500/50"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500/50"
               />
             </div>
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Fim</label>
+              <label className="block text-muted text-xs font-medium mb-1">Fim</label>
               <input
                 type="time"
                 value={form.hora_fim}
                 onChange={e => setForm(f => ({ ...f, hora_fim: e.target.value }))}
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500/50"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500/50"
               />
             </div>
           </div>
 
           {/* Local */}
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Local</label>
+            <label className="block text-muted text-xs font-medium mb-1">Local</label>
             <input
               type="text"
               value={form.local}
               onChange={e => setForm(f => ({ ...f, local: e.target.value }))}
               placeholder="Ex: Sala de reuniões / Google Meet"
-              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
+              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
             />
           </div>
 
           {/* Descrição */}
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Descrição</label>
+            <label className="block text-muted text-xs font-medium mb-1">Descrição</label>
             <textarea
               value={form.descricao}
               onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))}
               placeholder="Detalhes do evento..."
               rows={2}
-              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
+              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
             />
           </div>
 
@@ -169,7 +169,7 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, diaSelecionado, mesAtual, ano
             <button
               type="button"
               onClick={onFechar}
-              className="flex-1 bg-surface border border-surface-border text-slate-300 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
+              className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
             >
               Cancelar
             </button>
@@ -301,7 +301,7 @@ const Agenda = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">🗓️ Agenda</h1>
-          <p className="text-slate-400 text-sm mt-1">Organize seus compromissos e reuniões.</p>
+          <p className="text-muted text-sm mt-1">Organize seus compromissos e reuniões.</p>
         </div>
         <button
           onClick={abrirNovoEvento}
@@ -318,15 +318,15 @@ const Agenda = () => {
 
           {/* Navegação do mês */}
           <div className="flex items-center justify-between mb-4">
-            <button onClick={irMesAnterior} className="text-slate-400 hover:text-white transition-colors p-1 text-xl">‹</button>
-            <h2 className="text-white font-semibold capitalize">{nomeMes}</h2>
-            <button onClick={irProximoMes} className="text-slate-400 hover:text-white transition-colors p-1 text-xl">›</button>
+            <button onClick={irMesAnterior} className="text-muted hover:text-white transition-colors p-1 text-xl">‹</button>
+            <h2 className="font-semibold capitalize">{nomeMes}</h2>
+            <button onClick={irProximoMes} className="text-muted hover:text-white transition-colors p-1 text-xl">›</button>
           </div>
 
           {/* Dias da semana */}
           <div className="grid grid-cols-7 mb-2">
             {DIAS_SEMANA.map(d => (
-              <div key={d} className="text-center text-xs text-slate-500 font-medium py-1">{d}</div>
+              <div key={d} className="text-center text-xs text-muted font-medium py-1">{d}</div>
             ))}
           </div>
 
@@ -351,7 +351,7 @@ const Agenda = () => {
                       ? 'bg-primary-600 text-white font-bold'
                       : ehHoje
                         ? 'bg-primary-500/20 text-primary-300 font-semibold'
-                        : 'text-slate-300 hover:bg-white/5'
+                        : 'text-muted hover:bg-white/5'
                     }
                   `}
                 >
@@ -367,10 +367,10 @@ const Agenda = () => {
 
         {/* Eventos do dia selecionado */}
         <div className="bg-surface-card border border-surface-border rounded-xl p-5">
-          <h3 className="text-white font-semibold mb-1">
+          <h3 className="font-semibold mb-1">
             {diaSelecionado}/{mesAtual + 1}/{anoAtual}
           </h3>
-          <p className="text-slate-400 text-xs mb-4">
+          <p className="text-muted text-xs mb-4">
             {carregando ? 'Carregando...' : eventosDoDia.length === 0 ? 'Nenhum evento neste dia.' : `${eventosDoDia.length} evento(s)`}
           </p>
 
@@ -389,20 +389,20 @@ const Agenda = () => {
                     <div className="flex gap-1">
                       <button
                         onClick={() => abrirEdicao(evento)}
-                        className="text-slate-500 hover:text-primary-400 text-xs transition-colors"
+                        className="text-muted hover:text-primary-400 text-xs transition-colors"
                         title="Editar"
                       >✏️</button>
                       <button
                         onClick={() => handleExcluir(evento.id)}
                         disabled={excluindo === evento.id}
-                        className="text-slate-500 hover:text-red-400 text-xs transition-colors disabled:opacity-50"
+                        className="text-muted hover:text-red-400 text-xs transition-colors disabled:opacity-50"
                         title="Excluir"
                       >🗑️</button>
                     </div>
                   </div>
                   <p className="text-white text-sm font-medium mt-2">{evento.titulo}</p>
-                  <p className="text-slate-400 text-xs mt-1">⏰ {horaStr}</p>
-                  {evento.local && <p className="text-slate-500 text-xs mt-0.5">📍 {evento.local}</p>}
+                  <p className="text-muted text-xs mt-1">⏰ {horaStr}</p>
+                  {evento.local && <p className="text-muted text-xs mt-0.5">📍 {evento.local}</p>}
                 </div>
               );
             })}
@@ -410,7 +410,7 @@ const Agenda = () => {
             {!carregando && eventosDoDia.length === 0 && (
               <div className="text-center py-8">
                 <p className="text-4xl mb-2">📭</p>
-                <p className="text-slate-500 text-sm">Dia livre!</p>
+                <p className="text-muted text-sm">Dia livre!</p>
                 <button
                   onClick={abrirNovoEvento}
                   className="mt-3 text-primary-400 hover:text-primary-300 text-xs transition-colors"

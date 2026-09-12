@@ -32,7 +32,7 @@ const BADGE_CARGO = {
   admin:   'bg-purple-900/50 text-purple-300 border-purple-700/50',
   manager: 'bg-blue-900/50 text-blue-300 border-blue-700/50',
   member:  'bg-green-900/50 text-green-300 border-green-700/50',
-  viewer:  'bg-slate-700/50 text-slate-300 border-slate-600/50',
+  viewer:  'badge-neutro',
 };
 
 const LABEL_CARGO = {
@@ -105,12 +105,12 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
     >
       <div className="bg-surface border border-primary-800 rounded-xl shadow-2xl w-full max-w-lg">
         <div className="flex items-center justify-between px-6 py-4 border-b border-primary-800">
-          <h2 className="text-white font-semibold text-lg">
+          <h2 className="font-semibold text-lg">
             {editando ? '✏️ Editar Usuário' : '➕ Novo Usuário'}
           </h2>
           <button
             onClick={onFechar}
-            className="text-slate-400 hover:text-white transition-colors text-xl leading-none"
+            className="text-muted hover:text-white transition-colors text-xl leading-none"
             aria-label="Fechar modal"
           >
             ×
@@ -119,7 +119,7 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Nome completo</label>
+            <label className="block text-sm font-medium text-muted mb-1">Nome completo</label>
             <input
               type="text"
               value={form.nome}
@@ -132,7 +132,7 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">E-mail</label>
+            <label className="block text-sm font-medium text-muted mb-1">E-mail</label>
             <input
               type="email"
               value={form.email}
@@ -142,13 +142,13 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
               disabled={salvando || editando}
             />
             {editando && (
-              <p className="text-slate-500 text-xs mt-1">E-mail não pode ser alterado.</p>
+              <p className="text-muted text-xs mt-1">E-mail não pode ser alterado.</p>
             )}
             {erros.email && <p className="text-red-400 text-xs mt-1">{erros.email}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
+            <label className="block text-sm font-medium text-muted mb-1">
               {editando ? 'Nova senha (deixe em branco para manter)' : 'Senha'}
             </label>
             <input
@@ -163,7 +163,7 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Cargo</label>
+            <label className="block text-sm font-medium text-muted mb-1">Cargo</label>
             <select
               value={form.cargo}
               onChange={(e) => atualizar('cargo', e.target.value)}
@@ -177,7 +177,7 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Cliente (Tenant)</label>
+            <label className="block text-sm font-medium text-muted mb-1">Cliente (Tenant)</label>
             <select
               value={form.tenantId}
               onChange={(e) => atualizar('tenantId', e.target.value)}
@@ -190,7 +190,7 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
               ))}
             </select>
             {editando && (
-              <p className="text-slate-500 text-xs mt-1">Tenant não pode ser alterado.</p>
+              <p className="text-muted text-xs mt-1">Tenant não pode ser alterado.</p>
             )}
             {erros.tenantId && <p className="text-red-400 text-xs mt-1">{erros.tenantId}</p>}
           </div>
@@ -234,8 +234,8 @@ const ModalConfirmacao = ({ titulo, mensagem, onConfirmar, onCancelar, confirman
     onClick={(e) => e.target === e.currentTarget && onCancelar()}
   >
     <div className="bg-surface border border-primary-800 rounded-xl shadow-2xl w-full max-w-sm p-6">
-      <h3 className="text-white font-semibold text-lg mb-2">{titulo}</h3>
-      <p className="text-slate-400 text-sm mb-6">{mensagem}</p>
+      <h3 className="font-semibold text-lg mb-2">{titulo}</h3>
+      <p className="text-muted text-sm mb-6">{mensagem}</p>
       <div className="flex gap-3">
         <button onClick={onCancelar} className="btn-secondary flex-1" disabled={confirmando}>
           Cancelar
@@ -437,11 +437,11 @@ const GestaoUsuarios = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/admin')}
-            className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1"
+            className="text-muted hover:text-white transition-colors text-sm flex items-center gap-1"
           >
             ← Voltar
           </button>
-          <span className="text-slate-600">|</span>
+          <span className="text-muted">|</span>
           <span className="text-2xl">👥</span>
           <div>
             <span className="text-white font-semibold">Gestão de Usuários</span>
@@ -465,7 +465,7 @@ const GestaoUsuarios = () => {
           {/* Filtros */}
           <div className="flex flex-wrap gap-3 items-center">
             <div className="relative flex-1 min-w-[200px]">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">🔍</span>
               <input
                 type="text"
                 value={busca}
@@ -496,7 +496,7 @@ const GestaoUsuarios = () => {
               ))}
             </select>
 
-            <span className="text-slate-400 text-sm whitespace-nowrap">
+            <span className="text-muted text-sm whitespace-nowrap">
               {total} usuário{total !== 1 ? 's' : ''}
             </span>
           </div>
@@ -510,7 +510,7 @@ const GestaoUsuarios = () => {
             ) : erro ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="text-4xl">⚠️</span>
-                <p className="text-slate-400 text-sm">{erro}</p>
+                <p className="text-muted text-sm">{erro}</p>
                 <button onClick={carregarUsuarios} className="btn-secondary text-sm">
                   Tentar novamente
                 </button>
@@ -518,7 +518,7 @@ const GestaoUsuarios = () => {
             ) : usuarios.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="text-4xl">👤</span>
-                <p className="text-slate-400 text-sm">
+                <p className="text-muted text-sm">
                   {busca || filtroStatus || filtroTenant
                     ? 'Nenhum usuário encontrado com os filtros aplicados.'
                     : 'Nenhum usuário cadastrado ainda.'}
@@ -529,12 +529,12 @@ const GestaoUsuarios = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-primary-800 bg-primary-950/30">
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Usuário</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Cliente</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Cargo</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Status</th>
-                      <th className="text-left px-4 py-3 text-slate-400 font-medium">Criado em</th>
-                      <th className="text-right px-4 py-3 text-slate-400 font-medium">Ações</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Usuário</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Cliente</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Cargo</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Status</th>
+                      <th className="text-left px-4 py-3 text-muted font-medium">Criado em</th>
+                      <th className="text-right px-4 py-3 text-muted font-medium">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-primary-800/50">
@@ -547,12 +547,12 @@ const GestaoUsuarios = () => {
                             </div>
                             <div className="min-w-0">
                               <p className="text-white font-medium truncate">{u.nome || '—'}</p>
-                              <p className="text-slate-400 text-xs truncate">{u.email}</p>
+                              <p className="text-muted text-xs truncate">{u.email}</p>
                             </div>
                           </div>
                         </td>
 
-                        <td className="px-4 py-3 text-slate-300">
+                        <td className="px-4 py-3 text-muted">
                           {u.tenantNome || u.tenant_nome || '—'}
                         </td>
 
@@ -576,7 +576,7 @@ const GestaoUsuarios = () => {
                           )}
                         </td>
 
-                        <td className="px-4 py-3 text-slate-400 text-xs">
+                        <td className="px-4 py-3 text-muted text-xs">
                           {u.criadoEm || u.created_at
                             ? new Date(u.criadoEm || u.created_at).toLocaleDateString('pt-BR')
                             : '—'}
@@ -603,7 +603,7 @@ const GestaoUsuarios = () => {
                             <button
                               onClick={() => setUsuarioEditar(u)}
                               title="Editar usuário"
-                              className="p-1.5 rounded-md text-slate-400 hover:bg-primary-800 hover:text-white transition-colors"
+                              className="p-1.5 rounded-md text-muted hover:bg-primary-800 hover:text-white transition-colors"
                               aria-label={`Editar ${u.nome || u.email}`}
                             >
                               <span className="text-base">✏️</span>
@@ -641,7 +641,7 @@ const GestaoUsuarios = () => {
               >
                 ← Anterior
               </button>
-              <span className="text-slate-400 text-sm">
+              <span className="text-muted text-sm">
                 Página {pagina} de {totalPaginas}
               </span>
               <button

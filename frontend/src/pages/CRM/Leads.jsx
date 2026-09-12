@@ -27,7 +27,7 @@ const BadgeFunil = ({ status }) => {
 };
 
 const BadgeScore = ({ score }) => {
-  const cor = score >= 50 ? 'text-emerald-400' : score >= 20 ? 'text-amber-400' : 'text-slate-400';
+  const cor = score >= 50 ? 'text-emerald-400' : score >= 20 ? 'text-amber-400' : 'text-muted';
   return <span className={`text-xs font-bold ${cor}`}>⚡ {score} pts</span>;
 };
 
@@ -106,7 +106,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
           <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>
             {leadEditando ? '✏️ Editar Lead' : '🎯 Novo Lead'}
           </h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -267,9 +267,9 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0 ml-3">
-            <button onClick={() => onEditar(lead)} className="text-slate-400 hover:text-primary-400 transition-colors" title="Editar">✏️</button>
-            <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(lead.id)} className="text-slate-400 hover:text-red-400 transition-colors" title="Excluir">🗑️</button></PermissaoGuarda>
-            <button onClick={onFechar} className="text-slate-400 hover:text-white transition-colors text-lg">✕</button>
+            <button onClick={() => onEditar(lead)} className="text-muted hover:text-primary-400 transition-colors" title="Editar">✏️</button>
+            <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(lead.id)} className="text-muted hover:text-red-400 transition-colors" title="Excluir">🗑️</button></PermissaoGuarda>
+            <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-lg">✕</button>
           </div>
         </div>
 
@@ -302,7 +302,7 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
                 Confirmar conversão de <strong>{lead.nome}</strong> para Cliente?
               </p>
               <button onClick={() => { setConfirmarConversao(false); setErroConversao(''); }}
-                className="text-xs px-3 py-1.5 rounded-lg border text-slate-400"
+                className="text-xs px-3 py-1.5 rounded-lg border text-muted"
                 style={{ borderColor: 'var(--color-surface-border)' }}>
                 Cancelar
               </button>
@@ -347,7 +347,7 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
                     </div>
                     <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{int.conteudo}</p>
                     {int.criado_por_user && (
-                      <p className="text-xs mt-0.5 text-slate-500">por {int.criado_por_user.nome}</p>
+                      <p className="text-xs mt-0.5 text-muted">por {int.criado_por_user.nome}</p>
                     )}
                   </div>
                 </div>
@@ -363,7 +363,7 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
             {TIPOS_INTERACAO.filter(t => t.key !== 'conversao').map(t => (
               <button key={t.key} type="button"
                 onClick={() => setTipoInteracao(t.key)}
-                className={`text-xs px-2 py-1 rounded-full border transition-all ${tipoInteracao === t.key ? 'bg-primary-500/20 text-primary-300 border-primary-500/30' : 'text-slate-500 border-slate-700 hover:border-slate-500'}`}>
+                className={`text-xs px-2 py-1 rounded-full border transition-all ${tipoInteracao === t.key ? 'bg-primary-500/20 text-primary-300 border-primary-500/30' : 'text-muted border-slate-700 hover:border-slate-500'}`}>
                 {t.emoji} {t.label}
               </button>
             ))}
@@ -474,8 +474,8 @@ const LinhaLead = ({ lead, onAbrir, onEditar, onExcluir }) => (
     </td>
     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
       <div className="flex gap-2">
-        <button onClick={() => onEditar(lead)} className="text-slate-500 hover:text-primary-400 transition-colors text-sm">✏️</button>
-        <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(lead.id)} className="text-slate-500 hover:text-red-400 transition-colors text-sm">🗑️</button></PermissaoGuarda>
+        <button onClick={() => onEditar(lead)} className="text-muted hover:text-primary-400 transition-colors text-sm">✏️</button>
+        <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(lead.id)} className="text-muted hover:text-red-400 transition-colors text-sm">🗑️</button></PermissaoGuarda>
       </div>
     </td>
   </tr>
@@ -574,12 +574,12 @@ const PaginaLeads = () => {
         />
         <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
           <button onClick={() => setVista('kanban')}
-            className={`px-3 py-2 text-sm transition-colors ${vista === 'kanban' ? 'bg-primary-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`px-3 py-2 text-sm transition-colors ${vista === 'kanban' ? 'bg-primary-600 text-white' : 'text-muted hover:text-white'}`}
             style={vista !== 'kanban' ? { backgroundColor: 'var(--color-surface-card)' } : {}}>
             🗂️ Kanban
           </button>
           <button onClick={() => setVista('lista')}
-            className={`px-3 py-2 text-sm transition-colors ${vista === 'lista' ? 'bg-primary-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`px-3 py-2 text-sm transition-colors ${vista === 'lista' ? 'bg-primary-600 text-white' : 'text-muted hover:text-white'}`}
             style={vista !== 'lista' ? { backgroundColor: 'var(--color-surface-card)' } : {}}>
             📋 Lista
           </button>

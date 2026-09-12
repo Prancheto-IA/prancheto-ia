@@ -20,7 +20,7 @@ const STATUS_COR = {
   pendente:    'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
   enviado:     'bg-blue-500/20 text-blue-300 border-blue-500/30',
   respondido:  'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  sem_retorno: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+  sem_retorno: 'badge-neutro',
   convertido:  'bg-violet-500/20 text-violet-300 border-violet-500/30',
 };
 
@@ -95,30 +95,30 @@ const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando }) => {
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-lg my-4">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-white font-semibold">
+          <h3 className="font-semibold">
             {acaoEditando ? 'Editar Ação' : 'Nova Ação de Outbound'}
           </h3>
-          <button onClick={onFechar} className="text-slate-500 hover:text-white text-lg">✕</button>
+          <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Nome do contato *</label>
+              <label className="block text-muted text-xs font-medium mb-1">Nome do contato *</label>
               <input
                 type="text"
                 value={form.contato_nome}
                 onChange={set('contato_nome')}
                 placeholder="João Silva"
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
               />
             </div>
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Tipo *</label>
+              <label className="block text-muted text-xs font-medium mb-1">Tipo *</label>
               <select
                 value={form.tipo}
                 onChange={set('tipo')}
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500/50"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500/50"
               >
                 {Object.entries(TIPOS).map(([k, v]) => (
                   <option key={k} value={k}>{v.emoji} {v.label}</option>
@@ -129,68 +129,68 @@ const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando }) => {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">E-mail</label>
+              <label className="block text-muted text-xs font-medium mb-1">E-mail</label>
               <input
                 type="email"
                 value={form.contato_email}
                 onChange={set('contato_email')}
                 placeholder="joao@empresa.com"
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
               />
             </div>
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Telefone</label>
+              <label className="block text-muted text-xs font-medium mb-1">Telefone</label>
               <input
                 type="text"
                 value={form.contato_telefone}
                 onChange={set('contato_telefone')}
                 placeholder="(11) 99999-9999"
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Assunto</label>
+              <label className="block text-muted text-xs font-medium mb-1">Assunto</label>
               <input
                 type="text"
                 value={form.assunto}
                 onChange={set('assunto')}
                 placeholder="Ex: Proposta comercial Q3"
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50"
               />
             </div>
             <div>
-              <label className="block text-slate-300 text-xs font-medium mb-1">Próxima ação em</label>
+              <label className="block text-muted text-xs font-medium mb-1">Próxima ação em</label>
               <input
                 type="datetime-local"
                 value={form.proxima_acao_em}
                 onChange={set('proxima_acao_em')}
-                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500/50"
+                className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500/50"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Conteúdo / Mensagem</label>
+            <label className="block text-muted text-xs font-medium mb-1">Conteúdo / Mensagem</label>
             <textarea
               value={form.conteudo}
               onChange={set('conteudo')}
               placeholder="Texto da mensagem ou abordagem..."
               rows={2}
-              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
+              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-slate-300 text-xs font-medium mb-1">Notas internas</label>
+            <label className="block text-muted text-xs font-medium mb-1">Notas internas</label>
             <textarea
               value={form.notas}
               onChange={set('notas')}
               placeholder="Observações sobre o contato..."
               rows={2}
-              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
+              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
             />
           </div>
 
@@ -200,7 +200,7 @@ const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando }) => {
             <button
               type="button"
               onClick={onFechar}
-              className="flex-1 bg-surface border border-surface-border text-slate-300 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
+              className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
             >
               Cancelar
             </button>
@@ -233,36 +233,36 @@ const CardAcao = ({ acao, onEditar, onExcluir, onMudarStatus, excluindo }) => {
           </div>
           <div className="min-w-0">
             <p className="text-white font-medium text-sm truncate">{acao.contato_nome}</p>
-            {acao.contato_telefone && <p className="text-slate-400 text-xs truncate">📞 {acao.contato_telefone}</p>}
+            {acao.contato_telefone && <p className="text-muted text-xs truncate">📞 {acao.contato_telefone}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className={`text-xs px-2 py-0.5 rounded-full border ${corSt}`}>{labelSt}</span>
           <button
             onClick={() => onEditar(acao)}
-            className="text-slate-500 hover:text-primary-400 transition-colors text-sm"
+            className="text-muted hover:text-primary-400 transition-colors text-sm"
             title="Editar"
           >✏️</button>
           <button
             onClick={() => onExcluir(acao.id)}
             disabled={excluindo === acao.id}
-            className="text-slate-500 hover:text-red-400 transition-colors text-sm disabled:opacity-50"
+            className="text-muted hover:text-red-400 transition-colors text-sm disabled:opacity-50"
             title="Excluir"
           >🗑️</button>
         </div>
       </div>
 
       {acao.assunto && (
-        <p className="text-slate-300 text-xs mt-2 font-medium">{acao.assunto}</p>
+        <p className="text-muted text-xs mt-2 font-medium">{acao.assunto}</p>
       )}
 
       <div className="flex items-center gap-3 mt-3 flex-wrap">
-        <span className="text-slate-500 text-xs">{tipo.label}</span>
+        <span className="text-muted text-xs">{tipo.label}</span>
         {acao.contato_email && (
-          <span className="text-slate-500 text-xs truncate">✉️ {acao.contato_email}</span>
+          <span className="text-muted text-xs truncate">✉️ {acao.contato_email}</span>
         )}
         {acao.proxima_acao_em && (
-          <span className="text-slate-500 text-xs">
+          <span className="text-muted text-xs">
             📅 {new Date(acao.proxima_acao_em).toLocaleDateString('pt-BR')}
           </span>
         )}
@@ -273,7 +273,7 @@ const CardAcao = ({ acao, onEditar, onExcluir, onMudarStatus, excluindo }) => {
         <select
           value={acao.status}
           onChange={(e) => onMudarStatus(acao.id, e.target.value)}
-          className="w-full bg-surface border border-surface-border rounded-lg px-2 py-1.5 text-slate-300 text-xs focus:outline-none focus:border-primary-500/50"
+          className="w-full bg-surface border border-surface-border rounded-lg px-2 py-1.5 text-muted text-xs focus:outline-none focus:border-primary-500/50"
         >
           {Object.entries(STATUS_LABEL).map(([k, v]) => (
             <option key={k} value={k}>{v}</option>
@@ -386,7 +386,7 @@ const Outbound = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">📧 Outbound</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-muted text-sm mt-1">
             Gerencie suas ações de prospecção e follow-up.
           </p>
         </div>
@@ -411,7 +411,7 @@ const Outbound = () => {
             }`}
           >
             <p className="text-white text-lg font-bold">{contadores[k] || 0}</p>
-            <p className="text-slate-400 text-xs mt-0.5">{v}</p>
+            <p className="text-muted text-xs mt-0.5">{v}</p>
           </button>
         ))}
       </div>
@@ -420,13 +420,13 @@ const Outbound = () => {
       {carregando ? (
         <div className="text-center py-16">
           <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-slate-400 text-sm">Carregando...</p>
+          <p className="text-muted text-sm">Carregando...</p>
         </div>
       ) : acoes.length === 0 ? (
         <div className="text-center py-16 bg-surface-card border border-surface-border rounded-xl">
           <p className="text-5xl mb-4">📭</p>
           <p className="text-white font-medium mb-1">Nenhuma ação encontrada</p>
-          <p className="text-slate-400 text-sm mb-5">
+          <p className="text-muted text-sm mb-5">
             {filtroStatus
               ? `Nenhuma ação com status "${STATUS_LABEL[filtroStatus]}".`
               : 'Comece criando sua primeira ação de outbound.'}
