@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProjetos } from '../../../hooks/useProjetos';
+import { useProjetos } from '../../hooks/useProjetos';
 
 // Estilo reutilizável para inputs com tema
 const inpStyle = { border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' };
@@ -221,15 +221,6 @@ const Projetos = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      {/* Botão Voltar */}
-      <button
-        onClick={() => navigate('/modulos')}
-        className="text-sm opacity-50 hover:opacity-100 transition-opacity"
-        title="Voltar para Módulos"
-      >
-        ← Voltar
-      </button>
-
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Projetos</h1>
@@ -274,7 +265,7 @@ const Projetos = () => {
             <CardProjeto
               key={p.id}
               projeto={p}
-              onClick={() => navigate(`/modulos/projetos/${p.id}`)}
+              onClick={() => navigate(`/projetos/${p.id}`)}
               onEditar={(proj) => { setProjetoEditando(proj); setModalAberto(true); }}
             />
           ))}

@@ -82,6 +82,14 @@ export const useAuth = () => {
         throw new Error('Perfil de usuário não encontrado no sistema.');
       }
 
+      // 2b. Conta desativada (Bloco 5: "remover" usuário nunca apaga, só
+      // desativa) não pode logar — sem isto, ativo=false só escondia a
+      // pessoa das listas, mas a sessão continuava funcionando normalmente.
+      if (userProfile.ativo === false) {
+        await supabase.auth.signOut();
+        throw new Error('Sua conta foi desativada. Fale com o administrador da sua empresa.');
+      }
+
       // 3. Resolve as permissões do cargo organizacional (org_cargos).
       // Falha aqui não impede o login: permissoesCargo fica null e
       // temPermissao() libera, deixando o RLS como barreira — melhor que

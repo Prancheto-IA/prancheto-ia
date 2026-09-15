@@ -97,9 +97,11 @@ export const useLeads = () => {
       let q = supabase
         .from('crm_contatos')
         .select(`
-          id, nome, email, telefone, empresa, cargo,
+          id, nome, email, telefone, whatsapp, empresa, cargo,
           origem, origem_detalhes, status_funil,
           valor_estimado, observacoes, tags,
+          negocio_nome, previsao_fechamento, campanha,
+          razao_social, documento, segmento, site, porte, endereco,
           score, score_historico,
           tipo_registro, time_id,
           criado_em, atualizado_em,
@@ -220,9 +222,11 @@ export const useClientes = () => {
       let q = supabase
         .from('crm_contatos')
         .select(`
-          id, nome, email, telefone, empresa, cargo,
+          id, nome, email, telefone, whatsapp, empresa, cargo,
           origem, origem_detalhes, status_funil,
           valor_estimado, observacoes, tags,
+          negocio_nome, previsao_fechamento, campanha,
+          razao_social, documento, segmento, site, porte, endereco,
           score, ltv,
           tipo_registro, time_id,
           convertido_em, convertido_por,

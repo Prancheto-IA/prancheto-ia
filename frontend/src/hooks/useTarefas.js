@@ -21,6 +21,7 @@ export const useTarefas = (filtros = {}) => {
   const usuario = useAuthStore(s => s.usuario);
   const [tarefas, setTarefas] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [usuariosTenant, setUsuariosTenant] = useState([]);
 
   const tenantId = usuario?.tenant_id;
 
@@ -28,12 +29,20 @@ export const useTarefas = (filtros = {}) => {
     if (!tenantId) return;
     setCarregando(true);
     try {
+      // Com atribuidoA, usa !inner + dot-filter (mesmo padrão de
+      // WidgetMinhasTarefas.jsx) para filtrar no servidor. Sem atribuidoA,
+      // o embed fica como left join normal — um !inner forçado aqui
+      // excluiria tarefas sem nenhum atribuído.
+      const embedAtribuicoes = filtros.atribuidoA
+        ? 'tarefa_atribuicoes!inner(user_id, users(nome))'
+        : 'tarefa_atribuicoes(user_id, users(nome))';
+
       let query = supabase
         .from('tarefas')
         .select(`
           *,
           tarefa_checklist(id, texto, concluido, ordem),
-          tarefa_atribuicoes(user_id)
+          ${embedAtribuicoes}
         `)
         .eq('tenant_id', tenantId)
         .order('criado_em', { ascending: false });
@@ -41,21 +50,12 @@ export const useTarefas = (filtros = {}) => {
       if (filtros.timeId) query = query.eq('time_id', filtros.timeId);
       if (filtros.projetoId) query = query.eq('projeto_id', filtros.projetoId);
       if (filtros.status) query = query.eq('status', filtros.status);
-      if (filtros.atribuidoA) {
-        // Filtra por atribuição via subquery não suportada diretamente — carrega tudo e filtra
-      }
+      if (filtros.atribuidoA) query = query.eq('tarefa_atribuicoes.user_id', filtros.atribuidoA);
 
       const { data, error } = await query;
       if (error) throw error;
 
-      let resultado = data || [];
-      if (filtros.atribuidoA) {
-        resultado = resultado.filter(t =>
-          t.tarefa_atribuicoes?.some(a => a.user_id === filtros.atribuidoA)
-        );
-      }
-
-      setTarefas(resultado);
+      setTarefas(data || []);
     } catch (err) {
       console.error('useTarefas.carregar:', err);
     } finally {
@@ -64,6 +64,25 @@ export const useTarefas = (filtros = {}) => {
   }, [tenantId, filtros.timeId, filtros.projetoId, filtros.status, filtros.atribuidoA]);
 
   useEffect(() => { carregar(); }, [carregar]);
+
+  useEffect(() => {
+    if (!tenantId) return;
+    let ativo = true;
+    (async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, nome')
+        .eq('tenant_id', tenantId)
+        .order('nome', { ascending: true });
+      if (!ativo) return;
+      if (error) {
+        console.error('useTarefas.usuariosTenant:', error);
+        return;
+      }
+      setUsuariosTenant(data || []);
+    })();
+    return () => { ativo = false; };
+  }, [tenantId]);
 
   const criarTarefa = async (dados) => {
     const { data, error } = await supabase
@@ -148,5 +167,6 @@ export const useTarefas = (filtros = {}) => {
     excluirChecklist,
     atribuirUsuario,
     removerAtribuicao,
+    usuariosTenant,
   };
 };
