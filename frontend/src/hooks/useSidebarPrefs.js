@@ -18,10 +18,14 @@ export const SLUGS_FIXOS = ['configuracoes'];
 // Ordem padrão e visibilidade inicial
 export const CATALOGO_SIDEBAR = [
   { slug: 'dashboard',    label: 'Início',        emoji: '🏠', rota: '/dashboard',                   exact: true,  prefixoAtivo: null,                    removivel: true  },
-  { slug: 'modulos',      label: 'Módulos',        emoji: '🧩', rota: '/modulos',                     exact: true,  prefixoAtivo: '/modulos',              removivel: true,  apenasAdmin: true },
+  { slug: 'chat',         label: 'Chat',          emoji: '💬', rota: '/chat',                        exact: false, prefixoAtivo: null,                    removivel: true  },
+  { slug: 'calendario',   label: 'Calendário',    emoji: '🗓️', rota: '/calendario',                  exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'crm',          label: 'CRM',            emoji: '📋', rota: '/crm',                         exact: false, prefixoAtivo: '/crm',                  removivel: true  },
   { slug: 'chat_ia',      label: 'Chat com IA',    emoji: '🤖', rota: '/dashboard/chat',              exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'agenda',       label: 'Agenda',         emoji: '🗓️', rota: '/dashboard/agenda',            exact: false, prefixoAtivo: null,                    removivel: true  },
+  { slug: 'tarefas',      label: 'Tarefas',        emoji: '✅', rota: '/tarefas',                     exact: false, prefixoAtivo: null,                    removivel: true  },
+  { slug: 'projetos',     label: 'Projetos',       emoji: '📁', rota: '/projetos',                    exact: false, prefixoAtivo: '/projetos',             removivel: true  },
+  { slug: 'times_pessoas',label: 'Times e Pessoas',emoji: '👥', rota: '/times-pessoas',               exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'relatorios',   label: 'Relatórios',     emoji: '📊', rota: '/dashboard/relatorios',        exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'outbound',     label: 'Outbound',       emoji: '📧', rota: '/dashboard/outbound',          exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'organizacao',  label: 'Organização',    emoji: '🏢', rota: '/dashboard/organizacao/times', exact: false, prefixoAtivo: '/dashboard/organizacao', removivel: true  },
@@ -29,9 +33,13 @@ export const CATALOGO_SIDEBAR = [
   { slug: 'configuracoes',label: 'Configurações',  emoji: '⚙️', rota: '/dashboard/configuracoes',    exact: false, prefixoAtivo: null,                    removivel: false },
 ];
 
-// 'planos' saiu do catálogo: o plano da empresa passou a viver dentro de
-// Configurações, na aba Plano. Preferências já salvas com o item continuam
-// válidas — itensVisiveis descarta slugs que não estão mais no catálogo.
+// 'planos' e 'modulos' saíram do catálogo: o plano da empresa passou a
+// viver dentro de Configurações (aba Plano), e o hub /modulos foi extinto —
+// Chat, Calendário, Tarefas, Projetos e Times e Pessoas agora são itens
+// diretos (sem o antigo apenasAdmin: true do item Módulos, que deixava
+// member/viewer sem nenhum link de sidebar pra essas telas). Preferências
+// já salvas com slugs antigos continuam válidas — itensVisiveis descarta
+// slugs que não estão mais no catálogo.
 
 // Gera a lista padrão de itens (todos visíveis, ordem do catálogo)
 const gerarItensDefault = () =>
@@ -58,6 +66,8 @@ const mesclarComCatalogo = (itensSalvos) => {
 export const useSidebarPrefs = () => {
   const usuario = useAuthStore(s => s.usuario);
   const [itens, setItens] = useState(gerarItensDefault());
+  const [colapsada, setColapsada] = useState(false);
+  const [chatIaModo, setChatIaModo] = useState('flutuante');
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
 
@@ -72,7 +82,7 @@ export const useSidebarPrefs = () => {
     try {
       const { data, error } = await supabase
         .from('sidebar_preferencias')
-        .select('itens')
+        .select('itens, sidebar_colapsada, chat_ia_modo')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -86,6 +96,8 @@ export const useSidebarPrefs = () => {
         // Primeira vez: usa defaults
         setItens(gerarItensDefault());
       }
+      setColapsada(data?.sidebar_colapsada ?? false);
+      setChatIaModo(data?.chat_ia_modo || 'flutuante');
     } catch (err) {
       console.error('useSidebarPrefs.carregar:', err);
       setItens(gerarItensDefault());
@@ -153,10 +165,56 @@ export const useSidebarPrefs = () => {
     await persistir(defaults);
   }, [persistir]);
 
+  // Recolhe/expande a sidebar inteira — preferência isolada de "itens",
+  // upsert parcial não mexe na coluna itens da linha existente.
+  const alternarColapsada = useCallback(async (valor) => {
+    if (!userId || !tenantId) return;
+    setColapsada(valor);
+    setSalvando(true);
+    try {
+      const { error } = await supabase
+        .from('sidebar_preferencias')
+        .upsert(
+          { user_id: userId, tenant_id: tenantId, sidebar_colapsada: valor },
+          { onConflict: 'user_id' }
+        );
+      if (error) throw error;
+    } catch (err) {
+      console.error('useSidebarPrefs.alternarColapsada:', err);
+    } finally {
+      setSalvando(false);
+    }
+  }, [userId, tenantId]);
+
+  // Chat IA: 'flutuante' (bolha, padrão) ou 'fixo' (item normal na sidebar)
+  const definirChatIaModo = useCallback(async (modo) => {
+    if (!userId || !tenantId) return;
+    setChatIaModo(modo);
+    setSalvando(true);
+    try {
+      const { error } = await supabase
+        .from('sidebar_preferencias')
+        .upsert(
+          { user_id: userId, tenant_id: tenantId, chat_ia_modo: modo },
+          { onConflict: 'user_id' }
+        );
+      if (error) throw error;
+    } catch (err) {
+      console.error('useSidebarPrefs.definirChatIaModo:', err);
+    } finally {
+      setSalvando(false);
+    }
+  }, [userId, tenantId]);
+
+  // Quando o Chat IA está em modo flutuante, ele vira bolha — some da
+  // navegação e da lista de reordenação do modal de personalização.
+  const chatIaFlutuante = chatIaModo === 'flutuante';
+
   // Retorna itens visíveis ordenados, filtrados por cargo
   const itensVisiveis = itens
     .filter(i => {
       if (!i.visivel) return false;
+      if (chatIaFlutuante && i.slug === 'chat_ia') return false;
       const cat = CATALOGO_SIDEBAR.find(c => c.slug === i.slug);
       if (!cat) return false;
       // Itens apenasAdmin só aparecem para admin/manager
@@ -180,8 +238,11 @@ export const useSidebarPrefs = () => {
     .filter(Boolean);
 
   // Todos os itens visíveis para o modal (incluindo os que podem ser reordenados)
+  // — exceto chat_ia quando está flutuante: aparece só no seletor de modo,
+  // não faz sentido reordenar/ocultar algo que não é mais item de sidebar.
   const itensParaModal = itens
     .filter(i => {
+      if (chatIaFlutuante && i.slug === 'chat_ia') return false;
       const cat = CATALOGO_SIDEBAR.find(c => c.slug === i.slug);
       if (!cat) return false;
       if (cat.apenasAdmin && !['admin', 'manager'].includes(cargo)) return false;
@@ -199,10 +260,14 @@ export const useSidebarPrefs = () => {
     itensVisiveis,
     itensOcultos,
     itensParaModal,
+    colapsada,
+    chatIaModo,
     carregando,
     salvando,
     reordenar,
     toggleVisivel,
     resetar,
+    alternarColapsada,
+    definirChatIaModo,
   };
 };

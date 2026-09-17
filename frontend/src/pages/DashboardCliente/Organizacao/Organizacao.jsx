@@ -27,6 +27,13 @@ const SUB_NAV = [
     desc:  'Defina cargos e acessos',
   },
   {
+    slug:  'usuarios',
+    label: 'Usuários',
+    emoji: '👤',
+    rota:  '/dashboard/organizacao/usuarios',
+    desc:  'Crie e gerencie usuários',
+  },
+  {
     slug:  'identidade',
     label: 'Identidade Visual',
     emoji: '🎨',

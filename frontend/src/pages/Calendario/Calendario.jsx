@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { DndContext, PointerSensor, useSensor, useSensors, useDroppable, useDraggable } from '@dnd-kit/core';
-import { supabase } from '../../../lib/supabase';
-import { useAuthStore } from '../../../store/authStore';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/authStore';
 
 const TIPOS_EVENTO = {
   reuniao:     { label: 'Reunião',    cor: '#6366f1', icone: '📅' },
@@ -15,10 +14,44 @@ const TIPOS_EVENTO = {
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-const getDiasDoMes = (ano, mes) => {
-  const primeiroDia = new Date(ano, mes, 1).getDay();
-  const totalDias = new Date(ano, mes + 1, 0).getDate();
-  return { primeiroDia, totalDias };
+const pad2 = (n) => String(n).padStart(2, '0');
+
+// Monta a grade completa do mês (linhas de 7 dias), preenchendo com dias do
+// mês anterior/seguinte para fechar a primeira e a última semana — igual ao
+// que qualquer calendário mensal padrão mostra (dias fora do mês, esmaecidos).
+const getGradeDoMes = (ano, mes) => {
+  const primeiroDiaMes = new Date(ano, mes, 1);
+  const diaSemanaInicio = primeiroDiaMes.getDay();
+  const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
+  const totalDiasMesAnterior = new Date(ano, mes, 0).getDate();
+
+  const dias = [];
+
+  for (let i = diaSemanaInicio - 1; i >= 0; i--) {
+    const dia = totalDiasMesAnterior - i;
+    const mesRef = mes === 0 ? 11 : mes - 1;
+    const anoRef = mes === 0 ? ano - 1 : ano;
+    dias.push({ dia, mes: mesRef, ano: anoRef, atual: false });
+  }
+
+  for (let dia = 1; dia <= totalDiasMes; dia++) {
+    dias.push({ dia, mes, ano, atual: true });
+  }
+
+  const diasRestantes = (7 - (dias.length % 7)) % 7;
+  for (let dia = 1; dia <= diasRestantes; dia++) {
+    const mesRef = mes === 11 ? 0 : mes + 1;
+    const anoRef = mes === 11 ? ano + 1 : ano;
+    dias.push({ dia, mes: mesRef, ano: anoRef, atual: false });
+  }
+
+  return dias;
+};
+
+const formatarDataHora = (iso) => {
+  const d = new Date(iso);
+  const dataStr = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+  return `${dataStr} · ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 };
 
 // ─── Modal de evento ──────────────────────────────────────────────────────────
@@ -26,38 +59,48 @@ const getDiasDoMes = (ano, mes) => {
 // poder entrar na dependência do useEffect abaixo sem causar loop.
 const FORM_VAZIO = { titulo: '', tipo: 'reuniao', data_inicio: '', hora: '09:00', descricao: '', local: '' };
 
-const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, diaSelecionado, mesAtual, anoAtual }) => {
+const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, diaSelecionado, mesSelecionado, anoSelecionado }) => {
   const [form, setForm] = useState(FORM_VAZIO);
 
   useEffect(() => {
     if (eventoEditando) {
+      // Base local consistente: getters locais para data E hora, evitando
+      // misturar UTC (toISOString) com hora local (toTimeString) — a mistura
+      // fazia eventos perto da meia-noite local caírem no dia/hora errados.
       const d = new Date(eventoEditando.data_inicio);
       setForm({
         titulo: eventoEditando.titulo || '',
         tipo: eventoEditando.tipo || 'reuniao',
-        data_inicio: d.toISOString().split('T')[0],
-        hora: d.toTimeString().slice(0, 5),
+        data_inicio: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`,
+        hora: `${pad2(d.getHours())}:${pad2(d.getMinutes())}`,
         descricao: eventoEditando.descricao || '',
         local: eventoEditando.local || '',
       });
     } else if (diaSelecionado) {
-      const mes = String(mesAtual + 1).padStart(2, '0');
-      const dia = String(diaSelecionado).padStart(2, '0');
-      setForm({ ...FORM_VAZIO, data_inicio: `${anoAtual}-${mes}-${dia}` });
+      const mes = pad2(mesSelecionado + 1);
+      const dia = pad2(diaSelecionado);
+      setForm({ ...FORM_VAZIO, data_inicio: `${anoSelecionado}-${mes}-${dia}` });
     } else {
       setForm(FORM_VAZIO);
     }
-  }, [eventoEditando, diaSelecionado, mesAtual, anoAtual, aberto]);
+  }, [eventoEditando, diaSelecionado, mesSelecionado, anoSelecionado, aberto]);
 
   if (!aberto) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const dataHora = `${form.data_inicio}T${form.hora}:00`;
+    // Constrói um Date local real e converte pra instante UTC via
+    // toISOString(). Concatenar a string naive ("YYYY-MM-DDTHH:mm:00") e
+    // mandar direto pro Postgres fazia o timestamptz ser interpretado como
+    // UTC, deslocando o evento pelo fuso do usuário (ex.: 3h no Brasil).
+    const [ano, mes, dia] = form.data_inicio.split('-').map(Number);
+    const [hora, minuto] = form.hora.split(':').map(Number);
+    const dataHora = new Date(ano, mes - 1, dia, hora, minuto);
+
     await onSalvar({
       titulo: form.titulo,
       tipo: form.tipo,
-      data_inicio: dataHora,
+      data_inicio: dataHora.toISOString(),
       descricao: form.descricao || null,
       local: form.local || null,
     });
@@ -130,17 +173,20 @@ const EventoArrastavel = ({ evento, onClick }) => {
 };
 
 // ─── Célula do dia (droppable) ────────────────────────────────────────────────
-const CelulaDia = ({ dia, mes, ano, eventos, hoje, onClicar, onAbrirEvento }) => {
+// O id embute o mês/ano reais da célula (já 0-indexado, convenção Date.getMonth()),
+// inclusive para dias esmaecidos de mês adjacente — o handler de drop usa esse
+// valor diretamente, sem reindexar.
+const CelulaDia = ({ dia, mes, ano, atual, eventos, hoje, onClicar, onAbrirEvento }) => {
   const { setNodeRef, isOver } = useDroppable({ id: `dia-${ano}-${mes}-${dia}` });
   const eHoje = hoje.getDate() === dia && hoje.getMonth() === mes && hoje.getFullYear() === ano;
 
   return (
     <div
       ref={setNodeRef}
-      onClick={() => onClicar(dia)}
-      className={`min-h-[80px] p-1.5 rounded-lg cursor-pointer transition-colors ${
+      onClick={() => onClicar(dia, mes, ano)}
+      className={`min-h-[92px] p-1.5 rounded-lg cursor-pointer transition-colors ${
         isOver ? 'bg-primary-500/20 ring-1 ring-primary-500' : 'hover:bg-white/5'
-      }`}
+      } ${atual ? '' : 'opacity-40'}`}
     >
       <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mb-1 ${
         eHoje ? 'bg-primary-500 text-white' : 'opacity-70'
@@ -159,15 +205,46 @@ const CelulaDia = ({ dia, mes, ano, eventos, hoje, onClicar, onAbrirEvento }) =>
   );
 };
 
+// ─── Painel de próximos compromissos ──────────────────────────────────────────
+const PainelProximos = ({ eventos, onAbrirEvento }) => (
+  <div className="w-full lg:w-72 flex-shrink-0 rounded-xl border p-4 space-y-3" style={{ borderColor: 'var(--color-surface-border)' }}>
+    <h2 className="font-semibold text-sm">Próximos compromissos</h2>
+    {eventos.length === 0 ? (
+      <p className="text-xs opacity-40 py-4 text-center">Nenhum compromisso futuro agendado.</p>
+    ) : (
+      <div className="space-y-1">
+        {eventos.map(ev => {
+          const tipo = TIPOS_EVENTO[ev.tipo] || TIPOS_EVENTO.outro;
+          return (
+            <button
+              key={ev.id}
+              onClick={() => onAbrirEvento(ev)}
+              className="w-full flex items-start gap-2 p-2 rounded-lg text-left transition-colors hover:bg-white/5"
+            >
+              <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: tipo.cor }} />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm truncate">{ev.titulo}</p>
+                <p className="text-xs opacity-50">{formatarDataHora(ev.data_inicio)}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    )}
+  </div>
+);
+
 // ─── Página principal ─────────────────────────────────────────────────────────
 const Calendario = () => {
-  const navigate = useNavigate();
   const usuario = useAuthStore(s => s.usuario);
   const [eventos, setEventos] = useState([]);
+  const [proximosEventos, setProximosEventos] = useState([]);
   const [mesAtual, setMesAtual] = useState(new Date().getMonth());
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear());
   const [modalAberto, setModalAberto] = useState(false);
   const [diaSelecionado, setDiaSelecionado] = useState(null);
+  const [mesSelecionado, setMesSelecionado] = useState(mesAtual);
+  const [anoSelecionado, setAnoSelecionado] = useState(anoAtual);
   const [eventoEditando, setEventoEditando] = useState(null);
   const hoje = new Date();
 
@@ -175,10 +252,16 @@ const Calendario = () => {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
+  const grade = getGradeDoMes(anoAtual, mesAtual);
+  const primeiraCelula = grade[0];
+  const ultimaCelula = grade[grade.length - 1];
+
   const carregar = useCallback(async () => {
     if (!tenantId) return;
-    const inicio = new Date(anoAtual, mesAtual, 1).toISOString();
-    const fim = new Date(anoAtual, mesAtual + 1, 0, 23, 59, 59).toISOString();
+    // Cobre a grade inteira (incluindo dias de padding do mês anterior/seguinte),
+    // não só o mês exibido, para os eventos desses dias também aparecerem.
+    const inicio = new Date(primeiraCelula.ano, primeiraCelula.mes, primeiraCelula.dia).toISOString();
+    const fim = new Date(ultimaCelula.ano, ultimaCelula.mes, ultimaCelula.dia, 23, 59, 59).toISOString();
     const { data } = await supabase
       .from('agenda_eventos')
       .select('*')
@@ -187,9 +270,26 @@ const Calendario = () => {
       .lte('data_inicio', fim)
       .order('data_inicio', { ascending: true });
     setEventos(data || []);
-  }, [tenantId, mesAtual, anoAtual]);
+  }, [tenantId, primeiraCelula.ano, primeiraCelula.mes, primeiraCelula.dia, ultimaCelula.ano, ultimaCelula.mes, ultimaCelula.dia]);
 
   useEffect(() => { carregar(); }, [carregar]);
+
+  // Painel "Próximos compromissos": independente do mês navegado, sempre
+  // mostra o que vem pela frente a partir de agora.
+  const carregarProximos = useCallback(async () => {
+    if (!tenantId) return;
+    const { data } = await supabase
+      .from('agenda_eventos')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .neq('status', 'cancelado')
+      .gte('data_inicio', new Date().toISOString())
+      .order('data_inicio', { ascending: true })
+      .limit(8);
+    setProximosEventos(data || []);
+  }, [tenantId]);
+
+  useEffect(() => { carregarProximos(); }, [carregarProximos]);
 
   const handleSalvar = async (dados) => {
     if (eventoEditando) {
@@ -202,17 +302,17 @@ const Calendario = () => {
         status: 'agendado',
       });
     }
-    await carregar();
+    await Promise.all([carregar(), carregarProximos()]);
   };
 
   const handleExcluir = async (id) => {
     await supabase.from('agenda_eventos').delete().eq('id', id);
-    await carregar();
+    await Promise.all([carregar(), carregarProximos()]);
   };
 
   const handleDragEnd = async ({ active, over }) => {
     if (!over) return;
-    const overId = over.id; // formato: "dia-YYYY-MM-DD"
+    const overId = String(over.id); // formato: "dia-YYYY-M-D", mês já 0-indexado
     if (!overId.startsWith('dia-')) return;
 
     const [, ano, mes, dia] = overId.split('-');
@@ -220,22 +320,22 @@ const Calendario = () => {
     if (!evento) return;
 
     const dataOriginal = new Date(evento.data_inicio);
-    const novaData = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia),
+    // `mes` já vem 0-indexado (mesma convenção do id da célula) — não subtrair
+    // 1 de novo, senão janeiro (mes="0") vira dezembro do ano anterior.
+    const novaData = new Date(parseInt(ano), parseInt(mes), parseInt(dia),
       dataOriginal.getHours(), dataOriginal.getMinutes());
 
     await supabase
       .from('agenda_eventos')
       .update({ data_inicio: novaData.toISOString() })
       .eq('id', evento.id);
-    await carregar();
+    await Promise.all([carregar(), carregarProximos()]);
   };
 
-  const { primeiroDia, totalDias } = getDiasDoMes(anoAtual, mesAtual);
-
-  const eventosDoDia = (dia) =>
+  const eventosDoDia = (dia, mes, ano) =>
     eventos.filter(e => {
       const d = new Date(e.data_inicio);
-      return d.getDate() === dia && d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+      return d.getDate() === dia && d.getMonth() === mes && d.getFullYear() === ano;
     });
 
   const irMesAnterior = () => {
@@ -248,17 +348,21 @@ const Calendario = () => {
     else setMesAtual(m => m + 1);
   };
 
-  return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      {/* Botão Voltar */}
-      <button
-        onClick={() => navigate('/modulos')}
-        className="text-sm opacity-50 hover:opacity-100 transition-opacity"
-        title="Voltar para Módulos"
-      >
-        ← Voltar
-      </button>
+  const irHoje = () => { setMesAtual(hoje.getMonth()); setAnoAtual(hoje.getFullYear()); };
 
+  const abrirNovoEvento = (dia, mes, ano) => {
+    setDiaSelecionado(dia);
+    setMesSelecionado(mes);
+    setAnoSelecionado(ano);
+    setEventoEditando(null);
+    setModalAberto(true);
+  };
+
+  const linhas = [];
+  for (let i = 0; i < grade.length; i += 7) linhas.push(grade.slice(i, i + 7));
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       {/* Cabeçalho */}
       <div className="flex items-center justify-between">
         <div>
@@ -268,10 +372,9 @@ const Calendario = () => {
         <div className="flex items-center gap-2">
           <button onClick={irMesAnterior}
             className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-            style={{ '--hover-bg': 'var(--color-surface-hover)' }}
             onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
             onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>‹</button>
-          <button onClick={() => { setMesAtual(hoje.getMonth()); setAnoAtual(hoje.getFullYear()); }}
+          <button onClick={irHoje}
             className="px-3 py-1.5 rounded-lg text-sm transition-colors"
             onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
             onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Hoje</button>
@@ -280,7 +383,7 @@ const Calendario = () => {
             onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
             onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>›</button>
           <button
-            onClick={() => { setEventoEditando(null); setDiaSelecionado(hoje.getDate()); setModalAberto(true); }}
+            onClick={() => abrirNovoEvento(hoje.getDate(), hoje.getMonth(), hoje.getFullYear())}
             className="ml-2 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium"
           >
             + Evento
@@ -288,41 +391,46 @@ const Calendario = () => {
         </div>
       </div>
 
-      {/* Grade do calendário */}
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
-          {/* Cabeçalho dos dias */}
-          <div className="grid grid-cols-7 border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
-            {DIAS_SEMANA.map(d => (
-              <div key={d} className="py-2 text-center text-xs font-medium opacity-50">{d}</div>
-            ))}
-          </div>
-          {/* Células */}
-          <div className="grid grid-cols-7 gap-px" style={{ backgroundColor: 'var(--color-surface-border)' }}>
-            {/* Células vazias antes do primeiro dia */}
-            {Array.from({ length: primeiroDia }).map((_, i) => (
-              <div key={`vazio-${i}`} className="min-h-[80px] p-1.5" style={{ backgroundColor: 'var(--color-surface)' }} />
-            ))}
-            {/* Dias do mês */}
-            {Array.from({ length: totalDias }).map((_, i) => {
-              const dia = i + 1;
-              return (
-                <div key={dia} style={{ backgroundColor: 'var(--color-surface)' }}>
-                  <CelulaDia
-                    dia={dia}
-                    mes={mesAtual}
-                    ano={anoAtual}
-                    eventos={eventosDoDia(dia)}
-                    hoje={hoje}
-                    onClicar={(d) => { setDiaSelecionado(d); setEventoEditando(null); setModalAberto(true); }}
-                    onAbrirEvento={(ev) => { setEventoEditando(ev); setDiaSelecionado(null); setModalAberto(true); }}
-                  />
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* Grade do calendário */}
+        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+          <div className="flex-1 min-w-0 rounded-xl overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
+            {/* Cabeçalho dos dias */}
+            <div className="grid grid-cols-7 border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
+              {DIAS_SEMANA.map(d => (
+                <div key={d} className="py-2 text-center text-xs font-medium opacity-50">{d}</div>
+              ))}
+            </div>
+            {/* Semanas */}
+            <div className="divide-y" style={{ borderColor: 'var(--color-surface-border)' }}>
+              {linhas.map((linha, i) => (
+                <div key={i} className="grid grid-cols-7 gap-px" style={{ backgroundColor: 'var(--color-surface-border)' }}>
+                  {linha.map((celula) => (
+                    <div key={`${celula.ano}-${celula.mes}-${celula.dia}`} style={{ backgroundColor: 'var(--color-surface)' }}>
+                      <CelulaDia
+                        dia={celula.dia}
+                        mes={celula.mes}
+                        ano={celula.ano}
+                        atual={celula.atual}
+                        eventos={eventosDoDia(celula.dia, celula.mes, celula.ano)}
+                        hoje={hoje}
+                        onClicar={abrirNovoEvento}
+                        onAbrirEvento={(ev) => { setEventoEditando(ev); setDiaSelecionado(null); setModalAberto(true); }}
+                      />
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
-      </DndContext>
+        </DndContext>
+
+        {/* Próximos compromissos */}
+        <PainelProximos
+          eventos={proximosEventos}
+          onAbrirEvento={(ev) => { setEventoEditando(ev); setDiaSelecionado(null); setModalAberto(true); }}
+        />
+      </div>
 
       {/* Legenda */}
       <div className="flex flex-wrap gap-3">
@@ -341,8 +449,8 @@ const Calendario = () => {
         onExcluir={handleExcluir}
         eventoEditando={eventoEditando}
         diaSelecionado={diaSelecionado}
-        mesAtual={mesAtual}
-        anoAtual={anoAtual}
+        mesSelecionado={mesSelecionado}
+        anoSelecionado={anoSelecionado}
       />
     </div>
   );

@@ -34,9 +34,13 @@ import { useTenantStore } from '../../store/tenantStore.js';
 import { useAuth, carregarPermissoesCargo } from '../../hooks/useAuth.js';
 import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
 import { NOME_PRODUTO } from '../../lib/ambiente.js';
+import BolhaChatIA from '../../components/ChatIA/BolhaChatIA.jsx';
 
 // Páginas onde o botão Voltar NÃO aparece (raízes do dashboard)
-const ROTAS_SEM_VOLTAR = ['/dashboard', '/crm', '/suporte', '/dashboard/organizacao', '/modulos'];
+const ROTAS_SEM_VOLTAR = [
+  '/dashboard', '/crm', '/suporte', '/dashboard/organizacao',
+  '/chat', '/calendario', '/tarefas', '/projetos', '/times-pessoas',
+];
 
 // Dois tons por cargo: o escuro para o tema claro, o claro para o escuro.
 // A classe .badge-cargo (index.css) escolhe qual usar. Antes eram só os tons
@@ -164,7 +168,10 @@ const ItemSortableModal = ({ item, onToggle }) => {
 // COMPONENTE: Modal de personalização da sidebar
 // ----------------------------------------------------------
 const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
-  const { itensParaModal, reordenar, toggleVisivel, resetar, salvando } = prefs;
+  const {
+    itensParaModal, reordenar, toggleVisivel, resetar, salvando,
+    chatIaModo, definirChatIaModo,
+  } = prefs;
   const [ordemLocal, setOrdemLocal] = useState(null);
 
   const sensors = useSensors(
@@ -232,6 +239,37 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
           </button>
         </div>
 
+        {/* Chat IA: bolha flutuante ou item fixo — fica fora da lista
+            arrastável porque não é um item de navegação comum. */}
+        <div className="px-3 pt-3 flex-shrink-0">
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-40 mb-2">
+            🤖 Chat com IA
+          </p>
+          <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
+            <button
+              onClick={() => definirChatIaModo('flutuante')}
+              className={`flex-1 text-xs py-2 transition-colors ${
+                chatIaModo === 'flutuante' ? 'bg-primary-600 text-white' : 'acao-sutil'
+              }`}
+            >
+              💬 Bolha flutuante
+            </button>
+            <button
+              onClick={() => definirChatIaModo('fixo')}
+              className={`flex-1 text-xs py-2 transition-colors ${
+                chatIaModo === 'fixo' ? 'bg-primary-600 text-white' : 'acao-sutil'
+              }`}
+            >
+              📌 Item fixo
+            </button>
+          </div>
+          <p className="text-xs opacity-50 mt-1.5">
+            {chatIaModo === 'flutuante'
+              ? 'Aparece como bolinha arrastável em qualquer tela.'
+              : 'Aparece como item normal na barra lateral, como antes.'}
+          </p>
+        </div>
+
         {/* Lista de itens */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1">
           <p className="text-xs font-semibold uppercase tracking-wider opacity-40 px-3 mb-2">
@@ -294,13 +332,12 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
 // P3: h-screen, flex-col, nav com overflow-y-auto flex-1,
 //     bloco de usuário fixo no rodapé (flex-shrink-0)
 // ----------------------------------------------------------
-const Sidebar = ({ aberta, onFechar }) => {
+const Sidebar = ({ aberta, onFechar, prefs }) => {
   const { usuario } = useAuthStore();
   const { logout }  = useAuth();
   const [modalAberto, setModalAberto] = useState(false);
 
-  const prefs = useSidebarPrefs();
-  const { itensVisiveis } = prefs;
+  const { itensVisiveis, colapsada } = prefs;
 
   const badgeCargo  = BADGE_CARGO[usuario?.cargo] || BADGE_CARGO.member;
   const primeiroNome = usuario?.nome?.split(' ')[0] || 'Usuário';
@@ -315,12 +352,17 @@ const Sidebar = ({ aberta, onFechar }) => {
         />
       )}
 
-      {/* Sidebar — P3: h-screen garante altura total no desktop */}
+      {/* Sidebar — P3: h-screen garante altura total no desktop.
+          "Colapsada" é um conceito só de desktop: esconde a barra inteira
+          (largura 0), ganhando espaço de tela. No mobile o drawer overlay
+          já resolve isso do jeito dele (aberta/onFechar), então ignora
+          colapsada e sempre abre em largura cheia. */}
       <aside
         className={`
-          fixed top-0 left-0 h-screen w-64 flex flex-col z-40 transition-transform duration-300
+          fixed top-0 left-0 h-screen w-64 flex flex-col z-40 transition-all duration-300 overflow-hidden
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 lg:static lg:z-auto lg:h-screen
+          ${colapsada ? 'lg:w-0 lg:!border-0' : 'lg:w-64'}
         `}
         style={{
           // --brand-superficie só existe quando a organização aplica a
@@ -329,73 +371,77 @@ const Sidebar = ({ aberta, onFechar }) => {
           borderRight: '1px solid var(--color-surface-border)',
         }}
       >
-        {/* Logo */}
-        <div
-          className="h-16 flex items-center gap-3 px-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid var(--color-surface-border)' }}
-        >
-          <Marca />
-          {/* Era text-white fixo, invisível no tema claro. Com identidade
-              aplicada, segue a cor de acento sobre a cor secundária. */}
-          <span
-            className="font-bold text-lg truncate"
-            style={{ color: 'var(--sidebar-texto)' }}
+        {/* Conteúdo com largura fixa — evita que o texto quebre feio
+            enquanto a transição de largura do <aside> está em andamento. */}
+        <div className="w-64 h-full flex flex-col flex-shrink-0">
+          {/* Logo */}
+          <div
+            className="h-16 flex items-center gap-3 px-4 flex-shrink-0"
+            style={{ borderBottom: '1px solid var(--color-surface-border)' }}
           >
-            {NOME_PRODUTO}
-          </span>
-          {/* Botão fechar mobile */}
-          <button onClick={onFechar} className="acao-lateral ml-auto lg:hidden">
-            ✕
-          </button>
-        </div>
-
-        {/* Navegação — P3: flex-1 + overflow-y-auto = scroll interno */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 min-h-0">
-          {itensVisiveis.map((item) => (
-            <ItemNav key={item.slug} item={item} onClick={onFechar} />
-          ))}
-        </nav>
-
-        {/* Perfil do usuário — P3: flex-shrink-0 = sempre visível no rodapé */}
-        <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid var(--color-surface-border)' }}>
-          <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
-            {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-              {primeiroNome[0]?.toUpperCase()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p
-                className="text-sm font-medium truncate"
-                style={{ color: 'var(--sidebar-texto)' }}
-              >
-                {primeiroNome}
-              </p>
-              <span
-                className="badge-cargo"
-                style={{
-                  '--badge-cargo-rgb':       badgeCargo.rgb,
-                  '--badge-cargo-rgb-claro': badgeCargo.rgbClaro,
-                }}
-              >
-                {badgeCargo.label}
-              </span>
-            </div>
-            {/* Botão personalizar sidebar — P4 */}
-            <button
-              onClick={() => setModalAberto(true)}
-              title="Personalizar barra lateral"
-              className="acao-lateral flex-shrink-0 text-base"
+            <Marca />
+            {/* Era text-white fixo, invisível no tema claro. Com identidade
+                aplicada, segue a cor de acento sobre a cor secundária. */}
+            <span
+              className="font-bold text-lg truncate"
+              style={{ color: 'var(--sidebar-texto)' }}
             >
-              ✏️
+              {NOME_PRODUTO}
+            </span>
+            {/* Botão fechar mobile */}
+            <button onClick={onFechar} className="acao-lateral ml-auto lg:hidden">
+              ✕
             </button>
-            {/* Botão sair */}
-            <button
-              onClick={logout}
-              title="Sair"
-              className="acao-lateral flex-shrink-0 text-lg hover:text-red-500"
-            >
-              🚪
-            </button>
+          </div>
+
+          {/* Navegação — P3: flex-1 + overflow-y-auto = scroll interno */}
+          <nav className="flex-1 overflow-y-auto p-3 space-y-1 min-h-0">
+            {itensVisiveis.map((item) => (
+              <ItemNav key={item.slug} item={item} onClick={onFechar} />
+            ))}
+          </nav>
+
+          {/* Perfil do usuário — P3: flex-shrink-0 = sempre visível no rodapé */}
+          <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid var(--color-surface-border)' }}>
+            <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
+              {/* Avatar */}
+              <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                {primeiroNome[0]?.toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-sm font-medium truncate"
+                  style={{ color: 'var(--sidebar-texto)' }}
+                >
+                  {primeiroNome}
+                </p>
+                <span
+                  className="badge-cargo"
+                  style={{
+                    '--badge-cargo-rgb':       badgeCargo.rgb,
+                    '--badge-cargo-rgb-claro': badgeCargo.rgbClaro,
+                  }}
+                >
+                  {badgeCargo.label}
+                </span>
+              </div>
+              {/* Botão personalizar sidebar — P4 */}
+              <button
+                onClick={() => setModalAberto(true)}
+                title="Personalizar barra lateral"
+                className="acao-lateral flex-shrink-0 text-base"
+              >
+                ✏️
+              </button>
+              {/* Botão sair */}
+              <button
+                onClick={logout}
+                title="Sair"
+                className="acao-lateral flex-shrink-0 text-lg hover:text-red-500"
+              >
+                🚪
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -472,6 +518,12 @@ const LayoutCliente = ({ children }) => {
   const navigate  = useNavigate();
   const location  = useLocation();
 
+  // Uma só instância de useSidebarPrefs para todo o layout: Sidebar,
+  // o botão de recolher e a bolinha do Chat IA precisam do mesmo estado
+  // (colapsada / chatIaModo), então sobe pra cá em vez de cada um buscar
+  // separado no banco.
+  const prefs = useSidebarPrefs();
+
   // Carrega a organização uma única vez por sessão. O tenantStore aplica a
   // identidade visual no documento, então isto vale para a área inteira.
   const tenantId        = useAuthStore((s) => s.usuario?.tenant_id);
@@ -500,7 +552,25 @@ const LayoutCliente = ({ children }) => {
       <Sidebar
         aberta={sidebarAberta}
         onFechar={() => setSidebarAberta(false)}
+        prefs={prefs}
       />
+
+      {/* Botão recolher/expandir a barra lateral — fixo, fora do <aside>
+          de propósito: quando colapsada a sidebar fica com largura 0, e um
+          botão preso a ela sumiria junto. Só desktop; no mobile o menu
+          hamburguer do HeaderMobile já cobre esse papel. */}
+      <button
+        onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
+        title={prefs.colapsada ? 'Expandir barra lateral' : 'Recolher barra lateral'}
+        className="hidden lg:flex fixed top-5 z-50 items-center justify-center w-7 h-7 rounded-full border shadow-md text-xs acao-sutil transition-[left] duration-300"
+        style={{
+          left: prefs.colapsada ? '0.75rem' : 'calc(16rem - 0.875rem)',
+          backgroundColor: 'var(--color-surface-card)',
+          borderColor: 'var(--color-surface-border)',
+        }}
+      >
+        ☰
+      </button>
 
       {/* Área de conteúdo */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -519,6 +589,10 @@ const LayoutCliente = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* Bolinha do Chat IA — some daqui quando o usuário prefere o item
+          fixo na sidebar (modo antigo), já coberto por itensVisiveis. */}
+      {prefs.chatIaModo === 'flutuante' && !prefs.carregando && <BolhaChatIA />}
     </div>
   );
 };

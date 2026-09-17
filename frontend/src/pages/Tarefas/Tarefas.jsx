@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTarefas, STATUS_TAREFAS, PRIORIDADES } from '../../../hooks/useTarefas';
+import { useTarefas, STATUS_TAREFAS, PRIORIDADES } from '../../hooks/useTarefas';
+import { useAuthStore } from '../../store/authStore';
 
 const FORM_VAZIO = {
   titulo: '', descricao: '', status: 'pendente', prioridade: 'media',
   data_vencimento: '', estimativa_h: '',
 };
 
-const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) => {
+const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando, usuariosTenant }) => {
   const [form, setForm] = useState(FORM_VAZIO);
+  const [atribuidosIds, setAtribuidosIds] = useState([]);
 
   // O modal nunca desmonta (só retorna null quando fechado), então o form
   // precisa ser resincronizado aqui sempre que a tarefa a editar mudar —
@@ -27,12 +28,18 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
           : '',
         estimativa_h: tarefaEditando.estimativa_h || '',
       });
+      setAtribuidosIds((tarefaEditando.tarefa_atribuicoes || []).map(a => a.user_id));
     } else {
       setForm(FORM_VAZIO);
+      setAtribuidosIds([]);
     }
   }, [tarefaEditando, aberto]);
 
   if (!aberto) return null;
+
+  const toggleAtribuido = (userId) => {
+    setAtribuidosIds(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +47,7 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
       ...form,
       data_vencimento: form.data_vencimento ? new Date(form.data_vencimento).toISOString() : null,
       estimativa_h: form.estimativa_h ? parseFloat(form.estimativa_h) : null,
-    });
+    }, atribuidosIds);
     onFechar();
   };
 
@@ -81,6 +88,27 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando }) 
               <input type="number" step="0.5" min="0" className={inp} style={inpStyle} placeholder="Ex: 2.5" value={form.estimativa_h} onChange={e => setForm(f => ({ ...f, estimativa_h: e.target.value }))} />
             </div>
           </div>
+          {usuariosTenant.length > 0 && (
+            <div>
+              <label className="text-xs opacity-50 mb-1 block">Responsáveis</label>
+              <div className="flex flex-wrap gap-1.5">
+                {usuariosTenant.map(u => {
+                  const ativo = atribuidosIds.includes(u.id);
+                  return (
+                    <button
+                      key={u.id}
+                      type="button"
+                      onClick={() => toggleAtribuido(u.id)}
+                      className={`px-2.5 py-1 rounded-full text-xs transition-colors ${ativo ? 'bg-primary-600 text-white' : 'opacity-60'}`}
+                      style={ativo ? undefined : inpStyle}
+                    >
+                      {u.nome}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="flex gap-2 pt-2">
             {tarefaEditando && (
               <button type="button" onClick={() => { onExcluir(tarefaEditando.id); onFechar(); }}
@@ -106,6 +134,7 @@ const CardTarefa = ({ tarefa, onAbrir }) => {
   const checklist = tarefa.tarefa_checklist || [];
   const checkConcluidos = checklist.filter(c => c.concluido).length;
   const vencida = tarefa.data_vencimento && new Date(tarefa.data_vencimento) < new Date() && tarefa.status !== 'concluida';
+  const atribuicoes = tarefa.tarefa_atribuicoes || [];
 
   return (
     <div
@@ -135,6 +164,20 @@ const CardTarefa = ({ tarefa, onAbrir }) => {
         )}
         {tarefa.estimativa_h && (
           <span className="text-xs opacity-40">⏱ {tarefa.estimativa_h}h</span>
+        )}
+        {atribuicoes.length > 0 && (
+          <div className="flex items-center -space-x-1.5 ml-auto">
+            {atribuicoes.slice(0, 3).map(a => (
+              <span
+                key={a.user_id}
+                title={a.users?.nome}
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium border-2"
+                style={{ backgroundColor: 'var(--color-surface-border)', borderColor: 'var(--color-surface)' }}
+              >
+                {(a.users?.nome || '?').charAt(0).toUpperCase()}
+              </span>
+            ))}
+          </div>
         )}
       </div>
     </div>
@@ -166,20 +209,36 @@ const ColunaKanban = ({ status, tarefas, onAbrir, onNovaTarefa }) => (
 );
 
 const Tarefas = () => {
-  const navigate = useNavigate();
-  const { tarefas, kanban, carregando, criarTarefa, atualizarTarefa, excluirTarefa } = useTarefas();
+  const usuario = useAuthStore(s => s.usuario);
+  const [apenasMinhas, setApenasMinhas] = useState(false);
+  const filtros = apenasMinhas && usuario?.id ? { atribuidoA: usuario.id } : {};
+  const {
+    tarefas, kanban, carregando, criarTarefa, atualizarTarefa, excluirTarefa,
+    atribuirUsuario, removerAtribuicao, usuariosTenant,
+  } = useTarefas(filtros);
   const [modalAberto, setModalAberto] = useState(false);
   const [tarefaEditando, setTarefaEditando] = useState(null);
   const [statusInicial, setStatusInicial] = useState('pendente');
   const [visao, setVisao] = useState('kanban'); // 'kanban' | 'lista'
   const [busca, setBusca] = useState('');
 
-  const handleSalvar = async (dados) => {
+  const handleSalvar = async (dados, atribuidosIds = []) => {
+    let tarefaId;
     if (tarefaEditando) {
       await atualizarTarefa(tarefaEditando.id, dados);
+      tarefaId = tarefaEditando.id;
     } else {
-      await criarTarefa({ ...dados, status: statusInicial });
+      const nova = await criarTarefa({ ...dados, status: statusInicial });
+      tarefaId = nova.id;
     }
+
+    const atuaisIds = (tarefaEditando?.tarefa_atribuicoes || []).map(a => a.user_id);
+    const paraAdicionar = atribuidosIds.filter(id => !atuaisIds.includes(id));
+    const paraRemover = atuaisIds.filter(id => !atribuidosIds.includes(id));
+    await Promise.all([
+      ...paraAdicionar.map(id => atribuirUsuario(tarefaId, id)),
+      ...paraRemover.map(id => removerAtribuicao(tarefaId, id)),
+    ]);
   };
 
   const handleAbrir = (tarefa) => {
@@ -207,15 +266,6 @@ const Tarefas = () => {
 
   return (
     <div className="px-4 py-8 space-y-6">
-      {/* Botão Voltar */}
-      <button
-        onClick={() => navigate('/modulos')}
-        className="text-sm opacity-50 hover:opacity-100 transition-opacity"
-        title="Voltar para Módulos"
-      >
-        ← Voltar
-      </button>
-
       {/* Cabeçalho */}
       <div className="flex items-center justify-between max-w-full">
         <div>
@@ -223,6 +273,13 @@ const Tarefas = () => {
           <p className="text-sm opacity-50">{tarefas.length} tarefa{tarefas.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setApenasMinhas(m => !m)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${apenasMinhas ? 'bg-primary-600 text-white' : 'opacity-60'}`}
+            style={{ borderColor: 'var(--color-surface-border)' }}
+          >
+            Minhas tarefas
+          </button>
           <div className="flex rounded-lg border overflow-hidden" style={{ borderColor: 'var(--color-surface-border)' }}>
             <button
               onClick={() => setVisao('kanban')}
@@ -322,6 +379,7 @@ const Tarefas = () => {
         onSalvar={handleSalvar}
         onExcluir={excluirTarefa}
         tarefaEditando={tarefaEditando}
+        usuariosTenant={usuariosTenant}
       />
     </div>
   );

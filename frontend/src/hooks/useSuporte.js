@@ -1,7 +1,7 @@
 // =============================================================
 // PRANCHETO.IA - HOOK: useSuporte
 // Camada de acesso a dados do módulo de Suporte (tickets).
-// Segue o padrão dos demais módulos (useProjetos/useModulos):
+// Segue o padrão dos demais módulos (useProjetos/useTarefas):
 // escopo por tenant_id e operações CRUD via supabase.
 //
 // Base para as próximas etapas — a interface (páginas) é ligada

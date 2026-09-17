@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
+import { useRotulosOutbound, STATUS_ORDEM } from '../../../hooks/useRotulosOutbound.js';
 
 const TIPOS = {
   email:    { label: 'E-mail',   emoji: '✉️' },
@@ -16,6 +17,8 @@ const TIPOS = {
   outro:    { label: 'Outro',    emoji: '📋' },
 };
 
+// Cor é fixa por status técnico — só o rótulo exibido é personalizável
+// (ver useRotulosOutbound).
 const STATUS_COR = {
   pendente:    'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
   enviado:     'bg-blue-500/20 text-blue-300 border-blue-500/30',
@@ -24,28 +27,22 @@ const STATUS_COR = {
   convertido:  'bg-violet-500/20 text-violet-300 border-violet-500/30',
 };
 
-const STATUS_LABEL = {
-  pendente:    'Pendente',
-  enviado:     'Enviado',
-  respondido:  'Respondido',
-  sem_retorno: 'Sem retorno',
-  convertido:  'Convertido',
-};
-
 const FORM_VAZIO = {
-  contato_nome: '', contato_email: '', contato_telefone: '',
+  contato_id: '', contato_nome: '', contato_email: '', contato_telefone: '',
   tipo: 'email', assunto: '', conteudo: '', proxima_acao_em: '', notas: '',
 };
 
 // ─── Modal de criação/edição ───────────────────────────────────
-const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando }) => {
+const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando, contatosCRM }) => {
   const [form, setForm] = useState(FORM_VAZIO);
+  const [buscaContato, setBuscaContato] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
 
   useEffect(() => {
     if (acaoEditando) {
       setForm({
+        contato_id:       acaoEditando.contato_id       || '',
         contato_nome:     acaoEditando.contato_nome     || '',
         contato_email:    acaoEditando.contato_email    || '',
         contato_telefone: acaoEditando.contato_telefone || '',
@@ -60,12 +57,34 @@ const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando }) => {
     } else {
       setForm(FORM_VAZIO);
     }
+    setBuscaContato('');
     setErro('');
   }, [acaoEditando, aberto]);
 
   if (!aberto) return null;
 
   const set = (campo) => (e) => setForm((f) => ({ ...f, [campo]: e.target.value }));
+
+  // Vincular a um contato do CRM copia nome/e-mail/telefone pra cá (ainda
+  // editáveis) e guarda o contato_id, que é o que o trigger de
+  // sincronização de funil usa pra saber o que atualizar no CRM.
+  const handleSelecionarContato = (e) => {
+    const id = e.target.value;
+    const contato = contatosCRM.find((c) => c.id === id);
+    setForm((f) => ({
+      ...f,
+      contato_id: id,
+      contato_nome: contato ? contato.nome : f.contato_nome,
+      contato_email: contato ? (contato.email || '') : f.contato_email,
+      contato_telefone: contato ? (contato.telefone || '') : f.contato_telefone,
+    }));
+  };
+
+  const contatosFiltrados = buscaContato
+    ? contatosCRM.filter((c) =>
+        c.nome.toLowerCase().includes(buscaContato.toLowerCase()) ||
+        (c.empresa || '').toLowerCase().includes(buscaContato.toLowerCase()))
+    : contatosCRM;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +93,7 @@ const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando }) => {
     setErro('');
     try {
       await onSalvar({
+        contato_id:       form.contato_id || null,
         contato_nome:     form.contato_nome.trim(),
         contato_email:    form.contato_email.trim()    || null,
         contato_telefone: form.contato_telefone.trim() || null,
@@ -102,6 +122,32 @@ const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-muted text-xs font-medium mb-1">Vincular a um contato do CRM (opcional)</label>
+            <input
+              type="text"
+              value={buscaContato}
+              onChange={(e) => setBuscaContato(e.target.value)}
+              placeholder="Buscar por nome ou empresa..."
+              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 mb-2"
+            />
+            <select
+              value={form.contato_id}
+              onChange={handleSelecionarContato}
+              className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500/50"
+            >
+              <option value="">Sem vínculo (prospecção sem contato no CRM)</option>
+              {contatosFiltrados.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.tipo_registro === 'cliente' ? '✅' : '🎯'} {c.nome}{c.empresa ? ` — ${c.empresa}` : ''}
+                </option>
+              ))}
+            </select>
+            <p className="text-muted text-xs mt-1">
+              Vincular permite que o funil do contato no CRM avance automaticamente conforme o status desta ação muda.
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-muted text-xs font-medium mb-1">Nome do contato *</label>
@@ -219,10 +265,10 @@ const ModalAcao = ({ aberto, onFechar, onSalvar, acaoEditando }) => {
 };
 
 // ─── Card de ação ──────────────────────────────────────────────
-const CardAcao = ({ acao, onEditar, onExcluir, onMudarStatus, excluindo }) => {
+const CardAcao = ({ acao, rotulos, onEditar, onExcluir, onMudarStatus, excluindo }) => {
   const tipo   = TIPOS[acao.tipo]   || TIPOS.outro;
   const corSt  = STATUS_COR[acao.status]   || STATUS_COR.pendente;
-  const labelSt = STATUS_LABEL[acao.status] || acao.status;
+  const labelSt = rotulos[acao.status] || acao.status;
 
   return (
     <div className="bg-surface-card border border-surface-border rounded-xl p-4 hover:border-primary-500/30 transition-colors">
@@ -232,7 +278,10 @@ const CardAcao = ({ acao, onEditar, onExcluir, onMudarStatus, excluindo }) => {
             {tipo.emoji}
           </div>
           <div className="min-w-0">
-            <p className="text-white font-medium text-sm truncate">{acao.contato_nome}</p>
+            <p className="text-white font-medium text-sm truncate">
+              {acao.contato_nome}
+              {acao.contato_id && <span title="Vinculado a um contato do CRM"> 🔗</span>}
+            </p>
             {acao.contato_telefone && <p className="text-muted text-xs truncate">📞 {acao.contato_telefone}</p>}
           </div>
         </div>
@@ -275,8 +324,8 @@ const CardAcao = ({ acao, onEditar, onExcluir, onMudarStatus, excluindo }) => {
           onChange={(e) => onMudarStatus(acao.id, e.target.value)}
           className="w-full bg-surface border border-surface-border rounded-lg px-2 py-1.5 text-muted text-xs focus:outline-none focus:border-primary-500/50"
         >
-          {Object.entries(STATUS_LABEL).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
+          {STATUS_ORDEM.map((k) => (
+            <option key={k} value={k}>{rotulos[k]}</option>
           ))}
         </select>
       </div>
@@ -292,7 +341,39 @@ const Outbound = () => {
   const [acaoEditando, setAcaoEditando] = useState(null);
   const [excluindo, setExcluindo]       = useState(null);
   const [filtroStatus, setFiltroStatus] = useState('');
+  const [contatosCRM, setContatosCRM]   = useState([]);
+  const [contadores, setContadores]     = useState({});
   const { usuario }                     = useAuthStore();
+  const { rotulos }                     = useRotulosOutbound(usuario?.id);
+
+  // Contadores agregados no banco (RPC outbound_contadores) — independentes
+  // do filtro ativo, pra não zerar as outras abas ao trocar de status.
+  const carregarContadores = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.rpc('outbound_contadores');
+      if (error) throw error;
+      const mapa = STATUS_ORDEM.reduce((acc, k) => ({ ...acc, [k]: 0 }), {});
+      (data || []).forEach((linha) => { mapa[linha.status] = Number(linha.total); });
+      setContadores(mapa);
+    } catch (err) {
+      console.error('Erro ao carregar contadores:', err);
+    }
+  }, []);
+
+  useEffect(() => { carregarContadores(); }, [carregarContadores]);
+
+  // Contatos do CRM (leads e clientes) pra vincular uma ação de outbound.
+  useEffect(() => {
+    if (!usuario?.tenant_id) return;
+    supabase
+      .from('crm_contatos')
+      .select('id, nome, empresa, email, telefone, tipo_registro')
+      .order('nome')
+      .then(({ data, error }) => {
+        if (error) { console.error('Erro ao carregar contatos do CRM:', error); return; }
+        setContatosCRM(data || []);
+      });
+  }, [usuario?.tenant_id]);
 
   const carregarAcoes = useCallback(async () => {
     if (!usuario?.id) return;
@@ -337,7 +418,7 @@ const Outbound = () => {
         .insert(payload);
       if (error) throw error;
     }
-    await carregarAcoes();
+    await Promise.all([carregarAcoes(), carregarContadores()]);
   };
 
   const handleExcluir = async (id) => {
@@ -347,6 +428,7 @@ const Outbound = () => {
       const { error } = await supabase.from('outbound_acoes').delete().eq('id', id);
       if (error) throw error;
       setAcoes((prev) => prev.filter((a) => a.id !== id));
+      await carregarContadores();
     } catch (err) {
       console.error('Erro ao excluir:', err);
     } finally {
@@ -361,10 +443,11 @@ const Outbound = () => {
         .update({ status: novoStatus })
         .eq('id', id);
       if (error) throw error;
-        
+
       setAcoes((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status: novoStatus } : a))
       );
+      await carregarContadores();
     } catch (err) {
       console.error('Erro ao atualizar status:', err);
     }
@@ -372,12 +455,6 @@ const Outbound = () => {
 
   const abrirNova = () => { setAcaoEditando(null); setModalAberto(true); };
   const abrirEdicao = (acao) => { setAcaoEditando(acao); setModalAberto(true); };
-
-  // Contadores por status
-  const contadores = Object.keys(STATUS_LABEL).reduce((acc, k) => {
-    acc[k] = acoes.filter((a) => a.status === k).length;
-    return acc;
-  }, {});
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -400,7 +477,7 @@ const Outbound = () => {
 
       {/* Cards de resumo */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
-        {Object.entries(STATUS_LABEL).map(([k, v]) => (
+        {STATUS_ORDEM.map((k) => (
           <button
             key={k}
             onClick={() => setFiltroStatus(filtroStatus === k ? '' : k)}
@@ -411,7 +488,7 @@ const Outbound = () => {
             }`}
           >
             <p className="text-white text-lg font-bold">{contadores[k] || 0}</p>
-            <p className="text-muted text-xs mt-0.5">{v}</p>
+            <p className="text-muted text-xs mt-0.5">{rotulos[k]}</p>
           </button>
         ))}
       </div>
@@ -428,7 +505,7 @@ const Outbound = () => {
           <p className="text-white font-medium mb-1">Nenhuma ação encontrada</p>
           <p className="text-muted text-sm mb-5">
             {filtroStatus
-              ? `Nenhuma ação com status "${STATUS_LABEL[filtroStatus]}".`
+              ? `Nenhuma ação com status "${rotulos[filtroStatus]}".`
               : 'Comece criando sua primeira ação de outbound.'}
           </p>
           {filtroStatus ? (
@@ -453,6 +530,7 @@ const Outbound = () => {
             <CardAcao
               key={acao.id}
               acao={acao}
+              rotulos={rotulos}
               onEditar={abrirEdicao}
               onExcluir={handleExcluir}
               onMudarStatus={handleMudarStatus}
@@ -468,6 +546,7 @@ const Outbound = () => {
         onFechar={() => { setModalAberto(false); setAcaoEditando(null); }}
         onSalvar={handleSalvar}
         acaoEditando={acaoEditando}
+        contatosCRM={contatosCRM}
       />
     </div>
   );

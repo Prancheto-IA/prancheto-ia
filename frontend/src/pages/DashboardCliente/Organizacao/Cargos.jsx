@@ -143,14 +143,19 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
 // ----------------------------------------------------------
 // O cargo novo abre com as permissões liberadas por padrão já marcadas —
 // desmarcar é uma decisão do chefe, não o ponto de partida.
-const formVazio = () => ({
+const formVazio = (nivelSugerido = 0) => ({
   nome: '',
   descricao: '',
   permissoes: [...PERMISSOES_PADRAO_CARGO_NOVO],
+  nivel: nivelSugerido,
 });
 
-const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
-  const [form, setForm] = useState(formVazio);
+// meuNivel/souDono: um cargo só gerencia (cria/edita) cargos de nível
+// estritamente menor que o de quem está mexendo — validado de novo no
+// banco (trg_valida_nivel_cargo), isto aqui é só pra guiar a digitação.
+const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDono }) => {
+  const nivelMaximo = souDono ? null : Math.max(meuNivel - 1, 0);
+  const [form, setForm] = useState(() => formVazio(nivelMaximo ?? 0));
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
 
@@ -160,12 +165,13 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
         nome:       cargoEditando.nome       || '',
         descricao:  cargoEditando.descricao  || '',
         permissoes: cargoEditando.permissoes || [],
+        nivel:      cargoEditando.nivel ?? 0,
       });
     } else {
-      setForm(formVazio());
+      setForm(formVazio(nivelMaximo ?? 0));
     }
     setErro('');
-  }, [cargoEditando, aberto]);
+  }, [cargoEditando, aberto, nivelMaximo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -246,6 +252,25 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando }) => {
                 className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
                 style={inputStyle}
               />
+            </div>
+
+            {/* Nível hierárquico */}
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+                Nível hierárquico
+              </label>
+              <input
+                type="number"
+                min={0}
+                max={nivelMaximo ?? undefined}
+                value={form.nivel}
+                onChange={(e) => setForm(f => ({ ...f, nivel: Number(e.target.value) }))}
+                className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                style={inputStyle}
+              />
+              <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                Quanto maior o número, mais alto na hierarquia. {nivelMaximo !== null && `Você só pode usar até ${nivelMaximo} (seu nível: ${meuNivel}).`}
+              </p>
             </div>
 
             {/* Permissões */}
@@ -366,7 +391,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
               </p>
             )}
             <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-              {totalPerms} {totalPerms === 1 ? 'permissão' : 'permissões'}
+              {totalPerms} {totalPerms === 1 ? 'permissão' : 'permissões'} · nível {cargo.nivel ?? 0}
             </p>
           </div>
 
@@ -449,6 +474,8 @@ const Cargos = () => {
     criarCargo,
     atualizarCargo,
     excluirCargo,
+    obterMeuNivel,
+    souDonoTenant,
   } = useOrg();
 
   const [cargos, setCargos]             = useState([]);
@@ -457,12 +484,16 @@ const Cargos = () => {
   const [excluindo, setExcluindo]       = useState(null);
   const [erro, setErro]                 = useState('');
   const [inicializado, setInicializado] = useState(false);
+  const [meuNivel, setMeuNivel]         = useState(0);
+  const [souDono, setSouDono]           = useState(false);
 
   const carregar = useCallback(async () => {
-    const data = await listarCargos();
+    const [data, nivel, dono] = await Promise.all([listarCargos(), obterMeuNivel(), souDonoTenant()]);
     setCargos(data);
+    setMeuNivel(nivel);
+    setSouDono(dono);
     setInicializado(true);
-  }, [listarCargos]);
+  }, [listarCargos, obterMeuNivel, souDonoTenant]);
 
   useEffect(() => { carregar(); }, [carregar]);
 
@@ -619,6 +650,8 @@ const Cargos = () => {
         onFechar={() => setModalCargo(false)}
         onSalvar={handleSalvar}
         cargoEditando={cargoEditando}
+        meuNivel={meuNivel}
+        souDono={souDono}
       />
     </div>
   );
