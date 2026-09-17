@@ -63,6 +63,14 @@ export const PERMISSOES_DISPONIVEIS = [
   // Configurações (inclui a identidade visual da organização)
   { slug: 'configuracoes.ver',    label: 'Ver configurações',    grupo: 'Configurações' },
   { slug: 'configuracoes.editar', label: 'Editar configurações', grupo: 'Configurações' },
+  // Chat
+  //
+  // Não é 'padrao' (não vai pra todo cargo novo): o pedido era "liderança
+  // por padrão", não "todo mundo por padrão". Cargos de liderança já
+  // existentes ganharam via migration (heurística: nome conhecido do seed
+  // ou já ter usuarios.gerenciar/times.gerenciar); cargo novo fica a
+  // critério de quem cria, no editor de permissões.
+  { slug: 'chat.criar_grupo', label: 'Criar grupos de chat', grupo: 'Chat' },
   // Perfil próprio
   //
   // Liberada por padrão: a migration que criou o slug concedeu-o a todos
@@ -137,8 +145,12 @@ export const useOrg = () => {
     }
   }, [tenantId]);
 
-  /** Cria um novo cargo */
-  const criarCargo = useCallback(async ({ nome, descricao, permissoes = PERMISSOES_PADRAO_CARGO_NOVO, ordem = 99 }) => {
+  /**
+   * Cria um novo cargo. `nivel` é validado no banco (trg_valida_nivel_cargo):
+   * precisa ser estritamente menor que o nível de quem está criando — o
+   * dono do tenant e o super_admin ficam fora dessa checagem.
+   */
+  const criarCargo = useCallback(async ({ nome, descricao, permissoes = PERMISSOES_PADRAO_CARGO_NOVO, ordem = 99, nivel = 0 }) => {
     if (!tenantId) throw new Error('Tenant não identificado');
     const { data, error } = await supabase
       .from('org_cargos')
@@ -148,6 +160,7 @@ export const useOrg = () => {
         descricao,
         permissoes,
         ordem,
+        nivel,
         e_padrao:   false,
         e_sistema:  false,
       })
@@ -158,12 +171,13 @@ export const useOrg = () => {
   }, [tenantId]);
 
   /** Atualiza um cargo existente (não permite alterar e_sistema) */
-  const atualizarCargo = useCallback(async (id, { nome, descricao, permissoes, ordem }) => {
+  const atualizarCargo = useCallback(async (id, { nome, descricao, permissoes, ordem, nivel }) => {
     const payload = {};
     if (nome        !== undefined) payload.nome        = nome;
     if (descricao   !== undefined) payload.descricao   = descricao;
     if (permissoes  !== undefined) payload.permissoes  = permissoes;
     if (ordem       !== undefined) payload.ordem       = ordem;
+    if (nivel       !== undefined) payload.nivel       = nivel;
     payload.atualizado_em = new Date().toISOString();
 
     const { data, error } = await supabase
@@ -187,6 +201,20 @@ export const useOrg = () => {
       .eq('e_sistema', false); // proteção extra
     if (error) throw error;
   }, [tenantId]);
+
+  /** Nível hierárquico do próprio usuário logado (0 = sem cargo/base). */
+  const obterMeuNivel = useCallback(async () => {
+    const { data, error } = await supabase.rpc('get_user_cargo_nivel');
+    if (error) throw error;
+    return data ?? 0;
+  }, []);
+
+  /** Se o usuário logado é o Chefe Supremo do tenant — sem teto de nível. */
+  const souDonoTenant = useCallback(async () => {
+    const { data, error } = await supabase.rpc('sou_dono_tenant');
+    if (error) throw error;
+    return Boolean(data);
+  }, []);
 
   // ========================================================
   // TIMES
@@ -310,6 +338,44 @@ export const useOrg = () => {
   }, [tenantId]);
 
   // ========================================================
+  // GESTÃO DE USUÁRIOS (Bloco 5 — hierarquia e Chefe Supremo)
+  // ========================================================
+
+  /** Lista todos os usuários do tenant, ativos e inativos, com o cargo
+   *  organizacional (nome + nível) embutido — para a aba Usuários. */
+  const listarUsuariosCompleto = useCallback(async () => {
+    if (!tenantId) return [];
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, nome, email, cargo, cargo_id, ativo, e_dono_tenant, criado_em, cargo_org:org_cargos(id, nome, nivel)')
+      .eq('tenant_id', tenantId)
+      .order('nome', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }, [tenantId]);
+
+  /**
+   * Ativa/desativa um usuário — nunca exclui (histórico preservado).
+   * Único caminho: a função no banco barra desativar o dono do tenant e
+   * aplica a regra de hierarquia (só quem tem nível acima consegue).
+   */
+  const definirAtivoUsuario = useCallback(async (userId, ativo) => {
+    const { error } = await supabase.rpc('definir_ativo_usuario', { p_user_id: userId, p_ativo: ativo });
+    if (error) throw error;
+  }, []);
+
+  /**
+   * Muda o cargo organizacional de outro usuário — mesma regra de
+   * hierarquia e proteção do dono, aplicada tanto no usuário-alvo quanto
+   * no cargo novo (não dá pra promover alguém pra um nível igual ou
+   * maior que o seu).
+   */
+  const definirCargoUsuario = useCallback(async (userId, cargoId) => {
+    const { error } = await supabase.rpc('definir_cargo_usuario', { p_user_id: userId, p_cargo_id: cargoId });
+    if (error) throw error;
+  }, []);
+
+  // ========================================================
   // IDENTIDADE VISUAL DO TENANT
   // ========================================================
 
@@ -346,6 +412,8 @@ export const useOrg = () => {
     criarCargo,
     atualizarCargo,
     excluirCargo,
+    obterMeuNivel,
+    souDonoTenant,
     // Times
     listarTimes,
     criarTime,
@@ -355,6 +423,10 @@ export const useOrg = () => {
     adicionarMembro,
     removerMembro,
     listarUsuariosTenant,
+    // Gestão de usuários (hierarquia e Chefe Supremo)
+    listarUsuariosCompleto,
+    definirAtivoUsuario,
+    definirCargoUsuario,
     // Identidade visual
     atualizarIdentidadeVisual,
   };

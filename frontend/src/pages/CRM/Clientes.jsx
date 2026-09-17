@@ -12,6 +12,10 @@ import {
   formatarMoeda, formatarData, formatarDataHora, tempoRelativo,
 } from '../../hooks/useCRM.js';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
+import {
+  ENDERECO_VAZIO, CampoWhatsapp, CamposEmpresa, limparEndereco,
+  PORTE_LABEL, formatarEndereco, temInformacoesExtras,
+} from '../../components/crm/CamposContatoExtras.jsx';
 
 // ─── Componentes auxiliares ────────────────────────────────────
 const Spinner = () => (
@@ -243,6 +247,33 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
                   <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{cliente.observacoes}</p>
                 </div>
               )}
+
+              {temInformacoesExtras(cliente) && (
+                <div className="pt-3 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                    Mais informações
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { label: 'Negócio',                valor: cliente.negocio_nome },
+                      { label: 'Campanha',               valor: cliente.campanha },
+                      { label: 'Previsão de fechamento',  valor: cliente.previsao_fechamento ? formatarData(cliente.previsao_fechamento) : null },
+                      { label: 'WhatsApp',                valor: cliente.whatsapp },
+                      { label: 'Razão social',            valor: cliente.razao_social },
+                      { label: 'CNPJ/CPF',                valor: cliente.documento },
+                      { label: 'Segmento',                valor: cliente.segmento },
+                      { label: 'Porte',                   valor: PORTE_LABEL[cliente.porte] },
+                      { label: 'Site',                    valor: cliente.site },
+                      { label: 'Endereço',                valor: formatarEndereco(cliente.endereco) },
+                    ].filter(({ valor }) => valor).map(({ label, valor }) => (
+                      <div key={label}>
+                        <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
+                        <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{valor}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -344,7 +375,9 @@ const LinhaCliente = ({ cliente, onAbrir, onEditar, onExcluir }) => (
 // status de funil são histórico do período como Lead — editam-se em Leads,
 // não aqui.
 const FORM_VAZIO = {
-  nome: '', email: '', telefone: '', empresa: '', cargo: '', observacoes: '',
+  nome: '', email: '', telefone: '', whatsapp: '', empresa: '', cargo: '', observacoes: '',
+  razao_social: '', documento: '', segmento: '', site: '', porte: '',
+  endereco: ENDERECO_VAZIO,
 };
 
 const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
@@ -358,9 +391,16 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
         nome:        cliente.nome        || '',
         email:       cliente.email       || '',
         telefone:    cliente.telefone    || '',
+        whatsapp:    cliente.whatsapp    || '',
         empresa:     cliente.empresa     || '',
         cargo:       cliente.cargo       || '',
         observacoes: cliente.observacoes || '',
+        razao_social: cliente.razao_social || '',
+        documento:    cliente.documento    || '',
+        segmento:     cliente.segmento     || '',
+        site:         cliente.site         || '',
+        porte:        cliente.porte        || '',
+        endereco:     { ...ENDERECO_VAZIO, ...(cliente.endereco || {}) },
       });
       setErro('');
     }
@@ -369,6 +409,7 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
   if (!cliente) return null;
 
   const set = (campo) => (e) => setForm(f => ({ ...f, [campo]: e.target.value }));
+  const setEndereco = (campo) => (e) => setForm(f => ({ ...f, endereco: { ...f.endereco, [campo]: e.target.value } }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -380,9 +421,16 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
         nome:        form.nome.trim(),
         email:       form.email.trim()    || null,
         telefone:    form.telefone.trim() || null,
+        whatsapp:    form.whatsapp.trim() || null,
         empresa:     form.empresa.trim()  || null,
         cargo:       form.cargo.trim()    || null,
         observacoes: form.observacoes.trim() || null,
+        razao_social: form.razao_social.trim() || null,
+        documento:    form.documento.trim()    || null,
+        segmento:     form.segmento.trim()     || null,
+        site:         form.site.trim()         || null,
+        porte:        form.porte || null,
+        endereco:     limparEndereco(form.endereco),
       });
       onFechar();
     } catch (err) {
@@ -418,7 +466,7 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
                 style={inputStyle} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Empresa</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome fantasia</label>
               <input type="text" value={form.empresa} onChange={set('empresa')} placeholder="Acme Corp"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
@@ -440,11 +488,21 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Cargo</label>
-            <input type="text" value={form.cargo} onChange={set('cargo')} placeholder="CEO"
-              className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              style={inputStyle} />
+          <div className="grid grid-cols-2 gap-3">
+            <CampoWhatsapp form={form} set={set} inputStyle={inputStyle} />
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Cargo</label>
+              <input type="text" value={form.cargo} onChange={set('cargo')} placeholder="CEO"
+                className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                style={inputStyle} />
+            </div>
+          </div>
+
+          <div className="pt-2 mt-1 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>Empresa</p>
+            <div className="space-y-3">
+              <CamposEmpresa form={form} set={set} setEndereco={setEndereco} inputStyle={inputStyle} />
+            </div>
           </div>
 
           <div>

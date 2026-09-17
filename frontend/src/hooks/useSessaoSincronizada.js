@@ -48,6 +48,19 @@ export const useSessaoSincronizada = () => {
         // Sem sessao, ou sessao de outra pessoa: o guardado nao vale.
         if (!idDaSessao || (usuario?.id && idDaSessao !== usuario.id)) {
           logout();
+        } else {
+          // Conta desativada depois do login (Bloco 5): a sessao no
+          // localStorage continuaria valendo ate expirar se ninguem
+          // conferisse ativo aqui — derruba na proxima vez que o app abre.
+          const { data: perfil } = await supabase
+            .from('users')
+            .select('ativo')
+            .eq('id', idDaSessao)
+            .maybeSingle();
+          if (perfil?.ativo === false) {
+            await supabase.auth.signOut();
+            logout();
+          }
         }
       } catch {
         // Falha de rede nao e prova de divergencia. Derrubar a sessao

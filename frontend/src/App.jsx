@@ -6,7 +6,7 @@
 // =============================================================
 
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 
 import { useAuthStore } from './store/authStore.js';
@@ -37,20 +37,20 @@ const PaginaConfiguracoes    = lazy(() => import('./pages/DashboardCliente/Confi
 const PaginaOrganizacao      = lazy(() => import('./pages/DashboardCliente/Organizacao/Organizacao.jsx'));
 const PaginaTimes            = lazy(() => import('./pages/DashboardCliente/Organizacao/Times.jsx'));
 const PaginaCargos           = lazy(() => import('./pages/DashboardCliente/Organizacao/Cargos.jsx'));
+const PaginaUsuariosOrg      = lazy(() => import('./pages/DashboardCliente/Organizacao/Usuarios.jsx'));
 const PaginaIdentidadeVisual = lazy(() => import('./pages/DashboardCliente/Organizacao/IdentidadeVisual.jsx'));
 
 // ============================================================
-// FASE 3 — Módulos
+// Chat, Calendário, Projetos, Tarefas e Times e Pessoas — itens diretos
+// da sidebar (o hub /modulos foi extinto: Dashboard virou a Home em
+// /dashboard, Feed virou o widget Mural de Anúncios da Home).
 // ============================================================
-const PaginaModulosHub       = lazy(() => import('./pages/Modulos/ModulosHub.jsx'));
-const PaginaDashboardModulo  = lazy(() => import('./pages/Modulos/Dashboard/Dashboard.jsx'));
-const PaginaCalendario       = lazy(() => import('./pages/Modulos/Calendario/Calendario.jsx'));
-const PaginaProjetos         = lazy(() => import('./pages/Modulos/Projetos/Projetos.jsx'));
-const PaginaProjetoDetalhe   = lazy(() => import('./pages/Modulos/Projetos/ProjetoDetalhe.jsx'));
-const PaginaTarefas          = lazy(() => import('./pages/Modulos/Tarefas/Tarefas.jsx'));
-const PaginaFeed             = lazy(() => import('./pages/Modulos/Feed/Feed.jsx'));
-const PaginaChatModulo       = lazy(() => import('./pages/Modulos/Chat/ChatModulo.jsx'));
-const PaginaTimesPessoas     = lazy(() => import('./pages/Modulos/TimesPessoas/TimesPessoas.jsx'));
+const PaginaCalendario       = lazy(() => import('./pages/Calendario/Calendario.jsx'));
+const PaginaProjetos         = lazy(() => import('./pages/Projetos/Projetos.jsx'));
+const PaginaProjetoDetalhe   = lazy(() => import('./pages/Projetos/ProjetoDetalhe.jsx'));
+const PaginaTarefas          = lazy(() => import('./pages/Tarefas/Tarefas.jsx'));
+const PaginaChatModulo       = lazy(() => import('./pages/Chat/ChatModulo.jsx'));
+const PaginaTimesPessoas     = lazy(() => import('./pages/TimesPessoas/TimesPessoas.jsx'));
 
 // =============================================================
 // HELPER: determina para onde redirecionar após login
@@ -238,6 +238,7 @@ const App = () => {
             >
               <Route path="times"      element={<PaginaTimes />} />
               <Route path="cargos"     element={<PaginaCargos />} />
+              <Route path="usuarios"   element={<PaginaUsuariosOrg />} />
               <Route path="identidade" element={<PaginaIdentidadeVisual />} />
             </Route>
 
@@ -282,32 +283,23 @@ const App = () => {
             />
 
             {/* ============================================================
-                FASE 3 — MÓDULOS
+                CHAT, CALENDÁRIO, PROJETOS, TAREFAS, TIMES E PESSOAS
+                Itens diretos da sidebar (ex-hub /modulos)
             ============================================================ */}
 
-            {/* Hub de configuração DnD */}
+            {/* Chat em equipe (grupos e mensagens diretas) */}
             <Route
-              path="/modulos"
+              path="/chat"
               element={
                 <ClienteComLayout>
-                  <PaginaModulosHub />
+                  <PaginaChatModulo />
                 </ClienteComLayout>
               }
             />
 
-            {/* Dashboard */}
+            {/* Calendário mensal */}
             <Route
-              path="/modulos/dashboard"
-              element={
-                <ClienteComLayout>
-                  <PaginaDashboardModulo />
-                </ClienteComLayout>
-              }
-            />
-
-            {/* Calendário interativo */}
-            <Route
-              path="/modulos/calendario"
+              path="/calendario"
               element={
                 <ClienteComLayout>
                   <PaginaCalendario />
@@ -317,7 +309,7 @@ const App = () => {
 
             {/* Projetos */}
             <Route
-              path="/modulos/projetos"
+              path="/projetos"
               element={
                 <ClienteComLayout>
                   <PaginaProjetos />
@@ -325,7 +317,7 @@ const App = () => {
               }
             />
             <Route
-              path="/modulos/projetos/:id"
+              path="/projetos/:id"
               element={
                 <ClienteComLayout>
                   <PaginaProjetoDetalhe />
@@ -335,7 +327,7 @@ const App = () => {
 
             {/* Tarefas */}
             <Route
-              path="/modulos/tarefas"
+              path="/tarefas"
               element={
                 <ClienteComLayout>
                   <PaginaTarefas />
@@ -343,35 +335,28 @@ const App = () => {
               }
             />
 
-            {/* Feed */}
-            <Route
-              path="/modulos/feed"
-              element={
-                <ClienteComLayout>
-                  <PaginaFeed />
-                </ClienteComLayout>
-              }
-            />
-
-            {/* Chat */}
-            <Route
-              path="/modulos/chat"
-              element={
-                <ClienteComLayout>
-                  <PaginaChatModulo />
-                </ClienteComLayout>
-              }
-            />
-
             {/* Times e Pessoas */}
             <Route
-              path="/modulos/times-pessoas"
+              path="/times-pessoas"
               element={
                 <ClienteComLayout>
                   <PaginaTimesPessoas />
                 </ClienteComLayout>
               }
             />
+
+            {/* Rotas antigas do hub /modulos — redirecionam pros itens diretos,
+                pra não quebrar links/favoritos já salvos. Dashboard e Feed não
+                têm mais equivalente próprio (viraram a Home e o widget Mural). */}
+            <Route path="/modulos"                element={<Navigate to="/dashboard" replace />} />
+            <Route path="/modulos/dashboard"       element={<Navigate to="/dashboard" replace />} />
+            <Route path="/modulos/feed"            element={<Navigate to="/dashboard" replace />} />
+            <Route path="/modulos/calendario"      element={<Navigate to="/calendario" replace />} />
+            <Route path="/modulos/projetos"        element={<Navigate to="/projetos" replace />} />
+            <Route path="/modulos/projetos/:id"    element={<RedirecionarProjeto />} />
+            <Route path="/modulos/tarefas"         element={<Navigate to="/tarefas" replace />} />
+            <Route path="/modulos/chat"            element={<Navigate to="/chat" replace />} />
+            <Route path="/modulos/times-pessoas"   element={<Navigate to="/times-pessoas" replace />} />
 
             {/* ============================================================
                 SUPER ADMIN: Painel Administrativo (invisível para clientes)
@@ -417,6 +402,12 @@ const App = () => {
 const RedirecionarRaiz = () => {
   const { token, usuario } = useAuthStore();
   return <Navigate to={rotaParaUsuario(token ? usuario : null)} replace />;
+};
+
+// Preserva o :id ao redirecionar um link antigo de /modulos/projetos/:id
+const RedirecionarProjeto = () => {
+  const { id } = useParams();
+  return <Navigate to={`/projetos/${id}`} replace />;
 };
 
 export default App;

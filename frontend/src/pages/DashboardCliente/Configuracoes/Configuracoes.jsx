@@ -16,6 +16,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore.js';
 import { useTema } from '../../../hooks/useTema.js';
 import { usePermission } from '../../../hooks/usePermission.js';
+import { useRotulosOutbound, STATUS_ORDEM, ROTULOS_PADRAO } from '../../../hooks/useRotulosOutbound.js';
 import { supabase } from '../../../lib/supabase.js';
 
 const SecaoPlano = lazy(() => import('./SecaoPlano.jsx'));
@@ -24,6 +25,16 @@ const ABAS = [
   { slug: 'geral', label: 'Geral', emoji: '⚙️' },
   { slug: 'plano', label: 'Plano', emoji: '🚀' },
 ];
+
+// Descrição do que cada status técnico significa — o rótulo em si é o que
+// o usuário customiza no campo abaixo.
+const DESCRICAO_STATUS = {
+  pendente:    'Pendente (ainda não contatado)',
+  enviado:     'Enviado (primeiro contato feito)',
+  respondido:  'Respondido (a pessoa retornou)',
+  sem_retorno: 'Sem retorno (não respondeu)',
+  convertido:  'Convertido (fechou negócio)',
+};
 
 const NOME_MAX     = 120;
 // Espelha a constraint users_telefone_tamanho: cortar aqui evita a viagem
@@ -148,6 +159,7 @@ const Configuracoes = () => {
   // sincronizarComBanco: banco prevalece sobre localStorage (fonte de verdade)
   const { temaEscuro, setTemaEscuro, sincronizarComBanco } = useTema();
   const { pode } = usePermission();
+  const { rotulos: rotulosSalvos, salvar: salvarRotulosOutbound } = useRotulosOutbound(usuario?.id);
 
   const [parametros, setParametros] = useSearchParams();
   const abaAtiva = ABAS.some(a => a.slug === parametros.get('aba'))
@@ -158,6 +170,7 @@ const Configuracoes = () => {
   const [telefone, setTelefone]         = useState(usuario?.telefone || '');
   const [notifEmail, setNotifEmail]     = useState(true);
   const [notifSistema, setNotifSistema] = useState(true);
+  const [rotulosStatus, setRotulosStatus] = useState(ROTULOS_PADRAO);
   const [carregando, setCarregando]     = useState(true);
   const [salvando, setSalvando]         = useState(false);
   const [salvo, setSalvo]               = useState(false);
@@ -190,6 +203,12 @@ const Configuracoes = () => {
     };
     carregar();
   }, [usuario?.id, sincronizarComBanco]);
+
+  // Rótulos de status do Outbound vêm de user_preferencias.metadata,
+  // carregados por useRotulosOutbound — refletidos aqui para edição.
+  useEffect(() => {
+    setRotulosStatus(rotulosSalvos);
+  }, [rotulosSalvos]);
 
   const selecionarAba = (slug) => {
     setParametros(slug === 'geral' ? {} : { aba: slug }, { replace: true });
@@ -243,6 +262,8 @@ const Configuracoes = () => {
         }, { onConflict: 'user_id' });
 
       if (erroPrefs) throw erroPrefs;
+
+      await salvarRotulosOutbound(rotulosStatus);
 
       setSalvo(true);
       setTimeout(() => setSalvo(false), 2500);
@@ -370,6 +391,33 @@ const Configuracoes = () => {
               ativo={notifSistema}
               onChange={setNotifSistema}
             />
+          </SecaoConfig>
+
+          {/* Rótulos do Outbound */}
+          <SecaoConfig
+            titulo="Rótulos do Outbound"
+            descricao="Personalize como cada status aparece pra você. O status técnico continua o mesmo para todos — só o nome exibido muda."
+          >
+            {STATUS_ORDEM.map((status) => (
+              <CampoTexto
+                key={status}
+                label={DESCRICAO_STATUS[status]}
+                valor={rotulosStatus[status] ?? ''}
+                placeholder={ROTULOS_PADRAO[status]}
+                ajuda={`Padrão: "${ROTULOS_PADRAO[status]}"`}
+                maxLength={40}
+                onChange={(e) =>
+                  setRotulosStatus((prev) => ({ ...prev, [status]: e.target.value }))
+                }
+              />
+            ))}
+            <button
+              type="button"
+              onClick={() => setRotulosStatus(ROTULOS_PADRAO)}
+              className="text-primary-400 hover:text-primary-300 text-xs transition-colors"
+            >
+              Restaurar rótulos padrão
+            </button>
           </SecaoConfig>
 
           {/* Segurança */}

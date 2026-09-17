@@ -1,18 +1,118 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useProjetos } from '../../../hooks/useProjetos';
-import { useTarefas } from '../../../hooks/useTarefas';
+import { useProjeto } from '../../hooks/useProjetos';
+import { useTarefas } from '../../hooks/useTarefas';
+import { useOrg } from '../../hooks/useOrg';
+import { usePermission } from '../../hooks/usePermission';
+import { useAuthStore } from '../../store/authStore';
+
+const PAPEL_LABEL = { lider: 'Líder', membro: 'Membro', observador: 'Observador' };
+
+const ModalMembros = ({ aberto, onFechar, membros, usuariosTenant, podeGerenciar, onAdicionar, onRemover, onPromover }) => {
+  const [busca, setBusca] = useState('');
+
+  if (!aberto) return null;
+
+  const idsAtuais = new Set(membros.map(m => m.user_id));
+  const candidatos = busca.trim()
+    ? usuariosTenant.filter(u =>
+        !idsAtuais.has(u.id) && u.nome?.toLowerCase().includes(busca.trim().toLowerCase())
+      )
+    : [];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onFechar}>
+      <div className="w-full max-w-md rounded-2xl p-6 space-y-4" style={{ backgroundColor: 'var(--color-surface)' }} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">Membros do projeto</h2>
+          <button onClick={onFechar} className="opacity-50 hover:opacity-100 text-xl">✕</button>
+        </div>
+
+        <div className="space-y-1 max-h-60 overflow-y-auto">
+          {membros.length === 0 ? (
+            <p className="text-sm opacity-40 text-center py-4">Nenhum membro adicionado</p>
+          ) : (
+            membros.map(m => (
+              <div key={m.id} className="flex items-center gap-3 p-2 rounded-lg">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm truncate">{m.usuario?.nome || 'Usuário removido'}</p>
+                  <p className="text-xs opacity-40 truncate">{m.usuario?.email}</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full opacity-60 flex-shrink-0" style={{ backgroundColor: 'var(--color-surface-border)' }}>
+                  {PAPEL_LABEL[m.papel] || m.papel}
+                </span>
+                {podeGerenciar && (
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {m.papel !== 'lider' && (
+                      <button onClick={() => onPromover(m)} className="text-xs opacity-50 hover:opacity-100" title="Promover a líder">
+                        ⬆️
+                      </button>
+                    )}
+                    <button onClick={() => onRemover(m.id)} className="text-xs text-red-400 opacity-70 hover:opacity-100" title="Remover">
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {podeGerenciar && (
+          <div className="space-y-2 pt-2 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
+            <input
+              className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+              style={{ border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' }}
+              placeholder="Buscar pessoa pelo nome..."
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+            />
+            {candidatos.length > 0 && (
+              <div className="space-y-1 max-h-40 overflow-y-auto">
+                {candidatos.map(u => (
+                  <button
+                    key={u.id}
+                    onClick={() => { onAdicionar(u.id); setBusca(''); }}
+                    className="w-full flex items-center justify-between p-2 rounded-lg text-sm transition-colors text-left"
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+                  >
+                    <span className="truncate">{u.nome}</span>
+                    <span className="text-xs text-primary-400 flex-shrink-0">+ adicionar</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const ProjetoDetalhe = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { projetos, carregando, atualizarProjeto, criarMilestone, atualizarMilestone, excluirMilestone } = useProjetos();
+  const usuario = useAuthStore(s => s.usuario);
+  const { temCargo } = usePermission();
+  const { listarUsuariosTenant } = useOrg();
+  const {
+    projeto, carregando,
+    criarMilestone, alternarMilestone, excluirMilestone,
+    adicionarMembro, removerMembro, alterarPapelMembro,
+  } = useProjeto(id);
   const { tarefas, carregando: carregandoTarefas } = useTarefas({ projetoId: id });
 
   const [novoMilestone, setNovoMilestone] = useState('');
   const [adicionandoMilestone, setAdicionandoMilestone] = useState(false);
+  const [modalMembrosAberto, setModalMembrosAberto] = useState(false);
+  const [usuariosTenant, setUsuariosTenant] = useState([]);
 
-  const projeto = projetos.find(p => p.id === id);
+  useEffect(() => {
+    if (modalMembrosAberto) {
+      listarUsuariosTenant().then(setUsuariosTenant);
+    }
+  }, [modalMembrosAberto, listarUsuariosTenant]);
 
   if (carregando) {
     return (
@@ -27,7 +127,7 @@ const ProjetoDetalhe = () => {
       <div className="text-center py-16 opacity-40">
         <p className="text-4xl mb-3">🔍</p>
         <p>Projeto não encontrado</p>
-        <button onClick={() => navigate('/modulos/projetos')} className="mt-3 text-sm text-primary-400 hover:underline">
+        <button onClick={() => navigate('/projetos')} className="mt-3 text-sm text-primary-400 hover:underline">
           Voltar para projetos
         </button>
       </div>
@@ -36,30 +136,27 @@ const ProjetoDetalhe = () => {
 
   const milestones = (projeto.projeto_milestones || []).sort((a, b) => a.ordem - b.ordem);
   const concluidos = milestones.filter(m => m.concluido).length;
+  const membros = projeto.membros || [];
+  const podeGerenciarMembros = temCargo(['admin', 'manager'])
+    || projeto.criado_por === usuario?.id
+    || membros.some(m => m.user_id === usuario?.id && m.papel === 'lider');
 
   const handleAdicionarMilestone = async (e) => {
     e.preventDefault();
     if (!novoMilestone.trim()) return;
     setAdicionandoMilestone(true);
     try {
-      await criarMilestone(id, { titulo: novoMilestone.trim(), ordem: milestones.length });
+      await criarMilestone({ titulo: novoMilestone.trim(), ordem: milestones.length });
       setNovoMilestone('');
     } finally {
       setAdicionandoMilestone(false);
     }
   };
 
-  const handleToggleMilestone = async (milestone) => {
-    const concluido = !milestone.concluido;
-    await atualizarMilestone(milestone.id, {
-      concluido,
-      concluido_em: concluido ? new Date().toISOString() : null,
-    });
-    // Atualiza progresso do projeto
-    const novoConcluidos = milestones.filter(m => m.id !== milestone.id ? m.concluido : concluido).length;
-    const novoProgresso = milestones.length > 0 ? Math.round((novoConcluidos / milestones.length) * 100) : 0;
-    await atualizarProjeto(id, { progresso: novoProgresso });
-  };
+  const handleToggleMilestone = (milestone) => alternarMilestone(milestone.id, !milestone.concluido);
+
+  const handleAdicionarMembro = (userId) => adicionarMembro(userId, 'membro');
+  const handlePromoverMembro = (membro) => alterarPapelMembro(membro, 'lider');
 
   const STATUS_COR = {
     planejamento: '#94a3b8', em_andamento: '#3b82f6', pausado: '#f59e0b',
@@ -72,14 +169,24 @@ const ProjetoDetalhe = () => {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* Cabeçalho */}
       <div className="flex items-start gap-4">
-        <button onClick={() => navigate('/modulos/projetos')} className="mt-1 opacity-50 hover:opacity-100 text-sm">← Voltar</button>
         <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">{projeto.icone}</span>
-            <div>
-              <h1 className="text-2xl font-bold">{projeto.nome}</h1>
-              {projeto.descricao && <p className="text-sm opacity-60 mt-0.5">{projeto.descricao}</p>}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{projeto.icone}</span>
+              <div>
+                <h1 className="text-2xl font-bold">{projeto.nome}</h1>
+                {projeto.descricao && <p className="text-sm opacity-60 mt-0.5">{projeto.descricao}</p>}
+              </div>
             </div>
+            <button
+              onClick={() => setModalMembrosAberto(true)}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium flex-shrink-0 transition-colors"
+              style={{ border: '1px solid var(--color-surface-border)' }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+            >
+              👥 Membros{membros.length > 0 ? ` (${membros.length})` : ''}
+            </button>
           </div>
           <div className="flex items-center gap-3 mt-3">
             <span
@@ -211,6 +318,17 @@ const ProjetoDetalhe = () => {
           )}
         </div>
       </div>
+
+      <ModalMembros
+        aberto={modalMembrosAberto}
+        onFechar={() => setModalMembrosAberto(false)}
+        membros={membros}
+        usuariosTenant={usuariosTenant}
+        podeGerenciar={podeGerenciarMembros}
+        onAdicionar={handleAdicionarMembro}
+        onRemover={removerMembro}
+        onPromover={handlePromoverMembro}
+      />
     </div>
   );
 };

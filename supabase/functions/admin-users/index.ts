@@ -39,6 +39,16 @@ serve(async (req) => {
     const { action, payload, userId } = await req.json();
 
     if (action === 'create') {
+      // Bloco 5: primeiro usuário de um tenant vira o Chefe Supremo (dono) —
+      // não tem outro critério de escolha, é sempre quem chega primeiro.
+      // Marcado aqui porque é o único lugar onde um tenant novo ganha gente;
+      // tenant-usuarios (criação pelo próprio cliente) nunca seta isso.
+      const { count: totalExistente } = await supabase
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .eq('tenant_id', payload.tenantId);
+      const ehPrimeiroUsuario = (totalExistente ?? 0) === 0;
+
       // 1. Create user in Supabase Auth
       const { data: authData, error: createError } = await supabase.auth.admin.createUser({
         email: payload.email,
@@ -46,7 +56,7 @@ serve(async (req) => {
         email_confirm: true,
         user_metadata: { nome: payload.nome, cargo: payload.cargo }
       });
-      
+
       if (createError) throw createError;
 
       // The trigger will automatically create the row in public.users.
@@ -56,17 +66,18 @@ serve(async (req) => {
         .update({
           tenant_id: payload.tenantId,
           cargo: payload.cargo,
-          nome: payload.nome
+          nome: payload.nome,
+          e_dono_tenant: ehPrimeiroUsuario,
         })
         .eq('id', authData.user.id);
-        
+
       if (updateError) throw updateError;
-      
-      return new Response(JSON.stringify({ success: true, user: authData.user }), {
+
+      return new Response(JSON.stringify({ success: true, user: authData.user, donoTenant: ehPrimeiroUsuario }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });
-      
+
     } else if (action === 'update') {
       if (!userId) throw new Error('userId is required');
       

@@ -8,9 +8,13 @@ import {
   useLeads, useInteracoes,
   FUNIL_LEAD, TIPOS_INTERACAO, ORIGENS,
   funilInfo, tipoInfo, origemInfo,
-  formatarMoeda, tempoRelativo,
+  formatarMoeda, formatarData, tempoRelativo,
 } from '../../hooks/useCRM.js';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
+import {
+  ENDERECO_VAZIO, CamposNegocio, CampoWhatsapp, CamposEmpresa, limparEndereco,
+  PORTE_LABEL, formatarEndereco, temInformacoesExtras,
+} from '../../components/crm/CamposContatoExtras.jsx';
 
 // ─── Componentes auxiliares ────────────────────────────────────
 const Spinner = () => (
@@ -35,8 +39,11 @@ const BadgeScore = ({ score }) => {
 // FORM_VAZIO fora do componente: referência estável entre renders, para
 // poder entrar na dependência do useEffect abaixo sem causar loop.
 const FORM_VAZIO = {
-  nome: '', email: '', telefone: '', empresa: '', cargo: '',
+  nome: '', email: '', telefone: '', whatsapp: '', empresa: '', cargo: '',
   origem: 'manual', status_funil: 'lead', valor_estimado: '', observacoes: '',
+  negocio_nome: '', previsao_fechamento: '', campanha: '',
+  razao_social: '', documento: '', segmento: '', site: '', porte: '',
+  endereco: ENDERECO_VAZIO,
 };
 
 const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
@@ -50,12 +57,22 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
         nome:          leadEditando.nome          || '',
         email:         leadEditando.email         || '',
         telefone:      leadEditando.telefone      || '',
+        whatsapp:      leadEditando.whatsapp      || '',
         empresa:       leadEditando.empresa       || '',
         cargo:         leadEditando.cargo         || '',
         origem:        leadEditando.origem        || 'manual',
         status_funil:  leadEditando.status_funil  || 'lead',
         valor_estimado:leadEditando.valor_estimado|| '',
         observacoes:   leadEditando.observacoes   || '',
+        negocio_nome:        leadEditando.negocio_nome        || '',
+        previsao_fechamento: leadEditando.previsao_fechamento ? leadEditando.previsao_fechamento.slice(0, 10) : '',
+        campanha:            leadEditando.campanha            || '',
+        razao_social:  leadEditando.razao_social  || '',
+        documento:     leadEditando.documento     || '',
+        segmento:      leadEditando.segmento      || '',
+        site:          leadEditando.site          || '',
+        porte:         leadEditando.porte         || '',
+        endereco:      { ...ENDERECO_VAZIO, ...(leadEditando.endereco || {}) },
       });
     } else {
       setForm(FORM_VAZIO);
@@ -66,6 +83,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
   if (!aberto) return null;
 
   const set = (campo) => (e) => setForm(f => ({ ...f, [campo]: e.target.value }));
+  const setEndereco = (campo) => (e) => setForm(f => ({ ...f, endereco: { ...f.endereco, [campo]: e.target.value } }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,12 +95,22 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
         nome:           form.nome.trim(),
         email:          form.email.trim()    || null,
         telefone:       form.telefone.trim() || null,
+        whatsapp:       form.whatsapp.trim() || null,
         empresa:        form.empresa.trim()  || null,
         cargo:          form.cargo.trim()    || null,
         origem:         form.origem,
         status_funil:   form.status_funil,
         valor_estimado: form.valor_estimado ? Number(form.valor_estimado) : null,
         observacoes:    form.observacoes.trim() || null,
+        negocio_nome:        form.negocio_nome.trim() || null,
+        previsao_fechamento: form.previsao_fechamento || null,
+        campanha:            form.campanha.trim() || null,
+        razao_social:   form.razao_social.trim() || null,
+        documento:      form.documento.trim()    || null,
+        segmento:       form.segmento.trim()     || null,
+        site:           form.site.trim()         || null,
+        porte:          form.porte || null,
+        endereco:       limparEndereco(form.endereco),
       });
       onFechar();
     } catch (err) {
@@ -118,7 +146,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
                 style={inputStyle} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Empresa</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome fantasia</label>
               <input type="text" value={form.empresa} onChange={set('empresa')} placeholder="Acme Corp"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
@@ -141,15 +169,10 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
+            <CampoWhatsapp form={form} set={set} inputStyle={inputStyle} />
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Cargo</label>
               <input type="text" value={form.cargo} onChange={set('cargo')} placeholder="CEO"
-                className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                style={inputStyle} />
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Valor estimado (R$)</label>
-              <input type="number" value={form.valor_estimado} onChange={set('valor_estimado')} placeholder="0,00" min="0" step="0.01"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
             </div>
@@ -171,6 +194,26 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
                 style={inputStyle}>
                 {ORIGENS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
               </select>
+            </div>
+          </div>
+
+          <div className="pt-2 mt-1 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>Negócio</p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Valor estimado (R$)</label>
+                <input type="number" value={form.valor_estimado} onChange={set('valor_estimado')} placeholder="0,00" min="0" step="0.01"
+                  className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  style={inputStyle} />
+              </div>
+              <CamposNegocio form={form} set={set} inputStyle={inputStyle} />
+            </div>
+          </div>
+
+          <div className="pt-2 mt-1 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>Empresa</p>
+            <div className="space-y-3">
+              <CamposEmpresa form={form} set={set} setEndereco={setEndereco} inputStyle={inputStyle} />
             </div>
           </div>
 
@@ -316,6 +359,34 @@ const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConv
             <p className="text-red-400 text-xs mt-2">{erroConversao}</p>
           )}
         </div>
+
+        {/* Mais informações (Negócio/Contato/Empresa) — só aparece se algo foi preenchido */}
+        {temInformacoesExtras(lead) && (
+          <div className="px-5 py-4 border-b flex-shrink-0" style={{ borderColor: 'var(--color-surface-border)' }}>
+            <h4 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+              Mais informações
+            </h4>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+              {[
+                { label: 'Negócio',              valor: lead.negocio_nome },
+                { label: 'Campanha',             valor: lead.campanha },
+                { label: 'Previsão de fechamento', valor: lead.previsao_fechamento ? formatarData(lead.previsao_fechamento) : null },
+                { label: 'WhatsApp',              valor: lead.whatsapp },
+                { label: 'Razão social',          valor: lead.razao_social },
+                { label: 'CNPJ/CPF',              valor: lead.documento },
+                { label: 'Segmento',              valor: lead.segmento },
+                { label: 'Porte',                 valor: PORTE_LABEL[lead.porte] },
+                { label: 'Site',                  valor: lead.site },
+                { label: 'Endereço',              valor: formatarEndereco(lead.endereco) },
+              ].filter(({ valor }) => valor).map(({ label, valor }) => (
+                <div key={label}>
+                  <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
+                  <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{valor}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Histórico de interações */}
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
