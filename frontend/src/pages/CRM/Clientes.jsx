@@ -75,8 +75,8 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
     : null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full sm:max-w-2xl h-full sm:h-auto sm:max-h-[90vh] rounded-none sm:rounded-xl flex flex-col border overflow-hidden"
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onFechar}>
+      <div className="w-full sm:max-w-2xl h-full sm:h-auto sm:max-h-[90vh] rounded-none sm:rounded-xl flex flex-col border overflow-hidden" onClick={(e) => e.stopPropagation()}
         style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
 
         {/* Header */}
@@ -447,8 +447,8 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="rounded-xl p-6 w-full max-w-lg my-4 border"
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onFechar}>
+      <div className="rounded-xl p-6 w-full max-w-lg my-4 border" onClick={(e) => e.stopPropagation()}
         style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>

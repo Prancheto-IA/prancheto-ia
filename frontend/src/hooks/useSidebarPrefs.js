@@ -63,11 +63,42 @@ const mesclarComCatalogo = (itensSalvos) => {
   return [...itensSalvos, ...novosItens];
 };
 
+// Cache local por usuário: evita o "flash" de itens default/fora de ordem
+// entre o primeiro render e a resposta do Supabase. Só acelera a primeira
+// pintura — carregar() sempre revalida contra o banco em seguida.
+const chaveCache = (userId) => `prancheto_sidebar_prefs_${userId}`;
+
+const lerCache = (userId) => {
+  if (!userId) return null;
+  try {
+    const bruto = localStorage.getItem(chaveCache(userId));
+    return bruto ? JSON.parse(bruto) : null;
+  } catch {
+    return null;
+  }
+};
+
+const salvarCache = (userId, dados) => {
+  if (!userId) return;
+  try {
+    localStorage.setItem(chaveCache(userId), JSON.stringify(dados));
+  } catch {
+    // localStorage indisponível (modo privado, quota etc.) — sem cache, sem problema
+  }
+};
+
+// Atualiza só uma parte do cache (ex: só "colapsada"), preservando o resto
+const atualizarCacheParcial = (userId, patch) => {
+  const atual = lerCache(userId) || {};
+  salvarCache(userId, { ...atual, ...patch });
+};
+
 export const useSidebarPrefs = () => {
   const usuario = useAuthStore(s => s.usuario);
-  const [itens, setItens] = useState(gerarItensDefault());
-  const [colapsada, setColapsada] = useState(false);
-  const [chatIaModo, setChatIaModo] = useState('flutuante');
+  const cacheInicial = lerCache(usuario?.id);
+  const [itens, setItens] = useState(cacheInicial?.itens || gerarItensDefault());
+  const [colapsada, setColapsada] = useState(cacheInicial?.colapsada ?? false);
+  const [chatIaModo, setChatIaModo] = useState(cacheInicial?.chatIaModo || 'flutuante');
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
 
@@ -88,16 +119,21 @@ export const useSidebarPrefs = () => {
 
       if (error) throw error;
 
+      let itensFinais;
       if (data?.itens && Array.isArray(data.itens) && data.itens.length > 0) {
         // Mescla com catálogo para incluir itens novos
-        const mesclado = mesclarComCatalogo(data.itens);
-        setItens(mesclado);
+        itensFinais = mesclarComCatalogo(data.itens);
       } else {
         // Primeira vez: usa defaults
-        setItens(gerarItensDefault());
+        itensFinais = gerarItensDefault();
       }
-      setColapsada(data?.sidebar_colapsada ?? false);
-      setChatIaModo(data?.chat_ia_modo || 'flutuante');
+      const colapsadaFinal  = data?.sidebar_colapsada ?? false;
+      const chatIaModoFinal = data?.chat_ia_modo || 'flutuante';
+
+      setItens(itensFinais);
+      setColapsada(colapsadaFinal);
+      setChatIaModo(chatIaModoFinal);
+      salvarCache(userId, { itens: itensFinais, colapsada: colapsadaFinal, chatIaModo: chatIaModoFinal });
     } catch (err) {
       console.error('useSidebarPrefs.carregar:', err);
       setItens(gerarItensDefault());
@@ -122,6 +158,7 @@ export const useSidebarPrefs = () => {
           { onConflict: 'user_id' }
         );
       if (error) throw error;
+      atualizarCacheParcial(userId, { itens: novosItens });
     } catch (err) {
       console.error('useSidebarPrefs.persistir:', err);
     } finally {
@@ -179,6 +216,7 @@ export const useSidebarPrefs = () => {
           { onConflict: 'user_id' }
         );
       if (error) throw error;
+      atualizarCacheParcial(userId, { colapsada: valor });
     } catch (err) {
       console.error('useSidebarPrefs.alternarColapsada:', err);
     } finally {
@@ -199,6 +237,7 @@ export const useSidebarPrefs = () => {
           { onConflict: 'user_id' }
         );
       if (error) throw error;
+      atualizarCacheParcial(userId, { chatIaModo: modo });
     } catch (err) {
       console.error('useSidebarPrefs.definirChatIaModo:', err);
     } finally {

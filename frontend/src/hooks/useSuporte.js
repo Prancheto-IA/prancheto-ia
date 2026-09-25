@@ -117,3 +117,70 @@ export const useSuporte = () => {
     adicionarMensagem,
   };
 };
+
+// ─── Hook: Tickets recebidos (painel admin / super_admin) ─────
+// Mesmas operações de useSuporte, mas sem o filtro por tenant_id —
+// depende das policies "*_super_admin_*" (RLS) em vez do escopo de
+// tenant do usuário logado.
+export const useSuporteAdmin = () => {
+  const usuario = useAuthStore(s => s.usuario);
+  const [tickets, setTickets] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+
+  const carregar = useCallback(async () => {
+    setCarregando(true);
+    try {
+      const { data, error } = await supabase
+        .from('suporte_tickets')
+        .select(`
+          *,
+          tenant:tenants!suporte_tickets_tenant_id_fkey (id, nome),
+          criador:users!suporte_tickets_criado_por_fkey (id, nome, email)
+        `)
+        .order('criado_em', { ascending: false });
+      if (error) throw error;
+      setTickets(data || []);
+    } catch (err) {
+      console.error('useSuporteAdmin.carregar:', err);
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
+  useEffect(() => { carregar(); }, [carregar]);
+
+  const atualizarTicket = async (id, dados) => {
+    const { error } = await supabase.from('suporte_tickets').update(dados).eq('id', id);
+    if (error) throw error;
+    await carregar();
+  };
+
+  const carregarMensagens = async (ticketId) => {
+    const { data, error } = await supabase
+      .from('suporte_ticket_mensagens')
+      .select('*, autor:users!suporte_ticket_mensagens_autor_id_fkey (id, nome)')
+      .eq('ticket_id', ticketId)
+      .order('criado_em', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  };
+
+  const adicionarMensagem = async (ticketId, dados) => {
+    const { data, error } = await supabase
+      .from('suporte_ticket_mensagens')
+      .insert({ ...dados, ticket_id: ticketId, autor_id: usuario?.id })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  };
+
+  return {
+    tickets,
+    carregando,
+    carregar,
+    atualizarTicket,
+    carregarMensagens,
+    adicionarMensagem,
+  };
+};

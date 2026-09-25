@@ -12,6 +12,7 @@
 //   /admin/planos         → Planos e Limites
 //   /admin/seguranca      → Logs de Segurança e Auditoria
 //   /admin/monitoramento  → Monitoramento do Sistema
+//   /admin/tickets        → Tickets Recebidos (suporte de todos os tenants)
 // =============================================================
 
 import React, { Suspense, lazy } from 'react';
@@ -26,6 +27,7 @@ const PaginaGestaoClientes  = lazy(() => import('./Clientes/GestaoClientes.jsx')
 const PaginaPlanoLimites    = lazy(() => import('./Planos/PlanoLimites.jsx'));
 const PaginaLogsSeguranca   = lazy(() => import('./Seguranca/LogsSeguranca.jsx'));
 const PaginaMonitoramento   = lazy(() => import('./Monitoramento/Monitoramento.jsx'));
+const PaginaTicketsRecebidos = lazy(() => import('./Suporte/TicketsRecebidos.jsx'));
 
 // =============================================================
 // COMPONENTE: TelaCarregandoAdmin
@@ -130,6 +132,13 @@ const DashboardAdmin = () => {
       status:   'ativo',
       onClick:  () => navigate('/admin/seguranca'),
     },
+    {
+      emoji:    '🎫',
+      titulo:   'Tickets Recebidos',
+      descricao: 'Tickets de suporte abertos por qualquer cliente, com resposta e notas internas.',
+      status:   'ativo',
+      onClick:  () => navigate('/admin/tickets'),
+    },
   ];
 
   return (
@@ -221,6 +230,7 @@ const PaginaAdminPanel = () => {
         <Route path="planos"        element={<PaginaPlanoLimites />} />
         <Route path="seguranca"     element={<PaginaLogsSeguranca />} />
         <Route path="monitoramento" element={<PaginaMonitoramento />} />
+        <Route path="tickets"       element={<PaginaTicketsRecebidos />} />
         <Route path="*"             element={<DashboardAdmin />} />
       </Routes>
     </Suspense>

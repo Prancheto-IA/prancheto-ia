@@ -283,17 +283,13 @@ const Tarefas = () => {
           <div className="flex rounded-lg border overflow-hidden" style={{ borderColor: 'var(--color-surface-border)' }}>
             <button
               onClick={() => setVisao('kanban')}
-              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'kanban' ? 'bg-primary-600' : ''}`}
-              onMouseEnter={e => { if (visao !== 'kanban') e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
-              onMouseLeave={e => { if (visao !== 'kanban') e.currentTarget.style.backgroundColor = ''; }}
+              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'kanban' ? 'bg-primary-600' : 'hover:bg-[var(--color-surface-hover)]'}`}
             >
               Kanban
             </button>
             <button
               onClick={() => setVisao('lista')}
-              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'lista' ? 'bg-primary-600' : ''}`}
-              onMouseEnter={e => { if (visao !== 'lista') e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
-              onMouseLeave={e => { if (visao !== 'lista') e.currentTarget.style.backgroundColor = ''; }}
+              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'lista' ? 'bg-primary-600' : 'hover:bg-[var(--color-surface-hover)]'}`}
             >
               Lista
             </button>
