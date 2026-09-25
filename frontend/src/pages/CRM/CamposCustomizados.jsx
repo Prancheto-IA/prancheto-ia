@@ -116,8 +116,8 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
   const precisaOpcoes = ['select', 'multiselect'].includes(form.tipo);
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="rounded-xl p-6 w-full max-w-md my-4 border"
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onFechar}>
+      <div className="rounded-xl p-6 w-full max-w-md my-4 border" onClick={(e) => e.stopPropagation()}
         style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>

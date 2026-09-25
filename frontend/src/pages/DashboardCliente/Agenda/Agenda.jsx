@@ -83,8 +83,8 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, diaSelecionado, mesAtual, ano
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onFechar}>
+      <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md my-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-semibold">{eventoEditando ? 'Editar Evento' : 'Novo Evento'}</h3>
           <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>

@@ -289,10 +289,11 @@ const SecaoPlano = () => {
 
       {/* Modal de upgrade */}
       {modalUpgrade && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={() => setModalUpgrade(null)}>
           <div
-            className="rounded-2xl p-6 w-full max-w-md"
+            className="rounded-2xl p-6 w-full max-w-md my-4 max-h-[90vh] overflow-y-auto"
             style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center mb-5">
               <p className="text-4xl mb-3">🚀</p>

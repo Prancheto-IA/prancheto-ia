@@ -18,8 +18,8 @@ const LeitorArtigo = ({ artigo, categoria, podeEditar, onFechar, onEditar, onExc
   useEffect(() => { onRegistrarVisualizacao(artigo); }, [artigo.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-surface-card border border-surface-border rounded-xl w-full max-w-2xl my-4 flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onFechar}>
+      <div className="bg-surface-card border border-surface-border rounded-xl w-full max-w-2xl my-4 flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3 p-5 border-b border-surface-border">
           <div className="min-w-0">
             {categoria && (
@@ -106,8 +106,8 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-2xl my-4">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onFechar}>
+      <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-2xl my-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-semibold">{artigoEditando ? 'Editar artigo' : 'Novo artigo'}</h3>
           <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
@@ -200,8 +200,8 @@ const ModalCategorias = ({ aberto, categorias, onFechar, onCriar, onExcluir }) =
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md my-4">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onFechar}>
+      <div className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md my-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-semibold">Categorias</h3>
           <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>

@@ -129,6 +129,7 @@ export const useLeads = () => {
       .from('crm_contatos')
       .insert({
         ...payload,
+        tenant_id: usuario?.tenant_id || null,
         tipo_registro: 'lead',
         responsavel_id: usuario?.id || null,
       })
@@ -326,6 +327,7 @@ export const useInteracoes = (contatoId) => {
 
 // ─── Hook: Campos Customizados ─────────────────────────────────
 export const useCamposCustom = () => {
+  const { usuario } = useAuthStore();
   const [campos, setCampos]       = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro]           = useState(null);
@@ -356,13 +358,13 @@ export const useCamposCustom = () => {
   const criar = useCallback(async (payload) => {
     const { data, error } = await supabase
       .from('crm_campos_customizados')
-      .insert(payload)
+      .insert({ ...payload, tenant_id: usuario?.tenant_id || null })
       .select('*, time:time_id (id, nome, icone)')
       .single();
     if (error) throw error;
     setCampos(prev => [...prev, data].sort((a, b) => a.ordem - b.ordem));
     return data;
-  }, []);
+  }, [usuario]);
 
   const atualizar = useCallback(async (id, payload) => {
     const { data, error } = await supabase

@@ -78,10 +78,11 @@ const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 overflow-y-auto" onClick={onFechar}>
       <div
-        className="w-full max-w-md rounded-xl shadow-2xl"
+        className="w-full max-w-md rounded-xl shadow-2xl my-8 max-h-[90vh] overflow-y-auto"
         style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
@@ -237,10 +238,11 @@ const ModalAdicionarMembro = ({ aberto, onFechar, onAdicionar, membrosAtuais, to
   if (!aberto) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onFechar}>
       <div
-        className="w-full max-w-sm rounded-xl shadow-2xl"
+        className="w-full max-w-sm rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto"
         style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
           <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>

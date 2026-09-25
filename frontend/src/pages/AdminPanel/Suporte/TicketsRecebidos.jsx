@@ -1,21 +1,24 @@
 // =============================================================
-// PRANCHETO.IA - SUPORTE / Meus Tickets
-// Lista os tickets abertos pelo usuário, com detalhe e thread.
+// PRANCHETO.IA - PAINEL ADMIN / Tickets Recebidos
+// Visão da equipe Prancheto.IA sobre os tickets de suporte abertos
+// por qualquer tenant. Espelha Suporte/MeusTickets.jsx, mas sem o
+// escopo de tenant/usuário (depende das policies *_super_admin_*).
 // =============================================================
 
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  useSuporte,
+  useSuporteAdmin,
   STATUS_TICKET,
   PRIORIDADE_TICKET,
   CATEGORIA_TICKET,
-} from '../../hooks/useSuporte.js';
-import { useAuthStore } from '../../store/authStore.js';
-import { useUIStore } from '../../store/uiStore.js';
+} from '../../../hooks/useSuporte.js';
+import { useUIStore } from '../../../store/uiStore.js';
 
 const formatarData = (valor) =>
   valor ? new Date(valor).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+
+const formatarDataHora = (valor) =>
+  valor ? new Date(valor).toLocaleString('pt-BR') : '';
 
 // ─── Badge de status (cores do domínio) ────────────────────────
 const BadgeStatus = ({ status }) => {
@@ -47,7 +50,9 @@ const CardTicket = ({ ticket, onClick }) => {
           </div>
           <div className="min-w-0">
             <p className="text-white font-medium text-sm truncate">{ticket.assunto}</p>
-            <p className="text-muted text-xs">{categoria.label}</p>
+            <p className="text-muted text-xs truncate">
+              🏢 {ticket.tenant?.nome || 'Tenant desconhecido'}
+            </p>
           </div>
         </div>
         <BadgeStatus status={ticket.status} />
@@ -60,16 +65,20 @@ const CardTicket = ({ ticket, onClick }) => {
       <div className="flex items-center gap-3 mt-3 flex-wrap">
         <span className="text-xs" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
         <span className="text-muted text-xs">📅 {formatarData(ticket.criado_em)}</span>
+        {ticket.criador?.nome && (
+          <span className="text-muted text-xs">👤 {ticket.criador.nome}</span>
+        )}
       </div>
     </div>
   );
 };
 
-// ─── Modal de detalhe do ticket (info + thread) ────────────────
+// ─── Modal de detalhe do ticket (info + thread + resposta da equipe) ──
 const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carregarMensagens }) => {
   const [mensagens, setMensagens] = useState([]);
   const [carregandoMsgs, setCarregandoMsgs] = useState(true);
   const [texto, setTexto] = useState('');
+  const [notaInterna, setNotaInterna] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
   const categoria = CATEGORIA_TICKET[ticket.categoria] || CATEGORIA_TICKET.outro;
@@ -85,7 +94,6 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
     }
   };
 
-  // Carrega a thread ao abrir
   useEffect(() => { carregar(); }, [ticket.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleEnviar = async (e) => {
@@ -93,8 +101,9 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
     if (!texto.trim()) return;
     setEnviando(true);
     try {
-      await onEnviarMensagem(ticket.id, texto.trim());
+      await onEnviarMensagem(ticket.id, texto.trim(), notaInterna);
       setTexto('');
+      setNotaInterna(false);
       await carregar();
     } catch {
       // Erro já notificado pela página; mantém o texto para nova tentativa.
@@ -114,9 +123,13 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
               <BadgeStatus status={ticket.status} />
             </div>
             <h3 className="font-semibold truncate">{ticket.assunto}</h3>
+            <p className="text-muted text-xs mt-0.5">🏢 {ticket.tenant?.nome || 'Tenant desconhecido'}</p>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               <span className="text-xs" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
               <span className="text-muted text-xs">📅 {formatarData(ticket.criado_em)}</span>
+              {ticket.criador?.email && (
+                <span className="text-muted text-xs">✉️ {ticket.criador.email}</span>
+              )}
             </div>
           </div>
           <button onClick={onFechar} className="text-muted hover:text-white text-lg flex-shrink-0">✕</button>
@@ -139,10 +152,19 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
             ) : (
               <div className="space-y-3">
                 {mensagens.map((m) => (
-                  <div key={m.id} className="bg-surface border border-surface-border rounded-lg p-3">
+                  <div
+                    key={m.id}
+                    className="rounded-lg p-3 border"
+                    style={m.interno
+                      ? { backgroundColor: 'rgba(245, 158, 11, 0.08)', borderColor: 'rgba(245, 158, 11, 0.3)' }
+                      : { backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-surface-border)' }}
+                  >
+                    {m.interno && (
+                      <p className="text-amber-400 text-xs font-medium mb-1">🔒 Nota interna (não visível ao cliente)</p>
+                    )}
                     <p className="text-muted text-sm whitespace-pre-wrap">{m.conteudo}</p>
                     <p className="text-muted text-xs mt-1">
-                      {new Date(m.criado_em).toLocaleString('pt-BR')}
+                      {m.autor?.nome ? `${m.autor.nome} · ` : ''}{formatarDataHora(m.criado_em)}
                     </p>
                   </div>
                 ))}
@@ -153,39 +175,49 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
 
         {/* Rodapé: resposta + ações */}
         <div className="p-5 border-t border-surface-border space-y-3">
-          {!encerrado ? (
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(STATUS_TICKET).map(([slug, info]) => (
+              <button
+                key={slug}
+                onClick={() => onMudarStatus(ticket.id, slug)}
+                disabled={ticket.status === slug}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-default ${
+                  ticket.status === slug ? '' : 'hover:bg-white/5'
+                }`}
+                style={{ borderColor: 'var(--color-surface-border)', color: info.cor }}
+              >
+                {info.label}
+              </button>
+            ))}
+          </div>
+
+          {!encerrado && (
             <form onSubmit={handleEnviar} className="space-y-2">
               <textarea
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
-                placeholder="Escreva uma resposta..."
+                placeholder={notaInterna ? 'Nota interna para o time...' : 'Escreva uma resposta ao cliente...'}
                 rows={2}
                 className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
               />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => onMudarStatus(ticket.id, 'resolvido')}
-                  className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
-                >
-                  Marcar como resolvido
-                </button>
+              <div className="flex items-center justify-between gap-2">
+                <label className="flex items-center gap-2 text-xs text-muted cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={notaInterna}
+                    onChange={(e) => setNotaInterna(e.target.checked)}
+                  />
+                  Nota interna (equipe, não visível ao cliente)
+                </label>
                 <button
                   type="submit"
                   disabled={enviando || !texto.trim()}
-                  className="flex-1 bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                  className="bg-primary-600 hover:bg-primary-500 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                 >
-                  {enviando ? 'Enviando...' : 'Responder'}
+                  {enviando ? 'Enviando...' : 'Enviar'}
                 </button>
               </div>
             </form>
-          ) : (
-            <button
-              onClick={() => onMudarStatus(ticket.id, 'aberto')}
-              className="w-full bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors"
-            >
-              Reabrir ticket
-            </button>
           )}
         </div>
       </div>
@@ -194,9 +226,7 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
 };
 
 // ─── Página principal ──────────────────────────────────────────
-const MeusTickets = () => {
-  const navigate = useNavigate();
-  const usuario = useAuthStore((s) => s.usuario);
+const TicketsRecebidos = () => {
   const { adicionarNotificacao } = useUIStore();
   const {
     tickets,
@@ -204,26 +234,30 @@ const MeusTickets = () => {
     atualizarTicket,
     carregarMensagens,
     adicionarMensagem,
-  } = useSuporte();
+  } = useSuporteAdmin();
 
   const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [busca, setBusca] = useState('');
   const [ticketAberto, setTicketAberto] = useState(null);
 
-  // "Meus" tickets = abertos pelo próprio usuário
-  const meusTickets = useMemo(
-    () => tickets.filter((t) => t.criado_por === usuario?.id),
-    [tickets, usuario?.id]
-  );
+  const ticketsFiltrados = useMemo(() => {
+    let lista = filtroStatus === 'todos' ? tickets : tickets.filter((t) => t.status === filtroStatus);
+    if (busca.trim()) {
+      const termo = busca.trim().toLowerCase();
+      lista = lista.filter((t) =>
+        t.assunto?.toLowerCase().includes(termo) ||
+        t.tenant?.nome?.toLowerCase().includes(termo) ||
+        t.criador?.nome?.toLowerCase().includes(termo)
+      );
+    }
+    return lista;
+  }, [tickets, filtroStatus, busca]);
 
-  const ticketsFiltrados = filtroStatus === 'todos'
-    ? meusTickets
-    : meusTickets.filter((t) => t.status === filtroStatus);
-
-  const handleEnviarMensagem = async (ticketId, conteudo) => {
+  const handleEnviarMensagem = async (ticketId, conteudo, interno) => {
     try {
-      await adicionarMensagem(ticketId, { conteudo });
+      await adicionarMensagem(ticketId, { conteudo, interno });
     } catch (err) {
-      console.error('MeusTickets.handleEnviarMensagem:', err);
+      console.error('TicketsRecebidos.handleEnviarMensagem:', err);
       adicionarNotificacao('error', 'Não foi possível enviar a mensagem.');
       throw err;
     }
@@ -236,9 +270,9 @@ const MeusTickets = () => {
         resolvido_em: novoStatus === 'resolvido' ? new Date().toISOString() : null,
       });
       setTicketAberto((t) => (t && t.id === ticketId ? { ...t, status: novoStatus } : t));
-      adicionarNotificacao('success', novoStatus === 'resolvido' ? 'Ticket resolvido.' : 'Ticket reaberto.');
+      adicionarNotificacao('success', 'Status do ticket atualizado.');
     } catch (err) {
-      console.error('MeusTickets.handleMudarStatus:', err);
+      console.error('TicketsRecebidos.handleMudarStatus:', err);
       adicionarNotificacao('error', 'Não foi possível atualizar o ticket.');
     }
   };
@@ -249,19 +283,20 @@ const MeusTickets = () => {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       {/* Cabeçalho */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-white">Meus Tickets</h2>
+          <h2 className="text-xl font-bold text-white">Tickets Recebidos</h2>
           <p className="text-muted text-sm mt-1">
-            {meusTickets.length} ticket{meusTickets.length !== 1 ? 's' : ''}
+            {tickets.length} ticket{tickets.length !== 1 ? 's' : ''} de todos os clientes
           </p>
         </div>
-        <button
-          onClick={() => navigate('/suporte/novo')}
-          className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-        >
-          <span>+</span> Novo ticket
-        </button>
+        <input
+          type="text"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          placeholder="Buscar por assunto, cliente ou tenant..."
+          className="bg-surface-card border border-surface-border rounded-lg px-3 py-2 text-sm w-full sm:w-72 focus:outline-none focus:border-primary-500/50"
+        />
       </div>
 
       {/* Filtros */}
@@ -291,26 +326,11 @@ const MeusTickets = () => {
         <div className="text-center py-16 bg-surface-card border border-surface-border rounded-xl">
           <p className="text-5xl mb-4">📨</p>
           <p className="text-white font-medium mb-1">Nenhum ticket encontrado</p>
-          <p className="text-muted text-sm mb-5">
-            {filtroStatus !== 'todos'
-              ? `Você não tem tickets com status "${STATUS_TICKET[filtroStatus]?.label}".`
-              : 'Você ainda não abriu nenhum ticket de suporte.'}
+          <p className="text-muted text-sm">
+            {busca.trim() || filtroStatus !== 'todos'
+              ? 'Nenhum ticket corresponde a esse filtro.'
+              : 'Nenhum cliente abriu um ticket de suporte ainda.'}
           </p>
-          {filtroStatus !== 'todos' ? (
-            <button
-              onClick={() => setFiltroStatus('todos')}
-              className="text-primary-400 hover:text-primary-300 text-sm transition-colors"
-            >
-              Limpar filtro
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate('/suporte/novo')}
-              className="bg-primary-600 hover:bg-primary-500 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              + Abrir primeiro ticket
-            </button>
-          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -334,4 +354,4 @@ const MeusTickets = () => {
   );
 };
 
-export default MeusTickets;
+export default TicketsRecebidos;

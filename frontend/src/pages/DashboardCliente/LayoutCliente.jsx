@@ -546,8 +546,11 @@ const LayoutCliente = ({ children }) => {
   const voltar = () => navigate(-1);
 
   return (
-    // P3: items-stretch garante que a sidebar (static no desktop) ocupe toda a altura
-    <div className="min-h-screen bg-surface flex items-stretch">
+    // P3: items-stretch garante que a sidebar (static no desktop) ocupe toda a altura.
+    // h-screen + overflow-hidden (em vez de min-h-screen) dá altura DEFINIDA à árvore
+    // flex: sem isso, "main" (flex-1 overflow-auto) nunca tem um teto pra recortar o
+    // scroll e a rolagem acontece no documento inteiro, arrastando a sidebar junto.
+    <div className="h-screen bg-surface flex items-stretch overflow-hidden">
       {/* Sidebar */}
       <Sidebar
         aberta={sidebarAberta}

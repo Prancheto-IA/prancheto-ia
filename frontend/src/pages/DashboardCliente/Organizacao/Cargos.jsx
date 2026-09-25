@@ -199,10 +199,11 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onFechar}>
       <div
         className="w-full max-w-2xl rounded-xl shadow-2xl max-h-[90vh] flex flex-col"
         style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
