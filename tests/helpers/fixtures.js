@@ -129,6 +129,75 @@ export async function criarTenantTeste() {
 }
 
 /**
+ * Cria um tenant descartavel com um unico usuario, ja marcado como dono
+ * (e_dono_tenant = true) — o "Chefe Supremo" da empresa. Usado pelos testes
+ * de criacao-usuario-tenant.test.js, que precisam de alguem com
+ * podeGerenciar=true na Edge Function tenant-usuarios sem depender de
+ * org_cargos/permissoes (o dono nao tem teto, ver 20260919000000).
+ *
+ * @returns {Promise<object>} tenantId e as credenciais do dono.
+ */
+export async function criarTenantComDono({ nome }) {
+  const admin = adminClient();
+  const tenantId = randomUUID();
+  const sufixo = tenantId.slice(0, 8);
+
+  const { error: erroTenant } = await admin.from('tenants').insert({
+    id: tenantId,
+    nome,
+    slug: `tenant-dono-teste-${sufixo}`,
+    plano: 'starter',
+    status: 'ativo',
+  });
+  if (erroTenant) throw new Error(`Falha ao criar tenant de teste: ${erroTenant.message}`);
+
+  const email = `dono-teste-${sufixo}@teste.dev`;
+  const donoId = await criarUsuario(admin, { email, cargo: 'admin', tenantId });
+
+  const { error: erroDono } = await admin.from('users').update({ e_dono_tenant: true }).eq('id', donoId);
+  if (erroDono) throw new Error(`Falha ao marcar dono de teste: ${erroDono.message}`);
+
+  return { tenantId, dono: { id: donoId, email, senha: SENHA_TESTE } };
+}
+
+export async function destruirTenantComDono(fixture) {
+  const admin = adminClient();
+  await admin.from('users').delete().eq('id', fixture.dono.id);
+  const { error } = await admin.auth.admin.deleteUser(fixture.dono.id);
+  if (error) throw new Error(`Falha ao apagar usuario de auth ${fixture.dono.id}: ${error.message}`);
+
+  const { error: erroTenant } = await admin.from('tenants').delete().eq('id', fixture.tenantId);
+  if (erroTenant) throw new Error(`Falha ao apagar tenant de teste: ${erroTenant.message}`);
+}
+
+/**
+ * Tenant descartavel sem usuario nenhum — serve so de "alvo" para os testes
+ * que tentam forjar um tenant_id de destino (nunca deveria ganhar ninguem).
+ */
+export async function criarTenantVazio({ nome }) {
+  const admin = adminClient();
+  const tenantId = randomUUID();
+  const sufixo = tenantId.slice(0, 8);
+
+  const { error } = await admin.from('tenants').insert({
+    id: tenantId,
+    nome,
+    slug: `tenant-vazio-teste-${sufixo}`,
+    plano: 'starter',
+    status: 'ativo',
+  });
+  if (error) throw new Error(`Falha ao criar tenant vazio de teste: ${error.message}`);
+
+  return { tenantId };
+}
+
+export async function destruirTenantVazio({ tenantId }) {
+  const admin = adminClient();
+  const { error } = await admin.from('tenants').delete().eq('id', tenantId);
+  if (error) throw new Error(`Falha ao apagar tenant vazio de teste: ${error.message}`);
+}
+
+/**
  * Fixture leve para testes que so precisam de um super_admin (papel global,
  * sem tenant) — nao vale criar um tenant inteiro so pra isso.
  */
