@@ -61,6 +61,8 @@ export default {
       animation: {
         'fade-in': 'fadeIn 0.2s ease-in-out',
         'slide-in': 'slideIn 0.3s ease-out',
+        'flutuar-3d': 'flutuar3d 4.5s ease-in-out infinite',
+        'piscar-mascote': 'piscarMascote 15s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -70,6 +72,23 @@ export default {
         slideIn: {
           '0%':   { transform: 'translateX(-10px)', opacity: '0' },
           '100%': { transform: 'translateX(0)',     opacity: '1' },
+        },
+        // Balanço leve com rotação em 2 eixos — dá profundidade 3D a um
+        // PNG plano (precisa de `perspective` no elemento pai pra funcionar).
+        flutuar3d: {
+          '0%, 100%': { transform: 'translateY(0)    rotateY(0deg)  rotateX(0deg)' },
+          '25%':      { transform: 'translateY(-6px) rotateY(8deg)  rotateX(2deg)' },
+          '50%':      { transform: 'translateY(-10px) rotateY(0deg) rotateX(-2deg)' },
+          '75%':      { transform: 'translateY(-6px) rotateY(-8deg) rotateX(2deg)' },
+        },
+        // Sem sprite de olho separado, o "piscar" é um squash-and-stretch
+        // no corpo todo (técnica clássica de mascote) — 2 piscadas rápidas
+        // perto do fim de um ciclo de 15s, depois fica em repouso.
+        piscarMascote: {
+          '0%, 92%, 100%': { transform: 'scaleY(1)' },
+          '94%':           { transform: 'scaleY(0.05)' },
+          '96%':           { transform: 'scaleY(1)' },
+          '98%':           { transform: 'scaleY(0.05)' },
         },
       },
     },
