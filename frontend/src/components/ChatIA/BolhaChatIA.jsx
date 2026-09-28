@@ -143,18 +143,20 @@ const BolhaChatIA = () => {
             className="w-full h-full object-contain drop-shadow-[0_14px_22px_rgba(15,23,42,0.5)] transition-transform duration-200 hover:scale-110"
           />
 
-          {/* Pálpebras: cobrem só a região dos olhos por uma fração de
-              segundo a cada 15s, simulando o Pranchetinho piscando de
-              verdade (ver keyframe piscarMascote em tailwind.config.js). */}
+          {/* Pálpebras: cobrem só o branco do olho (dentro da lente do
+              óculos, sem tocar a armação) por uma fração de segundo a cada
+              15s — coordenadas tiradas por análise de pixel da própria
+              imagem, não no olho, pra não parecer um adesivo colado em
+              cima do óculos. */}
           <span
             aria-hidden="true"
-            className="absolute rounded-[50%] bg-[#18181b] animate-piscar-mascote"
-            style={{ left: '18%', top: '27%', width: '29%', height: '21%' }}
+            className="absolute rounded-[50%] bg-[#141416] animate-piscar-mascote"
+            style={{ left: '26.5%', top: '30%', width: '21%', height: '20%', transformOrigin: 'top' }}
           />
           <span
             aria-hidden="true"
-            className="absolute rounded-[50%] bg-[#18181b] animate-piscar-mascote"
-            style={{ left: '53%', top: '27%', width: '29%', height: '21%' }}
+            className="absolute rounded-[50%] bg-[#141416] animate-piscar-mascote"
+            style={{ left: '59.5%', top: '30%', width: '20%', height: '20%', transformOrigin: 'top' }}
           />
         </span>
       </button>
