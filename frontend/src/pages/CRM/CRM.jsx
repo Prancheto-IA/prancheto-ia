@@ -123,7 +123,7 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto">
       <div className="rounded-xl p-6 w-full max-w-lg my-4 border"
         style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
         <div className="flex items-center justify-between mb-5">

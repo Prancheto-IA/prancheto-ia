@@ -64,6 +64,28 @@ export const CampoWhatsapp = ({ form, set, inputStyle }) => (
   </div>
 );
 
+// ─── Seção recolhível: agrupa campos secundários atrás de um toggle ────
+// Evita que o formulário de Lead/Cliente fique maior que a tela — só
+// expande automaticamente quando o registro já tem dado nesses campos
+// (ver temDadosNegocio/temDadosEmpresa), controlado pelo componente pai.
+export const SecaoRecolhivel = ({ titulo, descricao, aberta, onToggle, children }) => (
+  <div>
+    <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-2 text-left group">
+      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
+        {titulo}
+      </span>
+      <span className="text-xs font-medium text-primary-400 group-hover:text-primary-300 flex items-center gap-1 flex-shrink-0">
+        {aberta ? 'Ocultar' : 'Mostrar'}
+        <span className="text-[10px]">{aberta ? '▲' : '▼'}</span>
+      </span>
+    </button>
+    {!aberta && descricao && (
+      <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{descricao}</p>
+    )}
+    {aberta && <div className="space-y-3 mt-3">{children}</div>}
+  </div>
+);
+
 // ─── Empresa: razão social, documento, segmento, porte, site, endereço ──
 export const CamposEmpresa = ({ form, set, setEndereco, inputStyle }) => (
   <>
@@ -189,4 +211,16 @@ export const temInformacoesExtras = (contato) => Boolean(
   contato.whatsapp || contato.razao_social || contato.documento ||
   contato.segmento || contato.porte || contato.site ||
   formatarEndereco(contato.endereco)
+);
+
+// Decidem se as seções recolhíveis "Mais detalhes do negócio" e "Empresa"
+// já vêm abertas no modal — abertas quando editando um registro que já
+// tem algo preenchido ali, fechadas ao criar um novo (contato pode ser null).
+export const temDadosNegocio = (contato) => Boolean(
+  contato?.negocio_nome || contato?.campanha || contato?.previsao_fechamento
+);
+
+export const temDadosEmpresa = (contato) => Boolean(
+  contato?.razao_social || contato?.documento || contato?.segmento ||
+  contato?.porte || contato?.site || formatarEndereco(contato?.endereco)
 );

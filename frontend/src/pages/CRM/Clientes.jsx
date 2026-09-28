@@ -15,6 +15,7 @@ import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import {
   ENDERECO_VAZIO, CampoWhatsapp, CamposEmpresa, limparEndereco,
   PORTE_LABEL, formatarEndereco, temInformacoesExtras,
+  SecaoRecolhivel, temDadosEmpresa,
 } from '../../components/crm/CamposContatoExtras.jsx';
 
 // ─── Componentes auxiliares ────────────────────────────────────
@@ -384,8 +385,10 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
   const [form, setForm]         = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
+  const [mostrarEmpresa, setMostrarEmpresa] = useState(false);
 
   useEffect(() => {
+    setMostrarEmpresa(temDadosEmpresa(cliente));
     if (cliente) {
       setForm({
         nome:        cliente.nome        || '',
@@ -447,7 +450,7 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onFechar}>
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={onFechar}>
       <div className="rounded-xl p-6 w-full max-w-lg my-4 border" onClick={(e) => e.stopPropagation()}
         style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
         <div className="flex items-center justify-between mb-5">
@@ -499,10 +502,14 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
           </div>
 
           <div className="pt-2 mt-1 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
-            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>Empresa</p>
-            <div className="space-y-3">
+            <SecaoRecolhivel
+              titulo="Empresa"
+              descricao="Razão social, CNPJ/CPF, segmento, porte, site e endereço."
+              aberta={mostrarEmpresa}
+              onToggle={() => setMostrarEmpresa(v => !v)}
+            >
               <CamposEmpresa form={form} set={set} setEndereco={setEndereco} inputStyle={inputStyle} />
-            </div>
+            </SecaoRecolhivel>
           </div>
 
           <div>
