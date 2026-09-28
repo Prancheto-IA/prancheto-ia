@@ -17,7 +17,7 @@ import { useChatBubbleStore } from '../../store/chatBubbleStore.js';
 import PainelChatFlutuante from './PainelChatFlutuante.jsx';
 import pranchetinho from '../../assets/mascote/pranchetinho-chat.png';
 
-const TAMANHO = 64; // px — mesma medida do w-16 h-16 abaixo
+const TAMANHO = 80; // px — mesma medida do w-20 h-20 abaixo
 const MARGEM = 24; // px de respiro do canto da tela
 const LIMIAR_ARRASTE = 4; // px: abaixo disso, é clique — não arraste
 
@@ -115,20 +115,46 @@ const BolhaChatIA = () => {
         onPointerUp={aoSoltar}
         title="Pranchetinho — Chat com IA"
         aria-label="Abrir chat com o Pranchetinho, assistente de IA"
-        className="fixed z-[70] w-16 h-16 rounded-full flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 focus-visible:ring-offset-2"
+        className="fixed z-[70] w-20 h-20 flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 focus-visible:ring-offset-2 rounded-full"
         style={{
           left: posicao.x,
           top: posicao.y,
           cursor: arrastando ? 'grabbing' : 'grab',
-          perspective: '700px',
+          perspective: '800px',
         }}
       >
-        <span className="block w-full h-full animate-flutuar-3d" style={{ transformStyle: 'preserve-3d' }}>
+        {/* Brilho de contato: encolhe/clareia em sincronia com a subida do
+            mascote — é o que faz ele parecer flutuando em 3D (uma sombra
+            preta seria invisível no tema escuro do painel, por isso usa a
+            cor da marca como um halo de luz). */}
+        <span
+          aria-hidden="true"
+          className="absolute bottom-1 left-1/2 -translate-x-1/2 w-10 h-3 rounded-full bg-primary-400 blur-[4px] animate-sombra-flutuante"
+        />
+
+        <span
+          className="relative block w-full h-full animate-flutuar-3d"
+          style={{ transformStyle: 'preserve-3d' }}
+        >
           <img
             src={pranchetinho}
             alt="Pranchetinho"
             draggable={false}
-            className="w-full h-full object-contain animate-piscar-mascote drop-shadow-[0_10px_20px_rgba(15,23,42,0.45)] transition-transform duration-200 hover:scale-110"
+            className="w-full h-full object-contain drop-shadow-[0_14px_22px_rgba(15,23,42,0.5)] transition-transform duration-200 hover:scale-110"
+          />
+
+          {/* Pálpebras: cobrem só a região dos olhos por uma fração de
+              segundo a cada 15s, simulando o Pranchetinho piscando de
+              verdade (ver keyframe piscarMascote em tailwind.config.js). */}
+          <span
+            aria-hidden="true"
+            className="absolute rounded-[50%] bg-[#18181b] animate-piscar-mascote"
+            style={{ left: '18%', top: '27%', width: '29%', height: '21%' }}
+          />
+          <span
+            aria-hidden="true"
+            className="absolute rounded-[50%] bg-[#18181b] animate-piscar-mascote"
+            style={{ left: '53%', top: '27%', width: '29%', height: '21%' }}
           />
         </span>
       </button>
