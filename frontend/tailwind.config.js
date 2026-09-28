@@ -62,6 +62,7 @@ export default {
         'fade-in': 'fadeIn 0.2s ease-in-out',
         'slide-in': 'slideIn 0.3s ease-out',
         'flutuar-3d': 'flutuar3d 4.5s ease-in-out infinite',
+        'sombra-flutuante': 'sombraFlutuante 4.5s ease-in-out infinite',
         'piscar-mascote': 'piscarMascote 15s ease-in-out infinite',
       },
       keyframes: {
@@ -73,22 +74,33 @@ export default {
           '0%':   { transform: 'translateX(-10px)', opacity: '0' },
           '100%': { transform: 'translateX(0)',     opacity: '1' },
         },
-        // Balanço leve com rotação em 2 eixos — dá profundidade 3D a um
-        // PNG plano (precisa de `perspective` no elemento pai pra funcionar).
+        // Balanço com rotação em 2 eixos + translateY — o ângulo precisa
+        // ser exagerado (não sutil) pra ler como objeto 3D e não como
+        // sticker plano subindo/descendo. Precisa de `perspective` no
+        // elemento pai pra funcionar.
         flutuar3d: {
-          '0%, 100%': { transform: 'translateY(0)    rotateY(0deg)  rotateX(0deg)' },
-          '25%':      { transform: 'translateY(-6px) rotateY(8deg)  rotateX(2deg)' },
-          '50%':      { transform: 'translateY(-10px) rotateY(0deg) rotateX(-2deg)' },
-          '75%':      { transform: 'translateY(-6px) rotateY(-8deg) rotateX(2deg)' },
+          '0%, 100%': { transform: 'translateY(0)     rotateY(0deg)   rotateX(0deg)' },
+          '25%':      { transform: 'translateY(-10px) rotateY(16deg) rotateX(5deg)' },
+          '50%':      { transform: 'translateY(-16px) rotateY(0deg)  rotateX(-5deg)' },
+          '75%':      { transform: 'translateY(-10px) rotateY(-16deg) rotateX(5deg)' },
         },
-        // Sem sprite de olho separado, o "piscar" é um squash-and-stretch
-        // no corpo todo (técnica clássica de mascote) — 2 piscadas rápidas
-        // perto do fim de um ciclo de 15s, depois fica em repouso.
+        // Halo de contato no "chão" do ícone: encolhe quando o mascote sobe,
+        // cresce quando ele desce — mesmo timing do flutuar3d, é o que vende
+        // a sensação de profundidade/3D (cor da marca em vez de preto, pra
+        // continuar visível no tema escuro do painel).
+        sombraFlutuante: {
+          '0%, 100%': { transform: 'scale(1)',    opacity: '0.55' },
+          '25%':      { transform: 'scale(0.75)', opacity: '0.35' },
+          '50%':      { transform: 'scale(0.55)', opacity: '0.22' },
+          '75%':      { transform: 'scale(0.75)', opacity: '0.35' },
+        },
+        // Piscada de verdade nos olhos: duas "pálpebras" absolutas
+        // (ver BolhaChatIA.jsx) ficam com scaleY(0) — invisíveis — e vão
+        // a scaleY(1) só por uma fração de segundo perto do fim de um
+        // ciclo de 15s, cobrindo exatamente a região dos olhos.
         piscarMascote: {
-          '0%, 92%, 100%': { transform: 'scaleY(1)' },
-          '94%':           { transform: 'scaleY(0.05)' },
-          '96%':           { transform: 'scaleY(1)' },
-          '98%':           { transform: 'scaleY(0.05)' },
+          '0%, 95%, 100%': { transform: 'scaleY(0)' },
+          '97%':           { transform: 'scaleY(1)' },
         },
       },
     },
