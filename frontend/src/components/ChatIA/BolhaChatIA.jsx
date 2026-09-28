@@ -17,7 +17,7 @@ import { useChatBubbleStore } from '../../store/chatBubbleStore.js';
 import PainelChatFlutuante from './PainelChatFlutuante.jsx';
 import pranchetinho from '../../assets/mascote/pranchetinho-chat.png';
 
-const TAMANHO = 80; // px — mesma medida do w-20 h-20 abaixo
+const TAMANHO = 62; // px — mesma medida do w-[62px] h-[62px] abaixo
 const MARGEM = 24; // px de respiro do canto da tela
 const LIMIAR_ARRASTE = 4; // px: abaixo disso, é clique — não arraste
 
@@ -115,7 +115,7 @@ const BolhaChatIA = () => {
         onPointerUp={aoSoltar}
         title="Pranchetinho — Chat com IA"
         aria-label="Abrir chat com o Pranchetinho, assistente de IA"
-        className="fixed z-[70] w-20 h-20 flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 focus-visible:ring-offset-2 rounded-full"
+        className="fixed z-[70] w-[62px] h-[62px] flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 focus-visible:ring-offset-2 rounded-full"
         style={{
           left: posicao.x,
           top: posicao.y,
