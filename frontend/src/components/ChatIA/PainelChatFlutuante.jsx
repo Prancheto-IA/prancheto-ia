@@ -11,6 +11,7 @@ import { useAssistente, CODIGOS_INDISPONIVEL } from '../../hooks/useAssistente.j
 import {
   Bolha, LinhaAtividade, CartaoAcao, FaixaIndisponivel, SUGESTOES,
 } from '../../pages/DashboardCliente/Chat/ChatMensagens.jsx';
+import pranchetinho from '../../assets/mascote/pranchetinho-chat.png';
 
 const PainelChatFlutuante = ({ onFechar, style }) => {
   const {
@@ -42,7 +43,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
       style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)', ...style }}
     >
       <div className="h-14 border-b flex items-center px-4 gap-2 flex-shrink-0" style={{ borderColor: 'var(--color-surface-border)' }}>
-        <span className="text-xl">🤖</span>
+        <img src={pranchetinho} alt="Pranchetinho" className="w-8 h-8 object-contain flex-shrink-0" />
         <div className="min-w-0 flex-1">
           <p className="font-medium text-sm truncate" style={{ color: 'var(--color-text-primary)' }}>
             {conversaAtual?.titulo || 'Assistente'}
@@ -62,7 +63,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
 
         {vazio && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <p className="text-4xl mb-3">🤖</p>
+            <img src={pranchetinho} alt="Pranchetinho" className="w-16 h-16 object-contain mb-3" />
             <p className="text-sm max-w-xs mb-4" style={{ color: 'var(--color-text-secondary)' }}>
               Peça pra consultar, criar ou atualizar algo no CRM.
             </p>
@@ -98,10 +99,10 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
         {enviando && (
           <div className="flex gap-3">
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 mt-1"
+              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 overflow-hidden"
               style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)' }}
             >
-              🤖
+              <img src={pranchetinho} alt="Pranchetinho" className="w-6 h-6 object-contain" />
             </div>
             <div
               className="px-4 py-3 rounded-2xl rounded-tl-sm border"
