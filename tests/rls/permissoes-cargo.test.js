@@ -1,8 +1,9 @@
 // =============================================================
 // PRANCHETO.IA - TESTES DE RLS - Permissões por cargo
 //
-// Usa os 3 usuários já seedados (supabase/seed.sql) — nenhum fixture novo.
-// As permissões de cada um estão documentadas no próprio seed.sql:
+// Primeiro describe: usa os 3 usuários já seedados (supabase/seed.sql) —
+// nenhum fixture novo. As permissões de cada um estão documentadas no
+// próprio seed.sql:
 //   admin@acme.dev   (Líder Geral)   tem os 4 slugs abaixo
 //   gerente@acme.dev (Líder de Time) tem times.gerenciar, não os outros 3
 //   membro@acme.dev  (Membro de Time) não tem nenhum dos 4
@@ -10,13 +11,20 @@
 // Cada teste cria seu próprio dado descartável quando precisa exercitar o
 // caminho "permitido" (o admin sempre pode limpar depois) — nunca toca nos
 // dados fixos do seed.
+//
+// Segundo describe (subconjunto de permissões, Bloco 5): nenhum dos 3
+// usuários do seed serve pra testar a regra que substituiu o nível
+// hierárquico — só admin@acme.dev tem usuarios.gerenciar/cargos.gerenciar,
+// e o conjunto dele é superconjunto de todo mundo. Usa fixtures próprias
+// (criarFixtureSubconjuntoPermissoes), criadas e destruídas a cada rodada.
 // =============================================================
 
-import { describe, it, expect } from 'vitest';
-import { loginAs } from '../helpers/client.js';
-
-const TENANT_ACME_ID = 'd0000000-0000-4000-8000-000000000001';
-const SENHA_SEED = 'prancheto-dev-2026';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { loginAs, adminClient } from '../helpers/client.js';
+import {
+  TENANT_ACME_ID, SENHA_SEED,
+  criarFixtureSubconjuntoPermissoes, destruirFixtureSubconjuntoPermissoes,
+} from '../helpers/fixtures.js';
 
 describe('Permissões por cargo (RLS + tem_permissao())', () => {
   it('crm.excluir: admin apaga, gerente e membro são negados', async () => {
@@ -111,5 +119,109 @@ describe('Permissões por cargo (RLS + tem_permissao())', () => {
       .from('tenants').update({ nome: original.nome }).eq('id', TENANT_ACME_ID).select();
     expect(erroAdmin).toBeNull();
     expect(viaAdmin).toHaveLength(1);
+  });
+});
+
+describe('Permissões substituem nível hierárquico (subconjunto — Bloco 5)', () => {
+  let admin;
+  let fixture;
+
+  beforeAll(async () => {
+    admin = adminClient();
+    fixture = await criarFixtureSubconjuntoPermissoes();
+  });
+
+  afterAll(async () => {
+    await destruirFixtureSubconjuntoPermissoes(fixture);
+  });
+
+  it('cargo: usuário não cria nem edita cargo com permissão que não tem, mas pode usar as que já possui', async () => {
+    const comoModesto = await loginAs(fixture.modesto.email, fixture.modesto.senha);
+
+    // CRIAR: tentar conceder 'usuarios.convidar' — fora do conjunto do
+    // próprio ator — é bloqueado pelo trigger (RAISE EXCEPTION, não RLS).
+    const { data: criacaoNegada, error: erroCriacaoNegada } = await comoModesto
+      .from('org_cargos')
+      .insert({
+        tenant_id: TENANT_ACME_ID,
+        nome: 'descartavel-teste-subset-negado',
+        permissoes: ['crm.ver', 'usuarios.convidar'],
+      })
+      .select();
+    expect(erroCriacaoNegada).not.toBeNull();
+    expect(criacaoNegada).toBeNull();
+
+    // CRIAR: usando só permissões que o próprio ator possui — permitido.
+    const { data: criado, error: erroCriar } = await comoModesto
+      .from('org_cargos')
+      .insert({
+        tenant_id: TENANT_ACME_ID,
+        nome: 'descartavel-teste-subset-permitido',
+        permissoes: ['crm.ver', 'cargos.gerenciar'],
+      })
+      .select('id').single();
+    expect(erroCriar).toBeNull();
+    await admin.from('org_cargos').delete().eq('id', criado.id);
+
+    // EDITAR: acrescentar uma permissão que o ator não possui é bloqueado,
+    // mesmo em um cargo que ele tem poder de editar (cargos.gerenciar).
+    const { data: edicaoNegada, error: erroEdicaoNegada } = await comoModesto
+      .from('org_cargos')
+      .update({ permissoes: ['crm.ver', 'usuarios.convidar'] })
+      .eq('id', fixture.cargos.alvoEdicaoId)
+      .select();
+    expect(erroEdicaoNegada).not.toBeNull();
+    expect(edicaoNegada).toBeNull();
+  });
+
+  it('usuarios.gerenciar: só gerencia (cargo/ativo) alvos com permissões em subconjunto estrito das suas', async () => {
+    const comoModesto = await loginAs(fixture.modesto.email, fixture.modesto.senha);
+    const comoAmplo   = await loginAs(fixture.amplo.email, fixture.amplo.senha);
+
+    // Não gerencia quem tem MAIS permissões que ele.
+    const { error: erroAlvoMaisForte } = await comoModesto.rpc('definir_ativo_usuario', {
+      p_user_id: fixture.amplo.id, p_ativo: false,
+    });
+    expect(erroAlvoMaisForte).not.toBeNull();
+
+    // Não gerencia um PEER com permissões idênticas — nem mais nem menos
+    // poder conta como "abaixo". Só o dono manda em quem tem poder igual.
+    const { error: erroPeer } = await comoModesto.rpc('definir_cargo_usuario', {
+      p_user_id: fixture.peer.id, p_cargo_id: fixture.cargos.baseId,
+    });
+    expect(erroPeer).not.toBeNull();
+
+    // Gerencia quem tem permissões estritamente ABAIXO (subconjunto próprio).
+    const { error: erroDesativa } = await comoAmplo.rpc('definir_ativo_usuario', {
+      p_user_id: fixture.modesto.id, p_ativo: false,
+    });
+    expect(erroDesativa).toBeNull();
+    await admin.from('users').update({ ativo: true }).eq('id', fixture.modesto.id); // reverte
+
+    const { error: erroTrocaCargo } = await comoAmplo.rpc('definir_cargo_usuario', {
+      p_user_id: fixture.modesto.id, p_cargo_id: fixture.cargos.peerId,
+    });
+    expect(erroTrocaCargo).toBeNull();
+    await admin.from('users').update({ cargo_id: fixture.cargos.baseId }).eq('id', fixture.modesto.id); // reverte
+  });
+
+  it('Chefe Supremo continua intocável, mesmo por quem tem usuarios.gerenciar', async () => {
+    const comoAmplo = await loginAs(fixture.amplo.email, fixture.amplo.senha);
+    const comoAdminSeed = await loginAs('admin@acme.dev', SENHA_SEED); // Líder Geral, também tem usuarios.gerenciar
+
+    const { error: erroDesativarDono } = await comoAmplo.rpc('definir_ativo_usuario', {
+      p_user_id: fixture.dono.id, p_ativo: false,
+    });
+    expect(erroDesativarDono).not.toBeNull();
+
+    const { error: erroMudarCargoDono } = await comoAdminSeed.rpc('definir_cargo_usuario', {
+      p_user_id: fixture.dono.id, p_cargo_id: fixture.cargos.baseId,
+    });
+    expect(erroMudarCargoDono).not.toBeNull();
+
+    const { data: donoInalterado } = await admin
+      .from('users').select('ativo, cargo_id').eq('id', fixture.dono.id).single();
+    expect(donoInalterado.ativo).toBe(true);
+    expect(donoInalterado.cargo_id).toBeNull();
   });
 });

@@ -2,6 +2,7 @@
 // PRANCHETO.IA - CRM HUB (FASE 2)
 // Roteamento interno do módulo CRM com abas:
 //   - Leads (funil de entrada)
+//   - Outbound (prospecção ativa)
 //   - Clientes (centro de relacionamento)
 //   - Campos (campos customizados "Lego")
 // =============================================================
@@ -9,14 +10,17 @@
 import React from 'react';
 import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import PaginaLeads            from './Leads.jsx';
+import PaginaOutbound         from './Outbound.jsx';
 import PaginaClientes         from './Clientes.jsx';
 import PaginaCamposCustomizados from './CamposCustomizados.jsx';
+import DetalheContato          from './DetalheContato.jsx';
 
 // ─── Abas de navegação do CRM ──────────────────────────────────
 const ABAS = [
-  { path: '/crm/leads',   label: '🎯 Leads',   descricao: 'Funil de entrada'         },
-  { path: '/crm/clientes',label: '🏆 Clientes', descricao: 'Centro de relacionamento' },
-  { path: '/crm/campos',  label: '🧩 Campos',   descricao: 'Campos customizados'      },
+  { path: '/crm/leads',    label: '🎯 Leads',    descricao: 'Funil de entrada'         },
+  { path: '/crm/outbound', label: '📧 Outbound', descricao: 'Prospecção ativa'         },
+  { path: '/crm/clientes', label: '🏆 Clientes',  descricao: 'Centro de relacionamento' },
+  { path: '/crm/campos',   label: '🧩 Campos',    descricao: 'Campos customizados'      },
 ];
 
 const NavCRM = () => {
@@ -70,9 +74,12 @@ const CRMHub = () => {
       {/* Conteúdo da aba ativa */}
       <div className="flex-1 overflow-auto">
         <Routes>
-          <Route path="leads"   element={<PaginaLeads />} />
-          <Route path="clientes" element={<PaginaClientes />} />
-          <Route path="campos"  element={<PaginaCamposCustomizados />} />
+          <Route path="leads"        element={<PaginaLeads />} />
+          <Route path="leads/:id"    element={<DetalheContato voltar="/crm/leads" />} />
+          <Route path="outbound"     element={<PaginaOutbound />} />
+          <Route path="clientes"     element={<PaginaClientes />} />
+          <Route path="clientes/:id" element={<DetalheContato voltar="/crm/clientes" />} />
+          <Route path="campos"       element={<PaginaCamposCustomizados />} />
           {/* Redireciona /crm e /crm/* para /crm/leads */}
           <Route path="*" element={<Navigate to="/crm/leads" replace />} />
         </Routes>

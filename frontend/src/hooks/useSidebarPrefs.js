@@ -27,7 +27,6 @@ export const CATALOGO_SIDEBAR = [
   { slug: 'projetos',     label: 'Projetos',       emoji: '📁', rota: '/projetos',                    exact: false, prefixoAtivo: '/projetos',             removivel: true  },
   { slug: 'times_pessoas',label: 'Times e Pessoas',emoji: '👥', rota: '/times-pessoas',               exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'relatorios',   label: 'Relatórios',     emoji: '📊', rota: '/dashboard/relatorios',        exact: false, prefixoAtivo: null,                    removivel: true  },
-  { slug: 'outbound',     label: 'Outbound',       emoji: '📧', rota: '/dashboard/outbound',          exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'organizacao',  label: 'Organização',    emoji: '🏢', rota: '/dashboard/organizacao/times', exact: false, prefixoAtivo: '/dashboard/organizacao', removivel: true  },
   { slug: 'suporte',      label: 'Suporte',        emoji: '🎧', rota: '/suporte',                     exact: false, prefixoAtivo: '/suporte',              removivel: true  },
   { slug: 'configuracoes',label: 'Configurações',  emoji: '⚙️', rota: '/dashboard/configuracoes',    exact: false, prefixoAtivo: null,                    removivel: false },
@@ -37,9 +36,10 @@ export const CATALOGO_SIDEBAR = [
 // viver dentro de Configurações (aba Plano), e o hub /modulos foi extinto —
 // Chat, Calendário, Tarefas, Projetos e Times e Pessoas agora são itens
 // diretos (sem o antigo apenasAdmin: true do item Módulos, que deixava
-// member/viewer sem nenhum link de sidebar pra essas telas). Preferências
-// já salvas com slugs antigos continuam válidas — itensVisiveis descarta
-// slugs que não estão mais no catálogo.
+// member/viewer sem nenhum link de sidebar pra essas telas). 'outbound'
+// também saiu: virou aba dentro do CRM (/crm/outbound), não item próprio
+// de sidebar. Preferências já salvas com slugs antigos continuam válidas —
+// itensVisiveis descarta slugs que não estão mais no catálogo.
 
 // Gera a lista padrão de itens (todos visíveis, ordem do catálogo)
 const gerarItensDefault = () =>

@@ -9,19 +9,15 @@
 //   - useInteracoes()    → histórico de interações de um contato
 // =============================================================
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase.js';
 import { useAuthStore } from '../store/authStore.js';
 
 // ─── Constantes ────────────────────────────────────────────────
-export const FUNIL_LEAD = [
-  { key: 'lead',        label: 'Lead',        cor: 'badge-neutro',    emoji: '🎯' },
-  { key: 'qualificado', label: 'Qualificado', cor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',       emoji: '✅' },
-  { key: 'proposta',    label: 'Proposta',    cor: 'bg-violet-500/20 text-violet-300 border-violet-500/30', emoji: '📄' },
-  { key: 'negociacao',  label: 'Negociação',  cor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',    emoji: '🤝' },
-  { key: 'fechado',     label: 'Fechado',     cor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', emoji: '🏆' },
-  { key: 'perdido',     label: 'Perdido',     cor: 'bg-red-500/20 text-red-300 border-red-500/30',          emoji: '❌' },
-];
+// Etapas do funil (key/cor/emoji): ver ETAPAS_CRM_FUNIL em
+// hooks/useRotulosStatus.js — o rótulo exibido de cada etapa é resolvido
+// por lá (rótulo pessoal > padrão da empresa > padrão do sistema), não é
+// mais um texto fixo aqui.
 
 export const TIPOS_INTERACAO = [
   { key: 'nota',      label: 'Nota',      emoji: '📝', score: 5  },
@@ -55,9 +51,31 @@ export const TIPOS_CAMPO = [
   { key: 'email',       label: 'E-mail'        },
 ];
 
-export const funilInfo  = (key) => FUNIL_LEAD.find(f => f.key === key) || FUNIL_LEAD[0];
 export const tipoInfo   = (key) => TIPOS_INTERACAO.find(t => t.key === key) || TIPOS_INTERACAO[0];
 export const origemInfo = (key) => ORIGENS.find(o => o.key === key) || ORIGENS[0];
+
+// ─── Helper: registra mudança de etapa como interação ──────────
+// Não é hook (sem estado) — chamado por useLeads.mudarStatus e
+// useContato.mudarStatus pra aba Histórico mostrar quem moveu e quando.
+// Guarda os slugs técnicos em metadata (não rótulos já resolvidos): a UI
+// resolve rotulos[metadata.de]/rotulos[metadata.para] no render, então
+// continua certo mesmo se o usuário renomear os rótulos depois.
+export const registrarMudancaStatus = async (contatoId, statusAnterior, statusNovo, criadoPorId) => {
+  if (!statusAnterior || statusAnterior === statusNovo) return null;
+  const { data, error } = await supabase
+    .from('crm_interacoes')
+    .insert({
+      contato_id: contatoId,
+      criado_por: criadoPorId || null,
+      tipo: 'mudanca_status',
+      conteudo: 'Mudança de etapa',
+      metadata: { de: statusAnterior, para: statusNovo },
+    })
+    .select('*, criado_por_user:criado_por (id, nome)')
+    .single();
+  if (error) throw error;
+  return data;
+};
 
 // ─── Formatadores ──────────────────────────────────────────────
 export const formatarMoeda = (v) =>
@@ -94,11 +112,14 @@ export const useLeads = () => {
     setCarregando(true);
     setErro(null);
     try {
+      // O embed de crm_interacoes só entra quando o silo "sem_contato" está
+      // ativo — evita puxar esse array em toda carga normal da lista.
+      const precisaEmbedInteracoes = filtros.silo === 'sem_contato';
       let q = supabase
         .from('crm_contatos')
         .select(`
           id, nome, email, telefone, whatsapp, empresa, cargo,
-          origem, origem_detalhes, status_funil,
+          origem, origem_detalhes, forma_aquisicao, status_funil,
           valor_estimado, observacoes, tags,
           negocio_nome, previsao_fechamento, campanha,
           razao_social, documento, segmento, site, porte, endereco,
@@ -106,13 +127,25 @@ export const useLeads = () => {
           tipo_registro, time_id,
           criado_em, atualizado_em,
           responsavel:responsavel_id (id, nome, email)
+          ${precisaEmbedInteracoes ? ', crm_interacoes!left(id)' : ''}
         `)
-        .eq('tipo_registro', 'lead')
-        .order('score', { ascending: false });
+        .eq('tipo_registro', 'lead');
 
-      if (filtros.status_funil) q = q.eq('status_funil', filtros.status_funil);
-      if (filtros.time_id)      q = q.eq('time_id', filtros.time_id);
-      if (filtros.busca)        q = q.ilike('nome', `%${filtros.busca}%`);
+      if (filtros.status_funil)   q = q.eq('status_funil', filtros.status_funil);
+      if (filtros.time_id)        q = q.eq('time_id', filtros.time_id);
+      if (filtros.busca)          q = q.ilike('nome', `%${filtros.busca}%`);
+      if (filtros.responsavel_id) q = q.eq('responsavel_id', filtros.responsavel_id);
+
+      // Silos de filtro rápido da tela de Leads. 'todos' não aplica
+      // predicado nenhum; 'recentes' também não filtra linhas — só muda a
+      // ordenação abaixo (mesmo universo de 'todos').
+      if (filtros.silo === 'minhas')      q = q.eq('responsavel_id', usuario?.id);
+      if (filtros.silo === 'sem_contato') q = q.is('crm_interacoes.id', null);
+      if (filtros.silo === 'andamento')   q = q.not('status_funil', 'in', '(fechado,perdido)');
+
+      q = filtros.silo === 'recentes'
+        ? q.order('criado_em', { ascending: false })
+        : q.order('score', { ascending: false });
 
       const { data, error } = await q;
       if (error) throw error;
@@ -122,6 +155,20 @@ export const useLeads = () => {
     } finally {
       setCarregando(false);
     }
+  }, [usuario]);
+
+  // Contadores dos silos — independentes do filtro ativo (RPC própria,
+  // ver leads_contadores_silos), pra trocar de silo não zerar os outros.
+  const contarSilos = useCallback(async () => {
+    const base = { todos: 0, minhas: 0, sem_contato: 0, andamento: 0 };
+    const { data, error } = await supabase.rpc('leads_contadores_silos');
+    if (error) {
+      console.error('Erro ao contar silos de leads:', error);
+      return base;
+    }
+    const contadores = { ...base };
+    (data || []).forEach((linha) => { contadores[linha.silo] = Number(linha.total) || 0; });
+    return contadores;
   }, []);
 
   const criar = useCallback(async (payload) => {
@@ -130,7 +177,7 @@ export const useLeads = () => {
       .insert({
         ...payload,
         tipo_registro: 'lead',
-        responsavel_id: usuario?.id || null,
+        responsavel_id: payload.responsavel_id || usuario?.id || null,
       })
       .select()
       .single();
@@ -182,8 +229,12 @@ export const useLeads = () => {
   }, [usuario]);
 
   const mudarStatus = useCallback(async (id, novoStatus) => {
-    return atualizar(id, { status_funil: novoStatus });
-  }, [atualizar]);
+    const anterior = leads.find(l => l.id === id)?.status_funil;
+    const atualizado = await atualizar(id, { status_funil: novoStatus });
+    registrarMudancaStatus(id, anterior, novoStatus, usuario?.id)
+      .catch(err => console.error('Erro ao registrar mudança de status:', err));
+    return atualizado;
+  }, [atualizar, leads, usuario]);
 
   /**
    * Pendência A (FASE 3): Move um lead para outro time.
@@ -202,10 +253,27 @@ export const useLeads = () => {
     return data;
   }, []);
 
+  // Exclusão em lote. RLS (crm_contatos_delete) filtra silenciosamente as
+  // linhas sem permissão — não existe erro por linha num delete em lote
+  // via PostgREST, então "quantos foram ignorados" só dá pra saber
+  // comparando os ids pedidos com os ids que realmente vieram no .select().
+  const excluirEmMassa = useCallback(async (ids) => {
+    const { data, error } = await supabase
+      .from('crm_contatos')
+      .delete()
+      .in('id', ids)
+      .select('id');
+    if (error) throw error;
+    const excluidosIds = (data || []).map(d => d.id);
+    setLeads(prev => prev.filter(l => !excluidosIds.includes(l.id)));
+    return { excluidosIds, ignorados: ids.length - excluidosIds.length };
+  }, []);
+
   return {
     leads, carregando, erro,
-    carregar, criar, atualizar, excluir,
+    carregar, criar, atualizar, excluir, excluirEmMassa,
     converterParaCliente, mudarStatus, moverParaTime,
+    contarSilos,
   };
 };
 
@@ -281,6 +349,101 @@ export const useClientes = () => {
   }, []);
 
   return { clientes, carregando, erro, carregar, atualizar, excluir, moverParaTime };
+};
+
+// ─── Hook: Contato único (Lead ou Cliente) ──────────────────────
+// Usado pela página cheia /crm/leads/:id e /crm/clientes/:id — busca uma
+// única linha de crm_contatos por id (lead/cliente é só tipo_registro,
+// a mesma tabela), diferente de useLeads/useClientes que carregam listas.
+export const useContato = (id) => {
+  const { usuario } = useAuthStore();
+  const [contato, setContato]       = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro]             = useState(null);
+
+  const carregar = useCallback(async () => {
+    if (!id) return;
+    setCarregando(true);
+    setErro(null);
+    try {
+      const { data, error } = await supabase
+        .from('crm_contatos')
+        .select(`
+          id, nome, email, telefone, whatsapp, empresa, cargo,
+          origem, origem_detalhes, forma_aquisicao, status_funil,
+          valor_estimado, observacoes, tags,
+          negocio_nome, previsao_fechamento, campanha,
+          razao_social, documento, segmento, site, porte, endereco,
+          score, score_historico, ltv,
+          tipo_registro, time_id,
+          convertido_em, convertido_por,
+          data_inicio_contrato, data_fim_contrato,
+          criado_em, atualizado_em,
+          responsavel:responsavel_id (id, nome, email)
+        `)
+        .eq('id', id)
+        .single();
+      if (error) throw error;
+      setContato(data);
+    } catch (err) {
+      setErro(err.message);
+      setContato(null);
+    } finally {
+      setCarregando(false);
+    }
+  }, [id]);
+
+  useEffect(() => { carregar(); }, [carregar]);
+
+  const atualizar = useCallback(async (payload) => {
+    const { data, error } = await supabase
+      .from('crm_contatos')
+      .update({ ...payload, atualizado_em: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    setContato(prev => ({ ...prev, ...data }));
+    return data;
+  }, [id]);
+
+  const mudarStatus = useCallback(async (novoStatus) => {
+    const anterior = contato?.status_funil;
+    const atualizado = await atualizar({ status_funil: novoStatus });
+    registrarMudancaStatus(id, anterior, novoStatus, usuario?.id)
+      .catch(err => console.error('Erro ao registrar mudança de status:', err));
+    return atualizado;
+  }, [atualizar, contato, id, usuario]);
+
+  const converterParaCliente = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('crm_contatos')
+      .update({
+        tipo_registro:  'cliente',
+        convertido_em:  new Date().toISOString(),
+        convertido_por: usuario?.id || null,
+        atualizado_em:  new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    setContato(data);
+    return data;
+  }, [id, usuario]);
+
+  const moverParaTime = useCallback(async (novoTimeId) => atualizar({ time_id: novoTimeId }), [atualizar]);
+
+  const excluir = useCallback(async () => {
+    const { error } = await supabase.from('crm_contatos').delete().eq('id', id);
+    if (error) throw error;
+  }, [id]);
+
+  return {
+    contato, carregando, erro,
+    recarregar: carregar,
+    atualizar, mudarStatus, converterParaCliente, moverParaTime, excluir,
+  };
 };
 
 // ─── Hook: Interações ──────────────────────────────────────────
@@ -442,10 +605,33 @@ export const useDocumentos = (contatoId) => {
     finally { setCarregando(false); }
   }, [contatoId]);
 
-  const adicionar = useCallback(async (payload) => {
+  // `url` tem dupla natureza: começa com "http" -> link externo (fluxo
+  // antigo, nunca usado por nenhuma tela ainda); senão -> caminho interno
+  // do bucket privado crm-documentos. Sem coluna nova, só convenção de
+  // leitura — se vier `arquivo` (File), faz upload de verdade.
+  const adicionar = useCallback(async ({ arquivo, tipo = 'outro', nome, url }) => {
+    let registro = { tipo, contato_id: contatoId, criado_por: usuario?.id };
+
+    if (arquivo) {
+      const caminho = `${contatoId}/${Date.now()}-${arquivo.name}`;
+      const { error: erroUpload } = await supabase.storage
+        .from('crm-documentos')
+        .upload(caminho, arquivo);
+      if (erroUpload) throw erroUpload;
+      registro = {
+        ...registro,
+        nome: nome || arquivo.name,
+        url: caminho,
+        mime_type: arquivo.type || null,
+        tamanho_kb: Math.round(arquivo.size / 1024),
+      };
+    } else {
+      registro = { ...registro, nome, url };
+    }
+
     const { data, error } = await supabase
       .from('crm_documentos')
-      .insert({ ...payload, contato_id: contatoId, criado_por: usuario?.id })
+      .insert(registro)
       .select()
       .single();
     if (error) throw error;
@@ -453,11 +639,31 @@ export const useDocumentos = (contatoId) => {
     return data;
   }, [contatoId, usuario]);
 
-  const excluir = useCallback(async (id) => {
-    const { error } = await supabase.from('crm_documentos').delete().eq('id', id);
+  // Link externo abre em nova aba; caminho interno baixa via Storage
+  // (bucket privado, .download() já autentica, sem precisar de signed URL).
+  const baixar = useCallback(async (doc) => {
+    if (doc.url.startsWith('http')) {
+      window.open(doc.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    const { data, error } = await supabase.storage.from('crm-documentos').download(doc.url);
     if (error) throw error;
-    setDocumentos(prev => prev.filter(d => d.id !== id));
+    const blobUrl = URL.createObjectURL(data);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = doc.nome;
+    a.click();
+    URL.revokeObjectURL(blobUrl);
   }, []);
 
-  return { documentos, carregando, carregar, adicionar, excluir };
+  const excluir = useCallback(async (doc) => {
+    if (!doc.url.startsWith('http')) {
+      await supabase.storage.from('crm-documentos').remove([doc.url]);
+    }
+    const { error } = await supabase.from('crm_documentos').delete().eq('id', doc.id);
+    if (error) throw error;
+    setDocumentos(prev => prev.filter(d => d.id !== doc.id));
+  }, []);
+
+  return { documentos, carregando, carregar, adicionar, baixar, excluir };
 };

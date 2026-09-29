@@ -14,6 +14,7 @@ import {
   PERMISSOES_PADRAO_CARGO_NOVO,
 } from '../../../hooks/useOrg.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
+import { usePermission } from '../../../hooks/usePermission.js';
 
 /** Índice slug → definição, para não varrer o catálogo a cada permissão exibida. */
 const CATALOGO_POR_SLUG = new Map(PERMISSOES_DISPONIVEIS.map(p => [p.slug, p]));
@@ -36,11 +37,18 @@ const BadgePadrao = () => (
 // ----------------------------------------------------------
 // EDITOR DE PERMISSÕES (inline dentro do card)
 // ----------------------------------------------------------
-const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) => {
+const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado, minhasPermissoes = [], podeConcederTudo = true }) => {
   const grupos = Object.entries(PERMISSOES_POR_GRUPO);
 
+  // Possuo essa permissão? Se posso conceder tudo (dono/super_admin), sim,
+  // sempre. Senão, só se eu mesmo tiver o slug (ou '*'). Reflete no cliente
+  // a mesma checagem que o trigger trg_valida_permissoes_cargo faz no
+  // servidor — só pra não deixar preencher o formulário inteiro e levar um
+  // erro só no submit.
+  const possuo = (slug) => podeConcederTudo || minhasPermissoes.includes('*') || minhasPermissoes.includes(slug);
+
   const toggle = (slug) => {
-    if (desabilitado) return;
+    if (desabilitado || !possuo(slug)) return;
     const novas = permissoesSelecionadas.includes(slug)
       ? permissoesSelecionadas.filter(p => p !== slug)
       : [...permissoesSelecionadas, slug];
@@ -49,7 +57,8 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
 
   const toggleGrupo = (permsDoGrupo) => {
     if (desabilitado) return;
-    const slugsGrupo = permsDoGrupo.map(p => p.slug);
+    const slugsGrupo = permsDoGrupo.map(p => p.slug).filter(possuo);
+    if (slugsGrupo.length === 0) return;
     const todosMarcados = slugsGrupo.every(s => permissoesSelecionadas.includes(s));
     let novas;
     if (todosMarcados) {
@@ -105,12 +114,14 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
             <div className="grid grid-cols-2 gap-1 pl-6">
               {perms.map((perm) => {
                 const marcado = permissoesSelecionadas.includes(perm.slug);
+                const bloqueado = desabilitado || !possuo(perm.slug);
                 return (
                   <button
                     key={perm.slug}
                     type="button"
                     onClick={() => toggle(perm.slug)}
-                    disabled={desabilitado}
+                    disabled={bloqueado}
+                    title={!possuo(perm.slug) ? 'Você não tem esta permissão — não pode concedê-la.' : undefined}
                     className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-left border transition-all disabled:cursor-not-allowed ${
                       marcado
                         ? 'bg-primary-500/15 border-primary-500/30'
@@ -143,19 +154,18 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
 // ----------------------------------------------------------
 // O cargo novo abre com as permissões liberadas por padrão já marcadas —
 // desmarcar é uma decisão do chefe, não o ponto de partida.
-const formVazio = (nivelSugerido = 0) => ({
+const formVazio = () => ({
   nome: '',
   descricao: '',
   permissoes: [...PERMISSOES_PADRAO_CARGO_NOVO],
-  nivel: nivelSugerido,
 });
 
-// meuNivel/souDono: um cargo só gerencia (cria/edita) cargos de nível
-// estritamente menor que o de quem está mexendo — validado de novo no
-// banco (trg_valida_nivel_cargo), isto aqui é só pra guiar a digitação.
-const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDono }) => {
-  const nivelMaximo = souDono ? null : Math.max(meuNivel - 1, 0);
-  const [form, setForm] = useState(() => formVazio(nivelMaximo ?? 0));
+// souDono/isSuperAdmin/minhasPermissoes: um cargo só pode marcar permissões
+// que quem está mexendo já possui — validado de novo no banco
+// (trg_valida_permissoes_cargo), isto aqui é só pra guiar o preenchimento.
+const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, souDono, isSuperAdmin, minhasPermissoes }) => {
+  const podeConcederTudo = souDono || isSuperAdmin;
+  const [form, setForm] = useState(formVazio);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
 
@@ -165,13 +175,12 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
         nome:       cargoEditando.nome       || '',
         descricao:  cargoEditando.descricao  || '',
         permissoes: cargoEditando.permissoes || [],
-        nivel:      cargoEditando.nivel ?? 0,
       });
     } else {
-      setForm(formVazio(nivelMaximo ?? 0));
+      setForm(formVazio());
     }
     setErro('');
-  }, [cargoEditando, aberto, nivelMaximo]);
+  }, [cargoEditando, aberto]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -254,25 +263,6 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
               />
             </div>
 
-            {/* Nível hierárquico */}
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
-                Nível hierárquico
-              </label>
-              <input
-                type="number"
-                min={0}
-                max={nivelMaximo ?? undefined}
-                value={form.nivel}
-                onChange={(e) => setForm(f => ({ ...f, nivel: Number(e.target.value) }))}
-                className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
-                style={inputStyle}
-              />
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                Quanto maior o número, mais alto na hierarquia. {nivelMaximo !== null && `Você só pode usar até ${nivelMaximo} (seu nível: ${meuNivel}).`}
-              </p>
-            </div>
-
             {/* Permissões */}
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -288,7 +278,9 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
                       ...f,
                       permissoes: [...new Set([
                         ...f.permissoes.filter(s => !SLUGS_CONHECIDOS.has(s)),
-                        ...PERMISSOES_DISPONIVEIS.map(p => p.slug),
+                        ...PERMISSOES_DISPONIVEIS
+                          .map(p => p.slug)
+                          .filter(slug => podeConcederTudo || minhasPermissoes.includes('*') || minhasPermissoes.includes(slug)),
                       ])],
                     }))}
                     className="text-xs transition-colors hover:opacity-80"
@@ -317,6 +309,8 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
                   permissoesSelecionadas={form.permissoes}
                   onChange={(novas) => setForm(f => ({ ...f, permissoes: novas }))}
                   desabilitado={false}
+                  minhasPermissoes={minhasPermissoes}
+                  podeConcederTudo={podeConcederTudo}
                 />
               </div>
             </div>
@@ -391,7 +385,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
               </p>
             )}
             <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-              {totalPerms} {totalPerms === 1 ? 'permissão' : 'permissões'} · nível {cargo.nivel ?? 0}
+              {totalPerms} {totalPerms === 1 ? 'permissão' : 'permissões'}
             </p>
           </div>
 
@@ -474,9 +468,10 @@ const Cargos = () => {
     criarCargo,
     atualizarCargo,
     excluirCargo,
-    obterMeuNivel,
     souDonoTenant,
   } = useOrg();
+  const { permissoes: minhasPermissoesRaw, isSuperAdmin } = usePermission();
+  const minhasPermissoes = minhasPermissoesRaw ?? [];
 
   const [cargos, setCargos]             = useState([]);
   const [modalCargo, setModalCargo]     = useState(false);
@@ -484,16 +479,14 @@ const Cargos = () => {
   const [excluindo, setExcluindo]       = useState(null);
   const [erro, setErro]                 = useState('');
   const [inicializado, setInicializado] = useState(false);
-  const [meuNivel, setMeuNivel]         = useState(0);
   const [souDono, setSouDono]           = useState(false);
 
   const carregar = useCallback(async () => {
-    const [data, nivel, dono] = await Promise.all([listarCargos(), obterMeuNivel(), souDonoTenant()]);
+    const [data, dono] = await Promise.all([listarCargos(), souDonoTenant()]);
     setCargos(data);
-    setMeuNivel(nivel);
     setSouDono(dono);
     setInicializado(true);
-  }, [listarCargos, obterMeuNivel, souDonoTenant]);
+  }, [listarCargos, souDonoTenant]);
 
   useEffect(() => { carregar(); }, [carregar]);
 
@@ -650,8 +643,9 @@ const Cargos = () => {
         onFechar={() => setModalCargo(false)}
         onSalvar={handleSalvar}
         cargoEditando={cargoEditando}
-        meuNivel={meuNivel}
         souDono={souDono}
+        isSuperAdmin={isSuperAdmin}
+        minhasPermissoes={minhasPermissoes}
       />
     </div>
   );

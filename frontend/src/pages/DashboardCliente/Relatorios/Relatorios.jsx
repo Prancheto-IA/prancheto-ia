@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
+import { useRotulosStatus } from '../../../hooks/useRotulosStatus.js';
 
 // ─── Card de métrica ──────────────────────────────────────────
 const CardMetrica = ({ emoji, titulo, valor, variacao, cor = '' }) => (
@@ -63,6 +64,7 @@ const Relatorios = () => {
   const [erro, setErro]         = useState('');
 
   const { usuario } = useAuthStore();
+  const { rotulos: rotulosFunil } = useRotulosStatus('crm_funil');
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -240,7 +242,7 @@ const Relatorios = () => {
             />
             <CardMetrica
               emoji="💰"
-              titulo="Receita fechada"
+              titulo="Receita fechada (grana total)"
               valor={dados.valorFechado > 0 ? `R$ ${fmt(dados.valorFechado)}` : 'R$ 0,00'}
               cor="text-yellow-400"
             />
@@ -262,13 +264,13 @@ const Relatorios = () => {
             />
             <CardMetrica
               emoji="🔥"
-              titulo="Leads quentes"
+              titulo="Cliente no ponto"
               valor={dados.leadsQuentes}
               cor="text-red-400"
             />
             <CardMetrica
               emoji="❄️"
-              titulo="Leads frios"
+              titulo="Cliente frio"
               valor={dados.leadsFrios}
               cor="text-muted"
             />
@@ -289,15 +291,15 @@ const Relatorios = () => {
                 </p>
               ) : (
                 <>
-                  <BarraProgresso label="Lead"        valor={dados.leads}        total={dados.totalLeads} cor="bg-slate-500" />
-                  <BarraProgresso label="Qualificado" valor={dados.qualificados} total={dados.totalLeads} cor="bg-blue-500" />
-                  <BarraProgresso label="Proposta"    valor={dados.propostas}    total={dados.totalLeads} cor="bg-violet-500" />
-                  <BarraProgresso label="Negociação"  valor={dados.negociacao}   total={dados.totalLeads} cor="bg-amber-500" />
-                  <BarraProgresso label="Fechado"     valor={dados.fechados}     total={dados.totalLeads} cor="bg-emerald-500" />
-                  <BarraProgresso label="Perdido"     valor={dados.perdidos}     total={dados.totalLeads} cor="bg-red-500" />
+                  <BarraProgresso label={rotulosFunil.lead}        valor={dados.leads}        total={dados.totalLeads} cor="bg-slate-500" />
+                  <BarraProgresso label={rotulosFunil.qualificado} valor={dados.qualificados} total={dados.totalLeads} cor="bg-blue-500" />
+                  <BarraProgresso label={rotulosFunil.proposta}    valor={dados.propostas}    total={dados.totalLeads} cor="bg-violet-500" />
+                  <BarraProgresso label={rotulosFunil.negociacao}  valor={dados.negociacao}   total={dados.totalLeads} cor="bg-amber-500" />
+                  <BarraProgresso label={rotulosFunil.fechado}     valor={dados.fechados}     total={dados.totalLeads} cor="bg-emerald-500" />
+                  <BarraProgresso label={rotulosFunil.perdido}     valor={dados.perdidos}     total={dados.totalLeads} cor="bg-red-500" />
                   {dados.valorPipeline > 0 && (
                     <p className="text-xs mt-3 pt-3 border-t" style={{ borderColor: 'var(--color-surface-border)', color: 'var(--color-text-secondary)' }}>
-                      Pipeline ativo:{' '}
+                      Negociação rolando:{' '}
                       <span className="text-emerald-400 font-medium">R$ {fmt(dados.valorPipeline)}</span>
                     </p>
                   )}
@@ -345,7 +347,7 @@ const Relatorios = () => {
             <div className="rounded-xl border p-5 mb-6"
               style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
               <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
-                🌡️ Temperatura dos leads
+                🌡️ Temperatura dos clientes
               </h3>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#ef444415' }}>

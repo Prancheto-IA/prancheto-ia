@@ -6,14 +6,14 @@
 // definir_cargo_usuario/definir_ativo_usuario). Nunca exclui — histórico
 // preservado.
 //
-// A hierarquia (nível do cargo) e a proteção do Chefe Supremo são
-// reforçadas no banco (RLS/RPC/trigger) — o que a interface faz aqui é
-// só esconder ações que o banco recusaria de qualquer jeito, pra não
-// convidar ninguém a tentar e levar um erro.
+// A regra de quem gerencia quem (subconjunto estrito de permissões) e a
+// proteção do Chefe Supremo são reforçadas no banco (RLS/RPC/trigger) —
+// o que a interface faz aqui é só esconder ações que o banco recusaria de
+// qualquer jeito, pra não convidar ninguém a tentar e levar um erro.
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useOrg } from '../../../hooks/useOrg.js';
+import { useOrg, permissoesDominam } from '../../../hooks/useOrg.js';
 import { usePermission } from '../../../hooks/usePermission.js';
 import { useAuthStore } from '../../../store/authStore.js';
 import { supabase } from '../../../lib/supabase.js';
@@ -36,7 +36,7 @@ const BadgeInativo = () => (
 );
 
 // ─── Modal: Novo Usuário ─────────────────────────────────────────
-const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDono }) => {
+const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, minhasPermissoes, souDono }) => {
   const [form, setForm] = useState({ nome: '', email: '', senha: '', cargoId: '' });
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
@@ -52,7 +52,9 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
 
   if (!aberto) return null;
 
-  const cargosDisponiveis = souDono ? cargos : cargos.filter((c) => (c.nivel ?? 0) < meuNivel);
+  const cargosDisponiveis = souDono
+    ? cargos
+    : cargos.filter((c) => permissoesDominam(minhasPermissoes, c.permissoes || []));
   const inputStyle = {
     backgroundColor: 'var(--color-surface)',
     border: '1px solid var(--color-surface-border)',
@@ -147,11 +149,11 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
                 className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50" style={inputStyle}>
                 <option value="">Sem cargo</option>
                 {cargosDisponiveis.map((c) => (
-                  <option key={c.id} value={c.id}>{c.nome} (nível {c.nivel ?? 0})</option>
+                  <option key={c.id} value={c.id}>{c.nome}</option>
                 ))}
               </select>
               <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                Só aparecem cargos de nível abaixo do seu.
+                Só aparecem cargos cujas permissões cabem dentro das suas.
               </p>
             </div>
 
@@ -238,14 +240,14 @@ const Usuarios = () => {
   const {
     listarUsuariosCompleto, listarCargos,
     definirAtivoUsuario, definirCargoUsuario,
-    obterMeuNivel, souDonoTenant,
+    souDonoTenant,
   } = useOrg();
-  const { pode } = usePermission();
+  const { pode, permissoes: minhasPermissoesRaw } = usePermission();
+  const minhasPermissoes = minhasPermissoesRaw ?? [];
   const usuarioLogado = useAuthStore((s) => s.usuario);
 
   const [usuarios, setUsuarios]     = useState([]);
   const [cargos, setCargos]         = useState([]);
-  const [meuNivel, setMeuNivel]     = useState(0);
   const [souDono, setSouDono]       = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [inicializado, setInicializado] = useState(false);
@@ -255,32 +257,34 @@ const Usuarios = () => {
 
   const carregar = useCallback(async () => {
     setCarregando(true);
-    const [us, cg, nivel, dono] = await Promise.all([
-      listarUsuariosCompleto(), listarCargos(), obterMeuNivel(), souDonoTenant(),
+    const [us, cg, dono] = await Promise.all([
+      listarUsuariosCompleto(), listarCargos(), souDonoTenant(),
     ]);
     setUsuarios(us);
     setCargos(cg);
-    setMeuNivel(nivel);
     setSouDono(dono);
     setCarregando(false);
     setInicializado(true);
-  }, [listarUsuariosCompleto, listarCargos, obterMeuNivel, souDonoTenant]);
+  }, [listarUsuariosCompleto, listarCargos, souDonoTenant]);
 
   useEffect(() => { carregar(); }, [carregar]);
 
   const podeGerenciarGeral = souDono || pode('usuarios.gerenciar');
 
   // Mesma regra do banco (definir_ativo_usuario/definir_cargo_usuario):
-  // não mexe em si mesmo, no dono, nem em alguém de nível igual/maior.
+  // não mexe em si mesmo, no dono, nem em alguém cujas permissões não
+  // sejam um subconjunto estrito das próprias.
   const podeGerenciarAlvo = (u) => {
     if (!podeGerenciarGeral) return false;
     if (u.id === usuarioLogado?.id) return false;
     if (u.e_dono_tenant) return false;
     if (souDono) return true;
-    return (u.cargo_org?.nivel ?? 0) < meuNivel;
+    return permissoesDominam(minhasPermissoes, u.cargo_org?.permissoes || []);
   };
 
-  const cargosDisponiveis = souDono ? cargos : cargos.filter((c) => (c.nivel ?? 0) < meuNivel);
+  const cargosDisponiveis = souDono
+    ? cargos
+    : cargos.filter((c) => permissoesDominam(minhasPermissoes, c.permissoes || []));
 
   const handleToggleAtivo = async (u) => {
     const confirmMsg = u.ativo
@@ -326,7 +330,7 @@ const Usuarios = () => {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>👤 Usuários</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-            Crie usuários e gerencie cargos — sempre dentro do seu nível hierárquico.
+            Crie usuários e gerencie cargos — sempre dentro das suas próprias permissões.
           </p>
         </div>
         {podeGerenciarGeral && (
@@ -366,7 +370,7 @@ const Usuarios = () => {
         onFechar={() => setModalAberto(false)}
         onCriado={carregar}
         cargos={cargos}
-        meuNivel={meuNivel}
+        minhasPermissoes={minhasPermissoes}
         souDono={souDono}
       />
     </div>

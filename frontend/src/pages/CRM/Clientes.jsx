@@ -5,16 +5,14 @@
 // =============================================================
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  useClientes, useInteracoes, useDocumentos,
-  TIPOS_INTERACAO,
-  tipoInfo, origemInfo,
-  formatarMoeda, formatarData, formatarDataHora, tempoRelativo,
+  useClientes,
+  formatarMoeda, formatarData,
 } from '../../hooks/useCRM.js';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import {
   ENDERECO_VAZIO, CampoWhatsapp, CamposEmpresa, limparEndereco,
-  PORTE_LABEL, formatarEndereco, temInformacoesExtras,
 } from '../../components/crm/CamposContatoExtras.jsx';
 
 // ─── Componentes auxiliares ────────────────────────────────────
@@ -39,277 +37,6 @@ const BadgeTempo = ({ convertidoEm, criadoEm }) => {
     ? `${Math.floor(dias / 30)} meses`
     : `${dias} dias`;
   return <span className={`text-xs ${cor}`}>⏱️ {label} na base</span>;
-};
-
-// ─── Painel de detalhes do Cliente ────────────────────────────
-const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
-  const { interacoes, carregando: carregandoInt, carregar: carregarInt, adicionar } = useInteracoes(cliente?.id);
-  const { documentos, carregando: carregandoDoc, carregar: carregarDoc } = useDocumentos(cliente?.id);
-  const [aba, setAba]                     = useState('historico');
-  const [novaInteracao, setNovaInteracao] = useState('');
-  const [tipoInteracao, setTipoInteracao] = useState('nota');
-  const [enviando, setEnviando]           = useState(false);
-
-  useEffect(() => {
-    if (cliente?.id) {
-      carregarInt();
-      carregarDoc();
-    }
-  }, [cliente?.id, carregarInt, carregarDoc]);
-
-  const handleInteracao = async (e) => {
-    e.preventDefault();
-    if (!novaInteracao.trim()) return;
-    setEnviando(true);
-    try {
-      await adicionar(tipoInteracao, novaInteracao.trim());
-      setNovaInteracao('');
-    } catch { /* silencioso */ }
-    finally { setEnviando(false); }
-  };
-
-  if (!cliente) return null;
-
-  const diasNaBase = cliente.convertido_em
-    ? Math.floor((Date.now() - new Date(cliente.convertido_em).getTime()) / 86400000)
-    : null;
-
-  return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full sm:max-w-2xl h-full sm:h-auto sm:max-h-[90vh] rounded-none sm:rounded-xl flex flex-col border overflow-hidden"
-        style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
-
-        {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b flex-shrink-0"
-          style={{ borderColor: 'var(--color-surface-border)' }}>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>{cliente.nome}</h3>
-              <span className="text-xs px-2 py-0.5 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
-                ✅ Cliente
-              </span>
-            </div>
-            {cliente.empresa && (
-              <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{cliente.empresa}</p>
-            )}
-            <div className="flex gap-3 mt-2 flex-wrap">
-              {cliente.email    && <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>✉️ {cliente.email}</span>}
-              {cliente.telefone && <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>📞 {cliente.telefone}</span>}
-              <BadgeLTV ltv={cliente.ltv} />
-              <BadgeTempo convertidoEm={cliente.convertido_em} criadoEm={cliente.criado_em} />
-            </div>
-          </div>
-          <div className="flex gap-2 flex-shrink-0 ml-3">
-            <button onClick={() => onEditar(cliente)} className="text-muted hover:text-primary-400 transition-colors" title="Editar">✏️</button>
-            <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(cliente.id)} className="text-muted hover:text-red-400 transition-colors" title="Excluir">🗑️</button></PermissaoGuarda>
-            <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-lg">✕</button>
-          </div>
-        </div>
-
-        {/* Cards de métricas */}
-        <div className="grid grid-cols-3 gap-3 px-5 py-4 border-b flex-shrink-0"
-          style={{ borderColor: 'var(--color-surface-border)' }}>
-          <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--color-surface)' }}>
-            <p className="text-lg font-bold text-emerald-400">{formatarMoeda(cliente.ltv || 0)}</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>LTV</p>
-          </div>
-          <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--color-surface)' }}>
-            <p className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>
-              {diasNaBase != null ? `${diasNaBase}d` : '—'}
-            </p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Dias na base</p>
-          </div>
-          <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--color-surface)' }}>
-            <p className="text-lg font-bold text-amber-400">⚡ {cliente.score || 0}</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Score final</p>
-          </div>
-        </div>
-
-        {/* Abas */}
-        <div className="flex border-b flex-shrink-0" style={{ borderColor: 'var(--color-surface-border)' }}>
-          {[
-            { key: 'historico',  label: '📝 Histórico'   },
-            { key: 'documentos', label: '📎 Documentos'  },
-            { key: 'detalhes',   label: 'ℹ️ Detalhes'    },
-          ].map(a => (
-            <button key={a.key}
-              onClick={() => setAba(a.key)}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${aba === a.key ? 'border-primary-500 text-primary-300' : 'border-transparent text-muted hover:text-white'}`}>
-              {a.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Conteúdo das abas */}
-        <div className="flex-1 overflow-y-auto">
-
-          {/* Aba: Histórico (herança completa do período como Lead) */}
-          {aba === 'historico' && (
-            <div className="p-5 space-y-3">
-              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                Exibindo todo o histórico — incluindo interações do período como Lead.
-              </p>
-              {carregandoInt ? (
-                <div className="flex justify-center py-4"><Spinner /></div>
-              ) : interacoes.length === 0 ? (
-                <p className="text-sm text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>
-                  Nenhuma interação registrada.
-                </p>
-              ) : (
-                interacoes.map(int => {
-                  const t = tipoInfo(int.tipo);
-                  const isConversao = int.tipo === 'conversao';
-                  return (
-                    <div key={int.id} className={`flex gap-3 ${isConversao ? 'p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5' : ''}`}>
-                      <span className="text-lg flex-shrink-0 mt-0.5">{t.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                            {isConversao ? '🎉 Convertido para Cliente' : t.label}
-                          </span>
-                          <span className="text-xs ml-auto" style={{ color: 'var(--color-text-secondary)' }}>
-                            {tempoRelativo(int.criado_em)}
-                          </span>
-                        </div>
-                        <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{int.conteudo}</p>
-                        {int.criado_por_user && (
-                          <p className="text-xs mt-0.5 text-muted">por {int.criado_por_user.nome}</p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          )}
-
-          {/* Aba: Documentos */}
-          {aba === 'documentos' && (
-            <div className="p-5 space-y-3">
-              {carregandoDoc ? (
-                <div className="flex justify-center py-4"><Spinner /></div>
-              ) : documentos.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-3xl mb-2">📎</p>
-                  <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                    Nenhum documento anexado.
-                  </p>
-                  <p className="text-xs mt-1 text-muted">
-                    Upload de documentos disponível em breve.
-                  </p>
-                </div>
-              ) : (
-                documentos.map(doc => (
-                  <div key={doc.id} className="flex items-center gap-3 p-3 rounded-lg border"
-                    style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-surface-border)' }}>
-                    <span className="text-2xl flex-shrink-0">
-                      {doc.tipo === 'contrato' ? '📜' : doc.tipo === 'proposta' ? '📄' : doc.tipo === 'nf' ? '🧾' : '📎'}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{doc.nome}</p>
-                      <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                        {doc.tipo} · {doc.tamanho_kb ? `${doc.tamanho_kb} KB` : ''} · {formatarData(doc.criado_em)}
-                      </p>
-                    </div>
-                    <a href={doc.url} target="_blank" rel="noopener noreferrer"
-                      className="text-primary-400 hover:text-primary-300 text-sm transition-colors flex-shrink-0">
-                      ↗️
-                    </a>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* Aba: Detalhes */}
-          {aba === 'detalhes' && (
-            <div className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: 'Origem',          valor: origemInfo(cliente.origem).label },
-                  { label: 'Cargo',           valor: cliente.cargo || '—' },
-                  { label: 'Valor estimado',  valor: formatarMoeda(cliente.valor_estimado) },
-                  { label: 'Convertido em',   valor: formatarDataHora(cliente.convertido_em) },
-                  { label: 'Início contrato', valor: formatarData(cliente.data_inicio_contrato) },
-                  { label: 'Fim contrato',    valor: formatarData(cliente.data_fim_contrato) },
-                  { label: 'Cliente desde',   valor: formatarData(cliente.criado_em) },
-                  { label: 'Responsável',     valor: cliente.responsavel?.nome || '—' },
-                ].map(({ label, valor }) => (
-                  <div key={label}>
-                    <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
-                    <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{valor}</p>
-                  </div>
-                ))}
-              </div>
-              {cliente.observacoes && (
-                <div>
-                  <p className="text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Observações</p>
-                  <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{cliente.observacoes}</p>
-                </div>
-              )}
-
-              {temInformacoesExtras(cliente) && (
-                <div className="pt-3 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
-                  <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-                    Mais informações
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      { label: 'Negócio',                valor: cliente.negocio_nome },
-                      { label: 'Campanha',               valor: cliente.campanha },
-                      { label: 'Previsão de fechamento',  valor: cliente.previsao_fechamento ? formatarData(cliente.previsao_fechamento) : null },
-                      { label: 'WhatsApp',                valor: cliente.whatsapp },
-                      { label: 'Razão social',            valor: cliente.razao_social },
-                      { label: 'CNPJ/CPF',                valor: cliente.documento },
-                      { label: 'Segmento',                valor: cliente.segmento },
-                      { label: 'Porte',                   valor: PORTE_LABEL[cliente.porte] },
-                      { label: 'Site',                    valor: cliente.site },
-                      { label: 'Endereço',                valor: formatarEndereco(cliente.endereco) },
-                    ].filter(({ valor }) => valor).map(({ label, valor }) => (
-                      <div key={label}>
-                        <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
-                        <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{valor}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Formulário de nova interação (apenas na aba histórico) */}
-        {aba === 'historico' && (
-          <form onSubmit={handleInteracao} className="p-4 border-t flex-shrink-0"
-            style={{ borderColor: 'var(--color-surface-border)' }}>
-            <div className="flex gap-2 mb-2 flex-wrap">
-              {TIPOS_INTERACAO.filter(t => t.key !== 'conversao').map(t => (
-                <button key={t.key} type="button"
-                  onClick={() => setTipoInteracao(t.key)}
-                  className={`text-xs px-2 py-1 rounded-full border transition-all ${tipoInteracao === t.key ? 'bg-primary-500/20 text-primary-300 border-primary-500/30' : 'text-muted border-slate-700 hover:border-slate-500'}`}>
-                  {t.emoji} {t.label}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={novaInteracao}
-                onChange={e => setNovaInteracao(e.target.value)}
-                placeholder="Registrar interação..."
-                className="flex-1 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
-              />
-              <button type="submit" disabled={enviando || !novaInteracao.trim()}
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
-                {enviando ? '...' : 'Registrar'}
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
-  );
 };
 
 // ─── Card do Cliente ───────────────────────────────────────────
@@ -380,7 +107,7 @@ const FORM_VAZIO = {
   endereco: ENDERECO_VAZIO,
 };
 
-const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
+export const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
   const [form, setForm]         = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
@@ -533,14 +260,16 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
 
 // ─── Página Principal: Clientes ────────────────────────────────
 const PaginaClientes = () => {
+  const navigate = useNavigate();
   const { clientes, carregando, erro, carregar, atualizar, excluir } = useClientes();
 
-  const [painelCliente, setPainelCliente] = useState(null);
   const [clienteEditando, setClienteEditando] = useState(null);
   const [busca, setBusca]   = useState('');
   const [vista, setVista]   = useState('cards');
 
   useEffect(() => { carregar(); }, [carregar]);
+
+  const abrirDetalhe = (cliente) => navigate(`/crm/clientes/${cliente.id}`);
 
   const clientesFiltrados = clientes.filter(c =>
     !busca ||
@@ -548,21 +277,16 @@ const PaginaClientes = () => {
     (c.empresa || '').toLowerCase().includes(busca.toLowerCase())
   );
 
-  const handleEditar = (cliente) => {
-    setClienteEditando(cliente);
-    setPainelCliente(null);
-  };
+  const handleEditar = (cliente) => setClienteEditando(cliente);
 
   const handleSalvarEdicao = async (dados) => {
-    const atualizado = await atualizar(clienteEditando.id, dados);
-    if (painelCliente?.id === clienteEditando.id) setPainelCliente(atualizado);
+    await atualizar(clienteEditando.id, dados);
     setClienteEditando(null);
   };
 
   const handleExcluir = async (id) => {
     if (!window.confirm('Excluir este cliente?')) return;
     await excluir(id);
-    if (painelCliente?.id === id) setPainelCliente(null);
   };
 
   // Métricas resumidas
@@ -650,7 +374,7 @@ const PaginaClientes = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {clientesFiltrados.map(c => (
-              <CardCliente key={c.id} cliente={c} onAbrir={setPainelCliente} />
+              <CardCliente key={c.id} cliente={c} onAbrir={abrirDetalhe} />
             ))}
           </div>
         )
@@ -680,7 +404,7 @@ const PaginaClientes = () => {
                   <LinhaCliente
                     key={c.id}
                     cliente={c}
-                    onAbrir={setPainelCliente}
+                    onAbrir={abrirDetalhe}
                     onEditar={handleEditar}
                     onExcluir={handleExcluir}
                   />
@@ -689,16 +413,6 @@ const PaginaClientes = () => {
             </table>
           )}
         </div>
-      )}
-
-      {/* Painel de detalhes */}
-      {painelCliente && (
-        <PainelCliente
-          cliente={painelCliente}
-          onFechar={() => setPainelCliente(null)}
-          onEditar={handleEditar}
-          onExcluir={handleExcluir}
-        />
       )}
 
       {/* Modal de edição */}

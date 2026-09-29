@@ -29,6 +29,18 @@ export const ETAPAS_FUNIL = [
   'lead', 'qualificado', 'proposta', 'negociacao', 'fechado', 'perdido',
 ] as const;
 
+// Rótulo amigável pra exibir ao usuário no cartão de confirmação — é só o
+// padrão do SISTEMA (não resolve rótulo pessoal/da empresa, que vivem no
+// frontend). Ainda assim é sempre melhor que o slug técnico cru.
+const ROTULO_ETAPA_FUNIL: Record<(typeof ETAPAS_FUNIL)[number], string> = {
+  lead:        'Não chamei ainda',
+  qualificado: 'Já chamei',
+  proposta:    'Mandei a proposta',
+  negociacao:  'Chamar de novo',
+  fechado:     'Deu bom',
+  perdido:     'Deu ruim',
+};
+
 export const TIPOS_INTERACAO = [
   'nota', 'ligacao', 'email', 'reuniao', 'whatsapp', 'outro',
 ] as const;
@@ -384,11 +396,11 @@ export const FERRAMENTAS: Ferramenta[] = [
       required: ['contato_id', 'status_funil'],
       additionalProperties: false,
     },
-    resumo: async (a, ctx) => `Mover ${await nomeDoContato(ctx, a.contato_id)} para "${a.status_funil}"`,
+    resumo: async (a, ctx) => `Mover ${await nomeDoContato(ctx, a.contato_id)} para "${ROTULO_ETAPA_FUNIL[a.status_funil as (typeof ETAPAS_FUNIL)[number]]}"`,
     executar: async (args, ctx) => {
       const contato = await buscarContatoOuFalhar(ctx, args.contato_id);
       if (contato.status_funil === args.status_funil) {
-        return { inalterado: true, motivo: `O contato ja esta em "${args.status_funil}".`, contato };
+        return { inalterado: true, motivo: `O contato ja esta em "${ROTULO_ETAPA_FUNIL[args.status_funil as (typeof ETAPAS_FUNIL)[number]]}".`, contato };
       }
 
       const { data, error } = await ctx.supabase

@@ -10,9 +10,10 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // chama — e a autorização é de verdade (tem_permissao('usuarios.gerenciar')
 // ou ser o dono do tenant), não um cargo hardcoded.
 //
-// A regra de hierarquia (Bloco 5, item 2) também vale aqui: não dá pra
-// criar alguém com cargo de nível igual ou maior que o de quem está
-// criando — exceto o dono do tenant e o super_admin, que não têm teto.
+// A regra de permissões (Bloco 5, revisão) também vale aqui: não dá pra
+// criar alguém com um cargo cujas permissões não sejam estritamente
+// menores que as de quem está criando — exceto o dono do tenant e o
+// super_admin, que não têm teto.
 // =============================================================
 
 const corsHeaders = {
@@ -35,7 +36,7 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
 
     // Cliente "como o chamador": preserva o JWT dele, então RPCs que dependem
-    // de auth.uid() (tem_permissao, get_user_cargo_nivel) avaliam certo —
+    // de auth.uid() (tem_permissao, get_user_permissoes) avaliam certo —
     // um cliente service_role não tem auth.uid(), sempre voltaria nulo.
     const supabaseComoChamador = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
@@ -77,12 +78,12 @@ serve(async (req) => {
 
     const cargoId: string | null = payload.cargoId ?? null;
 
-    // Cargo pedido pro novo usuário precisa ser de nível abaixo do de quem
-    // cria — exceto o dono/super_admin, que não têm teto.
+    // Cargo pedido pro novo usuário precisa ter permissões estritamente
+    // abaixo das de quem cria — exceto o dono/super_admin, que não têm teto.
     if (cargoId && !ehDonoOuSuperAdmin) {
       const { data: cargoNovo, error: cargoError } = await supabaseServico
         .from('org_cargos')
-        .select('id, tenant_id, nivel')
+        .select('id, tenant_id, permissoes')
         .eq('id', cargoId)
         .single();
 
@@ -90,9 +91,13 @@ serve(async (req) => {
         throw new Error('Cargo inválido.');
       }
 
-      const { data: nivelChamador } = await supabaseComoChamador.rpc('get_user_cargo_nivel');
-      if ((cargoNovo.nivel ?? 0) >= (nivelChamador ?? 0)) {
-        throw new Error('Você não pode atribuir um cargo de nível igual ou superior ao seu.');
+      const { data: minhasPermissoes } = await supabaseComoChamador.rpc('get_user_permissoes');
+      const { data: podeAtribuir } = await supabaseComoChamador.rpc('permissoes_dominam', {
+        p_dominante: minhasPermissoes ?? [],
+        p_dominado: cargoNovo.permissoes ?? [],
+      });
+      if (!podeAtribuir) {
+        throw new Error('Você não pode atribuir um cargo com permissões iguais ou superiores às suas.');
       }
     }
 

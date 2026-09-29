@@ -4,9 +4,10 @@
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../../../lib/supabase.js';
-import { useAuthStore } from '../../../store/authStore.js';
-import { useRotulosOutbound, STATUS_ORDEM } from '../../../hooks/useRotulosOutbound.js';
+import { supabase } from '../../lib/supabase.js';
+import { useAuthStore } from '../../store/authStore.js';
+import { useRotulosStatus, STATUS_ORDEM_OUTBOUND } from '../../hooks/useRotulosStatus.js';
+import ModalRotulosStatus from '../../components/RotulosStatus/ModalRotulosStatus.jsx';
 
 const TIPOS = {
   email:    { label: 'E-mail',   emoji: '✉️' },
@@ -18,7 +19,7 @@ const TIPOS = {
 };
 
 // Cor é fixa por status técnico — só o rótulo exibido é personalizável
-// (ver useRotulosOutbound).
+// (ver useRotulosStatus).
 const STATUS_COR = {
   pendente:    'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
   enviado:     'bg-blue-500/20 text-blue-300 border-blue-500/30',
@@ -324,7 +325,7 @@ const CardAcao = ({ acao, rotulos, onEditar, onExcluir, onMudarStatus, excluindo
           onChange={(e) => onMudarStatus(acao.id, e.target.value)}
           className="w-full bg-surface border border-surface-border rounded-lg px-2 py-1.5 text-muted text-xs focus:outline-none focus:border-primary-500/50"
         >
-          {STATUS_ORDEM.map((k) => (
+          {STATUS_ORDEM_OUTBOUND.map((k) => (
             <option key={k} value={k}>{rotulos[k]}</option>
           ))}
         </select>
@@ -343,8 +344,9 @@ const Outbound = () => {
   const [filtroStatus, setFiltroStatus] = useState('');
   const [contatosCRM, setContatosCRM]   = useState([]);
   const [contadores, setContadores]     = useState({});
+  const [modalRotulosAberto, setModalRotulosAberto] = useState(false);
   const { usuario }                     = useAuthStore();
-  const { rotulos }                     = useRotulosOutbound(usuario?.id);
+  const { rotulos, recarregar: recarregarRotulos } = useRotulosStatus('outbound');
 
   // Contadores agregados no banco (RPC outbound_contadores) — independentes
   // do filtro ativo, pra não zerar as outras abas ao trocar de status.
@@ -352,7 +354,7 @@ const Outbound = () => {
     try {
       const { data, error } = await supabase.rpc('outbound_contadores');
       if (error) throw error;
-      const mapa = STATUS_ORDEM.reduce((acc, k) => ({ ...acc, [k]: 0 }), {});
+      const mapa = STATUS_ORDEM_OUTBOUND.reduce((acc, k) => ({ ...acc, [k]: 0 }), {});
       (data || []).forEach((linha) => { mapa[linha.status] = Number(linha.total); });
       setContadores(mapa);
     } catch (err) {
@@ -467,17 +469,26 @@ const Outbound = () => {
             Gerencie suas ações de prospecção e follow-up.
           </p>
         </div>
-        <button
-          onClick={abrirNova}
-          className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-        >
-          <span>+</span> Nova ação
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setModalRotulosAberto(true)}
+            className="text-muted hover:text-primary-400 transition-colors text-lg p-2"
+            title="Personalizar rótulos de status"
+          >
+            ⚙️
+          </button>
+          <button
+            onClick={abrirNova}
+            className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            <span>+</span> Nova ação
+          </button>
+        </div>
       </div>
 
       {/* Cards de resumo */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
-        {STATUS_ORDEM.map((k) => (
+        {STATUS_ORDEM_OUTBOUND.map((k) => (
           <button
             key={k}
             onClick={() => setFiltroStatus(filtroStatus === k ? '' : k)}
@@ -547,6 +558,12 @@ const Outbound = () => {
         onSalvar={handleSalvar}
         acaoEditando={acaoEditando}
         contatosCRM={contatosCRM}
+      />
+
+      <ModalRotulosStatus
+        aberto={modalRotulosAberto}
+        onFechar={() => { setModalRotulosAberto(false); recarregarRotulos(); }}
+        dominio="outbound"
       />
     </div>
   );

@@ -71,6 +71,13 @@ export const PERMISSOES_DISPONIVEIS = [
   // ou já ter usuarios.gerenciar/times.gerenciar); cargo novo fica a
   // critério de quem cria, no editor de permissões.
   { slug: 'chat.criar_grupo', label: 'Criar grupos de chat', grupo: 'Chat' },
+  // Rótulos de status (CRM funil + Outbound)
+  //
+  // Mesmo raciocínio do chat.criar_grupo acima: liderança por padrão, não
+  // todo mundo. Controla quem pode clicar em "Definir padrão da empresa"
+  // no modal de rótulos (dono do tenant e super_admin sempre podem, não
+  // dependem deste slug).
+  { slug: 'rotulos.gerenciar', label: 'Definir rótulos padrão da empresa', grupo: 'Rótulos de Status' },
   // Perfil próprio
   //
   // Liberada por padrão: a migration que criou o slug concedeu-o a todos
@@ -105,6 +112,28 @@ export const PERMISSOES_POR_GRUPO = PERMISSOES_DISPONIVEIS.reduce((acc, p) => {
   acc[p.grupo].push(p);
   return acc;
 }, {});
+
+/**
+ * Verifica se `dominante` domina ESTRITAMENTE `dominado`: tem tudo que o
+ * outro tem, e pelo menos uma permissão a mais ('*' conta como "tem
+ * tudo"). Mesma semântica de public.permissoes_dominam() no banco — usada
+ * aqui só para guiar a interface (esconder ações que o servidor recusaria
+ * de qualquer jeito); a regra de verdade mora no RPC/trigger.
+ */
+export const permissoesDominam = (dominante = [], dominado = []) => {
+  const dominanteTemTudo = dominante.includes('*');
+  const dominadoTemTudo  = dominado.includes('*');
+  if (dominanteTemTudo && dominadoTemTudo) return false;
+  if (dominanteTemTudo) return true;
+  if (dominadoTemTudo) return false;
+
+  const setDominante = new Set(dominante);
+  if (!dominado.every((slug) => setDominante.has(slug))) return false;
+
+  const setDominado = new Set(dominado);
+  const eIgual = dominante.every((slug) => setDominado.has(slug));
+  return !eIgual; // estritamente maior: não pode ser igual
+};
 
 // ----------------------------------------------------------
 // HOOK PRINCIPAL
@@ -146,11 +175,12 @@ export const useOrg = () => {
   }, [tenantId]);
 
   /**
-   * Cria um novo cargo. `nivel` é validado no banco (trg_valida_nivel_cargo):
-   * precisa ser estritamente menor que o nível de quem está criando — o
-   * dono do tenant e o super_admin ficam fora dessa checagem.
+   * Cria um novo cargo. As `permissoes` são validadas no banco
+   * (trg_valida_permissoes_cargo): só pode conter permissões que o próprio
+   * criador já possui — o dono do tenant e o super_admin ficam fora dessa
+   * checagem.
    */
-  const criarCargo = useCallback(async ({ nome, descricao, permissoes = PERMISSOES_PADRAO_CARGO_NOVO, ordem = 99, nivel = 0 }) => {
+  const criarCargo = useCallback(async ({ nome, descricao, permissoes = PERMISSOES_PADRAO_CARGO_NOVO, ordem = 99 }) => {
     if (!tenantId) throw new Error('Tenant não identificado');
     const { data, error } = await supabase
       .from('org_cargos')
@@ -160,7 +190,6 @@ export const useOrg = () => {
         descricao,
         permissoes,
         ordem,
-        nivel,
         e_padrao:   false,
         e_sistema:  false,
       })
@@ -171,13 +200,12 @@ export const useOrg = () => {
   }, [tenantId]);
 
   /** Atualiza um cargo existente (não permite alterar e_sistema) */
-  const atualizarCargo = useCallback(async (id, { nome, descricao, permissoes, ordem, nivel }) => {
+  const atualizarCargo = useCallback(async (id, { nome, descricao, permissoes, ordem }) => {
     const payload = {};
     if (nome        !== undefined) payload.nome        = nome;
     if (descricao   !== undefined) payload.descricao   = descricao;
     if (permissoes  !== undefined) payload.permissoes  = permissoes;
     if (ordem       !== undefined) payload.ordem       = ordem;
-    if (nivel       !== undefined) payload.nivel       = nivel;
     payload.atualizado_em = new Date().toISOString();
 
     const { data, error } = await supabase
@@ -201,13 +229,6 @@ export const useOrg = () => {
       .eq('e_sistema', false); // proteção extra
     if (error) throw error;
   }, [tenantId]);
-
-  /** Nível hierárquico do próprio usuário logado (0 = sem cargo/base). */
-  const obterMeuNivel = useCallback(async () => {
-    const { data, error } = await supabase.rpc('get_user_cargo_nivel');
-    if (error) throw error;
-    return data ?? 0;
-  }, []);
 
   /** Se o usuário logado é o Chefe Supremo do tenant — sem teto de nível. */
   const souDonoTenant = useCallback(async () => {
@@ -338,16 +359,16 @@ export const useOrg = () => {
   }, [tenantId]);
 
   // ========================================================
-  // GESTÃO DE USUÁRIOS (Bloco 5 — hierarquia e Chefe Supremo)
+  // GESTÃO DE USUÁRIOS (Bloco 5 — subconjunto de permissões e Chefe Supremo)
   // ========================================================
 
   /** Lista todos os usuários do tenant, ativos e inativos, com o cargo
-   *  organizacional (nome + nível) embutido — para a aba Usuários. */
+   *  organizacional (nome + permissões) embutido — para a aba Usuários. */
   const listarUsuariosCompleto = useCallback(async () => {
     if (!tenantId) return [];
     const { data, error } = await supabase
       .from('users')
-      .select('id, nome, email, cargo, cargo_id, ativo, e_dono_tenant, criado_em, cargo_org:org_cargos(id, nome, nivel)')
+      .select('id, nome, email, cargo, cargo_id, ativo, e_dono_tenant, criado_em, cargo_org:org_cargos(id, nome, permissoes)')
       .eq('tenant_id', tenantId)
       .order('nome', { ascending: true });
     if (error) throw error;
@@ -357,7 +378,7 @@ export const useOrg = () => {
   /**
    * Ativa/desativa um usuário — nunca exclui (histórico preservado).
    * Único caminho: a função no banco barra desativar o dono do tenant e
-   * aplica a regra de hierarquia (só quem tem nível acima consegue).
+   * exige que o alvo tenha um subconjunto ESTRITO das suas permissões.
    */
   const definirAtivoUsuario = useCallback(async (userId, ativo) => {
     const { error } = await supabase.rpc('definir_ativo_usuario', { p_user_id: userId, p_ativo: ativo });
@@ -366,9 +387,9 @@ export const useOrg = () => {
 
   /**
    * Muda o cargo organizacional de outro usuário — mesma regra de
-   * hierarquia e proteção do dono, aplicada tanto no usuário-alvo quanto
-   * no cargo novo (não dá pra promover alguém pra um nível igual ou
-   * maior que o seu).
+   * subconjunto estrito de permissões e proteção do dono, aplicada tanto
+   * no usuário-alvo quanto no cargo novo (não dá pra atribuir um cargo com
+   * permissões iguais ou superiores às suas).
    */
   const definirCargoUsuario = useCallback(async (userId, cargoId) => {
     const { error } = await supabase.rpc('definir_cargo_usuario', { p_user_id: userId, p_cargo_id: cargoId });
@@ -412,7 +433,6 @@ export const useOrg = () => {
     criarCargo,
     atualizarCargo,
     excluirCargo,
-    obterMeuNivel,
     souDonoTenant,
     // Times
     listarTimes,
@@ -423,7 +443,7 @@ export const useOrg = () => {
     adicionarMembro,
     removerMembro,
     listarUsuariosTenant,
-    // Gestão de usuários (hierarquia e Chefe Supremo)
+    // Gestão de usuários (subconjunto de permissões e Chefe Supremo)
     listarUsuariosCompleto,
     definirAtivoUsuario,
     definirCargoUsuario,

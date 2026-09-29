@@ -4,28 +4,43 @@
 // =============================================================
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase.js';
+import { useAuthStore } from '../../store/authStore.js';
+import { useOrg } from '../../hooks/useOrg.js';
 import {
-  useLeads, useInteracoes,
-  FUNIL_LEAD, TIPOS_INTERACAO, ORIGENS,
-  funilInfo, tipoInfo, origemInfo,
+  useLeads,
+  ORIGENS, origemInfo,
   formatarMoeda, formatarData, tempoRelativo,
 } from '../../hooks/useCRM.js';
+import { useRotulosStatus, ETAPAS_CRM_FUNIL, etapaCrmFunilInfo } from '../../hooks/useRotulosStatus.js';
+import ModalRotulosStatus from '../../components/RotulosStatus/ModalRotulosStatus.jsx';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import {
   ENDERECO_VAZIO, CamposNegocio, CampoWhatsapp, CamposEmpresa, limparEndereco,
-  PORTE_LABEL, formatarEndereco, temInformacoesExtras,
 } from '../../components/crm/CamposContatoExtras.jsx';
+
+// Silos de filtro rápido da tela de Leads. 'recentes' não filtra linhas
+// (mesmo universo de 'todos', só reordena) — por isso reaproveita o
+// contador de 'todos' em vez de ter entrada própria na RPC.
+const SILOS = [
+  { key: 'todos',       label: 'Funil padrão' },
+  { key: 'minhas',      label: 'Minhas negociações' },
+  { key: 'sem_contato', label: 'Sem contato' },
+  { key: 'andamento',   label: 'Em andamento' },
+  { key: 'recentes',    label: 'Criadas por últimos' },
+];
 
 // ─── Componentes auxiliares ────────────────────────────────────
 const Spinner = () => (
   <div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
 );
 
-const BadgeFunil = ({ status }) => {
-  const f = funilInfo(status);
+const BadgeFunil = ({ status, rotulos }) => {
+  const f = etapaCrmFunilInfo(status);
   return (
     <span className={`text-xs px-2 py-0.5 rounded-full border ${f.cor}`}>
-      {f.emoji} {f.label}
+      {f.emoji} {rotulos[status]}
     </span>
   );
 };
@@ -40,13 +55,14 @@ const BadgeScore = ({ score }) => {
 // poder entrar na dependência do useEffect abaixo sem causar loop.
 const FORM_VAZIO = {
   nome: '', email: '', telefone: '', whatsapp: '', empresa: '', cargo: '',
-  origem: 'manual', status_funil: 'lead', valor_estimado: '', observacoes: '',
+  origem: 'manual', status_funil: 'lead', forma_aquisicao: '', responsavel_id: '',
+  valor_estimado: '', observacoes: '',
   negocio_nome: '', previsao_fechamento: '', campanha: '',
   razao_social: '', documento: '', segmento: '', site: '', porte: '',
   endereco: ENDERECO_VAZIO,
 };
 
-const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
+export const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, rotulos, usuariosTenant, usuario }) => {
   const [form, setForm]         = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
@@ -62,6 +78,8 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
         cargo:         leadEditando.cargo         || '',
         origem:        leadEditando.origem        || 'manual',
         status_funil:  leadEditando.status_funil  || 'lead',
+        forma_aquisicao: leadEditando.forma_aquisicao  || '',
+        responsavel_id:  leadEditando.responsavel?.id  || '',
         valor_estimado:leadEditando.valor_estimado|| '',
         observacoes:   leadEditando.observacoes   || '',
         negocio_nome:        leadEditando.negocio_nome        || '',
@@ -100,6 +118,8 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
         cargo:          form.cargo.trim()    || null,
         origem:         form.origem,
         status_funil:   form.status_funil,
+        forma_aquisicao: form.forma_aquisicao || null,
+        responsavel_id:  form.responsavel_id  || null,
         valor_estimado: form.valor_estimado ? Number(form.valor_estimado) : null,
         observacoes:    form.observacoes.trim() || null,
         negocio_nome:        form.negocio_nome.trim() || null,
@@ -184,7 +204,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
               <select value={form.status_funil} onChange={set('status_funil')}
                 className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle}>
-                {FUNIL_LEAD.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
+                {ETAPAS_CRM_FUNIL.map(f => <option key={f.key} value={f.key}>{rotulos[f.key]}</option>)}
               </select>
             </div>
             <div>
@@ -193,6 +213,35 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
                 className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle}>
                 {ORIGENS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="flex items-center gap-1.5 text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
+                Forma de aquisição
+                <span
+                  title="Outbound: clientes que você foi atrás. Inbound: clientes que vieram até você."
+                  style={{ cursor: 'help' }}>
+                  ❓
+                </span>
+              </label>
+              <select value={form.forma_aquisicao} onChange={set('forma_aquisicao')}
+                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                style={inputStyle}>
+                <option value="">Não informado</option>
+                <option value="inbound">Inbound</option>
+                <option value="outbound">Outbound</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Responsável</label>
+              <select value={form.responsavel_id} onChange={set('responsavel_id')}
+                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                style={inputStyle}>
+                <option value="">Eu{usuario?.nome ? ` (${usuario.nome})` : ''}</option>
+                {(usuariosTenant || []).map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
               </select>
             </div>
           </div>
@@ -243,229 +292,20 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando }) => {
   );
 };
 
-// ─── Painel de detalhes do Lead ────────────────────────────────
-const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConverter }) => {
-  const { interacoes, carregando: carregandoInt, carregar, adicionar } = useInteracoes(lead?.id);
-  const [novaInteracao, setNovaInteracao]         = useState('');
-  const [tipoInteracao, setTipoInteracao]         = useState('nota');
-  const [enviando, setEnviando]                   = useState(false);
-  const [convertendo, setConvertendo]             = useState(false);
-  const [confirmarConversao, setConfirmarConversao] = useState(false);
-  const [erroConversao, setErroConversao]         = useState('');
-
-  useEffect(() => { if (lead?.id) carregar(); }, [lead?.id, carregar]);
-
-  const handleInteracao = async (e) => {
-    e.preventDefault();
-    if (!novaInteracao.trim()) return;
-    setEnviando(true);
-    try {
-      await adicionar(tipoInteracao, novaInteracao.trim());
-      setNovaInteracao('');
-    } catch { /* silencioso */ }
-    finally { setEnviando(false); }
-  };
-
-  const handleConverter = async () => {
-    setConvertendo(true);
-    setErroConversao('');
-    try {
-      await onConverter(lead.id);
-      onFechar();
-    } catch (err) {
-      setErroConversao(err?.message || 'Erro ao converter o lead em cliente.');
-    } finally {
-      setConvertendo(false);
-    }
-  };
-
-  if (!lead) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full sm:max-w-2xl h-full sm:h-auto sm:max-h-[90vh] rounded-none sm:rounded-xl flex flex-col border overflow-hidden"
-        style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
-
-        {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b flex-shrink-0"
-          style={{ borderColor: 'var(--color-surface-border)' }}>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>{lead.nome}</h3>
-              <BadgeFunil status={lead.status_funil} />
-              <BadgeScore score={lead.score || 0} />
-            </div>
-            {lead.empresa && (
-              <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{lead.empresa}</p>
-            )}
-            <div className="flex gap-3 mt-2 flex-wrap">
-              {lead.email    && <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>✉️ {lead.email}</span>}
-              {lead.telefone && <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>📞 {lead.telefone}</span>}
-              {lead.valor_estimado && (
-                <span className="text-xs text-emerald-400">💰 {formatarMoeda(lead.valor_estimado)}</span>
-              )}
-              <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                📍 {origemInfo(lead.origem).label}
-              </span>
-            </div>
-          </div>
-          <div className="flex gap-2 flex-shrink-0 ml-3">
-            <button onClick={() => onEditar(lead)} className="text-muted hover:text-primary-400 transition-colors" title="Editar">✏️</button>
-            <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(lead.id)} className="text-muted hover:text-red-400 transition-colors" title="Excluir">🗑️</button></PermissaoGuarda>
-            <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-lg">✕</button>
-          </div>
-        </div>
-
-        {/* Mover no funil */}
-        <div className="px-5 py-3 border-b flex gap-2 flex-wrap flex-shrink-0"
-          style={{ borderColor: 'var(--color-surface-border)' }}>
-          <span className="text-xs font-medium self-center" style={{ color: 'var(--color-text-secondary)' }}>Mover para:</span>
-          {FUNIL_LEAD.map(f => (
-            <button key={f.key}
-              onClick={() => onMudarStatus(lead.id, f.key)}
-              disabled={f.key === lead.status_funil}
-              className={`text-xs px-2 py-1 rounded-full border transition-all ${f.cor} ${f.key === lead.status_funil ? 'opacity-100 ring-1 ring-white/20' : 'opacity-50 hover:opacity-100'}`}>
-              {f.emoji} {f.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Botão de Conversão */}
-        <div className="px-5 py-3 border-b flex-shrink-0"
-          style={{ borderColor: 'var(--color-surface-border)', backgroundColor: 'rgba(16,185,129,0.05)' }}>
-          {!confirmarConversao ? (
-            <button
-              onClick={() => setConfirmarConversao(true)}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors flex items-center justify-center gap-2">
-              🎉 Converter para Cliente
-            </button>
-          ) : (
-            <div className="flex items-center gap-3 flex-wrap">
-              <p className="text-sm text-emerald-300 flex-1">
-                Confirmar conversão de <strong>{lead.nome}</strong> para Cliente?
-              </p>
-              <button onClick={() => { setConfirmarConversao(false); setErroConversao(''); }}
-                className="text-xs px-3 py-1.5 rounded-lg border text-muted"
-                style={{ borderColor: 'var(--color-surface-border)' }}>
-                Cancelar
-              </button>
-              <button onClick={handleConverter} disabled={convertendo}
-                className="text-xs px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium disabled:opacity-50">
-                {convertendo ? 'Convertendo...' : 'Confirmar'}
-              </button>
-            </div>
-          )}
-          {erroConversao && (
-            <p className="text-red-400 text-xs mt-2">{erroConversao}</p>
-          )}
-        </div>
-
-        {/* Mais informações (Negócio/Contato/Empresa) — só aparece se algo foi preenchido */}
-        {temInformacoesExtras(lead) && (
-          <div className="px-5 py-4 border-b flex-shrink-0" style={{ borderColor: 'var(--color-surface-border)' }}>
-            <h4 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-              Mais informações
-            </h4>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              {[
-                { label: 'Negócio',              valor: lead.negocio_nome },
-                { label: 'Campanha',             valor: lead.campanha },
-                { label: 'Previsão de fechamento', valor: lead.previsao_fechamento ? formatarData(lead.previsao_fechamento) : null },
-                { label: 'WhatsApp',              valor: lead.whatsapp },
-                { label: 'Razão social',          valor: lead.razao_social },
-                { label: 'CNPJ/CPF',              valor: lead.documento },
-                { label: 'Segmento',              valor: lead.segmento },
-                { label: 'Porte',                 valor: PORTE_LABEL[lead.porte] },
-                { label: 'Site',                  valor: lead.site },
-                { label: 'Endereço',              valor: formatarEndereco(lead.endereco) },
-              ].filter(({ valor }) => valor).map(({ label, valor }) => (
-                <div key={label}>
-                  <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
-                  <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{valor}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Histórico de interações */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-3">
-          <h4 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
-            Histórico de Interações
-          </h4>
-
-          {carregandoInt ? (
-            <div className="flex justify-center py-4"><Spinner /></div>
-          ) : interacoes.length === 0 ? (
-            <p className="text-sm text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>
-              Nenhuma interação registrada ainda.
-            </p>
-          ) : (
-            interacoes.map(int => {
-              const t = tipoInfo(int.tipo);
-              return (
-                <div key={int.id} className="flex gap-3">
-                  <span className="text-lg flex-shrink-0 mt-0.5">{t.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.label}</span>
-                      {int.tipo !== 'conversao' && (
-                        <span className="text-xs text-emerald-400">+{t.score} pts</span>
-                      )}
-                      <span className="text-xs ml-auto" style={{ color: 'var(--color-text-secondary)' }}>
-                        {tempoRelativo(int.criado_em)}
-                      </span>
-                    </div>
-                    <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{int.conteudo}</p>
-                    {int.criado_por_user && (
-                      <p className="text-xs mt-0.5 text-muted">por {int.criado_por_user.nome}</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Formulário de nova interação */}
-        <form onSubmit={handleInteracao} className="p-4 border-t flex-shrink-0"
-          style={{ borderColor: 'var(--color-surface-border)' }}>
-          <div className="flex gap-2 mb-2 flex-wrap">
-            {TIPOS_INTERACAO.filter(t => t.key !== 'conversao').map(t => (
-              <button key={t.key} type="button"
-                onClick={() => setTipoInteracao(t.key)}
-                className={`text-xs px-2 py-1 rounded-full border transition-all ${tipoInteracao === t.key ? 'bg-primary-500/20 text-primary-300 border-primary-500/30' : 'text-muted border-slate-700 hover:border-slate-500'}`}>
-                {t.emoji} {t.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={novaInteracao}
-              onChange={e => setNovaInteracao(e.target.value)}
-              placeholder="Registrar interação..."
-              className="flex-1 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
-            />
-            <button type="submit" disabled={enviando || !novaInteracao.trim()}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
-              {enviando ? '...' : 'Registrar'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
 // ─── Card do Lead (Kanban) ─────────────────────────────────────
-const CardLead = ({ lead, onAbrir }) => (
+const CardLead = ({ lead, onAbrir, selecionado, onToggleSelecao }) => (
   <div
     onClick={() => onAbrir(lead)}
-    className="rounded-lg p-3 border cursor-pointer hover:border-primary-500/40 transition-all group"
+    className="relative rounded-lg p-3 border cursor-pointer hover:border-primary-500/40 transition-all group"
     style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-surface-border)' }}>
-    <div className="flex items-start justify-between gap-2">
+    <input
+      type="checkbox"
+      checked={selecionado}
+      onClick={e => e.stopPropagation()}
+      onChange={() => onToggleSelecao(lead.id)}
+      className="absolute top-2 right-2"
+    />
+    <div className="flex items-start justify-between gap-2 pr-5">
       <p className="text-sm font-medium group-hover:text-primary-300 transition-colors truncate"
         style={{ color: 'var(--color-text-primary)' }}>
         {lead.nome}
@@ -475,6 +315,9 @@ const CardLead = ({ lead, onAbrir }) => (
     {lead.empresa && (
       <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--color-text-secondary)' }}>{lead.empresa}</p>
     )}
+    <p className="text-xs mt-1 truncate" style={{ color: 'var(--color-text-secondary)' }}>
+      👤 {lead.responsavel?.nome || 'Sem responsável'}
+    </p>
     <div className="flex items-center justify-between mt-2">
       {lead.valor_estimado ? (
         <span className="text-xs text-emerald-400">{formatarMoeda(lead.valor_estimado)}</span>
@@ -489,12 +332,12 @@ const CardLead = ({ lead, onAbrir }) => (
 );
 
 // ─── Coluna do Kanban ──────────────────────────────────────────
-const ColunaKanban = ({ funil, leads, onAbrir }) => (
+const ColunaKanban = ({ funil, rotulo, leads, onAbrir, selecionados, onToggleSelecao }) => (
   <div className="flex-shrink-0 w-64">
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2">
         <span>{funil.emoji}</span>
-        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{funil.label}</span>
+        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{rotulo}</span>
       </div>
       <span className="text-xs px-2 py-0.5 rounded-full"
         style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}>
@@ -503,7 +346,8 @@ const ColunaKanban = ({ funil, leads, onAbrir }) => (
     </div>
     <div className="space-y-2 min-h-24">
       {leads.map(lead => (
-        <CardLead key={lead.id} lead={lead} onAbrir={onAbrir} />
+        <CardLead key={lead.id} lead={lead} onAbrir={onAbrir}
+          selecionado={selecionados.has(lead.id)} onToggleSelecao={onToggleSelecao} />
       ))}
       {leads.length === 0 && (
         <div className="rounded-lg border-2 border-dashed p-4 text-center"
@@ -516,17 +360,20 @@ const ColunaKanban = ({ funil, leads, onAbrir }) => (
 );
 
 // ─── Linha da lista ────────────────────────────────────────────
-const LinhaLead = ({ lead, onAbrir, onEditar, onExcluir }) => (
+const LinhaLead = ({ lead, onAbrir, onEditar, onExcluir, rotulos, selecionado, onToggleSelecao }) => (
   <tr className="border-b hover:bg-white/5 transition-colors cursor-pointer"
     style={{ borderColor: 'var(--color-surface-border)' }}
     onClick={() => onAbrir(lead)}>
+    <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+      <input type="checkbox" checked={selecionado} onChange={() => onToggleSelecao(lead.id)} />
+    </td>
     <td className="px-4 py-3">
       <div>
         <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{lead.nome}</p>
         {lead.empresa && <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{lead.empresa}</p>}
       </div>
     </td>
-    <td className="px-4 py-3"><BadgeFunil status={lead.status_funil} /></td>
+    <td className="px-4 py-3"><BadgeFunil status={lead.status_funil} rotulos={rotulos} /></td>
     <td className="px-4 py-3"><BadgeScore score={lead.score || 0} /></td>
     <td className="px-4 py-3">
       <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
@@ -536,6 +383,11 @@ const LinhaLead = ({ lead, onAbrir, onEditar, onExcluir }) => (
     <td className="px-4 py-3">
       <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
         {origemInfo(lead.origem).label}
+      </span>
+    </td>
+    <td className="px-4 py-3">
+      <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+        {lead.responsavel?.nome || '—'}
       </span>
     </td>
     <td className="px-4 py-3">
@@ -552,21 +404,71 @@ const LinhaLead = ({ lead, onAbrir, onEditar, onExcluir }) => (
   </tr>
 );
 
+// ─── Modal simples de ação em massa (Transferir/Status/Mover) ──
+const ModalAcaoMassa = ({ titulo, onFechar, children }) => (
+  <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onFechar}>
+    <div onClick={e => e.stopPropagation()}
+      className="rounded-xl p-5 w-full max-w-sm border"
+      style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>{titulo}</h3>
+        <button onClick={onFechar} className="text-muted hover:text-white text-lg">✕</button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
 // ─── Página Principal: Leads ───────────────────────────────────
 const PaginaLeads = () => {
+  const navigate = useNavigate();
+  const { usuario } = useAuthStore();
+  const { listarTimes } = useOrg();
   const {
     leads, carregando, erro,
-    carregar, criar, atualizar, excluir,
-    converterParaCliente, mudarStatus,
+    carregar, criar, atualizar, excluir, excluirEmMassa,
+    mudarStatus, moverParaTime, contarSilos,
   } = useLeads();
 
   const [modalAberto, setModalAberto]   = useState(false);
   const [leadEditando, setLeadEditando] = useState(null);
-  const [painelLead, setPainelLead]     = useState(null);
   const [busca, setBusca]               = useState('');
   const [vista, setVista]               = useState('kanban');
+  const [modalRotulosAberto, setModalRotulosAberto] = useState(false);
+  const [silo, setSilo]                 = useState('todos');
+  const [responsavelFiltro, setResponsavelFiltro] = useState('');
+  const [usuariosTenant, setUsuariosTenant] = useState([]);
+  const [times, setTimes] = useState([]);
+  const [contadores, setContadores] = useState({ todos: 0, minhas: 0, sem_contato: 0, andamento: 0 });
+  const { rotulos, recarregar: recarregarRotulos } = useRotulosStatus('crm_funil');
 
-  useEffect(() => { carregar(); }, [carregar]);
+  // Seleção múltipla / ações em massa
+  const [selecionados, setSelecionados] = useState(new Set());
+  const [modalTransferir, setModalTransferir] = useState(false);
+  const [modalStatus, setModalStatus]         = useState(false);
+  const [modalMover, setModalMover]           = useState(false);
+  const [processandoMassa, setProcessandoMassa] = useState(false);
+  const [resultadoMassa, setResultadoMassa]   = useState('');
+  const [valorTransferir, setValorTransferir] = useState('');
+  const [valorStatus, setValorStatus]         = useState(ETAPAS_CRM_FUNIL[0].key);
+  const [valorMover, setValorMover]           = useState('');
+
+  const abrirDetalhe = (lead) => navigate(`/crm/leads/${lead.id}`);
+
+  useEffect(() => {
+    carregar({ silo, responsavel_id: responsavelFiltro || undefined });
+  }, [carregar, silo, responsavelFiltro]);
+
+  // Contadores dos silos: independentes do filtro ativo (ver useCRM.js),
+  // carregados uma vez — trocar de silo não deve zerar os outros tiles.
+  useEffect(() => { contarSilos().then(setContadores); }, [contarSilos]);
+  const atualizarContadores = () => contarSilos().then(setContadores);
+
+  useEffect(() => {
+    if (!usuario?.tenant_id) return;
+    supabase.from('users').select('id, nome').eq('tenant_id', usuario.tenant_id)
+      .then(({ data, error }) => { if (!error) setUsuariosTenant(data || []); });
+  }, [usuario?.tenant_id]);
 
   const leadsFiltrados = leads.filter(l =>
     !busca ||
@@ -576,8 +478,7 @@ const PaginaLeads = () => {
 
   const handleSalvar = async (dados) => {
     if (leadEditando) {
-      const atualizado = await atualizar(leadEditando.id, dados);
-      if (painelLead?.id === leadEditando.id) setPainelLead(atualizado);
+      await atualizar(leadEditando.id, dados);
     } else {
       await criar(dados);
     }
@@ -587,27 +488,116 @@ const PaginaLeads = () => {
   const handleEditar = (lead) => {
     setLeadEditando(lead);
     setModalAberto(true);
-    setPainelLead(null);
   };
 
   const handleExcluir = async (id) => {
     if (!window.confirm('Excluir este lead?')) return;
     await excluir(id);
-    if (painelLead?.id === id) setPainelLead(null);
   };
 
-  const handleMudarStatus = async (id, novoStatus) => {
-    const atualizado = await mudarStatus(id, novoStatus);
-    if (painelLead?.id === id) setPainelLead(atualizado);
+  // ─── Seleção múltipla ──────────────────────────────────────────
+  const toggleSelecao = (id) => {
+    setSelecionados(prev => {
+      const novo = new Set(prev);
+      if (novo.has(id)) novo.delete(id); else novo.add(id);
+      return novo;
+    });
   };
 
-  const handleConverter = async (id) => {
-    await converterParaCliente(id);
-    setPainelLead(null);
+  const toggleSelecionarTodos = () => {
+    setSelecionados(prev =>
+      prev.size === leadsFiltrados.length ? new Set() : new Set(leadsFiltrados.map(l => l.id))
+    );
+  };
+
+  const limparSelecao = () => setSelecionados(new Set());
+
+  const finalizarAcaoMassa = async (mensagem) => {
+    setResultadoMassa(mensagem);
+    limparSelecao();
+    await carregar({ silo, responsavel_id: responsavelFiltro || undefined });
+    await atualizarContadores();
+  };
+
+  const handleTransferirEmMassa = async (novoResponsavelId) => {
+    setProcessandoMassa(true);
+    try {
+      const ids = [...selecionados];
+      const resultados = await Promise.allSettled(ids.map(id => atualizar(id, { responsavel_id: novoResponsavelId || null })));
+      const falhas = resultados.filter(r => r.status === 'rejected').length;
+      setModalTransferir(false);
+      await finalizarAcaoMassa(`${ids.length - falhas} transferido(s)${falhas ? ` · ${falhas} falharam` : ''}.`);
+    } finally {
+      setProcessandoMassa(false);
+    }
+  };
+
+  const handleAlterarStatusEmMassa = async (novoStatus) => {
+    setProcessandoMassa(true);
+    try {
+      const ids = [...selecionados];
+      const resultados = await Promise.allSettled(ids.map(id => mudarStatus(id, novoStatus)));
+      const falhas = resultados.filter(r => r.status === 'rejected').length;
+      setModalStatus(false);
+      await finalizarAcaoMassa(`${ids.length - falhas} atualizado(s)${falhas ? ` · ${falhas} falharam` : ''}.`);
+    } finally {
+      setProcessandoMassa(false);
+    }
+  };
+
+  const handleMoverEmMassa = async (novoTimeId) => {
+    setProcessandoMassa(true);
+    try {
+      const ids = [...selecionados];
+      const resultados = await Promise.allSettled(ids.map(id => moverParaTime(id, novoTimeId || null)));
+      const falhas = resultados.filter(r => r.status === 'rejected').length;
+      setModalMover(false);
+      await finalizarAcaoMassa(`${ids.length - falhas} movido(s)${falhas ? ` · ${falhas} falharam` : ''}.`);
+    } finally {
+      setProcessandoMassa(false);
+    }
+  };
+
+  const handleExcluirEmMassa = async () => {
+    const ids = [...selecionados];
+    if (!window.confirm(`Excluir ${ids.length} lead(s)?`)) return;
+    setProcessandoMassa(true);
+    try {
+      const { excluidosIds, ignorados } = await excluirEmMassa(ids);
+      await finalizarAcaoMassa(
+        `${excluidosIds.length} excluído(s)` + (ignorados > 0 ? ` · ${ignorados} ignorado(s) por falta de permissão.` : '.')
+      );
+    } finally {
+      setProcessandoMassa(false);
+    }
+  };
+
+  const handleExportarCsv = () => {
+    const linhas = leadsFiltrados.filter(l => selecionados.has(l.id));
+    const cabecalho = ['Nome', 'Empresa', 'Email', 'Telefone', 'Status', 'Score', 'Valor estimado', 'Responsável', 'Origem', 'Criado em'];
+    const escapar = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const linhasCsv = linhas.map(l => [
+      l.nome, l.empresa, l.email, l.telefone,
+      rotulos[l.status_funil], l.score, l.valor_estimado,
+      l.responsavel?.nome, origemInfo(l.origem).label, formatarData(l.criado_em),
+    ].map(escapar).join(','));
+    const csv = [cabecalho.map(escapar).join(','), ...linhasCsv].join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const abrirModalMover = () => {
+    listarTimes().then(setTimes).catch(() => setTimes([]));
+    setModalMover(true);
   };
 
   // Agrupar por status_funil para o Kanban
-  const kanban = FUNIL_LEAD.reduce((acc, f) => {
+  const kanban = ETAPAS_CRM_FUNIL.reduce((acc, f) => {
     acc[f.key] = leadsFiltrados.filter(l => l.status_funil === f.key);
     return acc;
   }, {});
@@ -626,11 +616,39 @@ const PaginaLeads = () => {
             {leads.length} leads · Score total: ⚡ {totalScore} pts
           </p>
         </div>
-        <button
-          onClick={() => { setLeadEditando(null); setModalAberto(true); }}
-          className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-          + Novo Lead
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setModalRotulosAberto(true)}
+            className="text-muted hover:text-primary-400 transition-colors text-lg p-2"
+            title="Personalizar rótulos do funil">
+            ⚙️
+          </button>
+          <button
+            onClick={() => { setLeadEditando(null); setModalAberto(true); }}
+            className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+            + Novo Lead
+          </button>
+        </div>
+      </div>
+
+      {/* Silos de filtro rápido */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {SILOS.map(({ key, label }) => {
+          const ativo = silo === key;
+          const contagem = key === 'recentes' ? contadores.todos : contadores[key];
+          return (
+            <button key={key}
+              onClick={() => setSilo(ativo ? 'todos' : key)}
+              className="rounded-xl p-3 text-center border transition-all"
+              style={{
+                backgroundColor: ativo ? 'rgba(99,102,241,0.1)' : 'var(--color-surface-card)',
+                borderColor: ativo ? 'var(--color-primary-500)' : 'var(--color-surface-border)',
+              }}>
+              <p className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>{contagem ?? 0}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
+            </button>
+          );
+        })}
       </div>
 
       {/* Filtros e controles */}
@@ -643,6 +661,14 @@ const PaginaLeads = () => {
           className="flex-1 min-w-48 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
         />
+        <select
+          value={responsavelFiltro}
+          onChange={e => setResponsavelFiltro(e.target.value)}
+          className="rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+          style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}>
+          <option value="">Todos os responsáveis</option>
+          {usuariosTenant.map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
+        </select>
         <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
           <button onClick={() => setVista('kanban')}
             className={`px-3 py-2 text-sm transition-colors ${vista === 'kanban' ? 'bg-primary-600 text-white' : 'text-muted hover:text-white'}`}
@@ -662,6 +688,53 @@ const PaginaLeads = () => {
         <div className="rounded-lg p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{erro}</div>
       )}
 
+      {/* Resultado de ação em massa */}
+      {resultadoMassa && (
+        <div className="rounded-lg p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm flex items-center justify-between gap-3">
+          <span>{resultadoMassa}</span>
+          <button onClick={() => setResultadoMassa('')} className="text-emerald-300/70 hover:text-emerald-300">✕</button>
+        </div>
+      )}
+
+      {/* Barra de ações em massa */}
+      {selecionados.size > 0 && (
+        <div className="sticky top-0 z-10 flex items-center gap-2 flex-wrap rounded-lg p-3 border"
+          style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-primary-500)' }}>
+          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            {selecionados.size} selecionado(s)
+          </span>
+          <PermissaoGuarda permissao="crm.editar">
+            <>
+              <button onClick={() => setModalTransferir(true)} disabled={processandoMassa}
+                className="text-xs px-3 py-1.5 rounded-lg border text-muted hover:text-white transition-colors" style={{ borderColor: 'var(--color-surface-border)' }}>
+                👤 Transferir
+              </button>
+              <button onClick={() => setModalStatus(true)} disabled={processandoMassa}
+                className="text-xs px-3 py-1.5 rounded-lg border text-muted hover:text-white transition-colors" style={{ borderColor: 'var(--color-surface-border)' }}>
+                🔀 Alterar status
+              </button>
+              <button onClick={abrirModalMover} disabled={processandoMassa}
+                className="text-xs px-3 py-1.5 rounded-lg border text-muted hover:text-white transition-colors" style={{ borderColor: 'var(--color-surface-border)' }}>
+                📤 Mover
+              </button>
+            </>
+          </PermissaoGuarda>
+          <button onClick={handleExportarCsv}
+            className="text-xs px-3 py-1.5 rounded-lg border text-muted hover:text-white transition-colors" style={{ borderColor: 'var(--color-surface-border)' }}>
+            ⬇️ Exportar CSV
+          </button>
+          <PermissaoGuarda permissao="crm.excluir">
+            <button onClick={handleExcluirEmMassa} disabled={processandoMassa}
+              className="text-xs px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20 transition-colors">
+              🗑️ Excluir
+            </button>
+          </PermissaoGuarda>
+          <button onClick={limparSelecao} className="ml-auto text-xs text-muted hover:text-white transition-colors">
+            Cancelar
+          </button>
+        </div>
+      )}
+
       {/* Carregando */}
       {carregando && (
         <div className="flex justify-center py-12"><Spinner /></div>
@@ -671,8 +744,9 @@ const PaginaLeads = () => {
       {!carregando && vista === 'kanban' && (
         <div className="overflow-x-auto pb-4">
           <div className="flex gap-4 min-w-max">
-            {FUNIL_LEAD.map(f => (
-              <ColunaKanban key={f.key} funil={f} leads={kanban[f.key] || []} onAbrir={setPainelLead} />
+            {ETAPAS_CRM_FUNIL.map(f => (
+              <ColunaKanban key={f.key} funil={f} rotulo={rotulos[f.key]} leads={kanban[f.key] || []}
+                onAbrir={abrirDetalhe} selecionados={selecionados} onToggleSelecao={toggleSelecao} />
             ))}
           </div>
         </div>
@@ -694,7 +768,12 @@ const PaginaLeads = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
-                  {['Nome', 'Status', 'Score', 'Valor', 'Origem', 'Criado', ''].map(h => (
+                  <th className="px-4 py-3 text-left">
+                    <input type="checkbox"
+                      checked={selecionados.size > 0 && selecionados.size === leadsFiltrados.length}
+                      onChange={toggleSelecionarTodos} />
+                  </th>
+                  {['Nome', 'Status', 'Score', 'Valor', 'Origem', 'Responsável', 'Criado', ''].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
                       style={{ color: 'var(--color-text-secondary)' }}>{h}</th>
                   ))}
@@ -705,9 +784,12 @@ const PaginaLeads = () => {
                   <LinhaLead
                     key={lead.id}
                     lead={lead}
-                    onAbrir={setPainelLead}
+                    onAbrir={abrirDetalhe}
                     onEditar={handleEditar}
                     onExcluir={handleExcluir}
+                    rotulos={rotulos}
+                    selecionado={selecionados.has(lead.id)}
+                    onToggleSelecao={toggleSelecao}
                   />
                 ))}
               </tbody>
@@ -722,19 +804,66 @@ const PaginaLeads = () => {
         onFechar={() => { setModalAberto(false); setLeadEditando(null); }}
         onSalvar={handleSalvar}
         leadEditando={leadEditando}
+        rotulos={rotulos}
+        usuariosTenant={usuariosTenant}
+        usuario={usuario}
       />
 
-      {/* Painel de detalhes */}
-      {painelLead && (
-        <PainelLead
-          lead={painelLead}
-          onFechar={() => setPainelLead(null)}
-          onEditar={handleEditar}
-          onExcluir={handleExcluir}
-          onMudarStatus={handleMudarStatus}
-          onConverter={handleConverter}
-        />
+      {/* Ações em massa: Transferir responsável */}
+      {modalTransferir && (
+        <ModalAcaoMassa titulo="Transferir responsável" onFechar={() => setModalTransferir(false)}>
+          <select value={valorTransferir} onChange={e => setValorTransferir(e.target.value)}
+            className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 mb-3"
+            style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}>
+            <option value="">Sem responsável</option>
+            {usuariosTenant.map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
+          </select>
+          <button disabled={processandoMassa}
+            onClick={() => handleTransferirEmMassa(valorTransferir)}
+            className="w-full bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+            {processandoMassa ? 'Processando...' : 'Confirmar'}
+          </button>
+        </ModalAcaoMassa>
       )}
+
+      {/* Ações em massa: Alterar status */}
+      {modalStatus && (
+        <ModalAcaoMassa titulo="Alterar status" onFechar={() => setModalStatus(false)}>
+          <select value={valorStatus} onChange={e => setValorStatus(e.target.value)}
+            className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 mb-3"
+            style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}>
+            {ETAPAS_CRM_FUNIL.map(f => <option key={f.key} value={f.key}>{rotulos[f.key]}</option>)}
+          </select>
+          <button disabled={processandoMassa}
+            onClick={() => handleAlterarStatusEmMassa(valorStatus)}
+            className="w-full bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+            {processandoMassa ? 'Processando...' : 'Confirmar'}
+          </button>
+        </ModalAcaoMassa>
+      )}
+
+      {/* Ações em massa: Mover de time */}
+      {modalMover && (
+        <ModalAcaoMassa titulo="Mover para outro time" onFechar={() => setModalMover(false)}>
+          <select value={valorMover} onChange={e => setValorMover(e.target.value)}
+            className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 mb-3"
+            style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}>
+            <option value="">Sem time</option>
+            {times.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
+          </select>
+          <button disabled={processandoMassa}
+            onClick={() => handleMoverEmMassa(valorMover)}
+            className="w-full bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+            {processandoMassa ? 'Processando...' : 'Confirmar'}
+          </button>
+        </ModalAcaoMassa>
+      )}
+
+      <ModalRotulosStatus
+        aberto={modalRotulosAberto}
+        onFechar={() => { setModalRotulosAberto(false); recarregarRotulos(); }}
+        dominio="crm_funil"
+      />
     </div>
   );
 };

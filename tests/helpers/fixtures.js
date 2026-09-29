@@ -17,6 +17,12 @@ import { adminClient } from './client.js';
 
 const SENHA_TESTE = 'teste-rls-2026-nao-usar-em-nada-real';
 
+// Id fixo do tenant do seed (supabase/seed.sql) e a senha de todos os
+// usuarios seedados — usados pelos testes que exercitam os 3 usuarios
+// ja seedados (permissoes-cargo.test.js), alem das fixtures deste arquivo.
+export const TENANT_ACME_ID = 'd0000000-0000-4000-8000-000000000001';
+export const SENHA_SEED = 'prancheto-dev-2026';
+
 const criarUsuario = async (admin, { email, cargo, tenantId }) => {
   const { data, error } = await admin.auth.admin.createUser({
     email,
@@ -168,4 +174,88 @@ export async function destruirTenantTeste(fixture) {
 
   const { error: erroTenant } = await admin.from('tenants').delete().eq('id', fixture.tenantId);
   if (erroTenant) throw new Error(`Falha ao apagar tenant de teste: ${erroTenant.message}`);
+}
+
+/**
+ * Cria, dentro do tenant Acme (seed), cargos e usuarios descartaveis para
+ * exercitar a regra de subconjunto de permissoes que substituiu o nivel
+ * hierarquico (migration 20260929020000_remove_hierarquia_nivel_cargos.sql).
+ * Necessario porque nenhum dos 3 usuarios do seed serve para isso: so
+ * admin@acme.dev tem cargos.gerenciar/usuarios.gerenciar, e o conjunto dele
+ * e superconjunto de todo mundo — nao da pra testar negacao por
+ * subconjunto com um unico usuario "poderoso".
+ *
+ *   cargos.baseId:      usuarios.gerenciar + cargos.gerenciar + crm.ver
+ *   cargos.amploId:     baseId + crm.criar + crm.editar (superconjunto estrito)
+ *   cargos.peerId:      as mesmas permissoes de baseId (par — nem mais, nem menos)
+ *   cargos.alvoEdicaoId: so crm.ver, sem usuario vinculado (alvo de UPDATE)
+ *   modesto/amplo/peer: usuarios vinculados aos cargos acima
+ *   dono:               e_dono_tenant = true, sem cargo — alvo dos testes de
+ *                       protecao do Chefe Supremo
+ */
+export async function criarFixtureSubconjuntoPermissoes() {
+  const admin = adminClient();
+  const sufixo = randomUUID().slice(0, 8);
+
+  const criarCargo = async (permissoes) => {
+    const { data, error } = await admin
+      .from('org_cargos')
+      .insert({
+        tenant_id: TENANT_ACME_ID,
+        nome: `qa-subconjunto-${randomUUID().slice(0, 8)}`,
+        permissoes,
+        ordem: 999,
+      })
+      .select('id').single();
+    if (error) throw new Error(`Falha ao criar cargo de teste (subconjunto): ${error.message}`);
+    return data.id;
+  };
+
+  const cargoBaseId       = await criarCargo(['usuarios.gerenciar', 'cargos.gerenciar', 'crm.ver']);
+  const cargoAmploId      = await criarCargo(['usuarios.gerenciar', 'cargos.gerenciar', 'crm.ver', 'crm.criar', 'crm.editar']);
+  const cargoPeerId       = await criarCargo(['usuarios.gerenciar', 'cargos.gerenciar', 'crm.ver']);
+  const cargoAlvoEdicaoId = await criarCargo(['crm.ver']);
+
+  const emailModesto = `qa-modesto-${sufixo}@teste.dev`;
+  const emailAmplo   = `qa-amplo-${sufixo}@teste.dev`;
+  const emailPeer    = `qa-peer-${sufixo}@teste.dev`;
+  const emailDono    = `qa-dono-${sufixo}@teste.dev`;
+
+  const userModestoId = await criarUsuario(admin, { email: emailModesto, cargo: 'member', tenantId: TENANT_ACME_ID });
+  const userAmploId   = await criarUsuario(admin, { email: emailAmplo,   cargo: 'member', tenantId: TENANT_ACME_ID });
+  const userPeerId    = await criarUsuario(admin, { email: emailPeer,    cargo: 'member', tenantId: TENANT_ACME_ID });
+  const userDonoId    = await criarUsuario(admin, { email: emailDono,    cargo: 'member', tenantId: TENANT_ACME_ID });
+
+  const vincular = async (userId, patch) => {
+    const { error } = await admin.from('users').update(patch).eq('id', userId);
+    if (error) throw new Error(`Falha ao configurar usuario de teste (subconjunto) ${userId}: ${error.message}`);
+  };
+  await vincular(userModestoId, { cargo_id: cargoBaseId });
+  await vincular(userAmploId,   { cargo_id: cargoAmploId });
+  await vincular(userPeerId,    { cargo_id: cargoPeerId });
+  await vincular(userDonoId,    { e_dono_tenant: true });
+
+  return {
+    cargos: { baseId: cargoBaseId, amploId: cargoAmploId, peerId: cargoPeerId, alvoEdicaoId: cargoAlvoEdicaoId },
+    modesto: { id: userModestoId, email: emailModesto, senha: SENHA_TESTE },
+    amplo:   { id: userAmploId,   email: emailAmplo,   senha: SENHA_TESTE },
+    peer:    { id: userPeerId,    email: emailPeer,    senha: SENHA_TESTE },
+    dono:    { id: userDonoId,    email: emailDono,    senha: SENHA_TESTE },
+  };
+}
+
+/** Desfaz tudo que criarFixtureSubconjuntoPermissoes() criou. */
+export async function destruirFixtureSubconjuntoPermissoes(fixture) {
+  const admin = adminClient();
+  const idsUsuarios = [fixture.modesto.id, fixture.amplo.id, fixture.peer.id, fixture.dono.id];
+
+  await admin.from('users').delete().in('id', idsUsuarios);
+  for (const id of idsUsuarios) {
+    const { error } = await admin.auth.admin.deleteUser(id);
+    if (error) throw new Error(`Falha ao apagar usuario de teste (subconjunto) ${id}: ${error.message}`);
+  }
+
+  const idsCargos = [fixture.cargos.baseId, fixture.cargos.amploId, fixture.cargos.peerId, fixture.cargos.alvoEdicaoId];
+  const { error: erroCargos } = await admin.from('org_cargos').delete().in('id', idsCargos);
+  if (erroCargos) throw new Error(`Falha ao apagar cargos de teste (subconjunto): ${erroCargos.message}`);
 }

@@ -30,7 +30,6 @@ const PaginaDashboardCliente = lazy(() => import('./pages/DashboardCliente/Dashb
 const PaginaAgenda           = lazy(() => import('./pages/DashboardCliente/Agenda/Agenda.jsx'));
 const PaginaChat             = lazy(() => import('./pages/DashboardCliente/Chat/Chat.jsx'));
 const PaginaRelatorios       = lazy(() => import('./pages/DashboardCliente/Relatorios/Relatorios.jsx'));
-const PaginaOutbound         = lazy(() => import('./pages/DashboardCliente/Outbound/Outbound.jsx'));
 const PaginaConfiguracoes    = lazy(() => import('./pages/DashboardCliente/Configuracoes/Configuracoes.jsx'));
 
 // Módulo Organização (Times, Cargos, Identidade Visual)
@@ -196,14 +195,11 @@ const App = () => {
               }
             />
 
-            {/* Outbound */}
+            {/* Outbound virou aba do CRM (/crm/outbound); rota antiga mantida
+                como redirect pra não quebrar links/favoritos já salvos. */}
             <Route
               path="/dashboard/outbound"
-              element={
-                <ClienteComLayout>
-                  <PaginaOutbound />
-                </ClienteComLayout>
-              }
+              element={<Navigate to="/crm/outbound" replace />}
             />
 
             {/* Configurações */}
