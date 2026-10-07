@@ -1,8 +1,6 @@
 // =============================================================
-// PRANCHETO.IA - WIDGET: LEADS QUENTES
-// score >= 70 é o mesmo limiar de "quente" já usado em
-// pages/DashboardCliente/Relatorios/Relatorios.jsx — aqui filtrado no
-// servidor (não contado no cliente sobre a tabela inteira, como lá).
+// PRANCHETO.IA - WIDGET: LEADS QUENTES (EMITLY DESIGN SYSTEM)
+// Lista de leads de alto valor com pontuação e badges coloridas.
 // =============================================================
 
 import React, { useEffect, useState } from 'react';
@@ -41,27 +39,40 @@ const WidgetLeadsQuentes = () => {
   }, [tenantId]);
 
   return (
-    <WidgetShell titulo="Leads Quentes" emoji="🔥" acaoLabel="Ver no CRM" onAcao={() => navigate('/crm/leads')}>
+    <WidgetShell
+      titulo="Leads Quentes"
+      icone={
+        <svg className="w-4 h-4 text-[#0E382C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+        </svg>
+      }
+      acaoLabel="Ver no CRM"
+      onAcao={() => navigate('/crm/leads')}
+    >
       {carregando ? (
-        <p className="text-xs opacity-40 text-center py-4">Carregando...</p>
+        <div className="flex items-center justify-center py-6">
+          <div className="w-5 h-5 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+        </div>
       ) : leads.length === 0 ? (
-        <p className="text-xs opacity-40 text-center py-4">Nenhum lead com score ≥ 70 no momento.</p>
+        <p className="text-xs text-[#687770] text-center py-6">Nenhum lead com score ≥ 70 no momento.</p>
       ) : (
         <div className="space-y-2">
           {leads.map((l) => (
             <div
               key={l.id}
               onClick={() => navigate('/crm/leads')}
-              className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
+              className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-white hover:shadow-xs transition-all cursor-pointer"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm truncate" style={{ color: 'var(--color-text-primary)' }}>{l.nome}</p>
-                {l.empresa && <p className="text-xs opacity-50 truncate">{l.empresa}</p>}
+                <p className="text-xs font-bold text-[#111915] truncate">{l.nome}</p>
+                {l.empresa && <p className="text-[11px] text-[#687770] truncate">{l.empresa}</p>}
               </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-xs font-bold text-orange-400">⚡ {l.score}</p>
+              <div className="text-right flex-shrink-0 flex items-center gap-2">
+                <span className="text-[10px] font-bold bg-[#DCF5E4] text-[#15803D] px-2 py-0.5 rounded-full flex items-center gap-1">
+                  Score {l.score}
+                </span>
                 {l.valor_estimado ? (
-                  <p className="text-xs opacity-40">{formatarMoeda(l.valor_estimado)}</p>
+                  <span className="text-xs font-bold text-[#111915]">{formatarMoeda(l.valor_estimado)}</span>
                 ) : null}
               </div>
             </div>

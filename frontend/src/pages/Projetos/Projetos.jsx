@@ -1,40 +1,28 @@
-import { useState, useEffect } from 'react';
+// =============================================================
+// PRANCHETO.IA - MÓDULO DE PROJETOS (EMITLY DESIGN SYSTEM)
+// Gestão de projetos com cards visuais, barra de progresso e filtros por abas.
+// =============================================================
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjetos } from '../../hooks/useProjetos';
 
-// Estilo reutilizável para inputs com tema
-const inpStyle = { border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' };
-
-const STATUS_COR = {
-  planejamento: '#94a3b8',
-  em_andamento: '#3b82f6',
-  pausado:      '#f59e0b',
-  concluido:    '#10b981',
-  cancelado:    '#ef4444',
-};
-
-const STATUS_LABEL = {
-  planejamento: 'Planejamento',
-  em_andamento: 'Em andamento',
-  pausado:      'Pausado',
-  concluido:    'Concluído',
-  cancelado:    'Cancelado',
+const STATUS_BADGE = {
+  planejamento: { label: 'Planejamento', bg: 'bg-slate-100', text: 'text-slate-600' },
+  em_andamento: { label: 'Em andamento', bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
+  pausado:      { label: 'Pausado',      bg: 'bg-amber-100', text: 'text-amber-800' },
+  concluido:    { label: 'Concluído',    bg: 'bg-[#0E382C]', text: 'text-white' },
+  cancelado:    { label: 'Cancelado',    bg: 'bg-red-100',   text: 'text-red-700' },
 };
 
 const FORM_VAZIO = {
   nome: '', descricao: '', status: 'planejamento', prioridade: 'media',
-  cor: '#6366f1', icone: '📁', data_inicio: '', data_fim: '',
+  cor: '#0E382C', icone: 'folder', data_inicio: '', data_fim: '',
 };
 
 const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }) => {
   const [form, setForm] = useState(FORM_VAZIO);
 
-  // O modal nunca desmonta (só retorna null quando fechado), então o form
-  // precisa ser resincronizado aqui sempre que o projeto a editar mudar —
-  // sem isso ele reaproveitava os dados do último projeto aberto. Só os
-  // campos editáveis entram no form: projetoEditando também traz colunas
-  // de sistema e relações (projeto_membros, projeto_milestones) que não
-  // podem ir num payload de update.
   useEffect(() => {
     if (projetoEditando) {
       setForm({
@@ -42,8 +30,8 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
         descricao:   projetoEditando.descricao   || '',
         status:      projetoEditando.status      || 'planejamento',
         prioridade:  projetoEditando.prioridade  || 'media',
-        cor:         projetoEditando.cor         || '#6366f1',
-        icone:       projetoEditando.icone       || '📁',
+        cor:         projetoEditando.cor         || '#0E382C',
+        icone:       projetoEditando.icone       || 'folder',
         data_inicio: projetoEditando.data_inicio || '',
         data_fim:    projetoEditando.data_fim    || '',
       });
@@ -64,60 +52,109 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
     onFechar();
   };
 
-  const inp = 'w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500';
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onFechar}>
-      <div className="w-full max-w-lg rounded-2xl p-6 space-y-4" style={{ backgroundColor: 'var(--color-surface)' }} onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold">{projetoEditando ? 'Editar projeto' : 'Novo projeto'}</h2>
-          <button onClick={onFechar} className="opacity-50 hover:opacity-100 text-xl">✕</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4" onClick={onFechar}>
+      <div className="w-full max-w-lg bg-white rounded-2xl p-6 space-y-4 shadow-2xl border border-[#E4ECE7]" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between pb-3 border-b border-[#E4ECE7]">
+          <h2 className="text-base font-extrabold text-[#111915]">{projetoEditando ? 'Editar Projeto' : 'Novo Projeto'}</h2>
+          <button onClick={onFechar} className="text-slate-400 hover:text-slate-600">✕</button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="flex gap-2">
-            <input className="w-16 px-3 py-2 rounded-lg text-sm text-center" style={inpStyle} placeholder="📁" value={form.icone} onChange={e => setForm(f => ({ ...f, icone: e.target.value }))} />
-              <input className={`flex-1 ${inp}`} style={inpStyle} placeholder="Nome do projeto" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} required />
-            </div>
-            <textarea className={inp} style={inpStyle} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
-            <div className="grid grid-cols-2 gap-3">
-              <select className={inp} style={inpStyle} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-[#111915] mb-1">Nome do Projeto *</label>
+            <input
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              placeholder="Digite o nome do projeto"
+              value={form.nome}
+              onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#111915] mb-1">Descrição</label>
+            <textarea
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              placeholder="Descreva os objetivos do projeto"
+              rows={2}
+              value={form.descricao}
+              onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#111915] mb-1">Status</label>
+              <select
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                value={form.status}
+                onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+              >
+                {Object.entries(STATUS_BADGE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
               </select>
-              <select className={inp} style={inpStyle} value={form.prioridade} onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[#111915] mb-1">Prioridade</label>
+              <select
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                value={form.prioridade}
+                onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}
+              >
                 <option value="baixa">Baixa</option>
                 <option value="media">Média</option>
                 <option value="alta">Alta</option>
                 <option value="critica">Crítica</option>
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs opacity-50 mb-1 block">Início</label>
-                <input type="date" className={inp} style={inpStyle} value={form.data_inicio} onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))} />
-              </div>
-              <div>
-                <label className="text-xs opacity-50 mb-1 block">Fim</label>
-                <input type="date" className={inp} style={inpStyle} value={form.data_fim} onChange={e => setForm(f => ({ ...f, data_fim: e.target.value }))} />
-              </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#111915] mb-1">Data Início</label>
+              <input
+                type="date"
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
+                value={form.data_inicio}
+                onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))}
+              />
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs opacity-50">Cor:</label>
-              <input type="color" value={form.cor} onChange={e => setForm(f => ({ ...f, cor: e.target.value }))} className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
+            <div>
+              <label className="block text-xs font-semibold text-[#111915] mb-1">Data Fim</label>
+              <input
+                type="date"
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
+                value={form.data_fim}
+                onChange={e => setForm(f => ({ ...f, data_fim: e.target.value }))}
+              />
             </div>
-            <div className="flex gap-2 pt-2">
-              {projetoEditando && (
-                <button type="button" onClick={() => { onExcluir(projetoEditando.id); onFechar(); }}
-                  className="px-4 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10">
-                  Excluir
-                </button>
-              )}
-              <button type="button" onClick={onFechar}
-                className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors"
-                style={{ border: '1px solid var(--color-surface-border)' }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Cancelar</button>
-              <button type="submit" className="flex-1 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium">Salvar</button>
+          </div>
+
+          <div className="flex justify-between items-center pt-3 border-t border-[#E4ECE7]">
+            {projetoEditando && (
+              <button
+                type="button"
+                onClick={() => { onExcluir(projetoEditando.id); onFechar(); }}
+                className="text-xs font-semibold text-red-600 hover:underline"
+              >
+                Excluir Projeto
+              </button>
+            )}
+            <div className="flex gap-2 ml-auto">
+              <button
+                type="button"
+                onClick={onFechar}
+                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-[#0E382C] text-white text-xs font-semibold rounded-xl shadow-xs hover:bg-[#07261E]"
+              >
+                Salvar
+              </button>
             </div>
+          </div>
         </form>
       </div>
     </div>
@@ -127,67 +164,61 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
 const CardProjeto = ({ projeto, onClick, onEditar }) => {
   const milestones = projeto.projeto_milestones || [];
   const concluidos = milestones.filter(m => m.concluido).length;
+  const badge = STATUS_BADGE[projeto.status] || STATUS_BADGE.planejamento;
 
   return (
     <div
       onClick={onClick}
-      className="rounded-xl p-5 cursor-pointer hover:scale-[1.01] transition-transform space-y-4"
-      style={{ backgroundColor: projeto.cor + '15', borderLeft: `3px solid ${projeto.cor}` }}
+      className="bg-white rounded-2xl p-5 border border-[#E4ECE7] shadow-[0_4px_20px_-2px_rgba(14,56,44,0.04)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-4"
     >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">{projeto.icone}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center flex-shrink-0 shadow-xs">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+          </div>
           <div>
-            <p className="font-semibold">{projeto.nome}</p>
-            {projeto.descricao && <p className="text-xs opacity-50 mt-0.5 line-clamp-1">{projeto.descricao}</p>}
+            <h3 className="font-bold text-sm text-[#111915]">{projeto.nome}</h3>
+            {projeto.descricao && <p className="text-xs text-[#687770] line-clamp-1">{projeto.descricao}</p>}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="text-xs px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: STATUS_COR[projeto.status] + '22', color: STATUS_COR[projeto.status] }}
-          >
-            {STATUS_LABEL[projeto.status]}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${badge.bg} ${badge.text}`}>
+            {badge.label}
           </span>
           <button
-            onPointerDown={e => e.stopPropagation()}
             onClick={e => { e.stopPropagation(); onEditar(projeto); }}
-            className="opacity-40 hover:opacity-100 text-sm"
+            className="p-1 text-slate-400 hover:text-[#0E382C]"
           >
-            ✏️
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
           </button>
         </div>
       </div>
 
-      {/* Progresso */}
+      {/* Progress Bar */}
       <div>
-        <div className="flex items-center justify-between text-xs opacity-50 mb-1">
+        <div className="flex justify-between text-xs text-[#687770] font-semibold mb-1">
           <span>Progresso</span>
           <span>{projeto.progresso}%</span>
         </div>
-        <div className="h-1.5 rounded-full" style={{ backgroundColor: 'var(--color-surface-border)' }}>
+        <div className="w-full bg-[#F7FAF8] h-2 rounded-full overflow-hidden border border-[#E4ECE7]">
           <div
-            className="h-full rounded-full transition-all"
-            style={{ width: `${projeto.progresso}%`, backgroundColor: projeto.cor }}
+            className="bg-gradient-to-r from-emerald-500 to-[#0E382C] h-full rounded-full transition-all"
+            style={{ width: `${projeto.progresso}%` }}
           />
         </div>
       </div>
 
-      {/* Milestones */}
-      {milestones.length > 0 && (
-        <div className="flex items-center gap-2 text-xs opacity-50">
-          <span>🏁</span>
-          <span>{concluidos}/{milestones.length} milestones</span>
-        </div>
-      )}
-
-      {/* Datas */}
-      {(projeto.data_inicio || projeto.data_fim) && (
-        <div className="flex items-center gap-3 text-xs opacity-40">
-          {projeto.data_inicio && <span>📅 {new Date(projeto.data_inicio).toLocaleDateString('pt-BR')}</span>}
-          {projeto.data_fim && <span>🏁 {new Date(projeto.data_fim).toLocaleDateString('pt-BR')}</span>}
-        </div>
-      )}
+      {/* Footer Info */}
+      <div className="flex items-center justify-between pt-2 border-t border-[#E4ECE7] text-[11px] text-[#687770]">
+        <span>Milestones: {concluidos}/{milestones.length}</span>
+        {projeto.data_fim && (
+          <span>Entrega: {new Date(projeto.data_fim).toLocaleDateString('pt-BR')}</span>
+        )}
+      </div>
     </div>
   );
 };
@@ -214,53 +245,60 @@ const Projetos = () => {
   if (carregando) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-3 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Projetos</h1>
-          <p className="text-sm opacity-50">{projetos.length} projeto{projetos.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-xl font-extrabold text-[#111915]">Painel de Projetos</h1>
+          <p className="text-xs text-[#687770]">{projetos.length} projeto(s) cadastrado(s)</p>
         </div>
         <button
           onClick={() => { setProjetoEditando(null); setModalAberto(true); }}
-          className="px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium"
+          className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
         >
-          + Novo projeto
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Novo Projeto</span>
         </button>
       </div>
 
-      {/* Filtros */}
-      <div className="flex flex-wrap gap-2">
-        {[{ slug: 'todos', label: 'Todos' }, ...Object.entries(STATUS_LABEL).map(([k, v]) => ({ slug: k, label: v }))].map(f => (
+      {/* Filter Pills */}
+      <div className="flex gap-2 border-b border-[#E4ECE7] pb-3 overflow-x-auto">
+        {[{ slug: 'todos', label: 'Todos' }, ...Object.entries(STATUS_BADGE).map(([k, v]) => ({ slug: k, label: v.label }))].map(f => (
           <button
             key={f.slug}
             onClick={() => setFiltroStatus(f.slug)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                filtroStatus === f.slug ? 'bg-primary-600 text-white' : 'opacity-60'
-              }`}
-              onMouseEnter={e => { if (filtroStatus !== f.slug) e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
-              onMouseLeave={e => { if (filtroStatus !== f.slug) e.currentTarget.style.backgroundColor = ''; }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+              filtroStatus === f.slug
+                ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
+                : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
+            }`}
           >
             {f.label}
           </button>
         ))}
       </div>
 
+      {/* Projects Grid */}
       {projetosFiltrados.length === 0 ? (
-        <div className="text-center py-16 opacity-40">
-          <p className="text-4xl mb-3">📁</p>
-          <p className="text-sm">Nenhum projeto encontrado</p>
-          <button onClick={() => { setProjetoEditando(null); setModalAberto(true); }} className="mt-3 text-sm text-primary-400 hover:underline">
-            Criar primeiro projeto
+        <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
+          <p className="text-xs text-[#687770] mb-3">Nenhum projeto encontrado nesta categoria.</p>
+          <button
+            onClick={() => { setProjetoEditando(null); setModalAberto(true); }}
+            className="text-xs font-bold text-[#0E382C] hover:underline"
+          >
+            + Criar novo projeto agora
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projetosFiltrados.map(p => (
             <CardProjeto
               key={p.id}

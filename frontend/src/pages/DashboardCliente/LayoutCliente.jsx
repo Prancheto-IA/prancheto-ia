@@ -1,16 +1,7 @@
 // =============================================================
-// PRANCHETO.IA - LAYOUT DO CLIENTE (com Sidebar)
-// Wrapper com navegação lateral para todas as páginas do cliente.
-// Inclui:
-//   - Sidebar responsiva com h-screen (P3)
-//   - Itens de nav personalizáveis por usuário via useSidebarPrefs (P1/P4)
-//   - Modal de personalização da sidebar com DnD (P4)
-//   - Bloco de usuário fixo no rodapé da sidebar (P3)
-//   - Scroll interno na área de navegação (P3)
-//
-// É também o ponto onde a identidade visual da organização entra em cena:
-// carrega o tenant uma vez e o tenantStore aplica as cores no documento,
-// valendo para toda a área do cliente.
+// PRANCHETO.IA - LAYOUT DO CLIENTE (DESIGN SYSTEM EMITLY)
+// Shell principal do aplicativo com Sidebar orgânica, Header responsivo,
+// modal de personalização DnD e Bolha Chat IA.
 // =============================================================
 
 import React, { useState, useEffect } from 'react';
@@ -36,47 +27,119 @@ import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
 import { NOME_PRODUTO } from '../../lib/ambiente.js';
 import BolhaChatIA from '../../components/ChatIA/BolhaChatIA.jsx';
 
-// Páginas onde o botão Voltar NÃO aparece (raízes do dashboard)
+// Páginas sem botão de voltar
 const ROTAS_SEM_VOLTAR = [
   '/dashboard', '/crm', '/suporte', '/dashboard/organizacao',
   '/chat', '/calendario', '/tarefas', '/projetos', '/times-pessoas',
 ];
 
-// Dois tons por cargo: o escuro para o tema claro, o claro para o escuro.
-// A classe .badge-cargo (index.css) escolhe qual usar. Antes eram só os tons
-// claros, ilegíveis sobre a barra branca do tema claro.
 const BADGE_CARGO = {
-  admin:   { label: 'Admin',        rgb: '124  58 237', rgbClaro: '196 181 253' },
-  manager: { label: 'Gerente',      rgb: ' 37  99 235', rgbClaro: '147 197 253' },
-  member:  { label: 'Membro',       rgb: '  5 150 105', rgbClaro: '110 231 183' },
-  viewer:  { label: 'Visualizador', rgb: ' 71  85 105', rgbClaro: '203 213 225' },
+  admin:   { label: 'Admin',        bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
+  manager: { label: 'Gerente',      bg: 'bg-blue-100',   text: 'text-blue-800' },
+  member:  { label: 'Membro',       bg: 'bg-[#EBF0ED]', text: 'text-[#0E382C]' },
+  viewer:  { label: 'Visualizador', bg: 'bg-slate-100',  text: 'text-slate-600' },
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Marca (logo da organização + nome do produto)
-// Cai no ícone padrão quando a organização não tem logo, e também
-// quando a URL salva não carrega — logo quebrado é pior que nenhum.
+// COMPONENTE: Logo da Marca
 // ----------------------------------------------------------
-const Marca = ({ className = 'text-2xl' }) => {
+const MarcaLogo = () => {
   const logoUrl = useTenantStore((s) => s.tenant?.logo_url);
   const [falhou, setFalhou] = useState(false);
 
   useEffect(() => { setFalhou(false); }, [logoUrl]);
 
-  if (!logoUrl || falhou) return <span className={className}>🧠</span>;
+  if (logoUrl && !falhou) {
+    return (
+      <img
+        src={logoUrl}
+        alt="Logo"
+        className="h-8 w-8 rounded-lg object-contain flex-shrink-0"
+        onError={() => setFalhou(true)}
+      />
+    );
+  }
 
   return (
-    <img
-      src={logoUrl}
-      alt=""
-      className="h-7 w-7 rounded object-contain flex-shrink-0"
-      onError={() => setFalhou(true)}
-    />
+    <div className="w-8 h-8 rounded-xl bg-[#0E382C] flex items-center justify-center text-[#D4EC9D] shadow-sm flex-shrink-0">
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
+        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+        <polyline points="2 17 12 22 22 17" />
+        <polyline points="2 12 12 17 22 12" />
+      </svg>
+    </div>
   );
 };
 
+// Mapeamento de SVGs para a Sidebar
+const ICONES_SVG = {
+  dashboard: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+  ),
+  crm: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+  ),
+  projetos: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+    </svg>
+  ),
+  tarefas: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+    </svg>
+  ),
+  calendario: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  ),
+  chat: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+  ),
+  suporte: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+  ),
+  organizacao: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0a2 2 0 01-2-2V5a2 2 0 012-2h4a2 2 0 012 2v14a2 2 0 01-2 2" />
+    </svg>
+  ),
+  configuracoes: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  ),
+  outbound: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    </svg>
+  ),
+  relatorios: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+  ),
+  times_pessoas: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+  ),
+};
+
+const getIconeItem = (slug) => ICONES_SVG[slug] || ICONES_SVG.dashboard;
+
 // ----------------------------------------------------------
-// COMPONENTE: Item da Sidebar
+// COMPONENTE: ItemNav Emitly
 // ----------------------------------------------------------
 const ItemNav = ({ item, onClick }) => {
   const location = useLocation();
@@ -89,18 +152,23 @@ const ItemNav = ({ item, onClick }) => {
       to={item.rota}
       end={item.exact}
       onClick={onClick}
-      className={({ isActive }) =>
-        `nav-lateral ${isActive || ativoViaPrefixo ? 'nav-lateral-ativo' : ''}`
-      }
+      className={({ isActive }) => {
+        const ativo = isActive || ativoViaPrefixo;
+        return `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+          ativo
+            ? 'bg-[#D4EC9D] text-[#132E22] font-semibold shadow-xs'
+            : 'text-[#687770] hover:bg-[#EDF2EE] hover:text-[#111915]'
+        }`;
+      }}
     >
-      <span className="text-base flex-shrink-0">{item.emoji}</span>
+      <span className="flex-shrink-0">{getIconeItem(item.slug)}</span>
       <span className="truncate">{item.label}</span>
     </NavLink>
   );
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Item arrastável no modal de personalização
+// COMPONENTE: ItemSortableModal (Personalizar Sidebar)
 // ----------------------------------------------------------
 const ItemSortableModal = ({ item, onToggle }) => {
   const {
@@ -118,46 +186,46 @@ const ItemSortableModal = ({ item, onToggle }) => {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    // O modal fica sobre a superfície do tema, não sobre a barra: aqui as
-    // cores seguem o tema, e não a identidade da organização.
-    backgroundColor: item.visivel ? 'var(--color-hover-surface)' : 'transparent',
-    borderColor: item.visivel ? 'transparent' : 'var(--color-surface-border)',
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all ${
-        item.visivel ? '' : 'border-dashed opacity-60'
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${
+        item.visivel
+          ? 'bg-white border-[#E4ECE7] text-[#111915]'
+          : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
       }`}
     >
-      {/* Handle de drag */}
       <button
         {...attributes}
         {...listeners}
-        className="acao-sutil cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
+        className="text-slate-400 hover:text-slate-600 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none p-1"
         title="Arrastar para reordenar"
       >
-        ⠿
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8h16M4 16h16" />
+        </svg>
       </button>
 
-      <span className="text-base flex-shrink-0">{item.emoji}</span>
-      <span className="flex-1 text-sm truncate">{item.label}</span>
+      <span className="flex-shrink-0 text-slate-600">{getIconeItem(item.slug)}</span>
+      <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
 
       {fixo ? (
-        <span className="text-xs opacity-40 flex-shrink-0" title="Item fixo — não pode ser ocultado">🔒</span>
+        <span className="text-xs text-slate-400 flex-shrink-0" title="Item fixo">
+          🔒
+        </span>
       ) : (
         <button
           onClick={() => onToggle(item.slug)}
-          className={`flex-shrink-0 text-xs px-2 py-1 rounded-md transition-colors ${
+          className={`text-xs px-2.5 py-1 rounded-lg font-semibold transition-colors ${
             item.visivel
-              ? 'acao-sutil hover:text-red-500 hover:bg-red-500/10'
-              : 'text-emerald-500 hover:bg-emerald-500/10'
+              ? 'text-red-600 hover:bg-red-50'
+              : 'text-[#15803D] hover:bg-[#DCF5E4]'
           }`}
-          title={item.visivel ? 'Ocultar da sidebar' : 'Mostrar na sidebar'}
         >
-          {item.visivel ? '🗑️ Ocultar' : '+ Mostrar'}
+          {item.visivel ? 'Ocultar' : '+ Mostrar'}
         </button>
       )}
     </div>
@@ -165,7 +233,7 @@ const ItemSortableModal = ({ item, onToggle }) => {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Modal de personalização da sidebar
+// COMPONENTE: Modal Personalizar Sidebar
 // ----------------------------------------------------------
 const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
   const {
@@ -200,125 +268,69 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
     setOrdemLocal(null);
   };
 
-  const handleToggle = async (slug) => {
-    await toggleVisivel(slug);
-  };
-
-  const handleResetar = async () => {
-    await resetar();
-    setOrdemLocal(null);
-  };
-
   return (
     <>
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 bg-black/60 z-50"
-        onClick={onFechar}
-      />
-
-      {/* Modal */}
-      <div
-        className="fixed inset-y-0 right-0 w-80 z-50 flex flex-col shadow-2xl"
-        style={{
-          backgroundColor: 'var(--color-surface-card)',
-          borderLeft: '1px solid var(--color-surface-border)',
-        }}
-      >
-        {/* Cabeçalho */}
-        <div
-          className="flex items-center justify-between px-4 py-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid var(--color-surface-border)' }}
-        >
+      <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50" onClick={onFechar} />
+      <div className="fixed inset-y-0 right-0 w-80 bg-white z-50 flex flex-col shadow-2xl border-l border-[#E4ECE7]">
+        {/* Header Modal */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E4ECE7]">
           <div>
-            <h2 className="text-sm font-semibold">Personalizar barra lateral</h2>
-            <p className="text-xs opacity-50 mt-0.5">Arraste para reordenar • clique para ocultar</p>
+            <h2 className="text-base font-bold text-[#111915]">Personalizar Navegação</h2>
+            <p className="text-xs text-[#687770]">Arraste para organizar o seu menu</p>
           </div>
-          <button onClick={onFechar} className="acao-sutil text-lg">
+          <button onClick={onFechar} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
             ✕
           </button>
         </div>
 
-        {/* Chat IA: bolha flutuante ou item fixo — fica fora da lista
-            arrastável porque não é um item de navegação comum. */}
-        <div className="px-3 pt-3 flex-shrink-0">
-          <p className="text-xs font-semibold uppercase tracking-wider opacity-40 mb-2">
-            🤖 Chat com IA
+        {/* Chat IA Config */}
+        <div className="p-4 border-b border-[#E4ECE7]">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#687770] mb-2">
+            Assistente Chat IA
           </p>
-          <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
+          <div className="flex rounded-xl bg-[#F7FAF8] p-1 border border-[#E4ECE7]">
             <button
               onClick={() => definirChatIaModo('flutuante')}
-              className={`flex-1 text-xs py-2 transition-colors ${
-                chatIaModo === 'flutuante' ? 'bg-primary-600 text-white' : 'acao-sutil'
+              className={`flex-1 text-xs py-1.5 rounded-lg font-semibold transition-all ${
+                chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770]'
               }`}
             >
-              💬 Bolha flutuante
+              💬 Flutuante
             </button>
             <button
               onClick={() => definirChatIaModo('fixo')}
-              className={`flex-1 text-xs py-2 transition-colors ${
-                chatIaModo === 'fixo' ? 'bg-primary-600 text-white' : 'acao-sutil'
+              className={`flex-1 text-xs py-1.5 rounded-lg font-semibold transition-all ${
+                chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770]'
               }`}
             >
-              📌 Item fixo
+              📌 Na Sidebar
             </button>
           </div>
-          <p className="text-xs opacity-50 mt-1.5">
-            {chatIaModo === 'flutuante'
-              ? 'Aparece como bolinha arrastável em qualquer tela.'
-              : 'Aparece como item normal na barra lateral, como antes.'}
-          </p>
         </div>
 
-        {/* Lista de itens */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider opacity-40 px-3 mb-2">
-            Visíveis ({slugsVisiveis.length})
+        {/* Items List */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#687770] mb-1">
+            Itens Visíveis ({slugsVisiveis.length})
           </p>
-
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={itensExibidos.map(i => i.slug)}
-              strategy={verticalListSortingStrategy}
-            >
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={itensExibidos.map(i => i.slug)} strategy={verticalListSortingStrategy}>
               {itensExibidos.map(item => (
-                <ItemSortableModal
-                  key={item.slug}
-                  item={item}
-                  onToggle={handleToggle}
-                />
+                <ItemSortableModal key={item.slug} item={item} onToggle={toggleVisivel} />
               ))}
             </SortableContext>
           </DndContext>
         </div>
 
-        {/* Rodapé */}
-        <div
-          className="p-3 flex-shrink-0 space-y-2"
-          style={{ borderTop: '1px solid var(--color-surface-border)' }}
-        >
+        {/* Modal Footer */}
+        <div className="p-4 border-t border-[#E4ECE7] space-y-2 bg-[#F7FAF8]">
           {salvando && (
-            <p className="text-xs opacity-40 text-center flex items-center justify-center gap-1">
-              <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin inline-block" />
-              Salvando…
-            </p>
+            <p className="text-xs text-center text-emerald-700 font-medium animate-pulse">Salvando alterações...</p>
           )}
-          <button
-            onClick={handleResetar}
-            className="acao-sutil acao-sutil-bloco w-full text-xs py-1.5 rounded-lg"
-          >
-            ↺ Restaurar padrão
+          <button onClick={resetar} className="w-full text-xs py-2 text-[#687770] hover:text-[#111915] font-semibold text-center">
+            Restaurar Padrão
           </button>
-          {/* Usava a variável --color-primary, que nunca existiu: o botão
-              ficava sem fundo. A classe é a mesma dos demais botões primários. */}
-          <button
-            onClick={onFechar}
-            className="w-full text-sm font-medium py-2 rounded-lg bg-primary-600 hover:bg-primary-500 text-white transition-colors"
-          >
+          <button onClick={onFechar} className="w-full py-2.5 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-sm rounded-xl transition-all shadow-xs">
             Concluído
           </button>
         </div>
@@ -328,9 +340,7 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Sidebar
-// P3: h-screen, flex-col, nav com overflow-y-auto flex-1,
-//     bloco de usuário fixo no rodapé (flex-shrink-0)
+// COMPONENTE: Sidebar Principal Emitly
 // ----------------------------------------------------------
 const Sidebar = ({ aberta, onFechar, prefs }) => {
   const { usuario } = useAuthStore();
@@ -338,115 +348,77 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
   const [modalAberto, setModalAberto] = useState(false);
 
   const { itensVisiveis, colapsada } = prefs;
-
   const badgeCargo  = BADGE_CARGO[usuario?.cargo] || BADGE_CARGO.member;
   const primeiroNome = usuario?.nome?.split(' ')[0] || 'Usuário';
 
   return (
     <>
-      {/* Overlay mobile */}
       {aberta && (
-        <div
-          className="fixed inset-0 bg-black/60 z-30 lg:hidden"
-          onClick={onFechar}
-        />
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 lg:hidden" onClick={onFechar} />
       )}
 
-      {/* Sidebar — P3: h-screen garante altura total no desktop.
-          "Colapsada" é um conceito só de desktop: esconde a barra inteira
-          (largura 0), ganhando espaço de tela. No mobile o drawer overlay
-          já resolve isso do jeito dele (aberta/onFechar), então ignora
-          colapsada e sempre abre em largura cheia. */}
       <aside
         className={`
-          fixed top-0 left-0 h-screen w-64 flex flex-col z-40 transition-all duration-300 overflow-hidden
+          fixed top-0 left-0 h-screen w-64 flex flex-col z-40 transition-all duration-300 overflow-hidden bg-white border-r border-[#E4ECE7]
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 lg:static lg:z-auto lg:h-screen
           ${colapsada ? 'lg:w-0 lg:!border-0' : 'lg:w-64'}
         `}
-        style={{
-          // --brand-superficie só existe quando a organização aplica a
-          // própria identidade visual; sem ela, a superfície do tema vale.
-          backgroundColor: 'var(--brand-superficie, var(--color-surface-card))',
-          borderRight: '1px solid var(--color-surface-border)',
-        }}
       >
-        {/* Conteúdo com largura fixa — evita que o texto quebre feio
-            enquanto a transição de largura do <aside> está em andamento. */}
         <div className="w-64 h-full flex flex-col flex-shrink-0">
-          {/* Logo */}
-          <div
-            className="h-16 flex items-center gap-3 px-4 flex-shrink-0"
-            style={{ borderBottom: '1px solid var(--color-surface-border)' }}
-          >
-            <Marca />
-            {/* Era text-white fixo, invisível no tema claro. Com identidade
-                aplicada, segue a cor de acento sobre a cor secundária. */}
-            <span
-              className="font-bold text-lg truncate"
-              style={{ color: 'var(--sidebar-texto)' }}
-            >
-              {NOME_PRODUTO}
+          {/* Logo Header */}
+          <div className="h-16 flex items-center gap-3 px-5 border-b border-[#E4ECE7] flex-shrink-0">
+            <MarcaLogo />
+            <span className="font-extrabold text-lg tracking-tight text-[#0E382C]">
+              Prancheto<span className="text-emerald-600">.IA</span>
             </span>
-            {/* Botão fechar mobile */}
-            <button onClick={onFechar} className="acao-lateral ml-auto lg:hidden">
+            <button onClick={onFechar} className="ml-auto text-slate-400 hover:text-slate-600 lg:hidden">
               ✕
             </button>
           </div>
 
-          {/* Navegação — P3: flex-1 + overflow-y-auto = scroll interno */}
-          <nav className="flex-1 overflow-y-auto p-3 space-y-1 min-h-0">
+          {/* Nav Items */}
+          <nav className="flex-1 overflow-y-auto p-3 space-y-1">
             {itensVisiveis.map((item) => (
               <ItemNav key={item.slug} item={item} onClick={onFechar} />
             ))}
           </nav>
 
-          {/* Perfil do usuário — P3: flex-shrink-0 = sempre visível no rodapé */}
-          <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid var(--color-surface-border)' }}>
-            <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
-              {/* Avatar */}
-              <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+          {/* User Profile Footer */}
+          <div className="p-3 border-t border-[#E4ECE7] flex-shrink-0 bg-[#F7FAF8]">
+            <div className="flex items-center gap-3 px-2 py-2 rounded-xl">
+              <div className="w-9 h-9 rounded-xl bg-[#0E382C] text-[#D4EC9D] font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
                 {primeiroNome[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p
-                  className="text-sm font-medium truncate"
-                  style={{ color: 'var(--sidebar-texto)' }}
-                >
-                  {primeiroNome}
-                </p>
-                <span
-                  className="badge-cargo"
-                  style={{
-                    '--badge-cargo-rgb':       badgeCargo.rgb,
-                    '--badge-cargo-rgb-claro': badgeCargo.rgbClaro,
-                  }}
-                >
+                <p className="text-xs font-bold text-[#111915] truncate">{primeiroNome}</p>
+                <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold ${badgeCargo.bg} ${badgeCargo.text}`}>
                   {badgeCargo.label}
                 </span>
               </div>
-              {/* Botão personalizar sidebar — P4 */}
               <button
                 onClick={() => setModalAberto(true)}
-                title="Personalizar barra lateral"
-                className="acao-lateral flex-shrink-0 text-base"
+                title="Personalizar sidebar"
+                className="p-1.5 text-[#687770] hover:text-[#0E382C] hover:bg-[#EDF2EE] rounded-lg transition-colors flex-shrink-0"
               >
-                ✏️
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
               </button>
-              {/* Botão sair */}
               <button
                 onClick={logout}
                 title="Sair"
-                className="acao-lateral flex-shrink-0 text-lg hover:text-red-500"
+                className="p-1.5 text-[#687770] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
               >
-                🚪
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
               </button>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Modal de personalização */}
       <ModalPersonalizarSidebar
         aberto={modalAberto}
         onFechar={() => setModalAberto(false)}
@@ -457,82 +429,18 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Header mobile
-// ----------------------------------------------------------
-const HeaderMobile = ({ onAbrirSidebar, mostrarVoltar, onVoltar }) => (
-  <header
-    className="h-14 flex items-center px-4 gap-3 lg:hidden sticky top-0 z-20"
-    style={{
-      backgroundColor: 'var(--color-surface-card)',
-      borderBottom: '1px solid var(--color-surface-border)',
-    }}
-  >
-    {mostrarVoltar ? (
-      <button onClick={onVoltar} className="acao-sutil text-xl flex items-center gap-1" title="Voltar">
-        ←
-      </button>
-    ) : (
-      <button onClick={onAbrirSidebar} className="acao-sutil text-xl" title="Abrir menu">
-        ☰
-      </button>
-    )}
-    <Marca />
-    <span className="font-bold truncate" style={{ color: 'var(--color-text-primary)' }}>
-      {NOME_PRODUTO}
-    </span>
-    {mostrarVoltar && (
-      <button onClick={onAbrirSidebar} className="acao-sutil ml-auto" title="Abrir menu">
-        ☰
-      </button>
-    )}
-  </header>
-);
-
-// ----------------------------------------------------------
-// COMPONENTE: Barra de topo desktop (com botão Voltar)
-// ----------------------------------------------------------
-const BarraTopo = ({ mostrarVoltar, onVoltar }) => {
-  if (!mostrarVoltar) return null;
-  return (
-    <div
-      className="hidden lg:flex items-center gap-2 px-6 py-3"
-      style={{
-        borderBottom: '1px solid var(--color-surface-border)',
-        backgroundColor: 'color-mix(in srgb, var(--color-surface-card) 30%, transparent)',
-      }}
-    >
-      <button onClick={onVoltar} className="acao-sutil flex items-center gap-2 text-sm group">
-        <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
-        <span>Voltar</span>
-      </button>
-    </div>
-  );
-};
-
-// ----------------------------------------------------------
-// COMPONENTE PRINCIPAL: Layout do Cliente
-// P3: wrapper usa items-stretch para que a sidebar ocupe 100vh
+// COMPONENTE PRINCIPAL: LayoutCliente
 // ----------------------------------------------------------
 const LayoutCliente = ({ children }) => {
   const [sidebarAberta, setSidebarAberta] = useState(false);
   const navigate  = useNavigate();
   const location  = useLocation();
+  const prefs     = useSidebarPrefs();
 
-  // Uma só instância de useSidebarPrefs para todo o layout: Sidebar,
-  // o botão de recolher e a bolinha do Chat IA precisam do mesmo estado
-  // (colapsada / chatIaModo), então sobe pra cá em vez de cada um buscar
-  // separado no banco.
-  const prefs = useSidebarPrefs();
-
-  // Carrega a organização uma única vez por sessão. O tenantStore aplica a
-  // identidade visual no documento, então isto vale para a área inteira.
   const tenantId        = useAuthStore((s) => s.usuario?.tenant_id);
   const carregarTenant  = useTenantStore((s) => s.carregar);
   useEffect(() => { carregarTenant(tenantId); }, [tenantId, carregarTenant]);
 
-  // Revalida as permissões do cargo. A lista vem do login e fica em cache no
-  // localStorage: sem isto, alteração de cargo feita pelo administrador só
-  // valeria para quem fizesse logout e login de novo.
   const cargoId          = useAuthStore((s) => s.usuario?.cargo_id);
   const atualizarUsuario = useAuthStore((s) => s.atualizarUsuario);
   useEffect(() => {
@@ -543,14 +451,9 @@ const LayoutCliente = ({ children }) => {
   }, [cargoId, atualizarUsuario]);
 
   const mostrarVoltar = !ROTAS_SEM_VOLTAR.includes(location.pathname);
-  const voltar = () => navigate(-1);
 
   return (
-    // P3: items-stretch garante que a sidebar (static no desktop) ocupe toda a altura.
-    // h-screen + overflow-hidden (em vez de min-h-screen) dá altura DEFINIDA à árvore
-    // flex: sem isso, "main" (flex-1 overflow-auto) nunca tem um teto pra recortar o
-    // scroll e a rolagem acontece no documento inteiro, arrastando a sidebar junto.
-    <div className="h-screen bg-surface flex items-stretch overflow-hidden">
+    <div className="h-screen bg-[#F2F5F3] flex items-stretch overflow-hidden font-sans">
       {/* Sidebar */}
       <Sidebar
         aberta={sidebarAberta}
@@ -558,43 +461,76 @@ const LayoutCliente = ({ children }) => {
         prefs={prefs}
       />
 
-      {/* Botão recolher/expandir a barra lateral — fixo, fora do <aside>
-          de propósito: quando colapsada a sidebar fica com largura 0, e um
-          botão preso a ela sumiria junto. Só desktop; no mobile o menu
-          hamburguer do HeaderMobile já cobre esse papel. */}
+      {/* Toggle Sidebar Desktop Button */}
       <button
         onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
-        title={prefs.colapsada ? 'Expandir barra lateral' : 'Recolher barra lateral'}
-        className="hidden lg:flex fixed top-5 z-50 items-center justify-center w-7 h-7 rounded-full border shadow-md text-xs acao-sutil transition-[left] duration-300"
+        title={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
+        className="hidden lg:flex fixed top-4 z-50 items-center justify-center w-7 h-7 rounded-full bg-white border border-[#E4ECE7] shadow-sm text-slate-500 hover:text-[#0E382C] transition-all"
         style={{
           left: prefs.colapsada ? '0.75rem' : 'calc(16rem - 0.875rem)',
-          backgroundColor: 'var(--color-surface-card)',
-          borderColor: 'var(--color-surface-border)',
         }}
       >
-        ☰
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+        </svg>
       </button>
 
-      {/* Área de conteúdo */}
+      {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header mobile */}
-        <HeaderMobile
-          onAbrirSidebar={() => setSidebarAberta(true)}
-          mostrarVoltar={mostrarVoltar}
-          onVoltar={voltar}
-        />
+        {/* Top Header */}
+        <header className="h-16 bg-white border-b border-[#E4ECE7] px-6 flex items-center justify-between gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarAberta(true)}
+              className="lg:hidden p-2 text-slate-600 hover:text-[#0E382C] rounded-lg"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            {mostrarVoltar && (
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-1.5 text-xs font-semibold text-[#687770] hover:text-[#0E382C] bg-[#F7FAF8] border border-[#E4ECE7] px-3 py-1.5 rounded-xl transition-all"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Voltar</span>
+              </button>
+            )}
+          </div>
 
-        {/* Barra de topo desktop com botão Voltar */}
-        <BarraTopo mostrarVoltar={mostrarVoltar} onVoltar={voltar} />
+          {/* Search Pill */}
+          <div className="flex-1 max-w-md hidden sm:block relative">
+            <svg className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Pesquisar projetos, clientes ou tarefas..."
+              className="w-full pl-9 pr-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-full text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C] transition-all"
+            />
+          </div>
 
-        {/* Conteúdo da página */}
-        <main className="flex-1 overflow-auto">
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            <button className="w-9 h-9 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] hover:text-[#0E382C] flex items-center justify-center transition-colors relative">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-2 right-2"></span>
+            </button>
+          </div>
+        </header>
+
+        {/* Page Content Stream */}
+        <main className="flex-1 overflow-auto px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0">
           {children}
         </main>
       </div>
 
-      {/* Bolinha do Chat IA — some daqui quando o usuário prefere o item
-          fixo na sidebar (modo antigo), já coberto por itensVisiveis. */}
+      {/* Floating Chat IA */}
       {prefs.chatIaModo === 'flutuante' && !prefs.carregando && <BolhaChatIA />}
     </div>
   );

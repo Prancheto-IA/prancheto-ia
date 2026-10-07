@@ -1,4 +1,9 @@
-import { useState, useEffect } from 'react';
+// =============================================================
+// PRANCHETO.IA - MÓDULO DE TAREFAS (EMITLY DESIGN SYSTEM)
+// Gestão de tarefas Kanban/Lista com cartões orgânicos e sem emojis.
+// =============================================================
+
+import React, { useState, useEffect } from 'react';
 import { useTarefas, STATUS_TAREFAS, PRIORIDADES } from '../../hooks/useTarefas';
 import { useAuthStore } from '../../store/authStore';
 
@@ -11,11 +16,6 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando, us
   const [form, setForm] = useState(FORM_VAZIO);
   const [atribuidosIds, setAtribuidosIds] = useState([]);
 
-  // O modal nunca desmonta (só retorna null quando fechado), então o form
-  // precisa ser resincronizado aqui sempre que a tarefa a editar mudar —
-  // um useState(() => ...) só roda uma vez, na primeira montagem, e depois
-  // disso toda edição reabria com os campos da primeira tarefa aberta (ou
-  // vazios, se a primeira abertura foi "Nova tarefa").
   useEffect(() => {
     if (tarefaEditando) {
       setForm({
@@ -51,46 +51,86 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando, us
     onFechar();
   };
 
-  const inp = 'w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500';
-  const inpStyle = { border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onFechar}>
-      <div className="w-full max-w-lg rounded-2xl p-6 space-y-4" style={{ backgroundColor: 'var(--color-surface)' }} onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold">{tarefaEditando ? 'Editar tarefa' : 'Nova tarefa'}</h2>
-          <button onClick={onFechar} className="opacity-50 hover:opacity-100 text-xl">✕</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4" onClick={onFechar}>
+      <div className="w-full max-w-lg bg-white rounded-2xl p-6 space-y-4 shadow-2xl border border-[#E4ECE7]" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between pb-3 border-b border-[#E4ECE7]">
+          <h2 className="text-base font-extrabold text-[#111915]">{tarefaEditando ? 'Editar Tarefa' : 'Nova Tarefa'}</h2>
+          <button onClick={onFechar} className="text-slate-400 hover:text-slate-600">✕</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input className={inp} style={inpStyle} placeholder="Título da tarefa" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} required />
-          <textarea className={inp} style={inpStyle} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+          <div>
+            <label className="block text-xs font-semibold text-[#111915] mb-1">Título *</label>
+            <input
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              placeholder="Ex: Desenvolver componente da sidebar"
+              value={form.titulo}
+              onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#111915] mb-1">Descrição</label>
+            <textarea
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              placeholder="Detalhes adicionais da tarefa"
+              rows={2}
+              value={form.descricao}
+              onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))}
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs opacity-50 mb-1 block">Status</label>
-              <select className={inp} style={inpStyle} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+              <label className="block text-xs font-semibold text-[#111915] mb-1">Status</label>
+              <select
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                value={form.status}
+                onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+              >
                 {STATUS_TAREFAS.map(s => <option key={s.slug} value={s.slug}>{s.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs opacity-50 mb-1 block">Prioridade</label>
-              <select className={inp} style={inpStyle} value={form.prioridade} onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}>
-                {PRIORIDADES.map(p => <option key={p.slug} value={p.slug}>{p.icone} {p.label}</option>)}
+              <label className="block text-xs font-semibold text-[#111915] mb-1">Prioridade</label>
+              <select
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                value={form.prioridade}
+                onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}
+              >
+                {PRIORIDADES.map(p => <option key={p.slug} value={p.slug}>{p.label}</option>)}
               </select>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs opacity-50 mb-1 block">Vencimento</label>
-              <input type="date" className={inp} style={inpStyle} value={form.data_vencimento} onChange={e => setForm(f => ({ ...f, data_vencimento: e.target.value }))} />
+              <label className="block text-xs font-semibold text-[#111915] mb-1">Vencimento</label>
+              <input
+                type="date"
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
+                value={form.data_vencimento}
+                onChange={e => setForm(f => ({ ...f, data_vencimento: e.target.value }))}
+              />
             </div>
             <div>
-              <label className="text-xs opacity-50 mb-1 block">Estimativa (h)</label>
-              <input type="number" step="0.5" min="0" className={inp} style={inpStyle} placeholder="Ex: 2.5" value={form.estimativa_h} onChange={e => setForm(f => ({ ...f, estimativa_h: e.target.value }))} />
+              <label className="block text-xs font-semibold text-[#111915] mb-1">Estimativa (horas)</label>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
+                placeholder="Ex: 2.5"
+                value={form.estimativa_h}
+                onChange={e => setForm(f => ({ ...f, estimativa_h: e.target.value }))}
+              />
             </div>
           </div>
+
           {usuariosTenant.length > 0 && (
             <div>
-              <label className="text-xs opacity-50 mb-1 block">Responsáveis</label>
+              <label className="block text-xs font-semibold text-[#111915] mb-1.5">Atribuir a</label>
               <div className="flex flex-wrap gap-1.5">
                 {usuariosTenant.map(u => {
                   const ativo = atribuidosIds.includes(u.id);
@@ -99,8 +139,11 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando, us
                       key={u.id}
                       type="button"
                       onClick={() => toggleAtribuido(u.id)}
-                      className={`px-2.5 py-1 rounded-full text-xs transition-colors ${ativo ? 'bg-primary-600 text-white' : 'opacity-60'}`}
-                      style={ativo ? undefined : inpStyle}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                        ativo
+                          ? 'bg-[#0E382C] text-white shadow-xs'
+                          : 'bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770]'
+                      }`}
                     >
                       {u.nome}
                     </button>
@@ -109,19 +152,32 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando, us
               </div>
             </div>
           )}
-          <div className="flex gap-2 pt-2">
+
+          <div className="flex justify-between items-center pt-3 border-t border-[#E4ECE7]">
             {tarefaEditando && (
-              <button type="button" onClick={() => { onExcluir(tarefaEditando.id); onFechar(); }}
-                className="px-4 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10">
-                Excluir
+              <button
+                type="button"
+                onClick={() => { onExcluir(tarefaEditando.id); onFechar(); }}
+                className="text-xs font-semibold text-red-600 hover:underline"
+              >
+                Excluir Tarefa
               </button>
             )}
-            <button type="button" onClick={onFechar}
-              className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors"
-              style={{ border: '1px solid var(--color-surface-border)' }}
-              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
-              onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Cancelar</button>
-            <button type="submit" className="flex-1 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium">Salvar</button>
+            <div className="flex gap-2 ml-auto">
+              <button
+                type="button"
+                onClick={onFechar}
+                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-[#0E382C] text-white text-xs font-semibold rounded-xl shadow-xs hover:bg-[#07261E]"
+              >
+                Salvar
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -130,7 +186,6 @@ const ModalTarefa = ({ aberto, onFechar, onSalvar, onExcluir, tarefaEditando, us
 };
 
 const CardTarefa = ({ tarefa, onAbrir }) => {
-  const prioridade = PRIORIDADES.find(p => p.slug === tarefa.prioridade) || PRIORIDADES[1];
   const checklist = tarefa.tarefa_checklist || [];
   const checkConcluidos = checklist.filter(c => c.concluido).length;
   const vencida = tarefa.data_vencimento && new Date(tarefa.data_vencimento) < new Date() && tarefa.status !== 'concluida';
@@ -139,40 +194,33 @@ const CardTarefa = ({ tarefa, onAbrir }) => {
   return (
     <div
       onClick={() => onAbrir(tarefa)}
-      className="p-3 rounded-xl cursor-pointer transition-colors space-y-2 border"
-      style={{ borderColor: 'var(--color-surface-border)' }}
-      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
-      onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+      className="bg-white rounded-xl p-3.5 border border-[#E4ECE7] shadow-xs hover:shadow-md transition-all cursor-pointer space-y-2.5"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium leading-tight">{tarefa.titulo}</p>
-        <span className="text-xs flex-shrink-0" style={{ color: prioridade.cor }} title={prioridade.label}>
-          {prioridade.icone}
-        </span>
+        <p className="text-xs font-bold text-[#111915] leading-snug">{tarefa.titulo}</p>
       </div>
       {tarefa.descricao && (
-        <p className="text-xs opacity-40 line-clamp-2">{tarefa.descricao}</p>
+        <p className="text-[11px] text-[#687770] line-clamp-2">{tarefa.descricao}</p>
       )}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-[#E4ECE7]/60">
         {checklist.length > 0 && (
-          <span className="text-xs opacity-40">☑ {checkConcluidos}/{checklist.length}</span>
+          <span className="text-[10px] text-[#687770]">Check: {checkConcluidos}/{checklist.length}</span>
         )}
         {tarefa.data_vencimento && (
-          <span className={`text-xs ${vencida ? 'text-red-400' : 'opacity-40'}`}>
-            📅 {new Date(tarefa.data_vencimento).toLocaleDateString('pt-BR')}
+          <span className={`text-[10px] font-bold ${vencida ? 'text-red-600 bg-red-50 px-1.5 py-0.5 rounded-md' : 'text-[#687770]'}`}>
+            {new Date(tarefa.data_vencimento).toLocaleDateString('pt-BR')}
           </span>
         )}
         {tarefa.estimativa_h && (
-          <span className="text-xs opacity-40">⏱ {tarefa.estimativa_h}h</span>
+          <span className="text-[10px] text-[#687770]">{tarefa.estimativa_h}h</span>
         )}
         {atribuicoes.length > 0 && (
-          <div className="flex items-center -space-x-1.5 ml-auto">
+          <div className="flex items-center -space-x-1 ml-auto">
             {atribuicoes.slice(0, 3).map(a => (
               <span
                 key={a.user_id}
                 title={a.users?.nome}
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium border-2"
-                style={{ backgroundColor: 'var(--color-surface-border)', borderColor: 'var(--color-surface)' }}
+                className="w-5 h-5 rounded-full bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center text-[9px] font-bold border border-white"
               >
                 {(a.users?.nome || '?').charAt(0).toUpperCase()}
               </span>
@@ -185,22 +233,23 @@ const CardTarefa = ({ tarefa, onAbrir }) => {
 };
 
 const ColunaKanban = ({ status, tarefas, onAbrir, onNovaTarefa }) => (
-  <div className="flex flex-col gap-3 min-w-[240px] w-full">
+  <div className="flex flex-col gap-3 min-w-[260px] w-full bg-[#F7FAF8] p-3 rounded-2xl border border-[#E4ECE7]">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: status.cor }} />
-        <span className="text-sm font-medium">{status.label}</span>
-        <span className="text-xs opacity-40 px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-surface-border)' }}>{tarefas.length}</span>
+        <span className="w-2.5 h-2.5 rounded-full bg-[#0E382C]" />
+        <span className="text-xs font-extrabold text-[#111915]">{status.label}</span>
+        <span className="text-[10px] font-bold bg-[#EBF0ED] text-[#0E382C] px-2 py-0.5 rounded-full">
+          {tarefas.length}
+        </span>
       </div>
       <button
         onClick={() => onNovaTarefa(status.slug)}
-        className="text-xs opacity-40 hover:opacity-100 transition-opacity"
-        title="Nova tarefa"
+        className="text-xs font-bold text-[#0E382C] hover:bg-[#EBF0ED] px-2 py-1 rounded-lg"
       >
         +
       </button>
     </div>
-    <div className="space-y-2 min-h-[100px]">
+    <div className="space-y-2 min-h-[140px]">
       {tarefas.map(t => (
         <CardTarefa key={t.id} tarefa={t} onAbrir={onAbrir} />
       ))}
@@ -219,7 +268,7 @@ const Tarefas = () => {
   const [modalAberto, setModalAberto] = useState(false);
   const [tarefaEditando, setTarefaEditando] = useState(null);
   const [statusInicial, setStatusInicial] = useState('pendente');
-  const [visao, setVisao] = useState('kanban'); // 'kanban' | 'lista'
+  const [visao, setVisao] = useState('kanban');
   const [busca, setBusca] = useState('');
 
   const handleSalvar = async (dados, atribuidosIds = []) => {
@@ -259,65 +308,68 @@ const Tarefas = () => {
   if (carregando) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-3 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="px-4 py-8 space-y-6">
-      {/* Cabeçalho */}
-      <div className="flex items-center justify-between max-w-full">
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Tarefas</h1>
-          <p className="text-sm opacity-50">{tarefas.length} tarefa{tarefas.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-xl font-extrabold text-[#111915]">Gestão de Tarefas</h1>
+          <p className="text-xs text-[#687770]">{tarefas.length} tarefas ativas no quadro</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setApenasMinhas(m => !m)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${apenasMinhas ? 'bg-primary-600 text-white' : 'opacity-60'}`}
-            style={{ borderColor: 'var(--color-surface-border)' }}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+              apenasMinhas ? 'bg-[#D4EC9D] text-[#132E22] border-transparent' : 'bg-white text-[#687770] border-[#E4ECE7]'
+            }`}
           >
-            Minhas tarefas
+            Minhas Tarefas
           </button>
-          <div className="flex rounded-lg border overflow-hidden" style={{ borderColor: 'var(--color-surface-border)' }}>
+          <div className="flex bg-white p-1 rounded-xl border border-[#E4ECE7]">
             <button
               onClick={() => setVisao('kanban')}
-              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'kanban' ? 'bg-primary-600' : 'hover:bg-[var(--color-surface-hover)]'}`}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${visao === 'kanban' ? 'bg-[#0E382C] text-white' : 'text-[#687770]'}`}
             >
               Kanban
             </button>
             <button
               onClick={() => setVisao('lista')}
-              className={`px-3 py-1.5 text-xs transition-colors ${visao === 'lista' ? 'bg-primary-600' : 'hover:bg-[var(--color-surface-hover)]'}`}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${visao === 'lista' ? 'bg-[#0E382C] text-white' : 'text-[#687770]'}`}
             >
               Lista
             </button>
           </div>
           <button
             onClick={() => { setTarefaEditando(null); setStatusInicial('pendente'); setModalAberto(true); }}
-            className="px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium"
+            className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
           >
-            + Nova tarefa
+            + Nova Tarefa
           </button>
         </div>
       </div>
 
       {/* Busca */}
-      <input
-        className="w-full max-w-sm px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500"
-        style={{ border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' }}
-        placeholder="Buscar tarefas..."
-        value={busca}
-        onChange={e => setBusca(e.target.value)}
-      />
+      <div className="max-w-sm">
+        <input
+          type="text"
+          placeholder="Filtrar tarefas pelo título..."
+          value={busca}
+          onChange={e => setBusca(e.target.value)}
+          className="w-full px-3.5 py-2.5 bg-white border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C]"
+        />
+      </div>
 
-      {/* Kanban */}
+      {/* Kanban Board */}
       {visao === 'kanban' && (
         <div className="overflow-x-auto pb-4">
           <div className="flex gap-4 min-w-max">
             {STATUS_TAREFAS.map(s => (
-              <div key={s.slug} className="w-64">
+              <div key={s.slug} className="w-72">
                 <ColunaKanban
                   status={s}
                   tarefas={kanban[s.slug] || []}
@@ -330,41 +382,31 @@ const Tarefas = () => {
         </div>
       )}
 
-      {/* Lista */}
+      {/* Visão Lista */}
       {visao === 'lista' && (
-        <div className="space-y-2 max-w-3xl">
+        <div className="space-y-2 max-w-4xl bg-white rounded-2xl p-4 border border-[#E4ECE7]">
           {tarefasFiltradas.length === 0 ? (
-            <div className="text-center py-16 opacity-40">
-              <p className="text-4xl mb-3">✅</p>
-              <p className="text-sm">Nenhuma tarefa encontrada</p>
-            </div>
+            <p className="text-xs text-[#687770] text-center py-6">Nenhuma tarefa encontrada.</p>
           ) : (
-            tarefasFiltradas.map(t => {
-              const status = STATUS_TAREFAS.find(s => s.slug === t.status);
-              const prioridade = PRIORIDADES.find(p => p.slug === t.prioridade);
-              return (
-                <div
-                  key={t.id}
-                  onClick={() => handleAbrir(t)}
-                  className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
-                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
-                >
-                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: status?.cor }} />
-                  <p className={`flex-1 text-sm ${t.status === 'concluida' ? 'line-through opacity-40' : ''}`}>
+            tarefasFiltradas.map(t => (
+              <div
+                key={t.id}
+                onClick={() => handleAbrir(t)}
+                className="flex items-center justify-between gap-3 p-3 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7] hover:bg-white transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#0E382C]" />
+                  <span className={`text-xs font-bold ${t.status === 'concluida' ? 'line-through text-slate-400' : 'text-[#111915]'}`}>
                     {t.titulo}
-                  </p>
-                  <span className="text-xs flex-shrink-0" style={{ color: prioridade?.cor }}>
-                    {prioridade?.icone}
                   </span>
-                  {t.data_vencimento && (
-                    <span className="text-xs opacity-40 flex-shrink-0">
-                      {new Date(t.data_vencimento).toLocaleDateString('pt-BR')}
-                    </span>
-                  )}
                 </div>
-              );
-            })
+                {t.data_vencimento && (
+                  <span className="text-[10px] font-semibold text-[#687770]">
+                    {new Date(t.data_vencimento).toLocaleDateString('pt-BR')}
+                  </span>
+                )}
+              </div>
+            ))
           )}
         </div>
       )}
