@@ -467,7 +467,7 @@ const ChatModulo = () => {
       {/* --------------------------------------------------------
           COLUNA ESQUERDA: Conversas / Sidebar
          -------------------------------------------------------- */}
-      <aside className="w-full md:w-80 lg:w-96 flex flex-col bg-white rounded-2xl border border-[#E4ECE7] shadow-[0_8px_30px_-4px_rgba(14,56,44,0.04)] shrink-0 overflow-hidden">
+      <aside className="w-full md:w-72 lg:w-80 flex flex-col bg-white rounded-2xl border border-[#E4ECE7] shadow-[0_8px_30px_-4px_rgba(14,56,44,0.04)] shrink-0 overflow-hidden">
         {/* Top Search & Novo Chat */}
         <div className="p-3 border-b border-[#E4ECE7] flex-shrink-0">
           <div className="flex items-center gap-2">
