@@ -3,9 +3,8 @@
 // Shell principal do aplicativo com Sidebar orgânica, Header responsivo,
 // modal de personalização DnD e Bolha Chat IA.
 // =============================================================
-
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   DndContext,
   PointerSensor,
@@ -27,11 +26,6 @@ import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
 import { NOME_PRODUTO } from '../../lib/ambiente.js';
 import BolhaChatIA from '../../components/ChatIA/BolhaChatIA.jsx';
 
-// Páginas sem botão de voltar
-const ROTAS_SEM_VOLTAR = [
-  '/dashboard', '/crm', '/suporte', '/dashboard/organizacao',
-  '/chat', '/calendario', '/tarefas', '/projetos', '/times-pessoas',
-];
 
 const BADGE_CARGO = {
   admin:   { label: 'Admin',        bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
@@ -433,7 +427,6 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 // ----------------------------------------------------------
 const LayoutCliente = ({ children }) => {
   const [sidebarAberta, setSidebarAberta] = useState(false);
-  const navigate  = useNavigate();
   const location  = useLocation();
   const prefs     = useSidebarPrefs();
 
@@ -450,7 +443,6 @@ const LayoutCliente = ({ children }) => {
     });
   }, [cargoId, atualizarUsuario]);
 
-  const mostrarVoltar = !ROTAS_SEM_VOLTAR.includes(location.pathname);
 
   return (
     <div className="h-screen bg-[#F2F5F3] flex items-stretch overflow-hidden font-sans">
@@ -488,17 +480,6 @@ const LayoutCliente = ({ children }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            {mostrarVoltar && (
-              <button
-                onClick={() => navigate(-1)}
-                className="flex items-center gap-1.5 text-xs font-semibold text-[#687770] hover:text-[#0E382C] bg-[#F7FAF8] border border-[#E4ECE7] px-3 py-1.5 rounded-xl transition-all"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Voltar</span>
-              </button>
-            )}
           </div>
 
           {/* Search Pill */}

@@ -1,11 +1,12 @@
 // =============================================================
-// PRANCHETO.IA - DEALS PIPELINE (CRM KANBAN - EMITLY DESIGN SYSTEM)
-// Pipeline visual com 5 etapas (Qualifying, Discovery, Proposal,
-// Negotiation, Closing), drag & drop, filtros e cards enriquecidos.
+// PRANCHETO.IA - PIPELINE DE NEGÓCIOS (CRM KANBAN - EMITLY DESIGN SYSTEM)
+// Pipeline visual com 5 etapas (Qualificação, Descoberta, Proposta,
+// Negociação, Fechamento), drag & drop, filtros e cards enriquecidos.
 // Baseado fielmente na especificação visual de Deals Pipeline.
 // =============================================================
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useLeads, useInteracoes,
   TIPOS_INTERACAO, ORIGENS,
@@ -18,22 +19,22 @@ import {
   SecaoRecolhivel, temDadosNegocio, temDadosEmpresa,
 } from '../../components/crm/CamposContatoExtras.jsx';
 
-// ─── 5 ETAPAS DO PIPELINE (FIÉIS À IMAGEM) ─────────────────────
+// ─── 5 ETAPAS DO PIPELINE EM PORTUGUÊS ─────────────────────────
 export const ETAPAS_PIPELINE = [
   {
     key: 'lead',
-    titulo: 'Qualifying',
+    titulo: 'Qualificação',
     rotuloPt: 'Qualificação',
     corTotal: 'text-blue-700',
     corBg: 'bg-[#F3F7FA]',
     corBorda: 'border-[#E2EAF1]',
     corBotaoAdd: 'border-blue-200 text-blue-600 hover:border-blue-300 hover:bg-blue-50/60',
-    tagPadrao: 'New',
+    tagPadrao: 'Novo',
     probabilidadePadrao: 30,
   },
   {
     key: 'qualificado',
-    titulo: 'Discovery',
+    titulo: 'Descoberta',
     rotuloPt: 'Descoberta',
     corTotal: 'text-purple-700',
     corBg: 'bg-[#F7F4FA]',
@@ -44,244 +45,262 @@ export const ETAPAS_PIPELINE = [
   },
   {
     key: 'proposta',
-    titulo: 'Proposal',
+    titulo: 'Proposta',
     rotuloPt: 'Proposta',
     corTotal: 'text-amber-800',
     corBg: 'bg-[#FAF7EC]',
     corBorda: 'border-[#EFE8D3]',
     corBotaoAdd: 'border-amber-300 text-amber-700 hover:border-amber-400 hover:bg-amber-50/60',
-    tagPadrao: 'Warm',
+    tagPadrao: 'Morno',
     probabilidadePadrao: 65,
   },
   {
     key: 'negociacao',
-    titulo: 'Negotiation',
+    titulo: 'Negociação',
     rotuloPt: 'Negociação',
     corTotal: 'text-rose-800',
     corBg: 'bg-[#FAF3F3]',
     corBorda: 'border-[#F2E0E2]',
     corBotaoAdd: 'border-rose-300 text-rose-600 hover:border-rose-400 hover:bg-rose-50/60',
-    tagPadrao: 'Active',
+    tagPadrao: 'Ativo',
     probabilidadePadrao: 80,
   },
   {
     key: 'fechado',
-    titulo: 'Closing',
+    titulo: 'Fechamento',
     rotuloPt: 'Fechamento',
     corTotal: 'text-blue-900',
     corBg: 'bg-[#F2F6F4]',
     corBorda: 'border-[#E1ECE5]',
     corBotaoAdd: 'border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50/60',
-    tagPadrao: 'Renewal',
+    tagPadrao: 'Renovação',
     probabilidadePadrao: 90,
   },
 ];
 
-// ─── DEALS DEMO (EXATOS DA IMAGEM PARA RESILIÊNCIA E APRESENTAÇÃO) ─
-const DEALS_DEMO = [
+// ─── DEALS DEMO EM PORTUGUÊS ───────────────────────────────────
+export const DEALS_DEMO = [
   {
     id: 'demo-1',
-    nome: 'Compliance module',
-    negocio_nome: 'Compliance module',
-    empresa: 'Verado Group',
+    nome: 'Módulo de compliance',
+    negocio_nome: 'Módulo de compliance',
+    empresa: 'Grupo Verado',
     status_funil: 'lead',
     valor_estimado: 118000,
     score: 30,
-    tags: ['New'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Novo'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 41 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 41 * 86400000).toISOString(),
   },
   {
     id: 'demo-2',
-    nome: 'Pilot: route optimiser',
-    negocio_nome: 'Pilot: route optimiser',
-    empresa: 'Northwind Freight',
+    nome: 'Piloto: otimizador de rotas',
+    negocio_nome: 'Piloto: otimizador de rotas',
+    empresa: 'Transportadora Norte',
     status_funil: 'lead',
     valor_estimado: 42000,
     score: 35,
-    tags: ['New'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Novo'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 33 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 33 * 86400000).toISOString(),
   },
   {
     id: 'demo-3',
-    nome: 'Studio workspace plan',
-    negocio_nome: 'Studio workspace plan',
-    empresa: 'Cadenza Studio',
+    nome: 'Plano de espaço Studio',
+    negocio_nome: 'Plano de espaço Studio',
+    empresa: 'Estúdio Cadenza',
     status_funil: 'lead',
     valor_estimado: 19000,
     score: 25,
-    tags: ['New'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Novo'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 48 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 48 * 86400000).toISOString(),
   },
   {
     id: 'demo-4',
-    nome: 'Clinical data platform',
-    negocio_nome: 'Clinical data platform',
-    empresa: 'Meridian Health',
+    nome: 'Plataforma de dados clínicos',
+    negocio_nome: 'Plataforma de dados clínicos',
+    empresa: 'Saúde Meridional',
     status_funil: 'qualificado',
     valor_estimado: 262000,
     score: 45,
     tags: ['Enterprise'],
-    responsavel: { nome: 'Kevin Taylor' },
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 26 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 26 * 86400000).toISOString(),
   },
   {
     id: 'demo-5',
-    nome: 'Shop-floor sensors',
-    negocio_nome: 'Shop-floor sensors',
-    empresa: 'Quartzline Systems',
+    nome: 'Sensores de chão de fábrica',
+    negocio_nome: 'Sensores de chão de fábrica',
+    empresa: 'Sistemas Quartzline',
     status_funil: 'qualificado',
     valor_estimado: 76000,
     score: 55,
-    tags: ['Warm'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Morno'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 18 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 18 * 86400000).toISOString(),
   },
   {
     id: 'demo-6',
-    nome: 'Fleet telemetry rollout',
-    negocio_nome: 'Fleet telemetry rollout',
-    empresa: 'Northwind Freight',
+    nome: 'Telemetria de frota',
+    negocio_nome: 'Telemetria de frota',
+    empresa: 'Transportadora Norte',
     status_funil: 'proposta',
     valor_estimado: 148000,
     score: 65,
-    tags: ['New'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Novo'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 12 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 12 * 86400000).toISOString(),
   },
   {
     id: 'demo-7',
-    nome: 'Regional CRM migration',
-    negocio_nome: 'Regional CRM migration',
-    empresa: 'Halden Marine',
+    nome: 'Migração regional de CRM',
+    negocio_nome: 'Migração regional de CRM',
+    empresa: 'Halden Marítima',
     status_funil: 'proposta',
     valor_estimado: 204000,
     score: 40,
     tags: ['Enterprise'],
-    responsavel: { nome: 'Kevin Taylor' },
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 22 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 22 * 86400000).toISOString(),
   },
   {
     id: 'demo-8',
-    nome: 'Data residency add-on',
-    negocio_nome: 'Data residency add-on',
-    empresa: 'Meridian Health',
+    nome: 'Módulo de residência de dados',
+    negocio_nome: 'Módulo de residência de dados',
+    empresa: 'Saúde Meridional',
     status_funil: 'proposta',
     valor_estimado: 67000,
     score: 50,
-    tags: ['Warm'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Morno'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 15 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 15 * 86400000).toISOString(),
   },
   {
     id: 'demo-9',
-    nome: 'Warehouse automation',
-    negocio_nome: 'Warehouse automation',
-    empresa: 'Brightpath Retail',
+    nome: 'Automação de armazém',
+    negocio_nome: 'Automação de armazém',
+    empresa: 'Varejo Brightpath',
     status_funil: 'negociacao',
     valor_estimado: 91000,
     score: 80,
-    tags: ['New'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Novo'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 5 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 5 * 86400000).toISOString(),
   },
   {
     id: 'demo-10',
-    nome: 'Vendor consolidation',
-    negocio_nome: 'Vendor consolidation',
-    empresa: 'Brightpath Retail',
+    nome: 'Consolidação de fornecedores',
+    negocio_nome: 'Consolidação de fornecedores',
+    empresa: 'Varejo Brightpath',
     status_funil: 'negociacao',
     valor_estimado: 158000,
     score: 35,
-    tags: ['New'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Novo'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 9 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 9 * 86400000).toISOString(),
   },
   {
     id: 'demo-11',
-    nome: 'Cloud migration',
-    negocio_nome: 'Cloud migration',
-    empresa: 'Summit Technologies',
+    nome: 'Migração para nuvem',
+    negocio_nome: 'Migração para nuvem',
+    empresa: 'Tecnologia Summit',
     status_funil: 'negociacao',
     valor_estimado: 230000,
     score: 62,
-    tags: ['Active'],
-    responsavel: { nome: 'John Russell' },
+    tags: ['Ativo'],
+    responsavel: { nome: 'João Ferreira' },
     criado_em: new Date(Date.now() - 3 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 3 * 86400000).toISOString(),
   },
   {
     id: 'demo-12',
-    nome: 'Platform redesign',
-    negocio_nome: 'Platform redesign',
-    empresa: 'Meridian Health',
+    nome: 'Redesenho de plataforma',
+    negocio_nome: 'Redesenho de plataforma',
+    empresa: 'Saúde Meridional',
     status_funil: 'negociacao',
     valor_estimado: 89000,
     score: 18,
-    tags: ['Review'],
-    responsavel: { nome: 'Anna Lee' },
+    tags: ['Revisão'],
+    responsavel: { nome: 'Ana Paula' },
     criado_em: new Date(Date.now() - 14 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 14 * 86400000).toISOString(),
   },
   {
     id: 'demo-13',
-    nome: 'Analytics seat expansion',
-    negocio_nome: 'Analytics seat expansion',
-    empresa: 'Latchkey Labs',
+    nome: 'Expansão de licenças de análise',
+    negocio_nome: 'Expansão de licenças de análise',
+    empresa: 'Laboratórios Latchkey',
     status_funil: 'fechado',
     valor_estimado: 34000,
     score: 90,
-    tags: ['Renewal'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Renovação'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 2 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 2 * 86400000).toISOString(),
   },
   {
     id: 'demo-14',
-    nome: 'Support tier upgrade',
-    negocio_nome: 'Support tier upgrade',
+    nome: 'Upgrade de suporte',
+    negocio_nome: 'Upgrade de suporte',
     empresa: 'Orbit Analytics',
     status_funil: 'fechado',
     valor_estimado: 28000,
     score: 85,
-    tags: ['Renewal'],
-    responsavel: { nome: 'Kevin Taylor' },
+    tags: ['Renovação'],
+    responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 3 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 3 * 86400000).toISOString(),
   },
 ];
 
 // ─── HELPERS DE FORMATAÇÃO E ESTILO ────────────────────────────
-export const formatarK = (valor, prefixo = '$') => {
-  if (!valor || isNaN(valor)) return `${prefixo}0K`;
+export const formatarK = (valor, prefixo = 'R$ ') => {
+  if (!valor || isNaN(valor)) return `${prefixo}0`;
   const v = Number(valor);
   if (v >= 1000000) {
-    return `${prefixo}${(v / 1000000).toFixed(1).replace('.0', '')}M`;
+    return `${prefixo}${(v / 1000000).toFixed(1).replace('.0', '').replace('.', ',')}M`;
   }
   if (v >= 1000) {
-    return `${prefixo}${Math.round(v / 1000)}K`;
+    return `${prefixo}${Math.round(v / 1000)}k`;
   }
   return `${prefixo}${v.toLocaleString('pt-BR')}`;
 };
 
+// Mapeamento normalizado de tags inglês/português
+const MAPA_TAGS_PT = {
+  new: 'Novo',
+  novo: 'Novo',
+  enterprise: 'Enterprise',
+  corporativo: 'Corporativo',
+  warm: 'Morno',
+  morno: 'Morno',
+  active: 'Ativo',
+  ativo: 'Ativo',
+  renewal: 'Renovação',
+  renovacao: 'Renovação',
+  'renovação': 'Renovação',
+  review: 'Revisão',
+  revisao: 'Revisão',
+  'revisão': 'Revisão',
+};
+
 const obterEstiloTag = (tag) => {
-  const t = (tag || '').toLowerCase();
+  const t = (tag || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (t.includes('new') || t.includes('novo') || t.includes('inbound')) {
     return 'bg-blue-50 text-blue-700 border border-blue-200/60';
   }
-  if (t.includes('enterprise') || t.includes('indicacao')) {
+  if (t.includes('enterprise') || t.includes('corporativo') || t.includes('indicacao')) {
     return 'bg-indigo-50 text-indigo-700 border border-indigo-200/60';
   }
   if (t.includes('warm') || t.includes('morno') || t.includes('evento')) {
@@ -290,7 +309,7 @@ const obterEstiloTag = (tag) => {
   if (t.includes('active') || t.includes('ativo') || t.includes('negociacao')) {
     return 'bg-orange-50 text-orange-700 border border-orange-200/60';
   }
-  if (t.includes('renewal') || t.includes('recorrente') || t.includes('saas')) {
+  if (t.includes('renewal') || t.includes('renovacao') || t.includes('recorrente') || t.includes('saas')) {
     return 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
   }
   if (t.includes('review') || t.includes('revisao') || t.includes('proposta')) {
@@ -300,39 +319,45 @@ const obterEstiloTag = (tag) => {
 };
 
 const formatarTagTexto = (lead, etapa) => {
-  if (Array.isArray(lead.tags) && lead.tags.length > 0) {
-    const raw = String(lead.tags[0]);
-    return raw.charAt(0).toUpperCase() + raw.slice(1);
-  }
-  if (typeof lead.tags === 'string' && lead.tags.trim()) {
+  let tag = '';
+  if (Array.isArray(lead?.tags) && lead.tags.length > 0) {
+    tag = String(lead.tags[0]);
+  } else if (typeof lead?.tags === 'string' && lead.tags.trim()) {
     try {
       const parsed = JSON.parse(lead.tags);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        const raw = String(parsed[0]);
-        return raw.charAt(0).toUpperCase() + raw.slice(1);
+        tag = String(parsed[0]);
+      } else {
+        tag = lead.tags;
       }
     } catch {
-      return lead.tags;
+      tag = lead.tags;
     }
+  } else {
+    tag = etapa?.tagPadrao || 'Novo';
   }
-  return etapa?.tagPadrao || 'New';
+  const limpo = tag.toLowerCase().trim();
+  if (MAPA_TAGS_PT[limpo]) {
+    return MAPA_TAGS_PT[limpo];
+  }
+  return tag.charAt(0).toUpperCase() + tag.slice(1);
 };
 
 const extrairIniciais = (deal) => {
-  const nome = deal?.responsavel?.nome || deal?.nome || 'KT';
+  const nome = deal?.responsavel?.nome || deal?.nome || 'CS';
   const partes = nome.trim().split(/\s+/);
   if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
   return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
 };
 
 const diasNaEtapa = (isoData) => {
-  if (!isoData) return '2d in stage';
+  if (!isoData) return '2d na etapa';
   const diff = Date.now() - new Date(isoData).getTime();
   const dias = Math.max(1, Math.floor(diff / (1000 * 60 * 60 * 24)));
-  return `${dias}d in stage`;
+  return `${dias}d na etapa`;
 };
 
-// ─── COMPONENTE: CARD DO DEAL (KANBAN) ─────────────────────────
+// ─── COMPONENTE: CARD DO NEGÓCIO (KANBAN) ──────────────────────
 const CardDeal = ({ deal, etapa, onAbrir, onDragStart, onDragEnd }) => {
   const tagTexto = formatarTagTexto(deal, etapa);
   const tagClasse = obterEstiloTag(tagTexto);
@@ -349,7 +374,7 @@ const CardDeal = ({ deal, etapa, onAbrir, onDragStart, onDragEnd }) => {
       onClick={() => onAbrir(deal)}
       className="bg-white rounded-2xl p-4 border border-[#E4ECE7] shadow-[0_2px_8px_-2px_rgba(14,56,44,0.03)] hover:shadow-md hover:border-[#CBDCD1] transition-all cursor-grab active:cursor-grabbing select-none group space-y-2.5"
     >
-      {/* Topo: Título do Deal e Badge de Categoria */}
+      {/* Topo: Título do Negócio e Badge de Categoria */}
       <div>
         <div className="flex items-start justify-between gap-2">
           <h4 className="text-sm font-extrabold text-[#111915] leading-snug group-hover:text-[#0E382C] transition-colors truncate flex-1">
@@ -442,12 +467,12 @@ const ColunaPipeline = ({
       onDragOver={(e) => onDragOver(e, etapa.key)}
       onDragLeave={(e) => onDragLeave(e, etapa.key)}
       onDrop={(e) => onDrop(e, etapa.key)}
-      className={`w-72 sm:w-80 flex-shrink-0 flex flex-col rounded-3xl p-3 sm:p-3.5 transition-all duration-200 ${etapa.corBg} border ${
+      className={`w-72 sm:w-80 flex-shrink-0 h-full max-h-full flex flex-col rounded-3xl p-3 sm:p-3.5 transition-all duration-200 ${etapa.corBg} border ${
         isDragOver ? 'ring-2 ring-emerald-500 border-emerald-400 scale-[1.01]' : etapa.corBorda
       } group/coluna relative`}
     >
       {/* Header da Coluna */}
-      <div className="px-1 pt-1 pb-3 flex items-center justify-between min-h-[36px]">
+      <div className="px-1 pt-1 pb-3 flex items-center justify-between min-h-[36px] flex-shrink-0">
         {modoBusca ? (
           /* Modo Busca Ativo: Substitui cabeçalho e botões por barra de pesquisa */
           <div className="flex items-center gap-1.5 w-full bg-white border border-[#E4ECE7] rounded-xl px-2.5 py-1.5 shadow-2xs transition-all duration-300">
@@ -483,7 +508,7 @@ const ColunaPipeline = ({
         ) : (
           /* Modo Padrão: Titulo [quantidade] valor_total à esquerda | Ações à direita */
           <div className="flex items-center justify-between w-full gap-2 min-w-0">
-            {/* Lado Esquerdo: Nome da coluna [2] $242k */}
+            {/* Lado Esquerdo: Nome da coluna [2] R$ 242k */}
             <div className="flex items-center gap-2 min-w-0 flex-1 truncate">
               <h3 className="font-extrabold text-xs sm:text-sm text-[#111915] truncate">
                 {etapa.titulo}
@@ -496,7 +521,7 @@ const ColunaPipeline = ({
               </span>
             </div>
 
-            {/* Lado Direito: Engrenagem (hover), + (adicionar deal), Lupa (pesquisar) */}
+            {/* Lado Direito: Engrenagem (hover), + (adicionar negócio), Lupa (pesquisar) */}
             <div className="flex items-center gap-1 shrink-0">
               {/* 1. Botão de Engrenagem (visível apenas ao posicionar o mouse na coluna) */}
               <button
@@ -511,15 +536,15 @@ const ColunaPipeline = ({
                 </svg>
               </button>
 
-              {/* 2. Botão de + para adicionar novo negócio na coluna */}
+              {/* 2. Botão de + para adicionar novo negócio na coluna (com a cor da coluna e traço destacado) */}
               <button
                 type="button"
                 onClick={() => onNovoDealEtapa(etapa.key)}
-                className="p-1.5 text-[#687770] hover:text-[#0E382C] hover:bg-white/80 rounded-lg transition-colors"
+                className={`p-1.5 ${etapa.corTotal} hover:bg-white/90 rounded-lg transition-all hover:shadow-2xs active:scale-95`}
                 title="Adicionar negócio nesta coluna"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 4v16m8-8H4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.8" d="M12 4v16m8-8H4" />
                 </svg>
               </button>
 
@@ -539,8 +564,8 @@ const ColunaPipeline = ({
         )}
       </div>
 
-      {/* Lista de Cards */}
-      <div className="space-y-3 min-h-[140px] flex-1">
+      {/* Lista de Cards com scroll vertical interno sem barra visível */}
+      <div className="space-y-3 flex-1 overflow-y-auto overflow-x-hidden min-h-0 pr-0.5 no-scrollbar">
         {dealsExibidos.map((deal) => (
           <CardDeal
             key={deal.id}
@@ -559,17 +584,6 @@ const ColunaPipeline = ({
             </p>
           </div>
         )}
-      </div>
-
-      {/* Botão + Add deal na base da coluna */}
-      <div className="pt-3">
-        <button
-          type="button"
-          onClick={() => onNovoDealEtapa(etapa.key)}
-          className={`w-full py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-98 border border-dashed bg-white/70 hover:bg-white shadow-2xs ${etapa.corBotaoAdd}`}
-        >
-          <span>+ Add deal</span>
-        </button>
       </div>
     </div>
   );
@@ -676,13 +690,13 @@ const ModalConfigColuna = ({ aberto, onFechar, etapa, onSalvar }) => {
 const FORM_VAZIO = {
   nome: '', email: '', telefone: '', whatsapp: '', empresa: '', cargo: '',
   origem: 'manual', status_funil: 'lead', valor_estimado: '', observacoes: '',
-  negocio_nome: '', score: '50', tag_categoria: 'New',
+  negocio_nome: '', score: '50', tag_categoria: 'Novo',
   previsao_fechamento: '', campanha: '',
   razao_social: '', documento: '', segmento: '', site: '', porte: '',
   endereco: ENDERECO_VAZIO,
 };
 
-// ─── MODAL: CRIAR / EDITAR DEAL ────────────────────────────────
+// ─── MODAL: CRIAR / EDITAR NEGÓCIO ─────────────────────────────
 const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = 'lead', etapas }) => {
   const [form, setForm]         = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
@@ -690,6 +704,10 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
 
   useEffect(() => {
     if (leadEditando) {
+      const tagInicial = Array.isArray(leadEditando.tags) && leadEditando.tags[0]
+        ? (MAPA_TAGS_PT[String(leadEditando.tags[0]).toLowerCase()] || leadEditando.tags[0])
+        : 'Novo';
+
       setForm({
         nome:          leadEditando.nome          || '',
         email:         leadEditando.email         || '',
@@ -701,7 +719,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
         status_funil:  leadEditando.status_funil  || statusInicial,
         valor_estimado:leadEditando.valor_estimado|| '',
         score:         leadEditando.score != null ? String(leadEditando.score) : '50',
-        tag_categoria: Array.isArray(leadEditando.tags) && leadEditando.tags[0] ? leadEditando.tags[0] : 'New',
+        tag_categoria: tagInicial,
         observacoes:   leadEditando.observacoes   || '',
         negocio_nome:        leadEditando.negocio_nome        || leadEditando.nome || '',
         previsao_fechamento: leadEditando.previsao_fechamento ? leadEditando.previsao_fechamento.slice(0, 10) : '',
@@ -775,7 +793,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
         <div className="flex items-center justify-between pb-3 border-b border-[#E4ECE7] mb-4">
           <div>
             <h3 className="font-extrabold text-base text-[#111915]">
-              {leadEditando ? '✏️ Editar Negócio' : '💼 Novo Negócio (Deal)'}
+              {leadEditando ? '✏️ Editar Negócio' : '💼 Novo Negócio'}
             </h3>
             <p className="text-xs text-[#687770]">Preencha os dados da oportunidade e etapa no funil</p>
           </div>
@@ -790,7 +808,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
                 type="text"
                 value={form.negocio_nome}
                 onChange={set('negocio_nome')}
-                placeholder="Ex: Compliance module"
+                placeholder="Ex: Módulo de compliance"
                 className="w-full rounded-xl px-3 py-2 text-xs border focus:outline-none focus:border-[#0E382C] text-[#111915]"
                 style={inputStyle}
               />
@@ -801,7 +819,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
                 type="text"
                 value={form.empresa}
                 onChange={set('empresa')}
-                placeholder="Ex: Verado Group"
+                placeholder="Ex: Grupo Verado"
                 className="w-full rounded-xl px-3 py-2 text-xs border focus:outline-none focus:border-[#0E382C] text-[#111915]"
                 style={inputStyle}
               />
@@ -810,7 +828,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1">Valor Estimado ($ ou R$)</label>
+              <label className="block text-xs font-bold text-[#111915] mb-1">Valor Estimado (R$)</label>
               <input
                 type="number"
                 value={form.valor_estimado}
@@ -859,12 +877,12 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
                 className="w-full rounded-xl px-3 py-2 text-xs border focus:outline-none focus:border-[#0E382C] text-[#111915]"
                 style={inputStyle}
               >
-                <option value="New">New (Novo)</option>
+                <option value="Novo">Novo</option>
                 <option value="Enterprise">Enterprise</option>
-                <option value="Warm">Warm (Morno)</option>
-                <option value="Active">Active (Ativo)</option>
-                <option value="Renewal">Renewal (Renovação)</option>
-                <option value="Review">Review (Revisão)</option>
+                <option value="Morno">Morno</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Renovação">Renovação</option>
+                <option value="Revisão">Revisão</option>
               </select>
             </div>
           </div>
@@ -930,169 +948,7 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
   );
 };
 
-// ─── PAINEL DE DETALHES DO DEAL ────────────────────────────────
-const PainelLead = ({ lead, onFechar, onEditar, onExcluir, onMudarStatus, onConverter, etapas }) => {
-  const { interacoes, carregar, adicionar } = useInteracoes(lead?.id);
-  const [novaInteracao, setNovaInteracao] = useState('');
-  const [tipoInteracao, setTipoInteracao] = useState('nota');
-  const [enviando, setEnviando] = useState(false);
-
-  useEffect(() => {
-    if (lead?.id && !String(lead.id).startsWith('demo-')) {
-      carregar();
-    }
-  }, [lead?.id, carregar]);
-
-  const handleInteracao = async (e) => {
-    e.preventDefault();
-    if (!novaInteracao.trim()) return;
-    setEnviando(true);
-    try {
-      if (!String(lead?.id).startsWith('demo-')) {
-        await adicionar(tipoInteracao, novaInteracao.trim());
-      }
-      setNovaInteracao('');
-    } catch {
-      // silencioso
-    } finally {
-      setEnviando(false);
-    }
-  };
-
-  if (!lead) return null;
-
-  return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onFechar}>
-      <div className="w-full sm:max-w-2xl h-full sm:h-auto sm:max-h-[90vh] bg-white rounded-none sm:rounded-2xl flex flex-col border border-[#E4ECE7] shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        {/* Header do Painel */}
-        <div className="flex items-start justify-between p-5 border-b border-[#E4ECE7] flex-shrink-0 bg-[#F7FAF8]">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-extrabold text-lg text-[#111915]">
-                {lead.negocio_nome || lead.nome}
-              </h3>
-              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${obterEstiloTag(formatarTagTexto(lead))}`}>
-                {formatarTagTexto(lead)}
-              </span>
-            </div>
-            {lead.empresa && (
-              <p className="text-xs font-semibold text-[#687770] mt-1">{lead.empresa}</p>
-            )}
-            <div className="flex gap-4 mt-2.5 flex-wrap">
-              <span className="text-xs font-extrabold text-[#0E382C]">
-                💰 {formatarK(lead.valor_estimado)}
-              </span>
-              <span className="text-xs font-bold text-[#15803D]">
-                ⚡ {lead.score || 50}% prob.
-              </span>
-              {lead.email && <span className="text-xs text-[#687770]">✉️ {lead.email}</span>}
-              {lead.telefone && <span className="text-xs text-[#687770]">📞 {lead.telefone}</span>}
-            </div>
-          </div>
-          <div className="flex gap-2 flex-shrink-0 ml-3">
-            <button
-              onClick={() => onEditar(lead)}
-              className="p-1.5 rounded-lg border border-[#E4ECE7] hover:bg-white text-xs font-bold text-[#111915]"
-              title="Editar"
-            >
-              ✏️ Editar
-            </button>
-            <PermissaoGuarda permissao="crm.excluir">
-              <button
-                onClick={() => onExcluir(lead.id)}
-                className="p-1.5 rounded-lg border border-[#E4ECE7] hover:bg-red-50 text-xs font-bold text-red-600"
-                title="Excluir"
-              >
-                🗑️
-              </button>
-            </PermissaoGuarda>
-            <button onClick={onFechar} className="p-1.5 text-slate-400 hover:text-slate-600 text-base">✕</button>
-          </div>
-        </div>
-
-        {/* Mudar de Etapa */}
-        <div className="px-5 py-3 border-b border-[#E4ECE7] flex items-center gap-2 flex-wrap bg-white flex-shrink-0">
-          <span className="text-xs font-bold text-[#687770]">Mover para:</span>
-          {(etapas || ETAPAS_PIPELINE).map((e) => (
-            <button
-              key={e.key}
-              onClick={() => onMudarStatus(lead.id, e.key)}
-              className={`text-xs px-2.5 py-1 rounded-full font-bold transition-all border ${
-                lead.status_funil === e.key
-                  ? 'bg-[#0E382C] text-white border-[#0E382C]'
-                  : 'bg-[#F7FAF8] text-[#687770] border-[#E4ECE7] hover:border-[#0E382C]'
-              }`}
-            >
-              {e.titulo}
-            </button>
-          ))}
-        </div>
-
-        {/* Histórico / Interações */}
-        <div className="p-5 flex-1 overflow-y-auto space-y-4">
-          <div>
-            <h4 className="text-xs font-bold text-[#111915] uppercase tracking-wider mb-2">Registrar Atividade</h4>
-            <form onSubmit={handleInteracao} className="space-y-2">
-              <div className="flex gap-2 flex-wrap">
-                {TIPOS_INTERACAO.slice(0, 5).map((t) => (
-                  <button
-                    key={t.key}
-                    type="button"
-                    onClick={() => setTipoInteracao(t.key)}
-                    className={`text-xs px-2.5 py-1 rounded-xl font-semibold border transition-all ${
-                      tipoInteracao === t.key
-                        ? 'bg-[#D4EC9D] text-[#0E382C] border-[#D4EC9D]'
-                        : 'bg-[#F7FAF8] text-[#687770] border-[#E4ECE7]'
-                    }`}
-                  >
-                    {t.emoji} {t.label}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={novaInteracao}
-                  onChange={(e) => setNovaInteracao(e.target.value)}
-                  placeholder="Escreva uma nota sobre a reunião ou alinhamento..."
-                  className="flex-1 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#0E382C]"
-                />
-                <button
-                  type="submit"
-                  disabled={enviando || !novaInteracao.trim()}
-                  className="px-4 py-2 bg-[#0E382C] text-white rounded-xl text-xs font-bold disabled:opacity-40"
-                >
-                  Registrar
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div className="pt-2">
-            <h4 className="text-xs font-bold text-[#111915] uppercase tracking-wider mb-2">Linha do Tempo</h4>
-            {interacoes && interacoes.length > 0 ? (
-              <div className="space-y-2">
-                {interacoes.map((item) => (
-                  <div key={item.id} className="p-3 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#111915]">{item.tipo}</span>
-                      <span className="text-[10px] text-[#687770]">{formatarData(item.criado_em)}</span>
-                    </div>
-                    <p className="text-[#687770]">{item.descricao}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-[#687770] italic">Nenhuma interação registrada ainda.</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ─── PÁGINA PRINCIPAL: LEADS / DEALS PIPELINE ──────────────────
+// ─── PÁGINA PRINCIPAL: LEADS / PIPELINE DE NEGÓCIOS ────────────
 const PaginaLeads = () => {
   const {
     leads: leadsDb, carregando, erro,
@@ -1100,12 +956,12 @@ const PaginaLeads = () => {
     mudarStatus, converterParaCliente,
   } = useLeads();
 
+  const navigate                              = useNavigate();
   const [etapas, setEtapas]                   = useState(ETAPAS_PIPELINE);
   const [colunaConfigurando, setColunaConfigurando] = useState(null);
   const [modalAberto, setModalAberto]         = useState(false);
   const [etapaPreSelecionada, setEtapaPre]    = useState('lead');
   const [leadEditando, setLeadEditando]       = useState(null);
-  const [painelLead, setPainelLead]           = useState(null);
   const [busca, setBusca]                     = useState('');
   const [ownerSelecionado, setOwnerSelecionado] = useState(null);
   const [dropdownOwnersAberto, setDropdownOwnersAberto] = useState(false);
@@ -1145,11 +1001,11 @@ const PaginaLeads = () => {
     return () => document.removeEventListener('mousedown', handleClickFora);
   }, []);
 
-  // Lista única de Owners para o dropdown "All owners"
+  // Lista única de Responsáveis para o dropdown "Todos os responsáveis"
   const listaOwners = useMemo(() => {
     const map = new Map();
     dealsLocais.forEach((d) => {
-      const nome = d.responsavel?.nome || 'Kevin Taylor';
+      const nome = d.responsavel?.nome || 'Carlos Silva';
       if (!map.has(nome)) {
         map.set(nome, { id: nome, nome });
       }
@@ -1157,7 +1013,7 @@ const PaginaLeads = () => {
     return Array.from(map.values());
   }, [dealsLocais]);
 
-  // Filtro por busca geral e por responsável (owner)
+  // Filtro por busca geral e por responsável
   const dealsFiltrados = useMemo(() => {
     return dealsLocais.filter((deal) => {
       const matchBusca = !busca ||
@@ -1169,7 +1025,7 @@ const PaginaLeads = () => {
       if (!matchBusca) return false;
 
       if (ownerSelecionado) {
-        const nomeResp = deal.responsavel?.nome || 'Kevin Taylor';
+        const nomeResp = deal.responsavel?.nome || 'Carlos Silva';
         if (nomeResp !== ownerSelecionado.nome) return false;
       }
 
@@ -1177,7 +1033,7 @@ const PaginaLeads = () => {
     });
   }, [dealsLocais, busca, ownerSelecionado]);
 
-  // Agrupamento dos deals por etapa do pipeline
+  // Agrupamento dos negócios por etapa do pipeline
   const dealsPorEtapa = useMemo(() => {
     const acc = {};
     etapas.forEach(e => { acc[e.key] = []; });
@@ -1192,7 +1048,7 @@ const PaginaLeads = () => {
     return acc;
   }, [dealsFiltrados, etapas]);
 
-  // Cálculo das métricas gerais do topo (ex: $1247K weighted across 12 open deals)
+  // Cálculo das métricas gerais do topo (ex: R$ 1.2M ponderados em 14 negócios em aberto)
   const { totalValorGeral, totalDealsAbertos } = useMemo(() => {
     const dealsAbertos = dealsFiltrados.filter(d => d.status_funil !== 'perdido');
     const soma = dealsAbertos.reduce((s, d) => s + (Number(d.valor_estimado) || 0), 0);
@@ -1328,21 +1184,22 @@ const PaginaLeads = () => {
   };
 
   return (
-    <div className="w-full flex flex-col font-sans">
+    <div className="w-full h-full flex-1 flex flex-col min-h-0 font-sans overflow-hidden">
       {/* ─────────────────────────────────────────────────────────
-          HEADER DO DEALS PIPELINE (HERO BAR)
+          HEADER DO PIPELINE DE NEGÓCIOS (HERO BAR)
          ───────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 flex-shrink-0">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111915] tracking-tight">
-            Deals Pipeline
+            Pipeline de Negócios
           </h2>
           <p className="text-xs sm:text-sm text-[#687770] font-medium mt-1">
-            {formatarK(totalValorGeral)} weighted across {totalDealsAbertos} open deals · drag a card to change stage
+            {formatarK(totalValorGeral)} ponderados em {totalDealsAbertos}{' '}
+            {totalDealsAbertos === 1 ? 'negócio em aberto' : 'negócios em aberto'} · arraste um card para mudar de etapa
           </p>
         </div>
 
-        {/* Controles do Topo (Busca Geral, All owners, + New deal) */}
+        {/* Controles do Topo (Busca Geral, Responsáveis, + Novo negócio) */}
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Busca Rápida Geral */}
           <div className="relative">
@@ -1355,7 +1212,7 @@ const PaginaLeads = () => {
               type="text"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Pesquisar deals..."
+              placeholder="Pesquisar negócios..."
               className="pl-8 pr-7 py-2 bg-white border border-[#E4ECE7] rounded-full text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C] shadow-2xs w-44 sm:w-52 transition-all"
             />
             {busca && (
@@ -1368,7 +1225,7 @@ const PaginaLeads = () => {
             )}
           </div>
 
-          {/* Filtro: All owners */}
+          {/* Filtro: Todos os responsáveis */}
           <div className="relative" ref={filtroRef}>
             <button
               type="button"
@@ -1376,14 +1233,14 @@ const PaginaLeads = () => {
               className="flex items-center gap-2 px-3.5 py-2 bg-white border border-[#E4ECE7] rounded-full text-xs font-semibold text-[#111915] hover:bg-[#F7FAF8] shadow-2xs transition-all"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-              <span>{ownerSelecionado ? ownerSelecionado.nome : 'All owners'}</span>
+              <span>{ownerSelecionado ? ownerSelecionado.nome : 'Todos os responsáveis'}</span>
               <svg className="w-3.5 h-3.5 text-[#687770]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 
             {dropdownOwnersAberto && (
-              <div className="absolute right-0 mt-1.5 w-48 bg-white border border-[#E4ECE7] rounded-2xl shadow-lg p-1.5 z-30 space-y-0.5">
+              <div className="absolute right-0 mt-1.5 w-52 bg-white border border-[#E4ECE7] rounded-2xl shadow-lg p-1.5 z-30 space-y-0.5">
                 <button
                   type="button"
                   onClick={() => { setOwnerSelecionado(null); setDropdownOwnersAberto(false); }}
@@ -1393,7 +1250,7 @@ const PaginaLeads = () => {
                 >
                   <span className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    All owners
+                    Todos os responsáveis
                   </span>
                   {!ownerSelecionado && <span>✓</span>}
                 </button>
@@ -1414,13 +1271,13 @@ const PaginaLeads = () => {
             )}
           </div>
 
-          {/* Botão + New deal */}
+          {/* Botão + Novo negócio */}
           <button
             type="button"
             onClick={() => handleNovoDealEtapa(etapas[0]?.key || 'lead')}
             className="flex items-center gap-1.5 px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white rounded-full text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-95 shrink-0"
           >
-            <span>+ New deal</span>
+            <span>+ Novo negócio</span>
           </button>
         </div>
       </div>
@@ -1428,14 +1285,14 @@ const PaginaLeads = () => {
       {/* ─────────────────────────────────────────────────────────
           KANBAN COM AS 5 ETAPAS DO PIPELINE
          ───────────────────────────────────────────────────────── */}
-      <div className="w-full overflow-x-auto pb-6 custom-scrollbar">
-        <div className="flex gap-4 items-start min-w-max">
+      <div className="w-full flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-2 custom-scrollbar">
+        <div className="flex gap-4 items-stretch h-full min-w-max pb-1">
           {etapas.map((etapa) => (
             <ColunaPipeline
               key={etapa.key}
               etapa={etapa}
               deals={dealsPorEtapa[etapa.key] || []}
-              onAbrir={setPainelLead}
+              onAbrir={(deal) => navigate(`/crm/leads/${deal.id}`)}
               onNovoDealEtapa={handleNovoDealEtapa}
               onConfigurarColuna={(col) => setColunaConfigurando(col)}
               onDragStart={handleDragStart}
@@ -1457,7 +1314,7 @@ const PaginaLeads = () => {
         onSalvar={handleSalvarConfigColuna}
       />
 
-      {/* Modal Criar / Editar Deal */}
+      {/* Modal Criar / Editar Negócio */}
       <ModalLead
         aberto={modalAberto}
         onFechar={() => { setModalAberto(false); setLeadEditando(null); }}
@@ -1466,19 +1323,6 @@ const PaginaLeads = () => {
         statusInicial={etapaPreSelecionada}
         etapas={etapas}
       />
-
-      {/* Painel de Detalhes do Deal */}
-      {painelLead && (
-        <PainelLead
-          lead={painelLead}
-          onFechar={() => setPainelLead(null)}
-          onEditar={handleEditar}
-          onExcluir={handleExcluir}
-          onMudarStatus={handleMudarStatus}
-          onConverter={handleConverter}
-          etapas={etapas}
-        />
-      )}
     </div>
   );
 };

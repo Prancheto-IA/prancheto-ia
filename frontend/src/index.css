@@ -132,6 +132,15 @@ html.dark {
   }
 }
 
+/* Utilitário para ocultar a barra de rolagem visual mantendo o scroll funcional */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE e Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 /* --- COMPONENTES REUTILIZÁVEIS --- */
 @layer components {
   .btn-primary {
