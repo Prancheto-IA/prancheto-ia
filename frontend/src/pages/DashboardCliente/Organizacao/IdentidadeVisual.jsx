@@ -1,11 +1,7 @@
 // =============================================================
 // PRANCHETO.IA - IDENTIDADE VISUAL DA ORGANIZAÇÃO
-// Permite editar logo, cores e fonte da organização.
-// Acessível via /dashboard/organizacao/identidade
-//
-// O que é salvo aqui vale para a interface de todos os membros, mas
-// somente com a chave "Aplicar na interface" ligada — ver
-// utils/identidadeVisual.js para o porquê e para onde cada cor vai.
+// Permite editar logo, cores e fonte da organização em layout multi-coluna.
+// Salvo por organização com sincronização em tempo real.
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -19,6 +15,8 @@ import {
   normalizarIdentidade,
 } from '../../../utils/identidadeVisual.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Image01Icon, InformationCircleIcon } from '@hugeicons/core-free-icons';
 
 /** Tom claro da primária, como o usado nos itens ativos da navegação real. */
 const tomClaro = (hex) => {
@@ -27,18 +25,18 @@ const tomClaro = (hex) => {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Seletor de cor
+// COMPONENTE: Seletor de cor Emitly
 // ----------------------------------------------------------
 const SeletorCor = ({ label, descricao, valor, onChange }) => (
-  <div className="flex items-center justify-between py-3" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
+  <div className="flex items-center justify-between py-3.5 border-b border-[#E4ECE7] last:border-0">
     <div className="flex-1 min-w-0 mr-4">
-      <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{label}</p>
+      <p className="text-xs sm:text-sm font-bold text-[#111915]">{label}</p>
       {descricao && (
-        <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{descricao}</p>
+        <p className="text-[11px] sm:text-xs text-[#687770] mt-0.5 leading-snug">{descricao}</p>
       )}
     </div>
-    <div className="flex items-center gap-2 flex-shrink-0">
-      <span className="text-xs font-mono" style={{ color: 'var(--color-text-secondary)' }}>
+    <div className="flex items-center gap-2.5 flex-shrink-0">
+      <span className="text-xs font-mono font-semibold px-2 py-1 rounded-md bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915]">
         {valor}
       </span>
       <label className="relative cursor-pointer">
@@ -50,7 +48,7 @@ const SeletorCor = ({ label, descricao, valor, onChange }) => (
           className="sr-only"
         />
         <div
-          className="w-8 h-8 rounded-lg border-2 border-white/20 cursor-pointer hover:scale-110 transition-transform shadow-md"
+          className="w-8 h-8 rounded-xl border-2 border-white shadow-xs cursor-pointer hover:scale-110 transition-transform"
           style={{ backgroundColor: valor }}
         />
       </label>
@@ -59,75 +57,32 @@ const SeletorCor = ({ label, descricao, valor, onChange }) => (
 );
 
 // ----------------------------------------------------------
-// COMPONENTE: Chave de ativação
-// ----------------------------------------------------------
-const ChaveAplicar = ({ ativo, onChange }) => (
-  <div
-    className="rounded-xl p-4 flex items-start justify-between gap-4"
-    style={{
-      backgroundColor: 'var(--color-surface-card)',
-      border: `1px solid ${ativo ? 'rgb(var(--color-primary-500) / 0.4)' : 'var(--color-surface-border)'}`,
-    }}
-  >
-    <div className="min-w-0">
-      <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-        Aplicar na interface
-      </p>
-      <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-        {ativo
-          ? 'A interface usa as cores, a fonte e o logo da sua organização.'
-          : 'A interface usa as cores padrão do Prancheto.IA. Ligue para usar as suas.'}
-      </p>
-    </div>
-    <button
-      type="button"
-      role="switch"
-      aria-checked={ativo}
-      aria-label="Aplicar a identidade visual na interface"
-      onClick={() => onChange(!ativo)}
-      className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
-        ativo ? 'bg-primary-600' : 'bg-slate-600'
-      }`}
-    >
-      <span
-        className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
-          ativo ? 'translate-x-6' : 'translate-x-1'
-        }`}
-      />
-    </button>
-  </div>
-);
-
-// ----------------------------------------------------------
-// COMPONENTE: Preview da identidade visual
-// Reproduz onde cada cor realmente cai: secundária no fundo da barra
-// lateral, acento no texto sobre ela, primária nos destaques do conteúdo.
+// COMPONENTE: Live Preview da Interface
 // ----------------------------------------------------------
 const PreviewIdentidade = ({ nomeOrganizacao, logoUrl, identidade }) => {
   const { cor_primaria, cor_secundaria, cor_acento, fonte } = identidade;
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-surface-border)' }}>
-      {/* Header do preview */}
-      <div
-        className="px-4 py-2 text-xs font-medium"
-        style={{
-          backgroundColor: 'var(--color-surface)',
-          borderBottom: '1px solid var(--color-surface-border)',
-          color: 'var(--color-text-secondary)',
-        }}
-      >
-        Preview
+    <div className="bg-white rounded-2xl border border-[#E4ECE7] overflow-hidden shadow-xs">
+      <div className="px-5 py-3 border-b border-[#E4ECE7] bg-[#F7FAF8] flex items-center justify-between">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#687770]">
+          Simulação em Tempo Real
+        </span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white border border-[#E4ECE7] text-[#0E382C]">
+          Preview
+        </span>
       </div>
 
-      <div className="flex" style={{ fontFamily: fonte, minHeight: '190px' }}>
+      <div className="flex" style={{ fontFamily: fonte, minHeight: '210px' }}>
         {/* Barra lateral simulada */}
-        <div className="w-32 flex-shrink-0 p-2.5 space-y-2" style={{ backgroundColor: cor_secundaria }}>
-          <div className="flex items-center gap-1.5">
+        <div className="w-36 flex-shrink-0 p-3 space-y-2 border-r border-[#E4ECE7]" style={{ backgroundColor: cor_secundaria }}>
+          <div className="flex items-center gap-2 pb-2 border-b border-white/10">
             {logoUrl ? (
-              <img src={logoUrl} alt="" className="h-5 w-5 rounded object-contain" />
+              <img src={logoUrl} alt="" className="h-6 w-6 rounded-lg object-contain bg-white/10 p-0.5" />
             ) : (
-              <span className="text-sm">🧠</span>
+              <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold" style={{ backgroundColor: cor_primaria, color: cor_acento }}>
+                P
+              </div>
             )}
             <span className="text-xs font-bold truncate" style={{ color: cor_acento }}>
               {nomeOrganizacao || 'Organização'}
@@ -135,38 +90,47 @@ const PreviewIdentidade = ({ nomeOrganizacao, logoUrl, identidade }) => {
           </div>
 
           <div
-            className="px-2 py-1.5 rounded-md text-xs font-medium"
+            className="px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs"
             style={{
-              backgroundColor: `${cor_primaria}26`,
-              color: tomClaro(cor_primaria),
+              backgroundColor: cor_primaria,
+              color: cor_acento,
             }}
           >
-            Início
+            <span>Início</span>
           </div>
-          {['CRM', 'Agenda'].map((item) => (
-            <div key={item} className="px-2 py-1.5 rounded-md text-xs" style={{ color: `${cor_acento}99` }}>
+
+          {['CRM', 'Agenda', 'Projetos'].map((item) => (
+            <div key={item} className="px-2.5 py-1.5 rounded-lg text-xs opacity-70" style={{ color: cor_acento }}>
               {item}
             </div>
           ))}
         </div>
 
         {/* Conteúdo simulado */}
-        <div className="flex-1 p-4 space-y-3" style={{ backgroundColor: 'var(--color-surface)' }}>
-          <div className="h-2 rounded-full w-3/4" style={{ backgroundColor: `${cor_primaria}40` }} />
-          <div className="h-2 rounded-full w-1/2" style={{ backgroundColor: `${cor_primaria}25` }} />
-          <div className="flex gap-2 pt-1">
-            <div
-              className="px-3 py-1.5 rounded-lg text-xs font-medium"
+        <div className="flex-1 p-4 bg-[#F7FAF8] flex flex-col justify-between">
+          <div className="space-y-2.5">
+            <div className="h-3 rounded-full w-2/3" style={{ backgroundColor: `${cor_primaria}50` }} />
+            <div className="h-2 rounded-full w-1/3 bg-slate-200" />
+            <div className="p-2.5 rounded-xl bg-white border border-[#E4ECE7] shadow-2xs mt-3">
+              <p className="text-[11px] font-bold text-[#111915]">Card de Demonstração</p>
+              <p className="text-[10px] text-[#687770]">Exemplo de aplicação das cores e tipografia da marca.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 pt-3">
+            <button
+              type="button"
+              className="px-3 py-1.5 rounded-xl text-xs font-bold shadow-2xs"
               style={{ backgroundColor: cor_primaria, color: cor_acento }}
             >
-              Botão primário
-            </div>
-            <div
-              className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-              style={{ borderColor: cor_primaria, color: cor_primaria }}
+              Ação Principal
+            </button>
+            <button
+              type="button"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-[#E4ECE7] text-[#111915]"
             >
               Secundário
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -175,7 +139,7 @@ const PreviewIdentidade = ({ nomeOrganizacao, logoUrl, identidade }) => {
 };
 
 // ----------------------------------------------------------
-// PÁGINA PRINCIPAL: IDENTIDADE VISUAL
+// COMPONENTE PRINCIPAL: IDENTIDADE VISUAL
 // ----------------------------------------------------------
 const IdentidadeVisual = () => {
   const tenantId = useAuthStore((s) => s.usuario?.tenant_id);
@@ -194,7 +158,6 @@ const IdentidadeVisual = () => {
 
   useEffect(() => { carregarTenant(tenantId); }, [tenantId, carregarTenant]);
 
-  // Sincroniza o formulário com o que está salvo, inclusive após gravar.
   useEffect(() => {
     if (!tenant) return;
     setIdentidade(normalizarIdentidade(tenant.identidade_visual));
@@ -209,7 +172,6 @@ const IdentidadeVisual = () => {
         logo_url:          logoUrl.trim() || null,
         identidade_visual: identidade,
       });
-      // Alimenta o store: as cores novas passam a valer na hora, sem recarregar.
       definirTenant(atualizado);
       setSalvo(true);
       setTimeout(() => setSalvo(false), 2500);
@@ -228,239 +190,268 @@ const IdentidadeVisual = () => {
   if (!tenant && carregandoOrg) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const inputStyle = {
-    backgroundColor: 'var(--color-surface)',
-    border: '1px solid var(--color-surface-border)',
-    color: 'var(--color-text-primary)',
-  };
-
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="w-full flex-1 flex flex-col space-y-5">
       {/* Cabeçalho */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-          🎨 Identidade Visual
-        </h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-          Personalize as cores, logo e tipografia da sua organização.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
+            Identidade Visual da Organização
+          </h1>
+          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
+            Personalize logotipo, paleta cromática e tipografia para adequar a plataforma à sua marca.
+          </p>
+        </div>
+
+        <PermissaoGuarda permissao="configuracoes.editar">
+          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+            <button
+              onClick={restaurarPadrao}
+              className="px-4 py-2.5 rounded-xl text-xs font-bold border border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8] transition-colors cursor-pointer"
+            >
+              Restaurar Padrão
+            </button>
+            <button
+              onClick={salvar}
+              disabled={salvando}
+              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+            >
+              {salvando ? 'Salvando...' : 'Salvar Alterações'}
+            </button>
+          </div>
+        </PermissaoGuarda>
       </div>
 
-      {/* Erro */}
       {erro && (
-        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center justify-between">
           <span>{erro}</span>
-          <button onClick={() => setErro('')} className="text-red-400 hover:text-red-300">✕</button>
+          <button onClick={() => setErro('')} className="text-red-500 hover:text-red-700">✕</button>
         </div>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        {/* Coluna esquerda: formulário */}
-        <div className="space-y-4">
-
-          {/* Logo */}
-          <div
-            className="rounded-xl overflow-hidden"
-            style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
-          >
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
-              <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>Logo</h3>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-                Aparece na barra lateral, no lugar do ícone padrão.
-              </p>
+      {/* Grid Responsivo de Múltiplas Colunas */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* COLUNA ESQUERDA (lg:col-span-7) */}
+        <div className="lg:col-span-7 flex flex-col space-y-5">
+          {/* Card: Logotipo */}
+          <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E4ECE7]">
+              <div>
+                <h2 className="text-base font-bold text-[#111915]">Logotipo</h2>
+                <p className="text-xs text-[#687770] mt-0.5">
+                  Exibido na barra de navegação e em relatórios compartilhados.
+                </p>
+              </div>
             </div>
-            <div className="p-5">
-              {/* Preview do logo */}
-              <div className="flex items-center gap-4 mb-4">
-                <div
-                  className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0"
-                  style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)' }}
-                >
-                  {logoUrl ? (
-                    <img
-                      src={logoUrl}
-                      alt="Logo da organização"
-                      className="w-full h-full object-contain p-1"
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
-                  ) : (
-                    <span className="text-2xl">🏢</span>
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                    {tenant?.nome || 'Organização'}
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    {logoUrl ? 'Logo personalizado' : 'Sem logo (usando ícone padrão)'}
-                  </p>
-                </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-5 mt-5">
+              <div className="w-20 h-20 rounded-2xl bg-[#F7FAF8] border border-[#E4ECE7] flex items-center justify-center p-2 flex-shrink-0 shadow-2xs">
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt="Logo"
+                    className="w-full h-full object-contain"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                ) : (
+                  <HugeiconsIcon icon={Image01Icon} size={32} strokeWidth={1.8} className="text-[#0E382C]" />
+                )}
               </div>
 
-              <label
-                className="block text-xs font-medium mb-1.5"
-                style={{ color: 'var(--color-text-secondary)' }}
-                htmlFor="identidade-logo-url"
-              >
-                URL do logo
-              </label>
-              <input
-                id="identidade-logo-url"
-                type="url"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://exemplo.com/logo.png"
-                className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
-                style={inputStyle}
-              />
-              <p className="text-xs mt-1.5" style={{ color: 'var(--color-text-secondary)' }}>
-                💡 Dica: use o Supabase Storage para hospedar sua imagem.
-              </p>
+              <div className="flex-1 w-full">
+                <label
+                  htmlFor="identidade-logo-url"
+                  className="block text-xs font-semibold text-[#687770] mb-1.5"
+                >
+                  URL da Imagem do Logotipo
+                </label>
+                <input
+                  id="identidade-logo-url"
+                  type="url"
+                  value={logoUrl}
+                  onChange={(e) => setLogoUrl(e.target.value)}
+                  placeholder="https://exemplo.com/logo.png"
+                  className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+                />
+                <p className="text-[11px] text-[#687770] mt-1.5">
+                  Formatos recomendados: PNG ou SVG com fundo transparente (resolução mínima 128x128px).
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Cores */}
-          <div
-            className="rounded-xl overflow-hidden"
-            style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
-          >
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
-              <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>Cores</h3>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-                Paleta de cores da organização.
-              </p>
+          {/* Card: Cores da Marca */}
+          <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E4ECE7]">
+              <div>
+                <h2 className="text-base font-bold text-[#111915]">Paleta de Cores</h2>
+                <p className="text-xs text-[#687770] mt-0.5">
+                  Configure as cores institucionais para botões, fundos e contrastes.
+                </p>
+              </div>
             </div>
-            <div className="px-5 py-2">
+
+            <div className="mt-2 divide-y divide-[#E4ECE7]">
               <SeletorCor
-                label="Cor primária"
-                descricao="Botões, itens ativos, destaques e badges em toda a interface."
+                label="Cor Primária"
+                descricao="Botões principais, badges de destaque e navegação ativa."
                 valor={identidade.cor_primaria}
                 onChange={(v) => setIdentidade(i => ({ ...i, cor_primaria: v }))}
               />
               <SeletorCor
-                label="Cor secundária"
-                descricao="Fundo da barra lateral. Use um tom escuro."
+                label="Cor Secundária"
+                descricao="Fundo da barra lateral esquerda e menus estruturais."
                 valor={identidade.cor_secundaria}
                 onChange={(v) => setIdentidade(i => ({ ...i, cor_secundaria: v }))}
               />
               <SeletorCor
-                label="Cor de acento"
-                descricao="Texto e logo sobre a barra lateral e sobre a cor primária."
+                label="Cor de Acento"
+                descricao="Tipografia e ícones de contraste sobre as cores primária e secundária."
                 valor={identidade.cor_acento}
                 onChange={(v) => setIdentidade(i => ({ ...i, cor_acento: v }))}
               />
             </div>
           </div>
 
-          {/* Tipografia */}
-          <div
-            className="rounded-xl overflow-hidden"
-            style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
-          >
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
-              <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>Tipografia</h3>
+          {/* Card: Tipografia */}
+          <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E4ECE7]">
+              <div>
+                <h2 className="text-base font-bold text-[#111915]">Tipografia</h2>
+                <p className="text-xs text-[#687770] mt-0.5">
+                  Fonte tipográfica aplicada aos títulos e textos da aplicação.
+                </p>
+              </div>
             </div>
-            <div className="p-5">
-              <label
-                className="block text-xs font-medium mb-1.5"
-                style={{ color: 'var(--color-text-secondary)' }}
-                htmlFor="identidade-fonte"
-              >
-                Fonte principal
-              </label>
-              <select
-                id="identidade-fonte"
-                value={identidade.fonte}
-                onChange={(e) => setIdentidade(i => ({ ...i, fonte: e.target.value }))}
-                className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
-                style={inputStyle}
-              >
-                {FONTES_DISPONIVEIS.map((f) => (
-                  <option key={f.valor} value={f.valor}>{f.label}</option>
-                ))}
-              </select>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label
+                  htmlFor="identidade-fonte"
+                  className="block text-xs font-semibold text-[#687770] mb-1.5"
+                >
+                  Família Tipográfica Principal
+                </label>
+                <select
+                  id="identidade-fonte"
+                  value={identidade.fonte}
+                  onChange={(e) => setIdentidade(i => ({ ...i, fonte: e.target.value }))}
+                  className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs cursor-pointer"
+                >
+                  {FONTES_DISPONIVEIS.map((f) => (
+                    <option key={f.valor} value={f.valor}>{f.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7]">
+                <p className="text-[11px] font-semibold text-[#687770] mb-1">Amostra da Fonte:</p>
+                <p className="text-base font-bold text-[#111915]" style={{ fontFamily: identidade.fonte }}>
+                  O Prancheto.IA simplifica a gestão da sua equipe.
+                </p>
+                <p className="text-xs text-[#687770] mt-1" style={{ fontFamily: identidade.fonte }}>
+                  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 1234567890
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Coluna direita: preview e ativação */}
-        <div className="space-y-4">
+        {/* COLUNA DIREITA (lg:col-span-5) */}
+        <div className="lg:col-span-5 flex flex-col space-y-5">
+          {/* Card de Preview Interativo */}
           <PreviewIdentidade
             nomeOrganizacao={tenant?.nome}
             logoUrl={logoUrl}
             identidade={identidade}
           />
 
-          <ChaveAplicar
-            ativo={identidade.aplicar}
-            onChange={(v) => setIdentidade(i => ({ ...i, aplicar: v }))}
-          />
+          {/* Card: Chave de Aplicação */}
+          <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-bold text-[#111915]">
+                  Aplicar na Interface
+                </h3>
+                <p className="text-xs text-[#687770] mt-0.5">
+                  {identidade.aplicar
+                    ? 'A interface usará as cores, fonte e logo da sua organização.'
+                    : 'A interface usará as cores padrão do sistema.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={identidade.aplicar}
+                aria-label="Aplicar identidade visual"
+                onClick={() => setIdentidade(i => ({ ...i, aplicar: !i.aplicar }))}
+                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 cursor-pointer ${
+                  identidade.aplicar ? 'bg-[#0E382C]' : 'bg-slate-300'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                    identidade.aplicar ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
 
-          {/* Info */}
-          <div
-            className="p-4 rounded-xl"
-            style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
-          >
-            <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
-              ℹ️ Sobre a identidade visual
-            </p>
-            <ul className="space-y-1.5">
-              {[
-                'As cores são salvas por organização e visíveis para todos os membros.',
-                'O preview mostra uma simulação de como ficará a interface.',
-                'Alterações entram em vigor após salvar, com a chave ligada.',
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                  <span className="text-primary-400 flex-shrink-0 mt-0.5">•</span>
-                  {item}
-                </li>
-              ))}
+          {/* Card: Informações Institucionais */}
+          <div className="bg-[#F7FAF8] border border-[#E4ECE7] rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <HugeiconsIcon icon={InformationCircleIcon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />
+              <h3 className="text-xs font-bold text-[#111915]">Diretrizes de Marca</h3>
+            </div>
+            <ul className="space-y-1.5 text-xs text-[#687770]">
+              <li className="flex items-start gap-1.5">
+                <span className="text-[#0E382C] font-bold">•</span>
+                <span>As personalizações salvas são visíveis para todos os membros da sua organização.</span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="text-[#0E382C] font-bold">•</span>
+                <span>Certifique-se de que a cor de acento possua alto contraste com as cores de fundo.</span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="text-[#0E382C] font-bold">•</span>
+                <span>Desative a chave caso deseje retornar temporariamente ao visual nativo.</span>
+              </li>
             </ul>
           </div>
-        </div>
-      </div>
 
-      {/* Botões de ação — sem permissão, a tela vira somente leitura */}
-      <div className="flex items-center gap-3 mt-6">
-        <PermissaoGuarda
-          permissao="configuracoes.editar"
-          fallback={
-            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              Você pode visualizar a identidade visual, mas não alterá-la.
-            </p>
-          }
-        >
-          <button
-            onClick={salvar}
-            disabled={salvando}
-            className="px-6 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors disabled:opacity-50"
-          >
-            {salvando ? 'Salvando...' : 'Salvar identidade visual'}
-          </button>
-        </PermissaoGuarda>
-        <PermissaoGuarda permissao="configuracoes.editar">
-          <button
-            onClick={restaurarPadrao}
-            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-            style={{
-              backgroundColor: 'var(--color-surface-card)',
-              color: 'var(--color-text-secondary)',
-              border: '1px solid var(--color-surface-border)',
-            }}
-          >
-            Restaurar padrão
-          </button>
-        </PermissaoGuarda>
-        {salvo && (
-          <span className="text-emerald-400 text-sm flex items-center gap-1">
-            ✓ Salvo com sucesso!
-          </span>
-        )}
+          {/* Barra de Salvar Inferior */}
+          <PermissaoGuarda permissao="configuracoes.editar">
+            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div>
+                {salvo && (
+                  <p className="text-xs font-bold text-emerald-700 flex items-center gap-1">
+                    ✓ Identidade visual salva com sucesso!
+                  </p>
+                )}
+                {!salvo && (
+                  <p className="text-xs text-[#687770]">
+                    Clique para aplicar suas configurações à organização.
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={salvar}
+                disabled={salvando}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {salvando ? 'Salvando...' : 'Salvar Alterações'}
+              </button>
+            </div>
+          </PermissaoGuarda>
+        </div>
       </div>
     </div>
   );
