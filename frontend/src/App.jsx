@@ -13,6 +13,8 @@ import { useAuthStore } from './store/authStore.js';
 import { useSessaoSincronizada } from './hooks/useSessaoSincronizada.js';
 import ToastContainer from './components/ui/Toast.jsx';
 import BannerImpersonation from './components/BannerImpersonation/BannerImpersonation.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Alert02Icon } from '@hugeicons/core-free-icons';
 
 // =============================================================
 // LAZY LOADING DAS PÁGINAS
@@ -120,7 +122,9 @@ const App = () => {
       fallback={({ error, resetError }) => (
         <div className="flex items-center justify-center min-h-screen bg-surface p-8">
           <div className="bg-surface-card border border-surface-border rounded-xl p-8 max-w-md w-full text-center">
-            <div className="text-4xl mb-4">⚠️</div>
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-4">
+              <HugeiconsIcon icon={Alert02Icon} size={32} strokeWidth={1.8} />
+            </div>
             <h1 className="text-xl font-semibold mb-2">Algo deu errado</h1>
             <p className="text-muted text-sm mb-6">
               Ocorreu um erro inesperado. Nossa equipe foi notificada automaticamente.

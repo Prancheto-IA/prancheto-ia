@@ -6,6 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjetos } from '../../hooks/useProjetos';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Folder01Icon, Edit02Icon, Add01Icon } from '@hugeicons/core-free-icons';
 
 const STATUS_BADGE = {
   planejamento: { label: 'Planejamento', bg: 'bg-slate-100', text: 'text-slate-600' },
@@ -174,9 +176,7 @@ const CardProjeto = ({ projeto, onClick, onEditar }) => {
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center flex-shrink-0 shadow-xs">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-            </svg>
+            <HugeiconsIcon icon={Folder01Icon} size={20} strokeWidth={1.8} />
           </div>
           <div>
             <h3 className="font-bold text-sm text-[#111915]">{projeto.nome}</h3>
@@ -191,9 +191,7 @@ const CardProjeto = ({ projeto, onClick, onEditar }) => {
             onClick={e => { e.stopPropagation(); onEditar(projeto); }}
             className="p-1 text-slate-400 hover:text-[#0E382C]"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
+            <HugeiconsIcon icon={Edit02Icon} size={16} strokeWidth={1.8} />
           </button>
         </div>
       </div>
@@ -262,9 +260,7 @@ const Projetos = () => {
           onClick={() => { setProjetoEditando(null); setModalAberto(true); }}
           className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-          </svg>
+          <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={1.8} />
           <span>Novo Projeto</span>
         </button>
       </div>

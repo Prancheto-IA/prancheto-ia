@@ -9,115 +9,61 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useChat } from '../../hooks/useChat.js';
 import { useAuthStore } from '../../store/authStore.js';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Search01Icon,
+  Edit02Icon,
+  PreferenceHorizontalIcon,
+  FilterIcon,
+  AiSparklesIcon,
+  BotIcon,
+  Call02Icon,
+  Video01Icon,
+  ViewSidebarRightIcon,
+  MoreVerticalIcon,
+  Download01Icon,
+  ViewIcon,
+  PlayIcon,
+  PauseIcon,
+  Attachment01Icon,
+  SmileIcon,
+  Mic01Icon,
+  SentIcon,
+  TickDouble01Icon,
+  Add01Icon,
+  Message01Icon,
+  MessageAdd01Icon,
+  Cancel01Icon,
+  CrownIcon,
+} from '@hugeicons/core-free-icons';
 
 const formatarHora = (iso) => {
   if (!iso) return '';
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 };
 
-// Mapeamento de Ícones SVG inline para alta fidelidade
+// Mapeamento de Ícones Hugeicons para alta fidelidade
 const ICONES = {
-  search: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-    </svg>
-  ),
-  edit: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-    </svg>
-  ),
-  tune: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-    </svg>
-  ),
-  filter: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-    </svg>
-  ),
-  sparkles: (
-    <svg className="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
-    </svg>
-  ),
-  bot: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-    </svg>
-  ),
-  phone: (
-    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-    </svg>
-  ),
-  video: (
-    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-    </svg>
-  ),
-  sidebar: (
-    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-    </svg>
-  ),
-  more: (
-    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-    </svg>
-  ),
-  download: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-    </svg>
-  ),
-  eye: (
-    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    </svg>
-  ),
-  play: (
-    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-      <path d="M8 5v14l11-7z" />
-    </svg>
-  ),
-  pause: (
-    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-    </svg>
-  ),
-  clip: (
-    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-    </svg>
-  ),
-  emoji: (
-    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
-  mic: (
-    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-    </svg>
-  ),
-  send: (
-    <svg className="w-4 h-4 fill-current ml-0.5" viewBox="0 0 24 24">
-      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-    </svg>
-  ),
-  checkDouble: (
-    <svg className="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7M5 7l4 4" />
-    </svg>
-  ),
-  plus: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M12 5v14m7-7H5" />
-    </svg>
-  ),
+  search: <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} />,
+  edit: <HugeiconsIcon icon={Edit02Icon} size={16} strokeWidth={2} />,
+  tune: <HugeiconsIcon icon={PreferenceHorizontalIcon} size={16} strokeWidth={2} />,
+  filter: <HugeiconsIcon icon={FilterIcon} size={16} strokeWidth={2} />,
+  sparkles: <HugeiconsIcon icon={AiSparklesIcon} size={14} strokeWidth={2} className="text-emerald-600" />,
+  bot: <HugeiconsIcon icon={BotIcon} size={16} strokeWidth={2} />,
+  phone: <HugeiconsIcon icon={Call02Icon} size={18} strokeWidth={2} />,
+  video: <HugeiconsIcon icon={Video01Icon} size={18} strokeWidth={2} />,
+  sidebar: <HugeiconsIcon icon={ViewSidebarRightIcon} size={18} strokeWidth={2} />,
+  more: <HugeiconsIcon icon={MoreVerticalIcon} size={18} strokeWidth={2} />,
+  download: <HugeiconsIcon icon={Download01Icon} size={16} strokeWidth={2} />,
+  eye: <HugeiconsIcon icon={ViewIcon} size={14} strokeWidth={2} />,
+  play: <HugeiconsIcon icon={PlayIcon} size={20} strokeWidth={2} />,
+  pause: <HugeiconsIcon icon={PauseIcon} size={20} strokeWidth={2} />,
+  clip: <HugeiconsIcon icon={Attachment01Icon} size={18} strokeWidth={2} />,
+  emoji: <HugeiconsIcon icon={SmileIcon} size={18} strokeWidth={2} />,
+  mic: <HugeiconsIcon icon={Mic01Icon} size={18} strokeWidth={2} />,
+  send: <HugeiconsIcon icon={SentIcon} size={16} strokeWidth={2} className="ml-0.5" />,
+  checkDouble: <HugeiconsIcon icon={TickDouble01Icon} size={16} strokeWidth={2} className="text-emerald-300" />,
+  plus: <HugeiconsIcon icon={Add01Icon} size={20} strokeWidth={1.75} />,
 };
 
 const AvatarUsuario = ({ nome, tamanho = 'w-10 h-10', online = false, badge = null, foto = null }) => {
@@ -316,7 +262,9 @@ const ModalMembros = ({ aberto, onFechar, canal, membros, usuariosTenant, souAdm
             <h2 className="font-bold text-[#111915] text-base">Membros do Grupo</h2>
             <p className="text-xs text-[#687770]">{canal.nome}</p>
           </div>
-          <button onClick={onFechar} className="text-slate-400 hover:text-slate-600">✕</button>
+          <button onClick={onFechar} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors" title="Fechar">
+            <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.8} />
+          </button>
         </div>
 
         {erro && <p className="text-red-500 text-xs">{erro}</p>}
@@ -329,7 +277,16 @@ const ModalMembros = ({ aberto, onFechar, canal, membros, usuariosTenant, souAdm
                 <p className="text-xs font-bold text-[#111915] truncate">
                   {m.usuario?.nome || 'Usuário'}{m.user_id === usuarioAtualId ? ' (você)' : ''}
                 </p>
-                <span className="text-[10px] text-[#687770] font-semibold">{m.papel === 'admin' ? '👑 Admin' : 'Membro'}</span>
+                <span className="text-[10px] text-[#687770] font-semibold">
+                  {m.papel === 'admin' ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 font-semibold bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
+                      <HugeiconsIcon icon={CrownIcon} size={10} strokeWidth={2} />
+                      Admin
+                    </span>
+                  ) : (
+                    'Membro'
+                  )}
+                </span>
               </div>
               {souAdmin && m.user_id !== usuarioAtualId && (
                 <div className="flex gap-1.5 flex-shrink-0">
@@ -481,7 +438,13 @@ const ChatModulo = () => {
                 className="w-full bg-[#F7FAF8] hover:bg-white text-xs text-[#111915] placeholder-slate-400 pl-9 pr-8 py-2 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] transition-all"
               />
               {busca && (
-                <button onClick={() => setBusca('')} className="absolute right-2.5 text-xs text-slate-400 hover:text-slate-600">✕</button>
+                <button
+                  onClick={() => setBusca('')}
+                  className="absolute right-2.5 p-0.5 rounded text-slate-400 hover:text-slate-600 transition-colors"
+                  title="Limpar busca"
+                >
+                  <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={1.8} />
+                </button>
               )}
             </div>
 
@@ -589,7 +552,9 @@ const ChatModulo = () => {
 
           {!canalAtivo ? (
             <div className="flex flex-col items-center justify-center h-full text-center py-16">
-              <div className="w-12 h-12 rounded-2xl bg-[#DCF5E4] text-[#15803D] flex items-center justify-center text-xl mb-3">💬</div>
+              <div className="w-12 h-12 rounded-2xl bg-[#DCF5E4] text-[#15803D] flex items-center justify-center mb-3 shadow-2xs">
+                <HugeiconsIcon icon={Message01Icon} size={24} strokeWidth={1.8} />
+              </div>
               <h3 className="font-bold text-[#111915] text-sm mb-1">Nenhum canal selecionado</h3>
               <p className="text-xs text-[#687770]">Escolha uma conversa na barra lateral para interagir.</p>
             </div>
@@ -599,7 +564,9 @@ const ChatModulo = () => {
             </div>
           ) : mensagens.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center py-16">
-              <div className="w-12 h-12 rounded-2xl bg-[#DCF5E4] text-[#15803D] flex items-center justify-center text-xl mb-3">👋</div>
+              <div className="w-12 h-12 rounded-2xl bg-[#DCF5E4] text-[#15803D] flex items-center justify-center mb-3 shadow-2xs">
+                <HugeiconsIcon icon={MessageAdd01Icon} size={24} strokeWidth={1.8} />
+              </div>
               <h3 className="font-bold text-[#111915] text-sm mb-1">Seja o primeiro a mandar mensagem!</h3>
               <p className="text-xs text-[#687770]">Inicie o alinhamento com a equipe ou tire dúvidas com a IA.</p>
             </div>

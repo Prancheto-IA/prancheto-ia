@@ -9,43 +9,34 @@ import NovoTicket       from './NovoTicket.jsx';
 import MeusTickets      from './MeusTickets.jsx';
 import BaseConhecimento from './BaseConhecimento.jsx';
 import StatusSistema    from './StatusSistema.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Add01Icon,
+  Ticket01Icon,
+  BookOpen01Icon,
+  CheckmarkCircle02Icon,
+} from '@hugeicons/core-free-icons';
 
 const ABAS = [
   {
     path: '/suporte/novo',
     label: 'Abrir Chamado',
-    icone: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-      </svg>
-    ),
+    icone: <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={1.8} />,
   },
   {
     path: '/suporte/meus',
     label: 'Meus Tickets',
-    icone: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-      </svg>
-    ),
+    icone: <HugeiconsIcon icon={Ticket01Icon} size={16} strokeWidth={1.8} />,
   },
   {
     path: '/suporte/base',
     label: 'Base de Conhecimento',
-    icone: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-    ),
+    icone: <HugeiconsIcon icon={BookOpen01Icon} size={16} strokeWidth={1.8} />,
   },
   {
     path: '/suporte/status',
     label: 'Status do Sistema',
-    icone: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
+    icone: <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} strokeWidth={1.8} />,
   },
 ];
 

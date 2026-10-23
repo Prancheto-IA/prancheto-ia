@@ -29,6 +29,25 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useTarefas, STATUS_TAREFAS, PRIORIDADES } from '../../hooks/useTarefas';
 import { useAuthStore } from '../../store/authStore';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Time01Icon,
+  Time02Icon,
+  Shield01Icon,
+  CheckmarkCircle02Icon,
+  Flag02Icon,
+  Calendar03Icon,
+  Attachment01Icon,
+  Comment01Icon,
+  Menu01Icon,
+  ArrowDown01Icon,
+  Sorting01Icon,
+  DashboardSquare01Icon,
+  Search01Icon,
+  FlashIcon,
+  Edit02Icon,
+  Delete02Icon,
+} from '@hugeicons/core-free-icons';
 
 // Colunas do Kanban com ícones e cores temáticas Emitly
 const COLUNAS_KANBAN = [
@@ -36,41 +55,25 @@ const COLUNAS_KANBAN = [
     slug: 'pendente',
     label: 'Backlog',
     corIcone: 'text-slate-500',
-    icone: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <circle cx="12" cy="12" r="9" strokeWidth="2" strokeDasharray="3 3" />
-      </svg>
-    ),
+    icone: <HugeiconsIcon icon={Time01Icon} size={16} strokeWidth={1.8} />,
   },
   {
     slug: 'em_andamento',
     label: 'Em Progresso',
     corIcone: 'text-amber-600',
-    icone: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
+    icone: <HugeiconsIcon icon={Time02Icon} size={16} strokeWidth={1.8} />,
   },
   {
     slug: 'em_revisao',
     label: 'Em Revisão',
     corIcone: 'text-indigo-600',
-    icone: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
+    icone: <HugeiconsIcon icon={Shield01Icon} size={16} strokeWidth={1.8} />,
   },
   {
     slug: 'concluida',
     label: 'Concluídas',
     corIcone: 'text-emerald-700',
-    icone: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
+    icone: <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} strokeWidth={1.8} />,
   },
 ];
 
@@ -252,9 +255,7 @@ const CardTarefaVisual = ({ tarefa, isDragging = false, isOverlay = false }) => 
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Bandeira de Prioridade */}
           <span title={`Prioridade ${tarefa.prioridade}`} className={getCorBandeira(tarefa.prioridade)}>
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-            </svg>
+            <HugeiconsIcon icon={Flag02Icon} size={14} strokeWidth={1.8} />
           </span>
 
           {/* Prazo com badge destacada se for Hoje ou Atrasada */}
@@ -275,9 +276,7 @@ const CardTarefaVisual = ({ tarefa, isDragging = false, isOverlay = false }) => 
                   : undefined
               }
             >
-              <svg className={`w-3 h-3 ${atrasada || ehHoje ? 'text-rose-600' : 'text-[#99A6A0]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <HugeiconsIcon icon={Calendar03Icon} size={12} strokeWidth={1.8} className={atrasada || ehHoje ? 'text-rose-600' : 'text-[#99A6A0]'} />
               <span>
                 {ehHoje
                   ? 'Hoje'
@@ -289,9 +288,7 @@ const CardTarefaVisual = ({ tarefa, isDragging = false, isOverlay = false }) => 
           {/* Anexos */}
           {(tarefa.anexos_count > 0 || tarefa.estimativa_h) && (
             <span className="flex items-center gap-1 text-[11px] text-[#99A6A0]">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-              </svg>
+              <HugeiconsIcon icon={Attachment01Icon} size={12} strokeWidth={1.8} />
               <span>{tarefa.anexos_count || 1}</span>
             </span>
           )}
@@ -299,9 +296,7 @@ const CardTarefaVisual = ({ tarefa, isDragging = false, isOverlay = false }) => 
           {/* Comentários / Subtarefas */}
           {(tarefa.comentarios_count > 0 || checklist.length > 0) && (
             <span className="flex items-center gap-1 text-[11px] text-[#99A6A0]">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
+              <HugeiconsIcon icon={Comment01Icon} size={12} strokeWidth={1.8} />
               <span>{tarefa.comentarios_count || (checklist.length ? `${concluidos}/${checklist.length}` : 2)}</span>
             </span>
           )}
@@ -792,13 +787,9 @@ const Tarefas = () => {
                 onClick={() => setDropdownViews(v => !v)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-[#687770] hover:text-[#0E382C] hover:bg-white border border-transparent hover:border-[#E4ECE7] transition-all"
               >
-                <svg className="w-3.5 h-3.5 text-[#0E382C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
+                <HugeiconsIcon icon={Menu01Icon} size={14} strokeWidth={1.8} className="text-[#0E382C]" />
                 <span>{viewSelecionada}</span>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
+                <HugeiconsIcon icon={ArrowDown01Icon} size={12} strokeWidth={1.8} />
               </button>
 
               {dropdownViews && (
@@ -836,9 +827,7 @@ const Tarefas = () => {
 
           {/* Ordenação */}
           <div className="flex items-center bg-white rounded-xl border border-[#E4ECE7] px-2.5 py-1.5 shadow-2xs">
-            <svg className="w-3.5 h-3.5 text-[#687770] mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
+            <HugeiconsIcon icon={Sorting01Icon} size={14} strokeWidth={1.8} className="text-[#687770] mr-1.5" />
             <select
               value={ordenacao}
               onChange={e => setOrdenacao(e.target.value)}
@@ -861,9 +850,7 @@ const Tarefas = () => {
                   : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
               }`}
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-              </svg>
+              <HugeiconsIcon icon={DashboardSquare01Icon} size={14} strokeWidth={1.8} />
               <span>Quadro</span>
             </button>
             <button
@@ -875,9 +862,7 @@ const Tarefas = () => {
                   : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
               }`}
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <HugeiconsIcon icon={Menu01Icon} size={14} strokeWidth={1.8} />
               <span>Lista</span>
             </button>
           </div>
@@ -1014,9 +999,7 @@ const Tarefas = () => {
 
         {/* Campo de Busca Rápida */}
         <div className="w-full sm:w-64 relative">
-          <svg className="w-3.5 h-3.5 text-[#99A6A0] absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <HugeiconsIcon icon={Search01Icon} size={14} strokeWidth={1.8} className="text-[#99A6A0] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Buscar por título ou projeto..."
@@ -1034,9 +1017,7 @@ const Tarefas = () => {
         <div className="bg-white rounded-2xl border border-[#E4ECE7] p-3.5 px-4 shadow-xs flex items-center justify-between gap-3 animate-fade-in">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-[#EBF5EC] border border-[#D4EC9D] flex items-center justify-center text-[#0E382C] flex-shrink-0">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <HugeiconsIcon icon={FlashIcon} size={16} strokeWidth={1.8} />
             </div>
             <p className="text-xs text-[#111915]">
               <strong className="font-semibold text-[#0E382C]">Dica de Produtividade:</strong> Você pode arrastar tarefas entre as colunas do Quadro ou marcar diretamente o checkbox no modo Lista para avançar seu fluxo de trabalho.
@@ -1164,9 +1145,7 @@ const Tarefas = () => {
                             {/* Badge de Comentários / Anexos (estilo Image 2) */}
                             {tarefa.comentarios_count > 0 && (
                               <span className="inline-flex items-center gap-1 text-[10px] text-[#99A6A0] font-semibold bg-[#F4F7F5] px-1.5 py-0.5 rounded-md">
-                                <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
+                                <HugeiconsIcon icon={Comment01Icon} size={10} strokeWidth={1.8} />
                                 {tarefa.comentarios_count}
                               </span>
                             )}
@@ -1195,9 +1174,7 @@ const Tarefas = () => {
                                   : undefined
                               }
                             >
-                              <svg className={`w-3 h-3 ${atrasada || ehHoje ? 'text-rose-600' : 'text-[#99A6A0]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
+                              <HugeiconsIcon icon={Calendar03Icon} size={12} strokeWidth={1.8} className={atrasada || ehHoje ? 'text-rose-600' : 'text-[#99A6A0]'} />
                               <span>
                                 {ehHoje
                                   ? 'Hoje'
@@ -1274,18 +1251,14 @@ const Tarefas = () => {
                               className="p-1 rounded-lg text-[#687770] hover:text-[#0E382C] hover:bg-[#EDF2EE]"
                               title="Editar"
                             >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
+                              <HugeiconsIcon icon={Edit02Icon} size={14} strokeWidth={1.8} />
                             </button>
                             <button
                               onClick={() => handleExcluirTarefa(tarefa.id)}
                               className="p-1 rounded-lg text-[#99A6A0] hover:text-rose-600 hover:bg-rose-50"
                               title="Excluir"
                             >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
+                              <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={1.8} />
                             </button>
                           </div>
                         </td>

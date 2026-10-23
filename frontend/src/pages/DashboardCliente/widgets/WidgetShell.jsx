@@ -4,6 +4,8 @@
 // =============================================================
 
 import React from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 
 const WidgetShell = ({ titulo, icone, acaoLabel, onAcao, children, className = '' }) => (
   <div className={`bg-white rounded-2xl border border-[#E4ECE7] p-3.5 sm:p-4 flex flex-col h-full shadow-[0_4px_20px_-2px_rgba(14,56,44,0.04)] hover:shadow-md transition-all ${className}`}>
@@ -15,9 +17,7 @@ const WidgetShell = ({ titulo, icone, acaoLabel, onAcao, children, className = '
       {acaoLabel && (
         <button onClick={onAcao} className="text-[11px] font-semibold text-[#0E382C] hover:text-[#07261E] hover:underline transition-colors flex-shrink-0 flex items-center gap-1">
           <span>{acaoLabel}</span>
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={1.8} />
         </button>
       )}
     </div>

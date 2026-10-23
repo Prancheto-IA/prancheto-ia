@@ -89,6 +89,10 @@ import {
   UserIcon,
   HelpCircleIcon,
   Logout01Icon,
+  LockKeyIcon,
+  Cancel01Icon,
+  PinIcon,
+  BotIcon,
 } from '@hugeicons/core-free-icons';
 
 // Mapeamento de Hugeicons para a Sidebar
@@ -99,6 +103,7 @@ const ICONES_MAP = {
   tarefas: Task01Icon,
   calendario: Calendar03Icon,
   chat: Comment01Icon,
+  chat_ia: BotIcon,
   suporte: CustomerSupportIcon,
   organizacao: Building01Icon,
   configuracoes: Settings02Icon,
@@ -206,8 +211,8 @@ const ItemSortableModal = ({ item, onToggle }) => {
       <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
 
       {fixo ? (
-        <span className="text-xs text-slate-400 flex-shrink-0" title="Item fixo">
-          🔒
+        <span className="text-slate-400 flex-shrink-0 flex items-center justify-center p-1" title="Item fixo">
+          <HugeiconsIcon icon={LockKeyIcon} size={14} strokeWidth={1.8} />
         </span>
       ) : (
         <button
@@ -271,8 +276,12 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
             <h2 className="text-base font-bold text-[#111915]">Personalizar Navegação</h2>
             <p className="text-xs text-[#687770]">Arraste para organizar o seu menu</p>
           </div>
-          <button onClick={onFechar} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
-            ✕
+          <button
+            onClick={onFechar}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            title="Fechar"
+          >
+            <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.8} />
           </button>
         </div>
 
@@ -284,19 +293,21 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
           <div className="flex rounded-xl bg-[#F7FAF8] p-1 border border-[#E4ECE7]">
             <button
               onClick={() => definirChatIaModo('flutuante')}
-              className={`flex-1 text-xs py-1.5 rounded-lg font-semibold transition-all ${
-                chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770]'
+              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${
+                chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
               }`}
             >
-              💬 Flutuante
+              <HugeiconsIcon icon={Comment01Icon} size={14} strokeWidth={1.8} />
+              <span>Flutuante</span>
             </button>
             <button
               onClick={() => definirChatIaModo('fixo')}
-              className={`flex-1 text-xs py-1.5 rounded-lg font-semibold transition-all ${
-                chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770]'
+              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${
+                chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
               }`}
             >
-              📌 Na Sidebar
+              <HugeiconsIcon icon={PinIcon} size={14} strokeWidth={1.8} />
+              <span>Na Sidebar</span>
             </button>
           </div>
         </div>
@@ -367,8 +378,8 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
             >
               Prancheto<span className="text-emerald-600">.IA</span>
             </span>
-            <button onClick={onFechar} className="ml-auto text-slate-400 hover:text-slate-600 lg:hidden">
-              ✕
+            <button onClick={onFechar} className="ml-auto text-slate-400 hover:text-slate-600 lg:hidden p-1 rounded-lg" title="Fechar menu">
+              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
             </button>
           </div>
 

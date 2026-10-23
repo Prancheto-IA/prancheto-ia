@@ -9,6 +9,8 @@ import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
 import { TIPOS_POSTAGEM } from '../../../hooks/useFeed.js';
 import WidgetShell from './WidgetShell.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Megaphone01Icon, ThumbsUpIcon } from '@hugeicons/core-free-icons';
 
 const POR_PAGINA = 3;
 
@@ -84,11 +86,7 @@ const WidgetMuralAnuncios = () => {
   return (
     <WidgetShell
       titulo="Mural de Anúncios"
-      icone={
-        <svg className="w-4 h-4 text-[#0E382C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-        </svg>
-      }
+      icone={<HugeiconsIcon icon={Megaphone01Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />}
     >
       <div className="flex flex-col h-full">
         <div className="flex-1 min-h-0 flex flex-col space-y-3">
@@ -98,9 +96,7 @@ const WidgetMuralAnuncios = () => {
             </div>
           ) : postagens.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
-              <svg className="w-8 h-8 text-[#687770]/50 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-              </svg>
+              <HugeiconsIcon icon={Megaphone01Icon} size={32} strokeWidth={1.5} className="text-[#687770]/50 mb-2" />
               <p className="text-xs font-semibold text-[#687770]">
                 {pagina === 0 ? 'Nenhum anúncio publicado ainda.' : 'Não há anúncios mais antigos.'}
               </p>
@@ -121,9 +117,7 @@ const WidgetMuralAnuncios = () => {
                       onClick={() => reagir(p.id)}
                       className="text-[10px] font-semibold text-[#0E382C] hover:bg-[#EBF0ED] px-2 py-0.5 rounded-md transition-colors flex items-center gap-1"
                     >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h47M4 14h6m-3-3v6" />
-                      </svg>
+                      <HugeiconsIcon icon={ThumbsUpIcon} size={12} strokeWidth={1.8} />
                       <span>Curtir ({totalReacoes})</span>
                     </button>
                     <span className="text-[10px] text-[#687770]">Comentários ({totalComentarios})</span>

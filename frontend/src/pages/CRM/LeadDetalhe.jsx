@@ -14,6 +14,24 @@ import {
   useInteracoes,
 } from '../../hooks/useCRM.js';
 import { ETAPAS_PIPELINE, DEALS_DEMO, formatarK } from './Leads.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  ArrowDown01Icon,
+  Edit02Icon,
+  Location01Icon,
+  Call02Icon,
+  Mail01Icon,
+  WhatsappIcon,
+  FlashIcon,
+  CheckmarkCircle02Icon,
+  Calendar03Icon,
+  Note01Icon,
+  Task01Icon,
+  Delete02Icon,
+  Copy01Icon,
+} from '@hugeicons/core-free-icons';
 
 const LeadDetalhe = () => {
   const { id } = useParams();
@@ -362,9 +380,7 @@ const LeadDetalhe = () => {
           className="inline-flex items-center gap-2 text-xs font-semibold text-[#687770] hover:text-[#0E382C] transition-colors group"
         >
           <div className="w-7 h-7 rounded-full border border-[#E4ECE7] bg-white group-hover:border-[#0E382C] group-hover:bg-[#F7FAF8] flex items-center justify-center transition-all shadow-sm">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-            </svg>
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2} />
           </div>
           <span>Voltar para negócios</span>
         </button>
@@ -373,9 +389,7 @@ const LeadDetalhe = () => {
           onClick={() => setModalEditar(true)}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0E382C] bg-white border border-[#E4ECE7] hover:bg-[#F7FAF8] hover:border-[#CCD9D2] px-3.5 py-1.5 rounded-xl transition-all shadow-sm"
         >
-          <svg className="w-3.5 h-3.5 text-[#0E382C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
+          <HugeiconsIcon icon={Edit02Icon} size={14} strokeWidth={2} className="text-[#0E382C]" />
           <span>Editar Informações</span>
         </button>
       </div>
@@ -399,17 +413,12 @@ const LeadDetalhe = () => {
               <div className="flex items-center gap-4 mt-1 flex-wrap text-xs text-[#687770]">
                 {/* Localização */}
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-3.5 h-3.5 text-[#99A6A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                  <HugeiconsIcon icon={Location01Icon} size={14} strokeWidth={1.8} className="text-[#99A6A0]" />
                   <span>{deal.cidade ? `${deal.cidade}, ${deal.estado || 'BR'}` : 'São Paulo, Brasil'}</span>
                 </span>
                 {/* Telefone */}
                 <span className="flex items-center gap-1.5 font-medium text-[#111915]">
-                  <svg className="w-3.5 h-3.5 text-[#99A6A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
+                  <HugeiconsIcon icon={Call02Icon} size={14} strokeWidth={1.8} className="text-[#99A6A0]" />
                   <span>{deal.telefone || deal.whatsapp || '(11) 98765-4321'}</span>
                 </span>
               </div>
@@ -424,9 +433,7 @@ const LeadDetalhe = () => {
               title="Enviar e-mail"
               className="w-9 h-9 rounded-full border border-[#E4ECE7] bg-white hover:border-[#0E382C] hover:bg-[#F7FAF8] text-[#687770] hover:text-[#0E382C] flex items-center justify-center transition-all shadow-sm"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+              <HugeiconsIcon icon={Mail01Icon} size={16} strokeWidth={1.8} />
             </a>
 
             {/* Telefone */}
@@ -435,9 +442,7 @@ const LeadDetalhe = () => {
               title="Ligar"
               className="w-9 h-9 rounded-full border border-[#E4ECE7] bg-white hover:border-[#0E382C] hover:bg-[#F7FAF8] text-[#687770] hover:text-[#0E382C] flex items-center justify-center transition-all shadow-sm"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
+              <HugeiconsIcon icon={Call02Icon} size={16} strokeWidth={1.8} />
             </a>
 
             {/* WhatsApp */}
@@ -448,9 +453,7 @@ const LeadDetalhe = () => {
               title="Abrir WhatsApp"
               className="w-9 h-9 rounded-full border border-[#E4ECE7] bg-white hover:border-emerald-600 hover:bg-emerald-50 text-[#687770] hover:text-emerald-700 flex items-center justify-center transition-all shadow-sm"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z" />
-              </svg>
+              <HugeiconsIcon icon={WhatsappIcon} size={16} strokeWidth={1.8} />
             </a>
 
             {/* Copiloto IA (Dica rápida de fechamento) */}
@@ -459,9 +462,7 @@ const LeadDetalhe = () => {
               title="Copiloto IA: Sugestão Estratégica"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#D4EC9D] bg-[#F7FAF8] hover:bg-[#EBF5EC] text-[#0E382C] text-xs font-semibold transition-all shadow-sm ml-1"
             >
-              <svg className="w-3.5 h-3.5 text-[#0E382C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} className="text-[#0E382C]" />
               <span>Copiloto IA</span>
             </button>
           </div>
@@ -569,14 +570,12 @@ const LeadDetalhe = () => {
             >
               <div className="flex items-center gap-1.5 truncate">
                 {(isPassado || isAtual) && (
-                  <svg
-                    className={`w-3.5 h-3.5 flex-shrink-0 ${isAtual ? 'text-[#D4EC9D]' : 'text-[#0A4D34]'}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.6} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <HugeiconsIcon
+                    icon={CheckmarkCircle02Icon}
+                    size={14}
+                    strokeWidth={2.5}
+                    className={`flex-shrink-0 ${isAtual ? 'text-[#D4EC9D]' : 'text-[#0A4D34]'}`}
+                  />
                 )}
                 <span className="truncate">{etapa.titulo}</span>
               </div>
@@ -602,9 +601,7 @@ const LeadDetalhe = () => {
                     : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
                 }`}
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+                <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} />
                 <span>Linha do Tempo</span>
               </button>
 
@@ -775,33 +772,25 @@ const LeadDetalhe = () => {
                     >
                       <div className="flex items-center gap-3">
                         {/* Ícone de expansão */}
-                        <svg
-                          className={`w-3.5 h-3.5 text-[#687770] transition-transform duration-200 ${
+                        <HugeiconsIcon
+                          icon={ArrowDown01Icon}
+                          size={14}
+                          strokeWidth={2}
+                          className={`text-[#687770] transition-transform duration-200 ${
                             act.expandido ? 'rotate-180' : ''
                           }`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                        </svg>
+                        />
 
                         {/* Ícone do Tipo */}
                         <div className="w-6 h-6 rounded-lg bg-white border border-[#E4ECE7] flex items-center justify-center text-[#0E382C] shadow-2xs">
                           {isReuniao && (
-                            <svg className="w-3.5 h-3.5 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                            <HugeiconsIcon icon={Calendar03Icon} size={14} strokeWidth={2} className="text-blue-700" />
                           )}
                           {isNota && (
-                            <svg className="w-3.5 h-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                            <HugeiconsIcon icon={Note01Icon} size={14} strokeWidth={2} className="text-emerald-700" />
                           )}
                           {isTarefa && (
-                            <svg className="w-3.5 h-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
+                            <HugeiconsIcon icon={Task01Icon} size={14} strokeWidth={2} className="text-amber-700" />
                           )}
                         </div>
 
@@ -825,9 +814,7 @@ const LeadDetalhe = () => {
                           title="Excluir"
                           className="w-7 h-7 rounded-lg text-[#99A6A0] hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                          <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={2} />
                         </button>
                       </div>
                     </div>
@@ -881,9 +868,7 @@ const LeadDetalhe = () => {
                         {/* Rodapé: Prazo de Vencimento e Botão de Conclusão */}
                         <div className="flex items-center justify-between pt-3 border-t border-[#E4ECE7] flex-wrap gap-2">
                           <div className="flex items-center gap-1.5 text-xs text-[#687770]">
-                            <svg className="w-3.5 h-3.5 text-[#99A6A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                            <HugeiconsIcon icon={Calendar03Icon} size={14} strokeWidth={2} className="text-[#99A6A0]" />
                             <span>
                               {act.prazo
                                 ? `Vencimento: ${formatarData(act.prazo)}`
@@ -899,9 +884,7 @@ const LeadDetalhe = () => {
                                 : 'bg-white border border-[#0E382C] text-[#0E382C] hover:bg-[#F7FAF8]'
                             }`}
                           >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                            </svg>
+                            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} strokeWidth={2.5} />
                             <span>{act.concluida ? 'Concluída' : 'Marcar como concluída'}</span>
                           </button>
                         </div>
@@ -971,9 +954,7 @@ const LeadDetalhe = () => {
                   </div>
                   <span className="text-xs font-bold text-[#111915]">Expansão de Licenças</span>
                 </div>
-                <svg className="w-4 h-4 text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} className="text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" />
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-[#0E382C]">R$ 5.600</span>
@@ -993,9 +974,7 @@ const LeadDetalhe = () => {
                   </div>
                   <span className="text-xs font-bold text-[#111915]">Suporte e Onboarding</span>
                 </div>
-                <svg className="w-4 h-4 text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} className="text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" />
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-[#0E382C]">R$ 1.200</span>
@@ -1011,9 +990,7 @@ const LeadDetalhe = () => {
           <div className="bg-[#F7FAF8] rounded-2xl border border-[#D4EC9D] p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+                <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} />
               </div>
               <h2 className="text-xs font-bold text-[#0E382C] uppercase tracking-wider">
                 Copiloto IA
@@ -1028,9 +1005,7 @@ const LeadDetalhe = () => {
               onClick={() => dispararCopilot('mensagem_whatsapp')}
               className="w-full py-2 px-3 rounded-xl bg-white border border-[#0E382C] text-[#0E382C] hover:bg-[#0E382C] hover:text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-              </svg>
+              <HugeiconsIcon icon={Copy01Icon} size={14} strokeWidth={2} />
               <span>Copiar Mensagem WhatsApp</span>
             </button>
           </div>
@@ -1157,9 +1132,7 @@ const LeadDetalhe = () => {
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+                  <HugeiconsIcon icon={FlashIcon} size={16} strokeWidth={2} />
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-[#111915]">{copilotInsight.titulo}</h2>

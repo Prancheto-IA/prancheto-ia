@@ -15,6 +15,34 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { CATALOGO_EM_BREVE } from '../../../hooks/useHomeWidgets.js';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  DragDropVerticalIcon,
+  Cancel01Icon,
+  Delete02Icon,
+  RotateLeft01Icon,
+  Task01Icon,
+  Calendar03Icon,
+  FlashIcon,
+  Megaphone01Icon,
+  FireIcon,
+  News01Icon,
+  DashboardSquare01Icon,
+} from '@hugeicons/core-free-icons';
+
+const WIDGET_ICONES = {
+  minhas_tarefas: Task01Icon,
+  mini_agenda: Calendar03Icon,
+  acessos_rapidos: FlashIcon,
+  mural_anuncios: Megaphone01Icon,
+  leads_quentes: FireIcon,
+  noticias_negocios: News01Icon,
+};
+
+const getWidgetIcon = (slug) => {
+  const IconComp = WIDGET_ICONES[slug] || DashboardSquare01Icon;
+  return <HugeiconsIcon icon={IconComp} size={18} strokeWidth={1.8} className="text-[#0E382C]" />;
+};
 
 const ItemSortableWidget = ({ item, onToggle }) => {
   const {
@@ -40,26 +68,35 @@ const ItemSortableWidget = ({ item, onToggle }) => {
       <button
         {...attributes}
         {...listeners}
-        className="acao-sutil cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
+        className="acao-sutil cursor-grab active:cursor-grabbing flex-shrink-0 touch-none p-0.5"
         title="Arrastar para reordenar"
       >
-        ⠿
+        <HugeiconsIcon icon={DragDropVerticalIcon} size={16} strokeWidth={1.8} />
       </button>
-      <span className="text-base flex-shrink-0">{item.emoji}</span>
+      <span className="w-8 h-8 rounded-lg bg-[#DCF5E4]/50 flex items-center justify-center flex-shrink-0">
+        {getWidgetIcon(item.slug)}
+      </span>
       <div className="flex-1 min-w-0">
-        <p className="text-sm truncate">{item.label}</p>
+        <p className="text-sm font-medium truncate">{item.label}</p>
         <p className="text-xs opacity-50 truncate">{item.descricao}</p>
       </div>
       <button
         onClick={() => onToggle(item.slug)}
-        className={`flex-shrink-0 text-xs px-2 py-1 rounded-md transition-colors ${
+        className={`flex-shrink-0 text-xs px-2.5 py-1 rounded-md font-semibold transition-colors flex items-center gap-1 ${
           item.visivel
             ? 'acao-sutil hover:text-red-500 hover:bg-red-500/10'
             : 'text-emerald-500 hover:bg-emerald-500/10'
         }`}
         title={item.visivel ? 'Ocultar da Início' : 'Mostrar na Início'}
       >
-        {item.visivel ? '🗑️ Ocultar' : '+ Mostrar'}
+        {item.visivel ? (
+          <>
+            <HugeiconsIcon icon={Delete02Icon} size={12} strokeWidth={1.8} />
+            <span>Ocultar</span>
+          </>
+        ) : (
+          <span>+ Mostrar</span>
+        )}
       </button>
     </div>
   );
@@ -113,7 +150,9 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
             <h2 className="text-sm font-semibold">Personalizar Início</h2>
             <p className="text-xs opacity-50 mt-0.5">Arraste para reordenar • clique para ocultar</p>
           </div>
-          <button onClick={onFechar} className="acao-sutil text-lg">✕</button>
+          <button onClick={onFechar} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 transition-colors" title="Fechar">
+            <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-3 space-y-1">
@@ -138,9 +177,11 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-dashed opacity-50"
                   style={{ borderColor: 'var(--color-surface-border)' }}
                 >
-                  <span className="text-base flex-shrink-0">{item.emoji}</span>
+                  <span className="w-8 h-8 rounded-lg bg-[#DCF5E4]/30 flex items-center justify-center flex-shrink-0">
+                    {getWidgetIcon(item.slug)}
+                  </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{item.label}</p>
+                    <p className="text-sm font-medium truncate">{item.label}</p>
                     <p className="text-xs opacity-50 truncate">{item.descricao}</p>
                   </div>
                   <span className="text-xs opacity-40 flex-shrink-0">Em breve</span>
@@ -157,8 +198,9 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
               Salvando…
             </p>
           )}
-          <button onClick={handleResetar} className="acao-sutil acao-sutil-bloco w-full text-xs py-1.5 rounded-lg">
-            ↺ Restaurar padrão
+          <button onClick={handleResetar} className="acao-sutil acao-sutil-bloco w-full text-xs py-1.5 rounded-lg flex items-center justify-center gap-1.5 font-medium">
+            <HugeiconsIcon icon={RotateLeft01Icon} size={14} strokeWidth={1.8} />
+            <span>Restaurar padrão</span>
           </button>
           <button
             onClick={onFechar}

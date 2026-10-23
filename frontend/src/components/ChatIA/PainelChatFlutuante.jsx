@@ -12,6 +12,8 @@ import {
   Bolha, LinhaAtividade, CartaoAcao, FaixaIndisponivel, SUGESTOES,
 } from '../../pages/DashboardCliente/Chat/ChatMensagens.jsx';
 import pranchetinho from '../../assets/mascote/pranchetinho-chat.png';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Add01Icon, Cancel01Icon, SentIcon } from '@hugeicons/core-free-icons';
 
 const PainelChatFlutuante = ({ onFechar, style }) => {
   const {
@@ -50,8 +52,12 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
           </p>
           <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Consulta e age no seu CRM</p>
         </div>
-        <button onClick={novaConversa} title="Nova conversa" className="acao-sutil text-base flex-shrink-0">＋</button>
-        <button onClick={onFechar} title="Fechar" className="acao-sutil text-lg flex-shrink-0">✕</button>
+        <button onClick={novaConversa} title="Nova conversa" className="acao-sutil p-1 rounded-lg flex-shrink-0">
+          <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.8} />
+        </button>
+        <button onClick={onFechar} title="Fechar" className="acao-sutil p-1 rounded-lg flex-shrink-0">
+          <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
+        </button>
       </div>
 
       {indisponivel && <FaixaIndisponivel erro={erro} />}
@@ -144,10 +150,10 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
           <button
             type="submit"
             disabled={!texto.trim() || enviando}
-            className="bg-primary-600 hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3.5 py-2.5 rounded-xl transition-colors"
+            className="bg-primary-600 hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3.5 py-2.5 rounded-xl transition-colors flex items-center justify-center"
             aria-label="Enviar"
           >
-            ➤
+            <HugeiconsIcon icon={SentIcon} size={16} strokeWidth={2} />
           </button>
         </div>
       </form>

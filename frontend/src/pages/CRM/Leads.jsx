@@ -18,6 +18,13 @@ import {
   PORTE_LABEL, formatarEndereco,
   SecaoRecolhivel, temDadosNegocio, temDadosEmpresa,
 } from '../../components/crm/CamposContatoExtras.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Search01Icon,
+  Settings02Icon,
+  Add01Icon,
+  ArrowDown01Icon,
+} from '@hugeicons/core-free-icons';
 
 // ─── 5 ETAPAS DO PIPELINE EM PORTUGUÊS ─────────────────────────
 export const ETAPAS_PIPELINE = [
@@ -476,9 +483,7 @@ const ColunaPipeline = ({
         {modoBusca ? (
           /* Modo Busca Ativo: Substitui cabeçalho e botões por barra de pesquisa */
           <div className="flex items-center gap-1.5 w-full bg-white border border-[#E4ECE7] rounded-xl px-2.5 py-1.5 shadow-2xs transition-all duration-300">
-            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={1.8} className="text-slate-400 shrink-0" />
             <input
               ref={inputBuscaRef}
               type="text"
@@ -530,10 +535,7 @@ const ColunaPipeline = ({
                 className="opacity-0 group-hover/coluna:opacity-100 transition-opacity p-1.5 text-[#687770] hover:text-[#0E382C] hover:bg-white/80 rounded-lg"
                 title="Configurações da coluna"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.75} />
               </button>
 
               {/* 2. Botão de + para adicionar novo negócio na coluna (com a cor da coluna e traço destacado) */}
@@ -543,9 +545,7 @@ const ColunaPipeline = ({
                 className={`p-1.5 ${etapa.corTotal} hover:bg-white/90 rounded-lg transition-all hover:shadow-2xs active:scale-95`}
                 title="Adicionar negócio nesta coluna"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.8" d="M12 4v16m8-8H4" />
-                </svg>
+                <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.5} />
               </button>
 
               {/* 3. Botão de Lupa para pesquisar negócio na coluna */}
@@ -555,9 +555,7 @@ const ColunaPipeline = ({
                 className="p-1.5 text-[#687770] hover:text-[#0E382C] hover:bg-white/80 rounded-lg transition-colors"
                 title="Pesquisar negócios nesta coluna"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={1.75} />
               </button>
             </div>
           </div>
@@ -1204,9 +1202,7 @@ const PaginaLeads = () => {
           {/* Busca Rápida Geral */}
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <HugeiconsIcon icon={Search01Icon} size={14} strokeWidth={1.8} />
             </span>
             <input
               type="text"
@@ -1234,9 +1230,7 @@ const PaginaLeads = () => {
             >
               <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
               <span>{ownerSelecionado ? ownerSelecionado.nome : 'Todos os responsáveis'}</span>
-              <svg className="w-3.5 h-3.5 text-[#687770]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <HugeiconsIcon icon={ArrowDown01Icon} size={14} strokeWidth={1.8} className="text-[#687770]" />
             </button>
 
             {dropdownOwnersAberto && (

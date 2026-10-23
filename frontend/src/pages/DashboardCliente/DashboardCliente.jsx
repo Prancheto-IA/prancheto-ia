@@ -15,6 +15,8 @@ import WidgetMuralAnuncios from './widgets/WidgetMuralAnuncios.jsx';
 import WidgetAcessosRapidos from './widgets/WidgetAcessosRapidos.jsx';
 import WidgetMinhasTarefas from './widgets/WidgetMinhasTarefas.jsx';
 import WidgetLeadsQuentes from './widgets/WidgetLeadsQuentes.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Edit02Icon, DashboardSquare01Icon } from '@hugeicons/core-free-icons';
 
 const BADGE_CARGO = {
   admin:   { label: 'Administrador', bg: 'bg-[#0E382C]', text: 'text-white' },
@@ -63,9 +65,7 @@ const DashboardCliente = () => {
           onClick={() => setModalAberto(true)}
           className="flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#E4ECE7] text-[#0E382C] font-semibold text-xs rounded-xl shadow-xs hover:bg-[#F7FAF8] transition-all flex-shrink-0"
         >
-          <svg className="w-4 h-4 text-[#0E382C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
+          <HugeiconsIcon icon={Edit02Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />
           <span>Personalizar Dashboard</span>
         </button>
       </div>
@@ -133,9 +133,7 @@ const DashboardCliente = () => {
         </div>
       ) : prefs.widgetsVisiveis.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
-          <svg className="w-10 h-10 text-[#687770] mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
+          <HugeiconsIcon icon={DashboardSquare01Icon} size={40} strokeWidth={1.5} className="text-[#687770] mx-auto mb-2" />
           <p className="font-bold text-[#111915] text-sm mb-1">Nenhum widget visível</p>
           <p className="text-xs text-[#687770] mb-3">Personalize o seu painel adicionando blocos à sua tela inicial.</p>
           <button

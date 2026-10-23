@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
 import WidgetShell from './WidgetShell.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Calendar03Icon } from '@hugeicons/core-free-icons';
 
 const formatarData = (iso) =>
   new Date(iso).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -45,11 +47,7 @@ const WidgetMiniAgenda = () => {
   return (
     <WidgetShell
       titulo="Próximos Compromissos"
-      icone={
-        <svg className="w-4 h-4 text-[#0E382C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      }
+      icone={<HugeiconsIcon icon={Calendar03Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />}
       acaoLabel="Ver agenda"
       onAcao={() => navigate('/dashboard/agenda')}
     >
@@ -59,9 +57,7 @@ const WidgetMiniAgenda = () => {
         </div>
       ) : eventos.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
-          <svg className="w-8 h-8 text-[#687770]/50 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+          <HugeiconsIcon icon={Calendar03Icon} size={32} strokeWidth={1.5} className="text-[#687770]/50 mb-2" />
           <p className="text-xs font-semibold text-[#687770]">Nenhum compromisso nos próximos 7 dias.</p>
         </div>
       ) : (

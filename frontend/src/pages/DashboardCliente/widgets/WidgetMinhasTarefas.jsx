@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
 import WidgetShell from './WidgetShell.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Task01Icon, CheckmarkCircle02Icon } from '@hugeicons/core-free-icons';
 
 const COR_PRIORIDADE = {
   baixa: 'bg-slate-300',
@@ -54,11 +56,7 @@ const WidgetMinhasTarefas = () => {
   return (
     <WidgetShell
       titulo="Minhas Tarefas de Hoje"
-      icone={
-        <svg className="w-4 h-4 text-[#0E382C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-        </svg>
-      }
+      icone={<HugeiconsIcon icon={Task01Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />}
       acaoLabel="Ver todas"
       onAcao={() => navigate('/tarefas')}
     >
@@ -68,9 +66,7 @@ const WidgetMinhasTarefas = () => {
         </div>
       ) : tarefas.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
-          <svg className="w-8 h-8 text-[#15803D]/60 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <HugeiconsIcon icon={CheckmarkCircle02Icon} size={32} strokeWidth={1.5} className="text-[#15803D]/60 mb-2" />
           <p className="text-xs font-bold text-[#15803D]">Todas as tarefas concluídas!</p>
           <p className="text-[11px] text-[#687770] mt-0.5">Nenhuma pendência para a data de hoje.</p>
         </div>

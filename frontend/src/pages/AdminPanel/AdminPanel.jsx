@@ -6,6 +6,18 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Comment01Icon,
+  BotIcon,
+  UserGroupIcon,
+  Building01Icon,
+  PackageIcon,
+  Analytics01Icon,
+  Shield01Icon,
+  Ticket01Icon,
+  LockKeyIcon,
+} from '@hugeicons/core-free-icons';
 
 // Lazy loading das sub-páginas do painel admin
 const PaginaChatIA           = lazy(() => import('./ChatIA/ChatIA.jsx'));
@@ -67,77 +79,49 @@ const DashboardAdmin = () => {
 
   const modulos = [
     {
-      icone: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      ),
+      icone: <HugeiconsIcon icon={BotIcon} size={20} strokeWidth={1.8} />,
       titulo:   'Chat com IA',
       descricao: 'Gerar novos módulos, código e configurações via chat com a IA.',
       status:   'ativo',
       onClick:  () => navigate('/admin/chat'),
     },
     {
-      icone: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      ),
+      icone: <HugeiconsIcon icon={UserGroupIcon} size={20} strokeWidth={1.8} />,
       titulo:   'Gestão de Usuários',
       descricao: 'Gerenciar todos os usuários, cargos e sessão de impersonation.',
       status:   'ativo',
       onClick:  () => navigate('/admin/usuarios'),
     },
     {
-      icone: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0a2 2 0 01-2-2V5a2 2 0 012-2h4a2 2 0 012 2v14a2 2 0 01-2 2" />
-        </svg>
-      ),
+      icone: <HugeiconsIcon icon={Building01Icon} size={20} strokeWidth={1.8} />,
       titulo:   'Clientes & Tenants',
       descricao: 'Criar, editar e gerenciar tenants de organizações parceiras.',
       status:   'ativo',
       onClick:  () => navigate('/admin/clientes'),
     },
     {
-      icone: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-      ),
+      icone: <HugeiconsIcon icon={PackageIcon} size={20} strokeWidth={1.8} />,
       titulo:   'Planos e Limites',
       descricao: 'Configurar planos, recursos liberados e limites por empresa.',
       status:   'ativo',
       onClick:  () => navigate('/admin/planos'),
     },
     {
-      icone: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      ),
+      icone: <HugeiconsIcon icon={Analytics01Icon} size={20} strokeWidth={1.8} />,
       titulo:   'Monitoramento',
       descricao: 'Saúde do sistema, tempo de resposta e métricas de servidores.',
       status:   'ativo',
       onClick:  () => navigate('/admin/monitoramento'),
     },
     {
-      icone: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-        </svg>
-      ),
+      icone: <HugeiconsIcon icon={Shield01Icon} size={20} strokeWidth={1.8} />,
       titulo:   'Segurança & Auditoria',
       descricao: 'Logs de acessos, registros de auditoria e controle LGPD.',
       status:   'ativo',
       onClick:  () => navigate('/admin/seguranca'),
     },
     {
-      icone: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-        </svg>
-      ),
+      icone: <HugeiconsIcon icon={Ticket01Icon} size={20} strokeWidth={1.8} />,
       titulo:   'Tickets Recebidos',
       descricao: 'Atender tickets de suporte abertos por qualquer empresa parceira.',
       status:   'ativo',
@@ -151,9 +135,7 @@ const DashboardAdmin = () => {
       <header className="h-16 bg-white border-b border-[#E4ECE7] px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center font-bold shadow-xs">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+            <HugeiconsIcon icon={LockKeyIcon} size={18} strokeWidth={2} />
           </div>
           <div>
             <span className="font-extrabold text-[#111915]">Prancheto.IA</span>
