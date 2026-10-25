@@ -11,7 +11,7 @@
 // As demais preferências vivem em user_preferencias.
 // =============================================================
 
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore.js';
 import { useTema } from '../../../hooks/useTema.js';
@@ -19,10 +19,9 @@ import { usePermission } from '../../../hooks/usePermission.js';
 import { useRotulosOutbound, STATUS_ORDEM, ROTULOS_PADRAO } from '../../../hooks/useRotulosOutbound.js';
 import { supabase } from '../../../lib/supabase.js';
 import AjustesTopNav from '../../../components/Ajustes/AjustesTopNav.jsx';
+import SecaoPlano from './SecaoPlano.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Sun01Icon, Moon02Icon, Key01Icon, Shield01Icon } from '@hugeicons/core-free-icons';
-
-const SecaoPlano = lazy(() => import('./SecaoPlano.jsx'));
 
 const ABAS = [
   { slug: 'geral', label: 'Geral' },
@@ -266,17 +265,7 @@ const Configuracoes = () => {
 
       {/* 3. Conteúdo da Aba */}
       {abaAtiva === 'plano' ? (
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-64">
-              <div className="w-8 h-8 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
-            </div>
-          }
-        >
-          <div className="bg-white rounded-2xl border border-[#E4ECE7] p-6 shadow-xs">
-            <SecaoPlano />
-          </div>
-        </Suspense>
+        <SecaoPlano />
       ) : (
         /* Layout Reorganizado em Múltiplas Colunas */
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">

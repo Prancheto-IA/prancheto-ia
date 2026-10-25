@@ -88,10 +88,10 @@ const RotaCliente = ({ children }) => {
 // TELA DE CARREGAMENTO (Fallback do Suspense)
 // =============================================================
 const TelaCarregando = () => (
-  <div className="flex items-center justify-center min-h-screen bg-surface">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-muted text-sm">Carregando Prancheto.IA...</p>
+  <div className="flex items-center justify-center min-h-screen bg-[#F2F5F3]">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-9 h-9 border-3 border-[#E4ECE7] border-t-[#0E382C] rounded-full animate-spin" />
+      <p className="text-xs font-medium text-[#687770] tracking-wide">Carregando...</p>
     </div>
   </div>
 );
@@ -120,21 +120,21 @@ const App = () => {
   return (
     <Sentry.ErrorBoundary
       fallback={({ error, resetError }) => (
-        <div className="flex items-center justify-center min-h-screen bg-surface p-8">
-          <div className="bg-surface-card border border-surface-border rounded-xl p-8 max-w-md w-full text-center">
+        <div className="flex items-center justify-center min-h-screen bg-[#F2F5F3] p-8">
+          <div className="bg-white border border-[#E4ECE7] rounded-2xl p-8 max-w-md w-full text-center shadow-lg">
             <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-4">
               <HugeiconsIcon icon={Alert02Icon} size={32} strokeWidth={1.8} />
             </div>
-            <h1 className="text-xl font-semibold mb-2">Algo deu errado</h1>
-            <p className="text-muted text-sm mb-6">
+            <h1 className="text-xl font-bold mb-2 text-[#111915]">Algo deu errado</h1>
+            <p className="text-[#687770] text-sm mb-6">
               Ocorreu um erro inesperado. Nossa equipe foi notificada automaticamente.
             </p>
-            <p className="text-muted text-xs font-mono mb-6 bg-surface border border-surface-border p-2 rounded">
+            <p className="text-[#687770] text-xs font-mono mb-6 bg-[#F7FAF8] border border-[#E4ECE7] p-2.5 rounded-xl">
               {error?.message || 'Erro desconhecido'}
             </p>
             <button
               onClick={resetError}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg text-sm transition-colors"
+              className="bg-[#0E382C] hover:bg-[#154637] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-xs"
             >
               Tentar novamente
             </button>
