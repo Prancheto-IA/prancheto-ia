@@ -1,31 +1,22 @@
 // =============================================================
-// PRANCHETO.IA - WIDGET: MURAL DE ANÚNCIOS
-// Fonte de dados: feed_postagens/feed_reacoes/feed_comentarios, os mesmos
-// do módulo Feed (pages/Modulos/Feed/Feed.jsx) — não é uma tabela nova.
-//
-// Paginação por .range() igual ao hooks/useFeed.js, mas por página fixa
-// (não "carregar mais" acumulando): o widget tem altura fixa, então trocar
-// de página substitui o conteúdo em vez de crescer a lista.
-//
-// Corrige um bug latente do Feed: autor_nome nunca era selecionado em
-// nenhuma query existente (sempre caía no fallback "Usuário"). Aqui o
-// nome vem de verdade via join com users.
+// PRANCHETO.IA - WIDGET: MURAL DE ANÚNCIOS (EMITLY DESIGN SYSTEM)
+// Anúncios da organização em formato de timeline limpa.
 // =============================================================
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
-import { TIPOS_POSTAGEM } from '../../../hooks/useFeed.js';
 import WidgetShell from './WidgetShell.jsx';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Megaphone01Icon, ThumbsUpIcon } from '@hugeicons/core-free-icons';
 
-const POR_PAGINA = 4;
+const POR_PAGINA = 3;
 
 const formatarTempo = (iso) => {
   const diff = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diff / 60000);
   if (min < 1) return 'agora';
-  if (min < 60) return `${min}min`;
+  if (min < 60) return `${min}m`;
   const h = Math.floor(min / 60);
   if (h < 24) return `${h}h`;
   const d = Math.floor(h / 24);
@@ -34,7 +25,6 @@ const formatarTempo = (iso) => {
 };
 
 const WidgetMuralAnuncios = () => {
-  const navigate = useNavigate();
   const usuario = useAuthStore((s) => s.usuario);
   const tenantId = usuario?.tenant_id;
 
@@ -80,7 +70,7 @@ const WidgetMuralAnuncios = () => {
       const { error } = await supabase
         .from('feed_reacoes')
         .upsert(
-          { postagem_id: postagemId, user_id: usuario?.id, emoji: '👍' },
+          { postagem_id: postagemId, user_id: usuario?.id, emoji: 'like' },
           { onConflict: 'postagem_id,user_id,emoji' }
         );
       if (error) throw error;
@@ -91,40 +81,43 @@ const WidgetMuralAnuncios = () => {
   };
 
   return (
-    <WidgetShell titulo="Mural de Anúncios" emoji="📣" acaoLabel="Ver mural completo" onAcao={() => navigate('/modulos/feed')}>
+    <WidgetShell
+      titulo="Mural de Anúncios"
+      icone={<HugeiconsIcon icon={Megaphone01Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />}
+    >
       <div className="flex flex-col h-full">
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 min-h-0 flex flex-col space-y-3">
           {carregando ? (
-            <p className="text-xs opacity-40 text-center py-4">Carregando...</p>
+            <div className="flex-1 flex items-center justify-center py-6">
+              <div className="w-5 h-5 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+            </div>
           ) : postagens.length === 0 ? (
-            <p className="text-xs opacity-40 text-center py-4">
-              {pagina === 0 ? 'Nenhuma publicação ainda.' : 'Não há publicações mais antigas.'}
-            </p>
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
+              <HugeiconsIcon icon={Megaphone01Icon} size={32} strokeWidth={1.5} className="text-[#687770]/50 mb-2" />
+              <p className="text-xs font-semibold text-[#687770]">
+                {pagina === 0 ? 'Nenhum anúncio publicado ainda.' : 'Não há anúncios mais antigos.'}
+              </p>
+            </div>
           ) : (
             postagens.map((p) => {
-              const tipo = TIPOS_POSTAGEM.find((t) => t.slug === p.tipo) || TIPOS_POSTAGEM[0];
               const totalReacoes = p.feed_reacoes?.[0]?.count || 0;
               const totalComentarios = p.feed_comentarios?.[0]?.count || 0;
               return (
-                <div key={p.id} className="pb-3 border-b last:border-0 last:pb-0" style={{ borderColor: 'var(--color-surface-border)' }}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-xs font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>
-                      {p.autor?.nome || 'Usuário'}
-                    </p>
-                    <span className="text-xs opacity-40 flex-shrink-0">{tipo.icone}</span>
-                    {p.fixado && <span className="text-xs opacity-40 flex-shrink-0">📌</span>}
-                    <span className="text-xs opacity-40 ml-auto flex-shrink-0">{formatarTempo(p.criado_em)}</span>
+                <div key={p.id} className="p-3 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7] space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#111915]">{p.autor?.nome || 'Usuário'}</span>
+                    <span className="text-[10px] text-[#687770]">{formatarTempo(p.criado_em)}</span>
                   </div>
-                  <p className="text-sm leading-relaxed line-clamp-3" style={{ color: 'var(--color-text-secondary)' }}>
-                    {p.conteudo}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <button onClick={() => reagir(p.id)} className="text-xs opacity-60 hover:opacity-100 transition-opacity">
-                      👍 {totalReacoes || ''}
+                  <p className="text-xs text-[#687770] leading-relaxed line-clamp-2">{p.conteudo}</p>
+                  <div className="flex items-center gap-3 pt-1 border-t border-[#E4ECE7]/60">
+                    <button
+                      onClick={() => reagir(p.id)}
+                      className="text-[10px] font-semibold text-[#0E382C] hover:bg-[#EBF0ED] px-2 py-0.5 rounded-md transition-colors flex items-center gap-1"
+                    >
+                      <HugeiconsIcon icon={ThumbsUpIcon} size={12} strokeWidth={1.8} />
+                      <span>Curtir ({totalReacoes})</span>
                     </button>
-                    <button onClick={() => navigate('/modulos/feed')} className="text-xs opacity-60 hover:opacity-100 transition-opacity">
-                      💬 {totalComentarios || ''}
-                    </button>
+                    <span className="text-[10px] text-[#687770]">Comentários ({totalComentarios})</span>
                   </div>
                 </div>
               );
@@ -132,20 +125,20 @@ const WidgetMuralAnuncios = () => {
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-3 pt-2 border-t flex-shrink-0" style={{ borderColor: 'var(--color-surface-border)' }}>
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#E4ECE7] flex-shrink-0">
           <button
             onClick={() => carregar(pagina - 1)}
             disabled={pagina === 0 || carregando}
-            className="text-xs opacity-60 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity"
+            className="text-xs font-semibold text-[#0E382C] disabled:opacity-30 disabled:cursor-not-allowed hover:underline"
           >
-            ‹ Mais recentes
+            ← Anúncios recentes
           </button>
           <button
             onClick={() => carregar(pagina + 1)}
             disabled={!temMais || carregando}
-            className="text-xs opacity-60 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity"
+            className="text-xs font-semibold text-[#0E382C] disabled:opacity-30 disabled:cursor-not-allowed hover:underline"
           >
-            Mais antigas ›
+            Mais antigos →
           </button>
         </div>
       </div>

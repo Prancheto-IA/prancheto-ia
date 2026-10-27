@@ -107,8 +107,13 @@ export const useLeads = () => {
           criado_em, atualizado_em,
           responsavel:responsavel_id (id, nome, email)
         `)
-        .eq('tipo_registro', 'lead')
         .order('score', { ascending: false });
+
+      if (filtros.tipo_registro) {
+        q = q.eq('tipo_registro', filtros.tipo_registro);
+      } else {
+        q = q.in('tipo_registro', ['lead', 'cliente']);
+      }
 
       if (filtros.status_funil) q = q.eq('status_funil', filtros.status_funil);
       if (filtros.time_id)      q = q.eq('time_id', filtros.time_id);
