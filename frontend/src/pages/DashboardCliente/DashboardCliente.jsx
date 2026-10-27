@@ -25,14 +25,6 @@ const BADGE_CARGO = {
   viewer:  { label: 'Visualizador',  bg: 'bg-slate-100', text: 'text-slate-600' },
 };
 
-const COMPONENTES_WIDGET = {
-  mini_agenda: WidgetMiniAgenda,
-  mural_anuncios: WidgetMuralAnuncios,
-  acessos_rapidos: WidgetAcessosRapidos,
-  minhas_tarefas: WidgetMinhasTarefas,
-  leads_quentes: WidgetLeadsQuentes,
-};
-
 const DashboardCliente = () => {
   const navigate = useNavigate();
   const { usuario } = useAuthStore();

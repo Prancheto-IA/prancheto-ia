@@ -6,7 +6,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOrg } from '../../hooks/useOrg';
-import { useAuthStore } from '../../store/authStore';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -584,7 +583,6 @@ const CardMembro = ({ membro, timesDoMembro = [] }) => {
 // COMPONENTE PRINCIPAL: TimesPessoas
 // ----------------------------------------------------------
 const TimesPessoas = () => {
-  const usuario = useAuthStore((s) => s.usuario);
   const {
     listarTimes,
     listarUsuariosCompleto,

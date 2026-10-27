@@ -10,7 +10,6 @@ import {
   useOrg,
   PERMISSOES_POR_GRUPO,
   PERMISSOES_DISPONIVEIS,
-  SLUGS_CONHECIDOS,
   PERMISSOES_PADRAO_CARGO_NOVO,
 } from '../../../hooks/useOrg.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';

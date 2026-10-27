@@ -11,18 +11,12 @@ import { useTenantStore } from '../../../store/tenantStore.js';
 import {
   FONTES_DISPONIVEIS,
   IDENTIDADE_PADRAO,
-  gerarRampaPrimaria,
   normalizarIdentidade,
 } from '../../../utils/identidadeVisual.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Image01Icon, InformationCircleIcon } from '@hugeicons/core-free-icons';
 
-/** Tom claro da primária, como o usado nos itens ativos da navegação real. */
-const tomClaro = (hex) => {
-  const rampa = gerarRampaPrimaria(hex);
-  return rampa ? `rgb(${rampa[300]})` : hex;
-};
 
 // ----------------------------------------------------------
 // COMPONENTE: Seletor de cor Emitly

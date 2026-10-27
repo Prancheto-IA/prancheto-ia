@@ -232,7 +232,7 @@ const BolhaMensagem = ({ mensagem, ehMinha, nomeAutor }) => {
 // Modal Membros
 const ModalMembros = ({ aberto, onFechar, canal, membros, usuariosTenant, souAdmin, usuarioAtualId, onAdicionar, onRemover, onPromover, onRebaixar }) => {
   const [busca, setBusca] = useState('');
-  const [ocupado, setOcupado] = useState(false);
+  const [_ocupado, setOcupado] = useState(false);
   const [erro, setErro] = useState('');
 
   if (!aberto || !canal) return null;
@@ -347,7 +347,7 @@ const ChatModulo = () => {
 
   const [texto, setTexto] = useState('');
   const [busca, setBusca] = useState('');
-  const [abaAtiva, setAbaAtiva] = useState('todos'); // 'todos' | 'canais' | 'ia' | 'diretas'
+  const [abaAtiva] = useState('todos'); // 'todos' | 'canais' | 'ia' | 'diretas'
   const [modalMembrosAberto, setModalMembrosAberto] = useState(false);
   const fimRef = useRef(null);
 

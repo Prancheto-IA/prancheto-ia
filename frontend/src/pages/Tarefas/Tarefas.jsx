@@ -27,7 +27,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useTarefas, STATUS_TAREFAS, PRIORIDADES } from '../../hooks/useTarefas';
+import { useTarefas } from '../../hooks/useTarefas';
 import { useAuthStore } from '../../store/authStore';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -411,11 +411,9 @@ const Tarefas = () => {
   const usuario = useAuthStore(s => s.usuario);
   const {
     tarefas: tarefasDb,
-    carregando,
     criarTarefa,
     atualizarTarefa,
     excluirTarefa,
-    usuariosTenant,
   } = useTarefas();
 
   // Tarefas ativas (com fallback automático resiliente)

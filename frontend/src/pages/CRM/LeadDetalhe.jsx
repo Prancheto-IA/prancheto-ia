@@ -5,15 +5,15 @@
 // (Notas, Reuniões, Tarefas) em Accordion e Sidebar com Métricas Reais.
 // =============================================================
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase.js';
 import { useAuthStore } from '../../store/authStore.js';
 import {
-  formatarMoeda, formatarData, formatarDataHora, tempoRelativo,
+  formatarMoeda, formatarData, formatarDataHora,
   useInteracoes,
 } from '../../hooks/useCRM.js';
-import { ETAPAS_PIPELINE, DEALS_DEMO, formatarK } from './Leads.jsx';
+import { ETAPAS_PIPELINE, DEALS_DEMO } from './Leads.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -55,7 +55,7 @@ const LeadDetalhe = () => {
   const [novoTitulo, setNovoTitulo] = useState('');
   const [novoTexto, setNovoTexto] = useState('');
   const [novoPrazo, setNovoPrazo] = useState('');
-  const [novoLocal, setNovoLocal] = useState('Google Meet');
+  const [novoLocal] = useState('Google Meet');
   const [novaPrioridade, setNovaPrioridade] = useState('Média');
 
   // Atividades Locais com Accordion
@@ -319,7 +319,6 @@ const LeadDetalhe = () => {
 
   // Copiloto IA
   const dispararCopilot = (tipo) => {
-    const nomeNegocio = deal?.nome || 'este lead';
     const valor = formatarMoeda(deal?.valor_estimado || 0);
 
     if (tipo === 'proxima_acao') {

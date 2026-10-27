@@ -23,7 +23,6 @@ import { useAuthStore } from '../../store/authStore.js';
 import { useTenantStore } from '../../store/tenantStore.js';
 import { useAuth, carregarPermissoesCargo } from '../../hooks/useAuth.js';
 import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
-import { NOME_PRODUTO } from '../../lib/ambiente.js';
 import BolhaChatIA from '../../components/ChatIA/BolhaChatIA.jsx';
 
 

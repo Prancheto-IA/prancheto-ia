@@ -4,10 +4,8 @@
 // =============================================================
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
-import { TIPOS_POSTAGEM } from '../../../hooks/useFeed.js';
 import WidgetShell from './WidgetShell.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Megaphone01Icon, ThumbsUpIcon } from '@hugeicons/core-free-icons';
@@ -27,7 +25,6 @@ const formatarTempo = (iso) => {
 };
 
 const WidgetMuralAnuncios = () => {
-  const navigate = useNavigate();
   const usuario = useAuthStore((s) => s.usuario);
   const tenantId = usuario?.tenant_id;
 

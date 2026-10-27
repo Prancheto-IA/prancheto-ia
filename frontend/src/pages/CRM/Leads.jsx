@@ -7,16 +7,9 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLeads } from '../../hooks/useCRM.js';
 import {
-  useLeads, useInteracoes,
-  TIPOS_INTERACAO, ORIGENS,
-  tipoInfo, origemInfo, formatarData, tempoRelativo,
-} from '../../hooks/useCRM.js';
-import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
-import {
-  ENDERECO_VAZIO, CamposNegocio, CampoWhatsapp, CamposEmpresa, limparEndereco,
-  PORTE_LABEL, formatarEndereco,
-  SecaoRecolhivel, temDadosNegocio, temDadosEmpresa,
+  ENDERECO_VAZIO, limparEndereco,
 } from '../../components/crm/CamposContatoExtras.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -949,9 +942,9 @@ const ModalLead = ({ aberto, onFechar, onSalvar, leadEditando, statusInicial = '
 // ─── PÁGINA PRINCIPAL: LEADS / PIPELINE DE NEGÓCIOS ────────────
 const PaginaLeads = () => {
   const {
-    leads: leadsDb, carregando, erro,
-    carregar, criar, atualizar, excluir,
-    mudarStatus, converterParaCliente,
+    leads: leadsDb,
+    carregar, criar, atualizar,
+    mudarStatus,
   } = useLeads();
 
   const navigate                              = useNavigate();
@@ -1116,7 +1109,11 @@ const PaginaLeads = () => {
     if (leadEditando) {
       if (!String(leadEditando.id).startsWith('demo-')) {
         const atualizado = await atualizar(leadEditando.id, dados);
-        if (painelLead?.id === leadEditando.id) setPainelLead(atualizado);
+        if (atualizado) {
+          setDealsLocais(prev =>
+            prev.map(d => d.id === leadEditando.id ? { ...d, ...atualizado } : d)
+          );
+        }
       } else {
         setDealsLocais(prev =>
           prev.map(d => d.id === leadEditando.id ? { ...d, ...dados } : d)
@@ -1128,7 +1125,7 @@ const PaginaLeads = () => {
         if (novo) {
           setDealsLocais(prev => [novo, ...prev]);
         }
-      } catch (err) {
+      } catch (_err) {
         const novoLocal = {
           ...dados,
           id: `local-${Date.now()}`,
@@ -1139,41 +1136,6 @@ const PaginaLeads = () => {
       }
     }
     setLeadEditando(null);
-  };
-
-  const handleEditar = (deal) => {
-    setLeadEditando(deal);
-    setModalAberto(true);
-    setPainelLead(null);
-  };
-
-  const handleExcluir = async (id) => {
-    if (!window.confirm('Excluir este negócio?')) return;
-    setDealsLocais(prev => prev.filter(d => d.id !== id));
-    if (!String(id).startsWith('demo-') && !String(id).startsWith('local-')) {
-      await excluir(id);
-    }
-    if (painelLead?.id === id) setPainelLead(null);
-  };
-
-  const handleMudarStatus = async (id, novaEtapa) => {
-    setDealsLocais(prev =>
-      prev.map(d => d.id === id ? { ...d, status_funil: novaEtapa, atualizado_em: new Date().toISOString() } : d)
-    );
-    if (!String(id).startsWith('demo-') && !String(id).startsWith('local-')) {
-      await mudarStatus(id, novaEtapa);
-    }
-    if (painelLead?.id === id) {
-      setPainelLead(prev => ({ ...prev, status_funil: novaEtapa }));
-    }
-  };
-
-  const handleConverter = async (id) => {
-    if (!String(id).startsWith('demo-') && !String(id).startsWith('local-')) {
-      await converterParaCliente(id);
-    }
-    setDealsLocais(prev => prev.filter(d => d.id !== id));
-    setPainelLead(null);
   };
 
   const handleSalvarConfigColuna = (etapaKey, novosDados) => {

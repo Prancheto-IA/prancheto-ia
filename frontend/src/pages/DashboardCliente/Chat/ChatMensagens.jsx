@@ -49,7 +49,6 @@ export const SUGESTOES = [
 export const Bolha = ({ mensagem }) => {
   const usuario = useAuthStore((s) => s.usuario);
   const ehUsuario = mensagem.remetente === 'user';
-  const primeiroNome = usuario?.nome?.split(' ')[0] || 'Usuário';
 
   return (
     <div className={`flex gap-2.5 sm:gap-3 ${ehUsuario ? 'flex-row-reverse' : 'flex-row'} items-start group`}>

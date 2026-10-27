@@ -8,7 +8,6 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  Comment01Icon,
   BotIcon,
   UserGroupIcon,
   Building01Icon,

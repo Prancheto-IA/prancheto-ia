@@ -13,15 +13,9 @@ import {
   Rocket01Icon,
   CheckmarkCircle02Icon,
   CancelCircleIcon,
-  FlashIcon,
   StarIcon,
   UserGroupIcon,
-  Calendar03Icon,
   Mail01Icon,
-  Analytics01Icon,
-  BotIcon,
-  Task01Icon,
-  Settings02Icon,
   HelpCircleIcon,
   CreditCardIcon,
   Shield01Icon,
@@ -30,18 +24,6 @@ import {
   CheckmarkBadge01Icon,
   DatabaseIcon,
 } from '@hugeicons/core-free-icons';
-
-// ----------------------------------------------------------
-// MAPEAMENTO DE ÍCONES DE RECURSOS (Hugeicons)
-// ----------------------------------------------------------
-const ICONES_RECURSO = {
-  crm: Task01Icon,
-  chat_ia: BotIcon,
-  agenda: Calendar03Icon,
-  relatorios: Analytics01Icon,
-  outbound: Mail01Icon,
-  configuracoes: Settings02Icon,
-};
 
 const formatarPreco = (valor) => {
   if (!valor || valor === 0) return 'Grátis';
@@ -232,7 +214,6 @@ const CardPlano = ({ plano, recursos, planoAtual, cicloAnual, onSelecionar }) =>
           Recursos inclusos:
         </p>
         {recursos.map((rec) => {
-          const IconComp = ICONES_RECURSO[rec.slug] || CheckmarkCircle02Icon;
           return (
             <div key={rec.slug} className="flex items-center gap-2.5 text-xs">
               <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${

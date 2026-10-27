@@ -178,7 +178,7 @@ const GraficoAreaSpline = ({ valorPico = 'R$ 82.500', variacao = '+12% Últimos 
 // ----------------------------------------------------------
 // COMPONENTE: Gráfico Donut SVG
 // ----------------------------------------------------------
-const GraficoDonutReceita = ({ valorFechadoFmt, valorPipelineFmt, pctFechado = 55, pctNegociacao = 25, pctProposta = 20 }) => {
+const GraficoDonutReceita = ({ _valorFechadoFmt, _valorPipelineFmt, pctFechado = 55, pctNegociacao = 25, pctProposta = 20 }) => {
   const r = 52;
   const c = 2 * Math.PI * r; // ~326.72
 
