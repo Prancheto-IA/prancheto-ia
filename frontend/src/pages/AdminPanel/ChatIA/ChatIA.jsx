@@ -17,8 +17,6 @@ import {
   IndicadorDigitando,
   TelaVazia,
 } from './ChatIAComponentes.jsx';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Add01Icon, SentIcon } from '@hugeicons/core-free-icons';
 
 // =============================================================
 // COMPONENTE PRINCIPAL: PaginaChatIA
@@ -257,7 +255,9 @@ const PaginaChatIA = () => {
           disabled={carregando}
           className="btn-primary text-sm px-3 py-1.5 flex items-center gap-1.5 disabled:opacity-50"
         >
-          <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2} />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
           <span className="hidden sm:inline">Nova Conversa</span>
         </button>
       </header>
@@ -385,7 +385,10 @@ const PaginaChatIA = () => {
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
                     ) : (
-                      <HugeiconsIcon icon={SentIcon} size={16} strokeWidth={2} />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
                     )}
                     <span className="hidden sm:inline">{carregando ? 'Enviando...' : 'Enviar'}</span>
                   </button>

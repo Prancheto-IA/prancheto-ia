@@ -16,10 +16,10 @@ import { useAuthStore } from '../store/authStore';
 // Catálogo de widgets ativáveis. "tamanho" controla quantas colunas o
 // widget ocupa na grade da Home (ver DashboardCliente.jsx).
 export const CATALOGO_WIDGETS = [
-  { slug: 'minhas_tarefas',  label: 'Minhas Tarefas de Hoje', emoji: '✅', descricao: 'Tarefas atribuídas a você com vencimento hoje.',       tamanho: 'padrao' },
   { slug: 'mini_agenda',     label: 'Mini Agenda',            emoji: '🗓️', descricao: 'Seus próximos compromissos da semana.',              tamanho: 'padrao' },
+  { slug: 'mural_anuncios',  label: 'Mural de Anúncios',      emoji: '📣', descricao: 'Últimas publicações do Feed da empresa.',             tamanho: 'grande' },
   { slug: 'acessos_rapidos', label: 'Acessos Rápidos',        emoji: '⚡', descricao: 'Atalhos para CRM, Relatórios, Agenda e Configurações.', tamanho: 'padrao' },
-  { slug: 'mural_anuncios',  label: 'Mural de Anúncios',      emoji: '📣', descricao: 'Últimas publicações do Feed da empresa.',             tamanho: 'padrao' },
+  { slug: 'minhas_tarefas',  label: 'Minhas Tarefas de Hoje', emoji: '✅', descricao: 'Tarefas atribuídas a você com vencimento hoje.',       tamanho: 'padrao' },
   { slug: 'leads_quentes',   label: 'Leads Quentes',          emoji: '🔥', descricao: 'Leads com score alto, prontos pra abordar.',          tamanho: 'padrao' },
 ];
 
@@ -30,7 +30,7 @@ export const CATALOGO_EM_BREVE = [
 ];
 
 // Widgets que já vêm visíveis pra quem nunca personalizou a Home.
-const VISIVEIS_PADRAO = ['minhas_tarefas', 'mini_agenda', 'acessos_rapidos', 'mural_anuncios'];
+const VISIVEIS_PADRAO = ['mini_agenda', 'mural_anuncios'];
 
 const gerarWidgetsDefault = () =>
   CATALOGO_WIDGETS.map((w, idx) => ({

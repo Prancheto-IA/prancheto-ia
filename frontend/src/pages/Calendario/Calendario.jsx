@@ -1,19 +1,14 @@
-// =============================================================
-// PRANCHETO.IA - MÓDULO DE CALENDÁRIO (EMITLY DESIGN SYSTEM)
-// Calendário mensal interativo com drag-and-drop, sem emojis e com abas limpas.
-// =============================================================
-
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DndContext, PointerSensor, useSensor, useSensors, useDroppable, useDraggable } from '@dnd-kit/core';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 
 const TIPOS_EVENTO = {
-  reuniao:     { label: 'Reunião',    cor: '#0E382C' },
-  tarefa:      { label: 'Tarefa',     cor: '#15803D' },
-  lembrete:    { label: 'Lembrete',   cor: '#B45309' },
-  ligacao:     { label: 'Ligação',    cor: '#2563EB' },
-  outro:       { label: 'Outro',      cor: '#687770' },
+  reuniao:     { label: 'Reunião',    cor: '#6366f1', icone: '📅' },
+  tarefa:      { label: 'Tarefa',     cor: '#10b981', icone: '✅' },
+  lembrete:    { label: 'Lembrete',   cor: '#f59e0b', icone: '🔔' },
+  ligacao:     { label: 'Ligação',    cor: '#3b82f6', icone: '📞' },
+  outro:       { label: 'Outro',      cor: '#94a3b8', icone: '📌' },
 };
 
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -21,6 +16,9 @@ const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Ag
 
 const pad2 = (n) => String(n).padStart(2, '0');
 
+// Monta a grade completa do mês (linhas de 7 dias), preenchendo com dias do
+// mês anterior/seguinte para fechar a primeira e a última semana — igual ao
+// que qualquer calendário mensal padrão mostra (dias fora do mês, esmaecidos).
 const getGradeDoMes = (ano, mes) => {
   const primeiroDiaMes = new Date(ano, mes, 1);
   const diaSemanaInicio = primeiroDiaMes.getDay();
@@ -56,6 +54,9 @@ const formatarDataHora = (iso) => {
   return `${dataStr} · ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 };
 
+// ─── Modal de evento ──────────────────────────────────────────────────────────
+// FORM_VAZIO fora do componente: referência estável entre renders, para
+// poder entrar na dependência do useEffect abaixo sem causar loop.
 const FORM_VAZIO = { titulo: '', tipo: 'reuniao', data_inicio: '', hora: '09:00', descricao: '', local: '' };
 
 const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, diaSelecionado, mesSelecionado, anoSelecionado }) => {
@@ -63,6 +64,9 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, di
 
   useEffect(() => {
     if (eventoEditando) {
+      // Base local consistente: getters locais para data E hora, evitando
+      // misturar UTC (toISOString) com hora local (toTimeString) — a mistura
+      // fazia eventos perto da meia-noite local caírem no dia/hora errados.
       const d = new Date(eventoEditando.data_inicio);
       setForm({
         titulo: eventoEditando.titulo || '',
@@ -85,6 +89,10 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, di
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Constrói um Date local real e converte pra instante UTC via
+    // toISOString(). Concatenar a string naive ("YYYY-MM-DDTHH:mm:00") e
+    // mandar direto pro Postgres fazia o timestamptz ser interpretado como
+    // UTC, deslocando o evento pelo fuso do usuário (ex.: 3h no Brasil).
     const [ano, mes, dia] = form.data_inicio.split('-').map(Number);
     const [hora, minuto] = form.hora.split(':').map(Number);
     const dataHora = new Date(ano, mes - 1, dia, hora, minuto);
@@ -99,102 +107,41 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, di
     onFechar();
   };
 
+  const inp = 'w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500';
+  const inpStyle = { border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4" onClick={onFechar}>
-      <div className="w-full max-w-md bg-white rounded-2xl p-6 space-y-4 shadow-2xl border border-[#E4ECE7]" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between pb-3 border-b border-[#E4ECE7]">
-          <h2 className="text-base font-extrabold text-[#111915]">{eventoEditando ? 'Editar Evento' : 'Novo Evento'}</h2>
-          <button onClick={onFechar} className="text-slate-400 hover:text-slate-600">✕</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onFechar}>
+      <div className="w-full max-w-md rounded-2xl p-6 space-y-4" style={{ backgroundColor: 'var(--color-surface)' }} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">{eventoEditando ? 'Editar evento' : 'Novo evento'}</h2>
+          <button onClick={onFechar} className="opacity-50 hover:opacity-100 text-xl">✕</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">Título do Evento *</label>
-            <input
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
-              placeholder="Ex: Reunião de Alinhamento de Produto"
-              value={form.titulo}
-              onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))}
-              required
-            />
-          </div>
+          <input className={inp} style={inpStyle} placeholder="Título do evento" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} required />
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-[#111915] mb-1">Tipo</label>
-              <select
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
-                value={form.tipo}
-                onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}
-              >
-                {Object.entries(TIPOS_EVENTO).map(([k, v]) => (
-                  <option key={k} value={k}>{v.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-[#111915] mb-1">Horário</label>
-              <input
-                type="time"
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
-                value={form.hora}
-                onChange={e => setForm(f => ({ ...f, hora: e.target.value }))}
-              />
-            </div>
+            <select className={inp} style={inpStyle} value={form.tipo} onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
+              {Object.entries(TIPOS_EVENTO).map(([k, v]) => (
+                <option key={k} value={k}>{v.icone} {v.label}</option>
+              ))}
+            </select>
+            <input type="time" className={inp} style={inpStyle} value={form.hora} onChange={e => setForm(f => ({ ...f, hora: e.target.value }))} />
           </div>
-          <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">Data *</label>
-            <input
-              type="date"
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
-              value={form.data_inicio}
-              onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">Local / Link</label>
-            <input
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
-              placeholder="Google Meet ou endereço"
-              value={form.local}
-              onChange={e => setForm(f => ({ ...f, local: e.target.value }))}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">Descrição</label>
-            <textarea
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
-              placeholder="Pauta da reunião ou anotações"
-              rows={2}
-              value={form.descricao}
-              onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))}
-            />
-          </div>
-
-          <div className="flex justify-between items-center pt-3 border-t border-[#E4ECE7]">
+          <input type="date" className={inp} style={inpStyle} value={form.data_inicio} onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))} required />
+          <input className={inp} style={inpStyle} placeholder="Local (opcional)" value={form.local} onChange={e => setForm(f => ({ ...f, local: e.target.value }))} />
+          <textarea className={inp} style={inpStyle} placeholder="Descrição (opcional)" rows={2} value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+          <div className="flex gap-2 pt-2">
             {eventoEditando && (
-              <button
-                type="button"
-                onClick={() => { onExcluir(eventoEditando.id); onFechar(); }}
-                className="text-xs font-semibold text-red-600 hover:underline"
-              >
+              <button type="button" onClick={() => { onExcluir(eventoEditando.id); onFechar(); }}
+                className="px-4 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors">
                 Excluir
               </button>
             )}
-            <div className="flex gap-2 ml-auto">
-              <button
-                type="button"
-                onClick={onFechar}
-                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-[#0E382C] text-white text-xs font-semibold rounded-xl shadow-xs hover:bg-[#07261E]"
-              >
-                Salvar
-              </button>
-            </div>
+            <button type="button" onClick={onFechar} className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors"
+              style={{ border: '1px solid var(--color-surface-border)' }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Cancelar</button>
+            <button type="submit" className="flex-1 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium">Salvar</button>
           </div>
         </form>
       </div>
@@ -202,6 +149,7 @@ const ModalEvento = ({ aberto, onFechar, onSalvar, onExcluir, eventoEditando, di
   );
 };
 
+// ─── Evento arrastável ────────────────────────────────────────────────────────
 const EventoArrastavel = ({ evento, onClick }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: evento.id });
   const tipo = TIPOS_EVENTO[evento.tipo] || TIPOS_EVENTO.outro;
@@ -211,20 +159,23 @@ const EventoArrastavel = ({ evento, onClick }) => {
       {...attributes}
       {...listeners}
       onClick={(e) => { e.stopPropagation(); onClick(evento); }}
-      className="text-[10px] font-bold px-2 py-1 rounded-lg truncate cursor-grab active:cursor-grabbing select-none transition-all"
+      className="text-xs px-1.5 py-0.5 rounded truncate cursor-grab active:cursor-grabbing select-none"
       style={{
-        backgroundColor: tipo.cor + '15',
+        backgroundColor: tipo.cor + '33',
         color: tipo.cor,
-        borderLeft: `3px solid ${tipo.cor}`,
         opacity: isDragging ? 0.4 : 1,
       }}
       title={evento.titulo}
     >
-      {evento.titulo}
+      {tipo.icone} {evento.titulo}
     </div>
   );
 };
 
+// ─── Célula do dia (droppable) ────────────────────────────────────────────────
+// O id embute o mês/ano reais da célula (já 0-indexado, convenção Date.getMonth()),
+// inclusive para dias esmaecidos de mês adjacente — o handler de drop usa esse
+// valor diretamente, sem reindexar.
 const CelulaDia = ({ dia, mes, ano, atual, eventos, hoje, onClicar, onAbrirEvento }) => {
   const { setNodeRef, isOver } = useDroppable({ id: `dia-${ano}-${mes}-${dia}` });
   const eHoje = hoje.getDate() === dia && hoje.getMonth() === mes && hoje.getFullYear() === ano;
@@ -233,46 +184,47 @@ const CelulaDia = ({ dia, mes, ano, atual, eventos, hoje, onClicar, onAbrirEvent
     <div
       ref={setNodeRef}
       onClick={() => onClicar(dia, mes, ano)}
-      className={`min-h-[100px] p-2 bg-white transition-colors cursor-pointer border-r border-b border-[#E4ECE7] ${
-        isOver ? 'bg-[#D4EC9D]/20' : 'hover:bg-[#F7FAF8]'
-      } ${atual ? '' : 'opacity-30 bg-slate-50'}`}
+      className={`min-h-[92px] p-1.5 rounded-lg cursor-pointer transition-colors ${
+        isOver ? 'bg-primary-500/20 ring-1 ring-primary-500' : 'hover:bg-white/5'
+      } ${atual ? '' : 'opacity-40'}`}
     >
-      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mb-1.5 ${
-        eHoje ? 'bg-[#0E382C] text-[#D4EC9D]' : 'text-[#111915]'
+      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mb-1 ${
+        eHoje ? 'bg-primary-500 text-white' : 'opacity-70'
       }`}>
         {dia}
       </div>
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         {eventos.slice(0, 3).map(ev => (
           <EventoArrastavel key={ev.id} evento={ev} onClick={onAbrirEvento} />
         ))}
         {eventos.length > 3 && (
-          <p className="text-[10px] text-[#687770] font-bold pl-1">+{eventos.length - 3} mais</p>
+          <p className="text-xs opacity-40 pl-1">+{eventos.length - 3} mais</p>
         )}
       </div>
     </div>
   );
 };
 
+// ─── Painel de próximos compromissos ──────────────────────────────────────────
 const PainelProximos = ({ eventos, onAbrirEvento }) => (
-  <div className="w-full lg:w-80 flex-shrink-0 bg-white rounded-2xl border border-[#E4ECE7] p-5 space-y-3 shadow-xs">
-    <h2 className="font-extrabold text-sm text-[#111915]">Próximos Compromissos</h2>
+  <div className="w-full lg:w-72 flex-shrink-0 rounded-xl border p-4 space-y-3" style={{ borderColor: 'var(--color-surface-border)' }}>
+    <h2 className="font-semibold text-sm">Próximos compromissos</h2>
     {eventos.length === 0 ? (
-      <p className="text-xs text-[#687770] py-6 text-center">Nenhum compromisso agendado.</p>
+      <p className="text-xs opacity-40 py-4 text-center">Nenhum compromisso futuro agendado.</p>
     ) : (
-      <div className="space-y-2">
+      <div className="space-y-1">
         {eventos.map(ev => {
           const tipo = TIPOS_EVENTO[ev.tipo] || TIPOS_EVENTO.outro;
           return (
             <button
               key={ev.id}
               onClick={() => onAbrirEvento(ev)}
-              className="w-full flex items-start gap-3 p-2.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-white text-left transition-all"
+              className="w-full flex items-start gap-2 p-2 rounded-lg text-left transition-colors hover:bg-white/5"
             >
               <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: tipo.cor }} />
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-[#111915] truncate">{ev.titulo}</p>
-                <p className="text-[10px] text-[#687770]">{formatarDataHora(ev.data_inicio)}</p>
+                <p className="text-sm truncate">{ev.titulo}</p>
+                <p className="text-xs opacity-50">{formatarDataHora(ev.data_inicio)}</p>
               </div>
             </button>
           );
@@ -282,6 +234,7 @@ const PainelProximos = ({ eventos, onAbrirEvento }) => (
   </div>
 );
 
+// ─── Página principal ─────────────────────────────────────────────────────────
 const Calendario = () => {
   const usuario = useAuthStore(s => s.usuario);
   const [eventos, setEventos] = useState([]);
@@ -296,6 +249,7 @@ const Calendario = () => {
   const hoje = new Date();
 
   const tenantId = usuario?.tenant_id;
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   const grade = getGradeDoMes(anoAtual, mesAtual);
@@ -304,6 +258,8 @@ const Calendario = () => {
 
   const carregar = useCallback(async () => {
     if (!tenantId) return;
+    // Cobre a grade inteira (incluindo dias de padding do mês anterior/seguinte),
+    // não só o mês exibido, para os eventos desses dias também aparecerem.
     const inicio = new Date(primeiraCelula.ano, primeiraCelula.mes, primeiraCelula.dia).toISOString();
     const fim = new Date(ultimaCelula.ano, ultimaCelula.mes, ultimaCelula.dia, 23, 59, 59).toISOString();
     const { data } = await supabase
@@ -318,6 +274,8 @@ const Calendario = () => {
 
   useEffect(() => { carregar(); }, [carregar]);
 
+  // Painel "Próximos compromissos": independente do mês navegado, sempre
+  // mostra o que vem pela frente a partir de agora.
   const carregarProximos = useCallback(async () => {
     if (!tenantId) return;
     const { data } = await supabase
@@ -354,7 +312,7 @@ const Calendario = () => {
 
   const handleDragEnd = async ({ active, over }) => {
     if (!over) return;
-    const overId = String(over.id);
+    const overId = String(over.id); // formato: "dia-YYYY-M-D", mês já 0-indexado
     if (!overId.startsWith('dia-')) return;
 
     const [, ano, mes, dia] = overId.split('-');
@@ -362,6 +320,8 @@ const Calendario = () => {
     if (!evento) return;
 
     const dataOriginal = new Date(evento.data_inicio);
+    // `mes` já vem 0-indexado (mesma convenção do id da célula) — não subtrair
+    // 1 de novo, senão janeiro (mes="0") vira dezembro do ano anterior.
     const novaData = new Date(parseInt(ano), parseInt(mes), parseInt(dia),
       dataOriginal.getHours(), dataOriginal.getMinutes());
 
@@ -402,26 +362,29 @@ const Calendario = () => {
   for (let i = 0; i < grade.length; i += 7) linhas.push(grade.slice(i, i + 7));
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+      {/* Cabeçalho */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-[#111915]">{MESES[mesAtual]} {anoAtual}</h1>
-          <p className="text-xs text-[#687770]">Arraste compromissos entre as células para alterar horários</p>
+          <h1 className="text-2xl font-bold">{MESES[mesAtual]} {anoAtual}</h1>
+          <p className="text-sm opacity-50">Arraste eventos para reagendar</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={irMesAnterior} className="p-2 bg-white border border-[#E4ECE7] rounded-xl text-xs font-bold text-[#111915] hover:bg-[#F7FAF8]">
-            ←
-          </button>
-          <button onClick={irHoje} className="px-3 py-2 bg-[#D4EC9D] text-[#132E22] text-xs font-bold rounded-xl shadow-xs">
-            Hoje
-          </button>
-          <button onClick={irProximoMes} className="p-2 bg-white border border-[#E4ECE7] rounded-xl text-xs font-bold text-[#111915] hover:bg-[#F7FAF8]">
-            →
-          </button>
+          <button onClick={irMesAnterior}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>‹</button>
+          <button onClick={irHoje}
+            className="px-3 py-1.5 rounded-lg text-sm transition-colors"
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>Hoje</button>
+          <button onClick={irProximoMes}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>›</button>
           <button
             onClick={() => abrirNovoEvento(hoje.getDate(), hoje.getMonth(), hoje.getFullYear())}
-            className="ml-2 px-4 py-2 bg-[#0E382C] text-white font-semibold text-xs rounded-xl shadow-xs hover:bg-[#07261E]"
+            className="ml-2 px-4 py-2 rounded-lg text-sm bg-primary-600 hover:bg-primary-500 font-medium"
           >
             + Evento
           </button>
@@ -429,29 +392,32 @@ const Calendario = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* Calendar Grid */}
+        {/* Grade do calendário */}
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-          <div className="flex-1 min-w-0 bg-white rounded-2xl border border-[#E4ECE7] overflow-hidden shadow-xs">
-            <div className="grid grid-cols-7 border-b border-[#E4ECE7] bg-[#F7FAF8]">
+          <div className="flex-1 min-w-0 rounded-xl overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
+            {/* Cabeçalho dos dias */}
+            <div className="grid grid-cols-7 border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
               {DIAS_SEMANA.map(d => (
-                <div key={d} className="py-2.5 text-center text-xs font-bold text-[#687770]">{d}</div>
+                <div key={d} className="py-2 text-center text-xs font-medium opacity-50">{d}</div>
               ))}
             </div>
-            <div>
+            {/* Semanas */}
+            <div className="divide-y" style={{ borderColor: 'var(--color-surface-border)' }}>
               {linhas.map((linha, i) => (
-                <div key={i} className="grid grid-cols-7">
+                <div key={i} className="grid grid-cols-7 gap-px" style={{ backgroundColor: 'var(--color-surface-border)' }}>
                   {linha.map((celula) => (
-                    <CelulaDia
-                      key={`${celula.ano}-${celula.mes}-${celula.dia}`}
-                      dia={celula.dia}
-                      mes={celula.mes}
-                      ano={celula.ano}
-                      atual={celula.atual}
-                      eventos={eventosDoDia(celula.dia, celula.mes, celula.ano)}
-                      hoje={hoje}
-                      onClicar={abrirNovoEvento}
-                      onAbrirEvento={(ev) => { setEventoEditando(ev); setDiaSelecionado(null); setModalAberto(true); }}
-                    />
+                    <div key={`${celula.ano}-${celula.mes}-${celula.dia}`} style={{ backgroundColor: 'var(--color-surface)' }}>
+                      <CelulaDia
+                        dia={celula.dia}
+                        mes={celula.mes}
+                        ano={celula.ano}
+                        atual={celula.atual}
+                        eventos={eventosDoDia(celula.dia, celula.mes, celula.ano)}
+                        hoje={hoje}
+                        onClicar={abrirNovoEvento}
+                        onAbrirEvento={(ev) => { setEventoEditando(ev); setDiaSelecionado(null); setModalAberto(true); }}
+                      />
+                    </div>
                   ))}
                 </div>
               ))}
@@ -459,19 +425,19 @@ const Calendario = () => {
           </div>
         </DndContext>
 
-        {/* Next Events Sidebar */}
+        {/* Próximos compromissos */}
         <PainelProximos
           eventos={proximosEventos}
           onAbrirEvento={(ev) => { setEventoEditando(ev); setDiaSelecionado(null); setModalAberto(true); }}
         />
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-4 pt-2">
+      {/* Legenda */}
+      <div className="flex flex-wrap gap-3">
         {Object.entries(TIPOS_EVENTO).map(([k, v]) => (
-          <div key={k} className="flex items-center gap-2 text-xs font-semibold text-[#687770]">
-            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: v.cor }} />
-            <span>{v.label}</span>
+          <div key={k} className="flex items-center gap-1.5 text-xs opacity-60">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: v.cor }} />
+            {v.label}
           </div>
         ))}
       </div>

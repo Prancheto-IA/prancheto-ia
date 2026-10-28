@@ -1,62 +1,89 @@
-// =============================================================
-// PRANCHETO.IA - TIMES E PESSOAS (EMITLY DESIGN SYSTEM)
-// Gestão de equipes, cargos e membros da organização em layout de Grid.
-// Alinhado ao mesmo layout e experiência da página /projetos.
-// =============================================================
-
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOrg } from '../../hooks/useOrg';
+import { useAuthStore } from '../../store/authStore';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  UserGroupIcon,
-  Delete02Icon,
-  PencilEdit01Icon,
-  ArrowRight01Icon,
-  Add01Icon,
-  Search01Icon,
-} from '@hugeicons/core-free-icons';
+
+// ----------------------------------------------------------
+// CONSTANTES
+// ----------------------------------------------------------
+const ICONES_DISPONIVEIS = ['👥', '🚀', '💡', '🎯', '🔥', '⚡', '🌟', '🏆', '🛡️', '🎨', '📊', '🤝', '💼', '🔧', '📱'];
+const CORES_DISPONIVEIS  = [
+  { label: 'Índigo',   valor: '#6366f1' },
+  { label: 'Violeta',  valor: '#8b5cf6' },
+  { label: 'Rosa',     valor: '#ec4899' },
+  { label: 'Vermelho', valor: '#ef4444' },
+  { label: 'Laranja',  valor: '#f97316' },
+  { label: 'Âmbar',   valor: '#f59e0b' },
+  { label: 'Verde',    valor: '#22c55e' },
+  { label: 'Ciano',    valor: '#06b6d4' },
+  { label: 'Azul',     valor: '#3b82f6' },
+  { label: 'Slate',    valor: '#64748b' },
+];
+
+const AvatarUsuario = ({ nome, tamanho = 10 }) => {
+  const iniciais = nome?.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || '?';
+  const cores = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6', '#14b8a6'];
+  const cor = cores[iniciais.charCodeAt(0) % cores.length];
+  return (
+    <div
+      className={`w-${tamanho} h-${tamanho} rounded-full flex items-center justify-center text-white font-bold flex-shrink-0`}
+      style={{ backgroundColor: cor, fontSize: tamanho <= 8 ? '0.65rem' : tamanho <= 10 ? '0.8rem' : '1rem' }}
+    >
+      {iniciais}
+    </div>
+  );
+};
+
+const CardMembro = ({ membro }) => (
+  <div
+    className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+    onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+  >
+    <AvatarUsuario nome={membro.nome} tamanho={10} />
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-medium truncate">{membro.nome}</p>
+      <p className="text-xs opacity-40 truncate">{membro.email}</p>
+    </div>
+    <span className="text-xs px-2 py-0.5 rounded-full opacity-60 flex-shrink-0 capitalize"
+      style={{ backgroundColor: 'var(--color-surface-border)' }}>
+      {membro.cargo}
+    </span>
+  </div>
+);
 
 // ----------------------------------------------------------
 // MODAL: Criar / Editar Time
 // ----------------------------------------------------------
-const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
+const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
   const [form, setForm] = useState({
-    nome: '',
-    descricao: '',
-    cor_primaria: '#0E382C',
-    cor_texto: '#ffffff',
+    nome:        '',
+    descricao:   '',
+    icone:       '👥',
+    cor_primaria: '#6366f1',
+    cor_texto:   '#ffffff',
   });
   const [salvando, setSalvando] = useState(false);
-  const [erro, setErro] = useState('');
+  const [erro, setErro]         = useState('');
 
   useEffect(() => {
     if (timeEditando) {
       setForm({
-        nome: timeEditando.nome || '',
-        descricao: timeEditando.descricao || '',
-        cor_primaria: timeEditando.cor_primaria || '#0E382C',
-        cor_texto: timeEditando.cor_texto || '#ffffff',
+        nome:        timeEditando.nome        || '',
+        descricao:   timeEditando.descricao   || '',
+        icone:       timeEditando.icone       || '👥',
+        cor_primaria: timeEditando.cor_primaria || '#6366f1',
+        cor_texto:   timeEditando.cor_texto   || '#ffffff',
       });
     } else {
-      setForm({
-        nome: '',
-        descricao: '',
-        cor_primaria: '#0E382C',
-        cor_texto: '#ffffff',
-      });
+      setForm({ nome: '', descricao: '', icone: '👥', cor_primaria: '#6366f1', cor_texto: '#ffffff' });
     }
     setErro('');
   }, [timeEditando, aberto]);
 
-  if (!aberto) return null;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.nome.trim()) {
-      setErro('Nome do time é obrigatório.');
-      return;
-    }
+    if (!form.nome.trim()) { setErro('Nome é obrigatório.'); return; }
     setSalvando(true);
     setErro('');
     try {
@@ -69,117 +96,132 @@ const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
     }
   };
 
+  if (!aberto) return null;
+
+  const inputStyle = {
+    backgroundColor: 'var(--color-surface)',
+    border: '1px solid var(--color-surface-border)',
+    color: 'var(--color-text-primary)',
+  };
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs"
-      onClick={onFechar}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
       <div
-        className="w-full max-w-md bg-white rounded-2xl p-6 space-y-4 shadow-2xl border border-[#E4ECE7]"
-        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-xl shadow-2xl"
+        style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-[#E4ECE7]">
-          <h2 className="text-base font-extrabold text-[#111915]">
-            {timeEditando ? 'Editar Time' : 'Novo Time'}
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
+          <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
+            {timeEditando ? '✏️ Editar Time' : '➕ Novo Time'}
           </h2>
-          <button
-            onClick={onFechar}
-            className="text-slate-400 hover:text-slate-600 transition-colors p-1"
-          >
-            ✕
-          </button>
+          <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-xl">✕</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--color-surface)' }}>
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
+              style={{ backgroundColor: form.cor_primaria, color: form.cor_texto }}
+            >
+              {form.icone}
+            </div>
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                {form.nome || 'Nome do time'}
+              </p>
+              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                {form.descricao || 'Descrição do time'}
+              </p>
+            </div>
+          </div>
+
           <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">
-              Nome do Time *
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+              Nome *
             </label>
             <input
               type="text"
               value={form.nome}
-              onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))}
-              placeholder="Ex: Time de Design & UX"
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
-              required
+              onChange={(e) => setForm(f => ({ ...f, nome: e.target.value }))}
+              placeholder="Ex: Time de Vendas"
+              className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
               Descrição
             </label>
-            <textarea
-              rows={2}
+            <input
+              type="text"
               value={form.descricao}
-              onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))}
-              placeholder="Atribuições e responsabilidades do time"
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              onChange={(e) => setForm(f => ({ ...f, descricao: e.target.value }))}
+              placeholder="Breve descrição do time"
+              className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1.5">
-              Cor Temática
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+              Ícone
             </label>
-            <div className="flex items-center gap-2.5">
-              {[
-                { label: 'Verde Floresta', cor: '#0E382C' },
-                { label: 'Azul Marinho', cor: '#1E3A8A' },
-                { label: 'Índigo', cor: '#4F46E5' },
-                { label: 'Esmeralda', cor: '#047857' },
-                { label: 'Âmbar', cor: '#B45309' },
-                { label: 'Ardósia', cor: '#334155' },
-              ].map((item) => (
+            <div className="flex flex-wrap gap-2">
+              {ICONES_DISPONIVEIS.map((ic) => (
                 <button
-                  key={item.cor}
+                  key={ic}
                   type="button"
-                  title={item.label}
-                  onClick={() => setForm((f) => ({ ...f, cor_primaria: item.cor }))}
-                  className={`w-7 h-7 rounded-full transition-all ${
-                    form.cor_primaria === item.cor
-                      ? 'ring-2 ring-[#0E382C] ring-offset-2 scale-110'
-                      : 'hover:scale-105 opacity-80 hover:opacity-100'
+                  onClick={() => setForm(f => ({ ...f, icone: ic }))}
+                  className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition-all ${
+                    form.icone === ic ? 'ring-2 ring-primary-500 scale-110' : 'hover:scale-105'
                   }`}
-                  style={{ backgroundColor: item.cor }}
+                  style={{ backgroundColor: form.icone === ic ? form.cor_primaria : 'var(--color-surface)' }}
+                >
+                  {ic}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+              Cor do time
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {CORES_DISPONIVEIS.map((cor) => (
+                <button
+                  key={cor.valor}
+                  type="button"
+                  title={cor.label}
+                  onClick={() => setForm(f => ({ ...f, cor_primaria: cor.valor }))}
+                  className={`w-7 h-7 rounded-full transition-all ${
+                    form.cor_primaria === cor.valor ? 'ring-2 ring-white ring-offset-2 ring-offset-[var(--color-surface-card)] scale-110' : 'hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: cor.valor }}
                 />
               ))}
             </div>
           </div>
 
-          {erro && <p className="text-red-600 text-xs font-semibold">{erro}</p>}
+          {erro && <p className="text-red-400 text-xs">{erro}</p>}
 
-          <div className="flex justify-between items-center pt-3 border-t border-[#E4ECE7]">
-            {timeEditando && onExcluir && (
-              <PermissaoGuarda permissao="times.gerenciar">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onExcluir(timeEditando.id);
-                    onFechar();
-                  }}
-                  className="text-xs font-semibold text-red-600 hover:underline"
-                >
-                  Excluir Time
-                </button>
-              </PermissaoGuarda>
-            )}
-            <div className="flex gap-2 ml-auto">
-              <button
-                type="button"
-                onClick={onFechar}
-                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl hover:bg-slate-100 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={salvando}
-                className="px-4 py-2 bg-[#0E382C] text-white text-xs font-semibold rounded-xl shadow-xs hover:bg-[#07261E] transition-all disabled:opacity-50"
-              >
-                {salvando ? 'Salvando...' : timeEditando ? 'Salvar' : 'Criar Time'}
-              </button>
-            </div>
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onFechar}
+              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-surface-border)' }}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={salvando}
+              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors disabled:opacity-50"
+            >
+              {salvando ? 'Salvando...' : timeEditando ? 'Salvar' : 'Criar time'}
+            </button>
           </div>
         </form>
       </div>
@@ -188,404 +230,201 @@ const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
 };
 
 // ----------------------------------------------------------
-// MODAL: Gerenciar Membros do Time
+// MODAL: Adicionar Membro
 // ----------------------------------------------------------
-const ModalGerenciarTime = ({
-  aberto,
-  onFechar,
-  time,
-  todosUsuarios = [],
-  onAdicionarMembro,
-  onRemoverMembro,
-  onEditarTime,
-}) => {
-  const [usuarioSelecionado, setUsuarioSelecionado] = useState('');
-  const [adicionando, setAdicionando] = useState(false);
-  const [removendoId, setRemovendoId] = useState(null);
-  const [erro, setErro] = useState('');
+const ModalAdicionarMembro = ({ aberto, onFechar, onAdicionar, membrosAtuais, todosUsuarios }) => {
+  const [busca, setBusca]       = useState('');
+  const [adicionando, setAdicionando] = useState(null);
 
-  if (!aberto || !time) return null;
+  const idsJaMembros = new Set((membrosAtuais || []).map(m => m.usuario?.id));
 
-  const membros = (time.membros || []).map((m) => ({
-    ...m,
-    usuario: m.usuario || todosUsuarios.find((u) => u.id === m.user_id) || m,
-  }));
-
-  const idsMembros = new Set(membros.map((m) => m.usuario?.id || m.user_id));
-  const usuariosDisponiveis = todosUsuarios.filter((u) => !idsMembros.has(u.id));
-
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    if (!usuarioSelecionado) return;
-    setAdicionando(true);
-    setErro('');
-    try {
-      await onAdicionarMembro(time.id, usuarioSelecionado);
-      setUsuarioSelecionado('');
-    } catch (err) {
-      setErro(err.message || 'Erro ao adicionar membro.');
-    } finally {
-      setAdicionando(false);
-    }
-  };
-
-  const handleRemove = async (userId) => {
-    setRemovendoId(userId);
-    setErro('');
-    try {
-      await onRemoverMembro(time.id, userId);
-    } catch (err) {
-      setErro(err.message || 'Erro ao remover membro.');
-    } finally {
-      setRemovendoId(null);
-    }
-  };
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4"
-      onClick={onFechar}
-    >
-      <div
-        className="w-full max-w-lg bg-white rounded-2xl p-6 space-y-5 shadow-2xl border border-[#E4ECE7] max-h-[90vh] flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between pb-3 border-b border-[#E4ECE7]">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-xs"
-              style={{
-                backgroundColor: time.cor_primaria || '#0E382C',
-                color: time.cor_texto || '#D4EC9D',
-              }}
-            >
-              <HugeiconsIcon icon={UserGroupIcon} size={20} strokeWidth={1.8} />
-            </div>
-            <div>
-              <h2 className="text-base font-extrabold text-[#111915]">{time.nome}</h2>
-              <p className="text-xs text-[#687770]">
-                {time.descricao || 'Gerenciamento de integrantes da equipe'}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onFechar}
-            className="text-slate-400 hover:text-slate-600 transition-colors p-1"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Adicionar Membro */}
-        <PermissaoGuarda permissao="times.gerenciar">
-          <form onSubmit={handleAdd} className="space-y-2">
-            <label className="block text-xs font-semibold text-[#111915]">
-              Adicionar Colaborador ao Time
-            </label>
-            <div className="flex gap-2">
-              <select
-                value={usuarioSelecionado}
-                onChange={(e) => setUsuarioSelecionado(e.target.value)}
-                className="flex-1 px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
-              >
-                <option value="">Selecione um colaborador...</option>
-                {usuariosDisponiveis.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.nome} ({u.cargo || 'Membro'}) - {u.email}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                disabled={!usuarioSelecionado || adicionando}
-                className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white text-xs font-semibold rounded-xl shadow-xs transition-all disabled:opacity-50"
-              >
-                {adicionando ? 'Adicionando...' : 'Adicionar'}
-              </button>
-            </div>
-          </form>
-        </PermissaoGuarda>
-
-        {erro && <p className="text-xs font-semibold text-red-600">{erro}</p>}
-
-        {/* Membros Atuais */}
-        <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[160px]">
-          <div className="flex items-center justify-between text-xs font-semibold text-[#687770] mb-2">
-            <span>Integrantes Atuais</span>
-            <span className="text-[11px] bg-[#F7FAF8] px-2.5 py-0.5 rounded-full border border-[#E4ECE7]">
-              {membros.length} membro(s)
-            </span>
-          </div>
-
-          {membros.length === 0 ? (
-            <div className="text-center py-8 text-xs text-[#687770] bg-[#F7FAF8] rounded-xl border border-dashed border-[#E4ECE7]">
-              Nenhum colaborador adicionado a este time ainda.
-            </div>
-          ) : (
-            membros.map((m) => {
-              const u = m.usuario || {};
-              const iniciais =
-                u.nome
-                  ?.split(' ')
-                  .slice(0, 2)
-                  .map((n) => n[0])
-                  .join('')
-                  .toUpperCase() || '?';
-              return (
-                <div
-                  key={m.id || u.id}
-                  className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7]"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center font-bold text-xs flex-shrink-0">
-                      {iniciais}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-[#111915] truncate">{u.nome}</p>
-                      <p className="text-[11px] text-[#687770] truncate">{u.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EBF0ED] text-[#0E382C] capitalize">
-                      {u.cargo || 'Membro'}
-                    </span>
-                    <PermissaoGuarda permissao="times.gerenciar">
-                      <button
-                        type="button"
-                        onClick={() => handleRemove(u.id)}
-                        disabled={removendoId === u.id}
-                        className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                        title="Remover do time"
-                      >
-                        <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={1.8} />
-                      </button>
-                    </PermissaoGuarda>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-[#E4ECE7]">
-          <PermissaoGuarda permissao="times.gerenciar">
-            <button
-              type="button"
-              onClick={() => {
-                onFechar();
-                onEditarTime(time);
-              }}
-              className="text-xs font-semibold text-[#0E382C] hover:underline flex items-center gap-1"
-            >
-              <HugeiconsIcon icon={PencilEdit01Icon} size={14} strokeWidth={1.8} />
-              <span>Editar Informações do Time</span>
-            </button>
-          </PermissaoGuarda>
-          <button
-            type="button"
-            onClick={onFechar}
-            className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl hover:bg-slate-100 transition-colors ml-auto"
-          >
-            Fechar
-          </button>
-        </div>
-      </div>
-    </div>
+  const usuariosFiltrados = (todosUsuarios || []).filter(u =>
+    !idsJaMembros.has(u.id) &&
+    (u.nome?.toLowerCase().includes(busca.toLowerCase()) ||
+     u.email?.toLowerCase().includes(busca.toLowerCase()))
   );
-};
 
-// ----------------------------------------------------------
-// CARD: Time (Estilo idêntico ao CardProjeto)
-// ----------------------------------------------------------
-const CardTime = ({
-  time,
-  membros = [],
-  onGerenciarMembros,
-  onEditar,
-}) => {
+  const handleAdicionar = async (usuario) => {
+    setAdicionando(usuario.id);
+    try {
+      await onAdicionar(usuario.id);
+    } finally {
+      setAdicionando(null);
+    }
+  };
+
+  if (!aberto) return null;
+
   return (
-    <div
-      onClick={() => onGerenciarMembros(time)}
-      className="bg-white rounded-2xl p-5 border border-[#E4ECE7] shadow-[0_4px_20px_-2px_rgba(14,56,44,0.04)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-4"
-    >
-      {/* Header do Card */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-xs"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+      <div
+        className="w-full max-w-sm rounded-xl shadow-2xl"
+        style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+      >
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
+          <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
+            👤 Adicionar Membro
+          </h2>
+          <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-xl">✕</button>
+        </div>
+
+        <div className="p-4">
+          <input
+            type="text"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar por nome ou e-mail..."
+            className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 mb-3"
             style={{
-              backgroundColor: time.cor_primaria || '#0E382C',
-              color: time.cor_texto || '#D4EC9D',
+              backgroundColor: 'var(--color-surface)',
+              border: '1px solid var(--color-surface-border)',
+              color: 'var(--color-text-primary)',
             }}
-          >
-            <HugeiconsIcon icon={UserGroupIcon} size={20} strokeWidth={1.8} />
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-bold text-sm text-[#111915] truncate">{time.nome}</h3>
-            {time.descricao && (
-              <p className="text-xs text-[#687770] line-clamp-1">{time.descricao}</p>
+            autoFocus
+          />
+
+          <div className="space-y-1 max-h-64 overflow-y-auto">
+            {usuariosFiltrados.length === 0 ? (
+              <p className="text-center py-6 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                {busca ? 'Nenhum usuário encontrado.' : 'Todos os usuários já são membros.'}
+              </p>
+            ) : (
+              usuariosFiltrados.map((u) => (
+                <div
+                  key={u.id}
+                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {u.nome?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{u.nome}</p>
+                    <p className="text-xs truncate" style={{ color: 'var(--color-text-secondary)' }}>{u.email}</p>
+                  </div>
+                  <button
+                    onClick={() => handleAdicionar(u)}
+                    disabled={adicionando === u.id}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-500 text-white transition-colors disabled:opacity-50 flex-shrink-0"
+                  >
+                    {adicionando === u.id ? '...' : 'Adicionar'}
+                  </button>
+                </div>
+              ))
             )}
           </div>
         </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCF5E4] text-[#15803D]">
-            {membros.length} {membros.length === 1 ? 'membro' : 'membros'}
-          </span>
-          <PermissaoGuarda permissao="times.gerenciar">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEditar(time);
-              }}
-              className="p-1 text-slate-400 hover:text-[#0E382C] transition-colors rounded-lg hover:bg-[#F7FAF8]"
-              title="Editar time"
-            >
-              <HugeiconsIcon icon={PencilEdit01Icon} size={15} strokeWidth={1.8} />
-            </button>
-          </PermissaoGuarda>
-        </div>
-      </div>
-
-      {/* Conteúdo Central: Avatares da equipe */}
-      <div>
-        <div className="flex justify-between text-xs text-[#687770] font-semibold mb-2">
-          <span>Equipe</span>
-          <span>{membros.length} integrante(s)</span>
-        </div>
-        {membros.length > 0 ? (
-          <div className="flex items-center gap-2">
-            <div className="flex -space-x-2 overflow-hidden py-0.5">
-              {membros.slice(0, 5).map((m, idx) => {
-                const nome = m.usuario?.nome || m.nome || 'Membro';
-                const inicial = nome[0]?.toUpperCase() || '?';
-                return (
-                  <div
-                    key={m.id || idx}
-                    title={nome}
-                    className="w-7 h-7 rounded-full bg-[#0E382C] text-[#D4EC9D] border-2 border-white flex items-center justify-center text-[10px] font-bold shadow-xs flex-shrink-0"
-                  >
-                    {inicial}
-                  </div>
-                );
-              })}
-              {membros.length > 5 && (
-                <div className="w-7 h-7 rounded-full bg-[#EBF0ED] text-[#0E382C] border-2 border-white flex items-center justify-center text-[10px] font-bold shadow-xs flex-shrink-0">
-                  +{membros.length - 5}
-                </div>
-              )}
-            </div>
-            <span className="text-xs text-[#687770] truncate">
-              {membros.slice(0, 2).map((m) => (m.usuario?.nome || m.nome)?.split(' ')[0]).join(', ')}
-              {membros.length > 2 ? ` e +${membros.length - 2}` : ''}
-            </span>
-          </div>
-        ) : (
-          <div className="py-1 text-xs text-slate-400 italic">
-            Nenhum colaborador alocado
-          </div>
-        )}
-      </div>
-
-      {/* Rodapé do Card */}
-      <div className="flex items-center justify-between pt-2 border-t border-[#E4ECE7] text-[11px] text-[#687770]">
-        <span>
-          {time.criado_em
-            ? `Criado em ${new Date(time.criado_em).toLocaleDateString('pt-BR')}`
-            : 'Time ativo'}
-        </span>
-        <span className="font-semibold text-[#0E382C] flex items-center gap-1 hover:underline">
-          Gerenciar membros
-          <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
-        </span>
       </div>
     </div>
   );
 };
 
-// ----------------------------------------------------------
-// CARD: Pessoa (Grid de Colaboradores)
-// ----------------------------------------------------------
-const CardMembro = ({ membro, timesDoMembro = [] }) => {
-  const iniciais =
-    membro.nome
-      ?.split(' ')
-      .slice(0, 2)
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase() || '?';
+const CardTime = ({ time, membros, expandido, onToggle, onEditar, onExcluir, excluindo, onAdicionarMembro, onRemoverMembro, todosUsuarios }) => {
+  const [modalMembro, setModalMembro] = useState(false);
+  const [removendo, setRemovendo]     = useState(null);
+
+  const handleRemover = async (userId) => {
+    setRemovendo(userId);
+    try {
+      await onRemoverMembro(time.id, userId);
+    } finally {
+      setRemovendo(null);
+    }
+  };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-[#E4ECE7] shadow-[0_4px_20px_-2px_rgba(14,56,44,0.04)] hover:shadow-md transition-all flex flex-col justify-between space-y-4">
-      {/* Header do Card */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-xs">
-            {iniciais}
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-bold text-sm text-[#111915] truncate">{membro.nome}</h3>
-            <p className="text-xs text-[#687770] truncate">{membro.email}</p>
-          </div>
+    <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-surface-border)' }}>
+      <div
+        onClick={onToggle}
+        className="w-full flex items-center gap-3 p-4 transition-colors text-left cursor-pointer"
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+      >
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+          style={{ backgroundColor: time.cor_primaria + '22' }}
+        >
+          {time.icone}
         </div>
-        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EBF0ED] text-[#0E382C] capitalize flex-shrink-0">
-          {membro.cargo || 'Membro'}
-        </span>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold">{time.nome}</p>
+          {time.descricao && <p className="text-xs opacity-50 truncate">{time.descricao}</p>}
+        </div>
+        <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+          <span className="text-xs opacity-40 mr-1">{membros.length} membro{membros.length !== 1 ? 's' : ''}</span>
+          <PermissaoGuarda permissao="times.gerenciar">
+            <button
+              onClick={() => onEditar(time)}
+              className="p-1.5 rounded-lg opacity-50 hover:opacity-100 transition-opacity text-sm"
+              title="Editar time"
+            >
+              ✏️
+            </button>
+          </PermissaoGuarda>
+          <PermissaoGuarda permissao="times.gerenciar">
+            <button
+              onClick={() => onExcluir(time.id)}
+              disabled={excluindo === time.id}
+              className="p-1.5 rounded-lg opacity-50 hover:opacity-100 hover:text-red-400 transition-opacity text-sm disabled:opacity-30"
+              title="Excluir time"
+            >
+              {excluindo === time.id ? '⏳' : '🗑️'}
+            </button>
+          </PermissaoGuarda>
+          <button onClick={onToggle} className={`p-1.5 text-xs opacity-40 transition-transform ${expandido ? 'rotate-180' : ''}`}>▼</button>
+        </div>
       </div>
-
-      {/* Conteúdo Central: Times vinculados */}
-      <div>
-        <div className="flex justify-between text-xs text-[#687770] font-semibold mb-2">
-          <span>Times Vinculados</span>
-          <span>{timesDoMembro.length} time(s)</span>
-        </div>
-        <div className="flex flex-wrap gap-1.5 min-h-[28px]">
-          {timesDoMembro.length > 0 ? (
-            timesDoMembro.map((t) => (
-              <span
-                key={t.id}
-                className="text-[11px] font-medium px-2.5 py-0.5 rounded-lg bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] flex items-center gap-1.5"
-              >
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: t.cor_primaria || '#0E382C' }}
-                />
-                {t.nome}
-              </span>
-            ))
+      {expandido && (
+        <div className="border-t divide-y" style={{ borderColor: 'var(--color-surface-border)' }}>
+          {membros.length === 0 ? (
+            <p className="text-sm opacity-40 text-center py-6">Nenhum membro neste time</p>
           ) : (
-            <span className="text-xs text-slate-400 italic py-1">Nenhum time associado</span>
+            membros.map(m => (
+              <div key={m.id} className="px-4 flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <CardMembro membro={m} />
+                </div>
+                <PermissaoGuarda permissao="times.gerenciar">
+                  <button
+                    onClick={() => handleRemover(m.id)}
+                    disabled={removendo === m.id}
+                    className="text-xs opacity-40 hover:opacity-100 hover:text-red-400 transition-opacity disabled:opacity-20 flex-shrink-0"
+                    title="Remover do time"
+                  >
+                    {removendo === m.id ? '⏳' : '✕'}
+                  </button>
+                </PermissaoGuarda>
+              </div>
+            ))
           )}
+          <PermissaoGuarda permissao="times.gerenciar">
+            <div className="p-3">
+              <button
+                onClick={() => setModalMembro(true)}
+                className="w-full py-2 rounded-lg text-sm font-medium transition-colors border border-dashed opacity-60 hover:opacity-100"
+                style={{ borderColor: 'var(--color-surface-border)' }}
+              >
+                + Adicionar membro
+              </button>
+            </div>
+          </PermissaoGuarda>
         </div>
-      </div>
+      )}
 
-      {/* Rodapé do Card */}
-      <div className="flex items-center justify-between pt-2 border-t border-[#E4ECE7] text-[11px] text-[#687770]">
-        <div className="flex items-center gap-1.5">
-          <span
-            className={`w-2 h-2 rounded-full ${
-              membro.ativo !== false ? 'bg-emerald-500' : 'bg-slate-300'
-            }`}
-          />
-          <span>{membro.ativo !== false ? 'Ativo na organização' : 'Inativo'}</span>
-        </div>
-        <span className="text-[10px] text-[#8A9A92] font-medium">
-          {membro.cargo_org?.nome || membro.cargo || 'Colaborador'}
-        </span>
-      </div>
+      <ModalAdicionarMembro
+        aberto={modalMembro}
+        onFechar={() => setModalMembro(false)}
+        onAdicionar={(userId) => onAdicionarMembro(time.id, userId)}
+        membrosAtuais={time.membros}
+        todosUsuarios={todosUsuarios}
+      />
     </div>
   );
 };
 
-// ----------------------------------------------------------
-// COMPONENTE PRINCIPAL: TimesPessoas
-// ----------------------------------------------------------
 const TimesPessoas = () => {
+  const usuario = useAuthStore(s => s.usuario);
   const {
     listarTimes,
-    listarUsuariosCompleto,
     listarUsuariosTenant,
     criarTime,
     atualizarTime,
@@ -594,31 +433,35 @@ const TimesPessoas = () => {
     removerMembro,
     carregando,
   } = useOrg();
-
   const [times, setTimes] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [busca, setBusca] = useState('');
+  const [timesExpandidos, setTimesExpandidos] = useState({});
   const [aba, setAba] = useState('times');
   const [modalTime, setModalTime] = useState(false);
   const [timeEditando, setTimeEditando] = useState(null);
-  const [timeGerenciando, setTimeGerenciando] = useState(null);
+  const [excluindo, setExcluindo] = useState(null);
+  const [erroAcao, setErroAcao] = useState('');
 
   const carregar = useCallback(async () => {
-    try {
-      const [ts, us] = await Promise.all([
-        listarTimes(),
-        listarUsuariosCompleto ? listarUsuariosCompleto() : listarUsuariosTenant(),
-      ]);
-      setTimes(ts || []);
-      setUsuarios(us || []);
-    } catch (err) {
-      console.error('Erro ao carregar times e usuários:', err);
-    }
-  }, [listarTimes, listarUsuariosCompleto, listarUsuariosTenant]);
+    const [ts, us] = await Promise.all([
+      listarTimes(),
+      listarUsuariosTenant(),
+    ]);
+    setTimes(ts || []);
+    setUsuarios(us || []);
+  }, [listarTimes, listarUsuariosTenant]);
 
   useEffect(() => {
     carregar();
   }, [carregar]);
+
+  const toggleTime = (timeId) => {
+    setTimesExpandidos(prev => ({ ...prev, [timeId]: !prev[timeId] }));
+  };
+
+  const abrirCriarTime = () => { setTimeEditando(null); setModalTime(true); };
+  const abrirEditarTime = (time) => { setTimeEditando(time); setModalTime(true); };
 
   const handleSalvarTime = async (dados) => {
     if (timeEditando) {
@@ -630,228 +473,241 @@ const TimesPessoas = () => {
   };
 
   const handleExcluirTime = async (id) => {
-    if (
-      !window.confirm(
-        'Tem certeza que deseja excluir este time? Todos os vínculos de membros serão desfeitos.'
-      )
-    ) {
-      return;
-    }
+    if (!window.confirm('Excluir este time? Os membros não serão excluídos, apenas removidos do time.')) return;
+    setExcluindo(id);
     try {
       await excluirTime(id);
-      if (timeGerenciando?.id === id) setTimeGerenciando(null);
       await carregar();
     } catch (err) {
-      alert(err.message || 'Erro ao excluir time.');
+      setErroAcao(err.message || 'Erro ao excluir time.');
+    } finally {
+      setExcluindo(null);
     }
   };
 
   const handleAdicionarMembro = async (timeId, userId) => {
-    await adicionarMembro(timeId, userId);
-    const ts = await listarTimes();
-    setTimes(ts || []);
-    if (timeGerenciando && timeGerenciando.id === timeId) {
-      const atualizado = (ts || []).find((t) => t.id === timeId);
-      if (atualizado) setTimeGerenciando(atualizado);
+    try {
+      await adicionarMembro(timeId, userId);
+      await carregar();
+    } catch (err) {
+      setErroAcao(err.message || 'Erro ao adicionar membro.');
     }
   };
 
   const handleRemoverMembro = async (timeId, userId) => {
-    await removerMembro(timeId, userId);
-    const ts = await listarTimes();
-    setTimes(ts || []);
-    if (timeGerenciando && timeGerenciando.id === timeId) {
-      const atualizado = (ts || []).find((t) => t.id === timeId);
-      if (atualizado) setTimeGerenciando(atualizado);
+    try {
+      await removerMembro(timeId, userId);
+      await carregar();
+    } catch (err) {
+      setErroAcao(err.message || 'Erro ao remover membro.');
     }
   };
 
-  // Filtros de busca
-  const termo = busca.trim().toLowerCase();
+  const usuariosFiltrados = busca
+    ? usuarios.filter(u =>
+        u.nome?.toLowerCase().includes(busca.toLowerCase()) ||
+        u.email?.toLowerCase().includes(busca.toLowerCase())
+      )
+    : usuarios;
 
-  const timesFiltrados = times.filter((t) => {
-    if (!termo) return true;
-    return (
-      t.nome?.toLowerCase().includes(termo) ||
-      t.descricao?.toLowerCase().includes(termo)
-    );
-  });
+  const timesFiltrados = busca
+    ? times.filter(t => t.nome?.toLowerCase().includes(busca.toLowerCase()))
+    : times;
 
-  const pessoasFiltradas = usuarios.filter((u) => {
-    if (!termo) return true;
-    return (
-      u.nome?.toLowerCase().includes(termo) ||
-      u.email?.toLowerCase().includes(termo) ||
-      u.cargo?.toLowerCase().includes(termo) ||
-      u.cargo_org?.nome?.toLowerCase().includes(termo)
-    );
-  });
+  // Membros sem time
+  const semTime = usuarios.filter(u =>
+    !times.some(t => t.membros?.some(m => m.usuario?.id === u.id))
+  );
 
-  if (carregando && times.length === 0 && usuarios.length === 0) {
+  if (carregando && times.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-3 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="w-full flex-1 flex flex-col space-y-4 sm:space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-extrabold text-[#111915]">Painel de Times e Pessoas</h1>
-          <p className="text-xs text-[#687770]">
-            {times.length} time(s) e {usuarios.length} colaborador(es) cadastrado(s)
+          <h1 className="text-2xl font-bold">Times e Pessoas</h1>
+          <p className="text-sm opacity-50">
+            {times.length} time{times.length !== 1 ? 's' : ''} · {usuarios.length} pessoa{usuarios.length !== 1 ? 's' : ''}
           </p>
         </div>
         <PermissaoGuarda permissao="times.gerenciar">
           <button
-            onClick={() => {
-              setTimeEditando(null);
-              setModalTime(true);
-            }}
-            className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            onClick={abrirCriarTime}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
           >
-            <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.2} />
-            <span>Novo Time</span>
+            <span>+</span>
+            <span>Novo time</span>
           </button>
         </PermissaoGuarda>
       </div>
 
-      {/* Filter Tabs & Search */}
-      <div className="flex items-center justify-between flex-wrap gap-3 border-b border-[#E4ECE7] pb-3">
-        <div className="flex gap-2 overflow-x-auto">
-          <button
-            onClick={() => setAba('times')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-              aba === 'times'
-                ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
-                : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
-            }`}
-          >
-            Times ({times.length})
-          </button>
-          <button
-            onClick={() => setAba('pessoas')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-              aba === 'pessoas'
-                ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
-                : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
-            }`}
-          >
-            Pessoas ({usuarios.length})
-          </button>
+      {erroAcao && (
+        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between">
+          <span>{erroAcao}</span>
+          <button onClick={() => setErroAcao('')} className="text-red-400 hover:text-red-300">✕</button>
         </div>
+      )}
 
-        <div className="relative w-full sm:w-64">
-          <HugeiconsIcon
-            icon={Search01Icon}
-            size={16}
-            strokeWidth={1.8}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-          />
-          <input
-            type="text"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder={aba === 'times' ? 'Buscar time...' : 'Buscar pessoa...'}
-            className="w-full pl-9 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C]"
-          />
-        </div>
+      {/* Busca */}
+      <input
+        className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+        style={{ border: '1px solid var(--color-surface-border)', backgroundColor: 'var(--color-surface-card)' }}
+        placeholder="Buscar times ou pessoas..."
+        value={busca}
+        onChange={e => setBusca(e.target.value)}
+      />
+
+      {/* Abas */}
+      <div className="flex rounded-lg border overflow-hidden w-fit" style={{ borderColor: 'var(--color-surface-border)' }}>
+        <button
+          onClick={() => setAba('times')}
+          className={`px-4 py-2 text-sm transition-colors ${aba === 'times' ? 'bg-primary-600' : ''}`}
+          onMouseEnter={e => { if (aba !== 'times') e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
+          onMouseLeave={e => { if (aba !== 'times') e.currentTarget.style.backgroundColor = ''; }}
+        >
+          🏷️ Times ({times.length})
+        </button>
+        <button
+          onClick={() => setAba('pessoas')}
+          className={`px-4 py-2 text-sm transition-colors ${aba === 'pessoas' ? 'bg-primary-600' : ''}`}
+          onMouseEnter={e => { if (aba !== 'pessoas') e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'; }}
+          onMouseLeave={e => { if (aba !== 'pessoas') e.currentTarget.style.backgroundColor = ''; }}
+        >
+          👤 Pessoas ({usuarios.length})
+        </button>
       </div>
 
-      {/* Grid Content */}
-      {aba === 'times' ? (
-        timesFiltrados.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
-            <p className="text-xs text-[#687770] mb-3">
-              {busca
-                ? 'Nenhum time encontrado para a busca.'
-                : 'Nenhum time cadastrado no momento.'}
-            </p>
-            <PermissaoGuarda permissao="times.gerenciar">
-              <button
-                onClick={() => {
-                  setTimeEditando(null);
-                  setModalTime(true);
-                }}
-                className="text-xs font-bold text-[#0E382C] hover:underline"
-              >
-                + Criar novo time agora
-              </button>
-            </PermissaoGuarda>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {timesFiltrados.map((time) => {
-              const membrosDoTime = (time.membros || [])
-                .map((m) => m.usuario || m)
-                .filter(Boolean);
+      {/* Aba Times */}
+      {aba === 'times' && (
+        <div className="space-y-3">
+          {timesFiltrados.length === 0 ? (
+            <div className="text-center py-16 opacity-40">
+              <p className="text-4xl mb-3">🏷️</p>
+              <p className="text-sm">Nenhum time encontrado</p>
+            </div>
+          ) : (
+            timesFiltrados.map(time => {
+              const membrosDoTime = usuarios.filter(u =>
+                time.membros?.some(m => m.usuario?.id === u.id)
+              );
               return (
                 <CardTime
                   key={time.id}
                   time={time}
                   membros={membrosDoTime}
-                  onGerenciarMembros={(t) => setTimeGerenciando(t)}
-                  onEditar={(t) => {
-                    setTimeEditando(t);
-                    setModalTime(true);
-                  }}
+                  expandido={!!timesExpandidos[time.id]}
+                  onToggle={() => toggleTime(time.id)}
+                  onEditar={abrirEditarTime}
+                  onExcluir={handleExcluirTime}
+                  excluindo={excluindo}
+                  onAdicionarMembro={handleAdicionarMembro}
+                  onRemoverMembro={handleRemoverMembro}
+                  todosUsuarios={usuarios}
                 />
               );
-            })}
-          </div>
-        )
-      ) : pessoasFiltradas.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
-          <p className="text-xs text-[#687770]">
-            {busca
-              ? 'Nenhum colaborador encontrado para a busca.'
-              : 'Nenhum colaborador cadastrado.'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {pessoasFiltradas.map((u) => {
-            const timesDoMembro = times.filter((t) =>
-              t.membros?.some((m) => (m.usuario?.id || m.user_id) === u.id)
-            );
-            return (
-              <CardMembro
-                key={u.id}
-                membro={u}
-                timesDoMembro={timesDoMembro}
-              />
-            );
-          })}
+            })
+          )}
+
+          {/* Sem time */}
+          {!busca && semTime.length > 0 && (
+            <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-surface-border)' }}>
+              <button
+                onClick={() => toggleTime('sem-time')}
+                className="w-full flex items-center gap-3 p-4 transition-colors text-left"
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+              >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-white/5">
+                  👤
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold opacity-60">Sem time</p>
+                  <p className="text-xs opacity-40">Membros não alocados em times</p>
+                </div>
+                <span className="text-xs opacity-40">{semTime.length} membro{semTime.length !== 1 ? 's' : ''}</span>
+              </button>
+              {timesExpandidos['sem-time'] && (
+                <div className="border-t divide-y" style={{ borderColor: 'var(--color-surface-border)' }}>
+                  {semTime.map(m => (
+                    <div key={m.id} className="px-4">
+                      <CardMembro membro={m} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Modal Criar/Editar Time */}
+      {/* Aba Pessoas */}
+      {aba === 'pessoas' && (
+        <div className="space-y-1">
+          {usuariosFiltrados.length === 0 ? (
+            <div className="text-center py-16 opacity-40">
+              <p className="text-4xl mb-3">👤</p>
+              <p className="text-sm">Nenhuma pessoa encontrada</p>
+            </div>
+          ) : (
+            usuariosFiltrados.map(u => {
+              const timesDoUsuario = times.filter(t =>
+                t.membros?.some(m => m.usuario?.id === u.id)
+              );
+              return (
+                <div key={u.id}
+                  className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                  <AvatarUsuario nome={u.nome} tamanho={10} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium truncate">{u.nome}</p>
+                      {u.id === usuario?.id && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-primary-500/20 text-primary-400">você</span>
+                      )}
+                    </div>
+                    <p className="text-xs opacity-40 truncate">{u.email}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span className="text-xs px-2 py-0.5 rounded-full opacity-60 capitalize"
+                      style={{ backgroundColor: 'var(--color-surface-border)' }}>
+                      {u.cargo}
+                    </span>
+                    {timesDoUsuario.length > 0 && (
+                      <div className="flex gap-1 flex-wrap justify-end">
+                        {timesDoUsuario.slice(0, 2).map(t => (
+                          <span
+                            key={t.id}
+                            className="text-xs px-1.5 py-0.5 rounded"
+                            style={{ backgroundColor: t.cor_primaria + '22', color: t.cor_primaria }}
+                          >
+                            {t.icone} {t.nome}
+                          </span>
+                        ))}
+                        {timesDoUsuario.length > 2 && (
+                          <span className="text-xs opacity-40">+{timesDoUsuario.length - 2}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
       <ModalTime
         aberto={modalTime}
-        onFechar={() => {
-          setModalTime(false);
-          setTimeEditando(null);
-        }}
+        onFechar={() => setModalTime(false)}
         onSalvar={handleSalvarTime}
-        onExcluir={handleExcluirTime}
         timeEditando={timeEditando}
-      />
-
-      {/* Modal Gerenciar Membros do Time */}
-      <ModalGerenciarTime
-        aberto={!!timeGerenciando}
-        onFechar={() => setTimeGerenciando(null)}
-        time={timeGerenciando}
-        todosUsuarios={usuarios}
-        onAdicionarMembro={handleAdicionarMembro}
-        onRemoverMembro={handleRemoverMembro}
-        onEditarTime={(t) => {
-          setTimeEditando(t);
-          setModalTime(true);
-        }}
       />
     </div>
   );

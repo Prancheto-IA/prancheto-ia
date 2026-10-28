@@ -1,39 +1,28 @@
 // =============================================================
-// PRANCHETO.IA - TIMES E PESSOAS (ORGANIZAÇÃO)
+// PRANCHETO.IA - TIMES E PESSOAS
 // Gerencia times da organização e seus membros.
-// Layout moderno em múltiplas colunas integrado ao Design System Emitly.
+// Permite criar/editar/excluir times e adicionar/remover membros.
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOrg } from '../../../hooks/useOrg.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Search01Icon,
-  PencilEdit01Icon,
-  Delete02Icon,
-  ArrowDown01Icon,
-  Add01Icon,
-  UserGroupIcon,
-  CheckmarkCircle02Icon,
-  Building01Icon,
-} from '@hugeicons/core-free-icons';
 
 // ----------------------------------------------------------
 // CONSTANTES
 // ----------------------------------------------------------
-const ICONES_DISPONIVEIS = ['👥', '🚀', '💡', '🎯', '⚡', '🌟', '🏆', '🛡️', '🎨', '📊', '🤝', '💼', '🔧', '📱', '⚙️'];
+const ICONES_DISPONIVEIS = ['👥', '🚀', '💡', '🎯', '🔥', '⚡', '🌟', '🏆', '🛡️', '🎨', '📊', '🤝', '💼', '🔧', '📱'];
 const CORES_DISPONIVEIS  = [
-  { label: 'Verde Floresta', valor: '#0E382C' },
-  { label: 'Esmeralda',     valor: '#10b981' },
-  { label: 'Índigo',        valor: '#6366f1' },
-  { label: 'Violeta',       valor: '#8b5cf6' },
-  { label: 'Rosa',          valor: '#ec4899' },
-  { label: 'Vermelho',      valor: '#ef4444' },
-  { label: 'Laranja',       valor: '#f97316' },
-  { label: 'Âmbar',         valor: '#f59e0b' },
-  { label: 'Ciano',         valor: '#06b6d4' },
-  { label: 'Azul',          valor: '#3b82f6' },
+  { label: 'Índigo',   valor: '#6366f1' },
+  { label: 'Violeta',  valor: '#8b5cf6' },
+  { label: 'Rosa',     valor: '#ec4899' },
+  { label: 'Vermelho', valor: '#ef4444' },
+  { label: 'Laranja',  valor: '#f97316' },
+  { label: 'Âmbar',   valor: '#f59e0b' },
+  { label: 'Verde',    valor: '#22c55e' },
+  { label: 'Ciano',    valor: '#06b6d4' },
+  { label: 'Azul',     valor: '#3b82f6' },
+  { label: 'Slate',    valor: '#64748b' },
 ];
 
 // ----------------------------------------------------------
@@ -41,11 +30,11 @@ const CORES_DISPONIVEIS  = [
 // ----------------------------------------------------------
 const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
   const [form, setForm] = useState({
-    nome:         '',
-    descricao:    '',
-    icone:        '👥',
-    cor_primaria: '#0E382C',
-    cor_texto:    '#D4EC9D',
+    nome:        '',
+    descricao:   '',
+    icone:       '👥',
+    cor_primaria: '#6366f1',
+    cor_texto:   '#ffffff',
   });
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
@@ -53,21 +42,21 @@ const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
   useEffect(() => {
     if (timeEditando) {
       setForm({
-        nome:         timeEditando.nome         || '',
-        descricao:    timeEditando.descricao    || '',
-        icone:        timeEditando.icone        || '👥',
-        cor_primaria: timeEditando.cor_primaria || '#0E382C',
-        cor_texto:    timeEditando.cor_texto    || '#D4EC9D',
+        nome:        timeEditando.nome        || '',
+        descricao:   timeEditando.descricao   || '',
+        icone:       timeEditando.icone       || '👥',
+        cor_primaria: timeEditando.cor_primaria || '#6366f1',
+        cor_texto:   timeEditando.cor_texto   || '#ffffff',
       });
     } else {
-      setForm({ nome: '', descricao: '', icone: '👥', cor_primaria: '#0E382C', cor_texto: '#D4EC9D' });
+      setForm({ nome: '', descricao: '', icone: '👥', cor_primaria: '#6366f1', cor_texto: '#ffffff' });
     }
     setErro('');
   }, [timeEditando, aberto]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.nome.trim()) { setErro('Nome do time é obrigatório.'); return; }
+    if (!form.nome.trim()) { setErro('Nome é obrigatório.'); return; }
     setSalvando(true);
     setErro('');
     try {
@@ -82,79 +71,80 @@ const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
 
   if (!aberto) return null;
 
+  const inputStyle = {
+    backgroundColor: 'var(--color-surface)',
+    border: '1px solid var(--color-surface-border)',
+    color: 'var(--color-text-primary)',
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto" onClick={onFechar}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 overflow-y-auto" onClick={onFechar}>
       <div
-        className="w-full max-w-md bg-white rounded-2xl border border-[#E4ECE7] shadow-2xl my-8 max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-md rounded-xl shadow-2xl my-8 max-h-[90vh] overflow-y-auto"
+        style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4ECE7]">
-          <h2 className="font-bold text-base text-[#111915]">
-            {timeEditando ? 'Editar Time' : 'Novo Time'}
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
+          <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
+            {timeEditando ? '✏️ Editar Time' : '➕ Novo Time'}
           </h2>
-          <button onClick={onFechar} className="text-slate-400 hover:text-[#111915] transition-colors text-lg p-1">
-            ✕
-          </button>
+          <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-xl">✕</button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {erro && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
-              {erro}
-            </div>
-          )}
-
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Preview */}
-          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7]">
+          <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--color-surface)' }}>
             <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-2xs font-bold"
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
               style={{ backgroundColor: form.cor_primaria, color: form.cor_texto }}
             >
               {form.icone}
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-[#111915] truncate">
-                {form.nome || 'Nome do Time'}
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                {form.nome || 'Nome do time'}
               </p>
-              <p className="text-xs text-[#687770] truncate">
-                {form.descricao || 'Descrição da equipe'}
+              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                {form.descricao || 'Descrição do time'}
               </p>
             </div>
           </div>
 
           {/* Nome */}
           <div>
-            <label className="block text-xs font-semibold text-[#687770] mb-1.5">
-              Nome do Time *
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+              Nome *
             </label>
             <input
               type="text"
               value={form.nome}
               onChange={(e) => setForm(f => ({ ...f, nome: e.target.value }))}
-              placeholder="Ex: Comercial, Engenharia, Suporte..."
-              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+              placeholder="Ex: Time de Vendas"
+              className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+              style={inputStyle}
             />
           </div>
 
           {/* Descrição */}
           <div>
-            <label className="block text-xs font-semibold text-[#687770] mb-1.5">
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
               Descrição
             </label>
             <input
               type="text"
               value={form.descricao}
               onChange={(e) => setForm(f => ({ ...f, descricao: e.target.value }))}
-              placeholder="Breve descrição das responsabilidades do time"
-              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+              placeholder="Breve descrição do time"
+              className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+              style={inputStyle}
             />
           </div>
 
           {/* Ícone */}
           <div>
-            <label className="block text-xs font-semibold text-[#687770] mb-1.5">
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
               Ícone
             </label>
             <div className="flex flex-wrap gap-2">
@@ -163,11 +153,10 @@ const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
                   key={ic}
                   type="button"
                   onClick={() => setForm(f => ({ ...f, icone: ic }))}
-                  className={`w-9 h-9 rounded-xl text-base flex items-center justify-center transition-all cursor-pointer ${
-                    form.icone === ic
-                      ? 'bg-[#0E382C] text-[#D4EC9D] ring-2 ring-[#0E382C]/20 shadow-xs'
-                      : 'bg-[#F7FAF8] border border-[#E4ECE7] hover:bg-slate-100'
+                  className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition-all ${
+                    form.icone === ic ? 'ring-2 ring-primary-500 scale-110' : 'hover:scale-105'
                   }`}
+                  style={{ backgroundColor: form.icone === ic ? form.cor_primaria : 'var(--color-surface)' }}
                 >
                   {ic}
                 </button>
@@ -175,44 +164,45 @@ const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
             </div>
           </div>
 
-          {/* Cor Primária */}
+          {/* Cor */}
           <div>
-            <label className="block text-xs font-semibold text-[#687770] mb-1.5">
-              Cor do Time
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+              Cor do time
             </label>
-            <div className="flex flex-wrap gap-2.5">
-              {CORES_DISPONIVEIS.map((c) => (
+            <div className="flex flex-wrap gap-2">
+              {CORES_DISPONIVEIS.map((cor) => (
                 <button
-                  key={c.valor}
+                  key={cor.valor}
                   type="button"
-                  onClick={() => setForm(f => ({ ...f, cor_primaria: c.valor }))}
-                  title={c.label}
-                  className={`w-7 h-7 rounded-full transition-transform cursor-pointer ${
-                    form.cor_primaria === c.valor
-                      ? 'scale-125 ring-2 ring-offset-2 ring-[#0E382C]'
-                      : 'hover:scale-110'
+                  title={cor.label}
+                  onClick={() => setForm(f => ({ ...f, cor_primaria: cor.valor }))}
+                  className={`w-7 h-7 rounded-full transition-all ${
+                    form.cor_primaria === cor.valor ? 'ring-2 ring-white ring-offset-2 ring-offset-[var(--color-surface-card)] scale-110' : 'hover:scale-105'
                   }`}
-                  style={{ backgroundColor: c.valor }}
+                  style={{ backgroundColor: cor.valor }}
                 />
               ))}
             </div>
           </div>
 
+          {erro && <p className="text-red-400 text-xs">{erro}</p>}
+
           {/* Botões */}
-          <div className="flex items-center gap-3 pt-3 border-t border-[#E4ECE7]">
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onFechar}
-              className="flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold border border-[#E4ECE7] text-[#687770] hover:bg-slate-50 transition-colors"
+              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-surface-border)' }}
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={salvando}
-              className="flex-1 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors disabled:opacity-50 shadow-xs"
+              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors disabled:opacity-50"
             >
-              {salvando ? 'Salvando...' : timeEditando ? 'Salvar' : 'Criar Time'}
+              {salvando ? 'Salvando...' : timeEditando ? 'Salvar' : 'Criar time'}
             </button>
           </div>
         </form>
@@ -225,7 +215,7 @@ const ModalTime = ({ aberto, onFechar, onSalvar, timeEditando }) => {
 // MODAL: Adicionar Membro
 // ----------------------------------------------------------
 const ModalAdicionarMembro = ({ aberto, onFechar, onAdicionar, membrosAtuais, todosUsuarios }) => {
-  const [busca, setBusca]             = useState('');
+  const [busca, setBusca]       = useState('');
   const [adicionando, setAdicionando] = useState(null);
 
   const idsJaMembros = new Set((membrosAtuais || []).map(m => m.usuario?.id));
@@ -248,57 +238,58 @@ const ModalAdicionarMembro = ({ aberto, onFechar, onAdicionar, membrosAtuais, to
   if (!aberto) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs" onClick={onFechar}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onFechar}>
       <div
-        className="w-full max-w-md bg-white rounded-2xl border border-[#E4ECE7] shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-sm rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto"
+        style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4ECE7]">
-          <h2 className="font-bold text-base text-[#111915]">
-            Adicionar Colaborador ao Time
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
+          <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
+            👤 Adicionar Membro
           </h2>
-          <button onClick={onFechar} className="text-slate-400 hover:text-[#111915] transition-colors text-lg p-1">
-            ✕
-          </button>
+          <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-xl">✕</button>
         </div>
 
-        <div className="p-6">
-          <div className="relative mb-4">
-            <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={1.8} className="text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              placeholder="Buscar colaborador por nome ou e-mail..."
-              className="w-full pl-9 pr-4 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
-              autoFocus
-            />
-          </div>
+        <div className="p-4">
+          <input
+            type="text"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar por nome ou e-mail..."
+            className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 mb-3"
+            style={{
+              backgroundColor: 'var(--color-surface)',
+              border: '1px solid var(--color-surface-border)',
+              color: 'var(--color-text-primary)',
+            }}
+            autoFocus
+          />
 
-          <div className="space-y-1.5 max-h-64 overflow-y-auto">
+          <div className="space-y-1 max-h-64 overflow-y-auto">
             {usuariosFiltrados.length === 0 ? (
-              <p className="text-center py-8 text-xs text-[#687770]">
-                {busca ? 'Nenhum colaborador encontrado.' : 'Todos os membros da organização já fazem parte deste time.'}
+              <p className="text-center py-6 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                {busca ? 'Nenhum usuário encontrado.' : 'Todos os usuários já são membros.'}
               </p>
             ) : (
               usuariosFiltrados.map((u) => (
                 <div
                   key={u.id}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#F7FAF8] border border-transparent hover:border-[#E4ECE7] transition-all"
+                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/5 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center text-xs font-bold flex-shrink-0">
-                    {u.nome?.[0]?.toUpperCase() || 'U'}
+                  <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {u.nome?.[0]?.toUpperCase() || '?'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-[#111915] truncate">{u.nome}</p>
-                    <p className="text-[11px] text-[#687770] truncate">{u.email}</p>
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{u.nome}</p>
+                    <p className="text-xs truncate" style={{ color: 'var(--color-text-secondary)' }}>{u.email}</p>
                   </div>
                   <button
                     onClick={() => handleAdicionar(u)}
                     disabled={adicionando === u.id}
-                    className="text-xs px-3 py-1.5 rounded-lg font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors disabled:opacity-50 flex-shrink-0 cursor-pointer"
+                    className="text-xs px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-500 text-white transition-colors disabled:opacity-50 flex-shrink-0"
                   >
-                    {adicionando === u.id ? '...' : '+ Adicionar'}
+                    {adicionando === u.id ? '...' : 'Adicionar'}
                   </button>
                 </div>
               ))
@@ -311,12 +302,12 @@ const ModalAdicionarMembro = ({ aberto, onFechar, onAdicionar, membrosAtuais, to
 };
 
 // ----------------------------------------------------------
-// CARD DE TIME (Emitly Design System)
+// CARD DE TIME
 // ----------------------------------------------------------
 const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembro, todosUsuarios, excluindo }) => {
-  const [expandido, setExpandido]     = useState(false);
-  const [modalMembro, setModalMembro] = useState(false);
-  const [removendo, setRemovendo]     = useState(null);
+  const [expandido, setExpandido]           = useState(false);
+  const [modalMembro, setModalMembro]       = useState(false);
+  const [removendo, setRemovendo]           = useState(null);
 
   const membros = time.membros || [];
 
@@ -330,133 +321,129 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs hover:border-[#0E382C]/30 transition-all flex flex-col justify-between">
-      <div>
-        {/* Header do Card */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-2xs font-bold"
-              style={{ backgroundColor: time.cor_primaria || '#0E382C', color: time.cor_texto || '#D4EC9D' }}
-            >
-              {time.icone || '👥'}
-            </div>
-            <div className="min-w-0">
-              <h3 className="font-bold text-sm text-[#111915] truncate">
+    <div
+      className="rounded-xl overflow-hidden transition-all"
+      style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+    >
+      {/* Header do card */}
+      <div className="p-4">
+        <div className="flex items-start gap-3">
+          {/* Ícone colorido */}
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+            style={{ backgroundColor: time.cor_primaria, color: time.cor_texto }}
+          >
+            {time.icone}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>
                 {time.nome}
               </h3>
-              <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#EDF2EE] text-[#0E382C] mt-0.5">
-                {membros.length} {membros.length === 1 ? 'colaborador' : 'colaboradores'}
+              <span
+                className="text-xs px-2 py-0.5 rounded-full font-medium"
+                style={{ backgroundColor: `${time.cor_primaria}25`, color: time.cor_primaria }}
+              >
+                {membros.length} {membros.length === 1 ? 'membro' : 'membros'}
               </span>
             </div>
+            {time.descricao && (
+              <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--color-text-secondary)' }}>
+                {time.descricao}
+              </p>
+            )}
           </div>
 
           {/* Ações */}
           <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              onClick={() => setExpandido(e => !e)}
+              className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-white/10 transition-colors text-sm"
+              title={expandido ? 'Recolher' : 'Ver membros'}
+            >
+              {expandido ? '▲' : '▼'}
+            </button>
             <PermissaoGuarda permissao="times.gerenciar">
               <button
                 onClick={() => onEditar(time)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#0E382C] hover:bg-[#F7FAF8] transition-colors"
+                className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-white/10 transition-colors text-sm"
                 title="Editar time"
               >
-                <HugeiconsIcon icon={PencilEdit01Icon} size={15} strokeWidth={1.8} />
+                ✏️
               </button>
             </PermissaoGuarda>
             <PermissaoGuarda permissao="times.gerenciar">
               <button
                 onClick={() => onExcluir(time.id)}
                 disabled={excluindo === time.id}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                className="p-1.5 rounded-lg text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm disabled:opacity-50"
                 title="Excluir time"
               >
-                {excluindo === time.id ? (
-                  <div className="w-3.5 h-3.5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={1.8} />
-                )}
+                {excluindo === time.id ? '⏳' : '🗑️'}
               </button>
             </PermissaoGuarda>
           </div>
         </div>
 
-        {/* Descrição */}
-        {time.descricao && (
-          <p className="text-xs text-[#687770] mt-3 line-clamp-2">
-            {time.descricao}
-          </p>
-        )}
-
-        {/* Membros Avatares (Preview) */}
-        <div className="mt-4 pt-3 border-t border-[#E4ECE7] flex items-center justify-between">
-          <div className="flex items-center -space-x-2 overflow-hidden">
-            {membros.slice(0, 5).map((m) => (
-              <div
-                key={m.id}
-                title={m.usuario?.nome}
-                className="w-7 h-7 rounded-full bg-[#0E382C] text-[#D4EC9D] border-2 border-white flex items-center justify-center text-[10px] font-bold shadow-2xs"
-              >
-                {m.usuario?.nome?.[0]?.toUpperCase() || 'U'}
-              </div>
-            ))}
-            {membros.length > 5 && (
-              <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-700 border-2 border-white flex items-center justify-center text-[10px] font-bold">
-                +{membros.length - 5}
-              </div>
-            )}
-            {membros.length === 0 && (
-              <span className="text-[11px] text-[#687770] italic">
-                Nenhum membro alocado
-              </span>
-            )}
+        {/* Avatares dos membros (preview) */}
+        {membros.length > 0 && !expandido && (
+          <div className="flex items-center gap-1 mt-3">
+            <div className="flex -space-x-2">
+              {membros.slice(0, 5).map((m) => (
+                <div
+                  key={m.id}
+                  title={m.usuario?.nome}
+                  className="w-6 h-6 rounded-full bg-primary-600 border-2 flex items-center justify-center text-white text-xs font-bold"
+                  style={{ borderColor: 'var(--color-surface-card)' }}
+                >
+                  {m.usuario?.nome?.[0]?.toUpperCase() || '?'}
+                </div>
+              ))}
+              {membros.length > 5 && (
+                <div
+                  className="w-6 h-6 rounded-full bg-slate-600 border-2 flex items-center justify-center text-white text-xs font-bold"
+                  style={{ borderColor: 'var(--color-surface-card)' }}
+                >
+                  +{membros.length - 5}
+                </div>
+              )}
+            </div>
           </div>
-
-          <button
-            onClick={() => setExpandido(v => !v)}
-            className="text-xs font-semibold text-[#0E382C] hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <span>{expandido ? 'Ocultar' : 'Ver membros'}</span>
-            <HugeiconsIcon
-              icon={ArrowDown01Icon}
-              size={14}
-              strokeWidth={2}
-              className={`transition-transform duration-200 ${expandido ? 'rotate-180' : ''}`}
-            />
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Lista expandida de membros */}
       {expandido && (
-        <div className="mt-3 pt-3 border-t border-[#E4ECE7] space-y-2">
+        <div style={{ borderTop: '1px solid var(--color-surface-border)' }}>
           {membros.length === 0 ? (
-            <p className="text-center py-2 text-xs text-[#687770]">
-              Nenhum colaborador alocado neste time.
+            <p className="text-center py-4 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              Nenhum membro neste time.
             </p>
           ) : (
-            <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            <div className="divide-y" style={{ borderColor: 'var(--color-surface-border)' }}>
               {membros.map((m) => (
-                <div key={m.id} className="flex items-center justify-between p-2 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7]/60">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-6 h-6 rounded-full bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center text-[10px] font-bold flex-shrink-0">
-                      {m.usuario?.nome?.[0]?.toUpperCase() || 'U'}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-[#111915] truncate">
-                        {m.usuario?.nome || 'Usuário'}
-                      </p>
-                      <p className="text-[10px] text-[#687770] truncate">
-                        {m.usuario?.email}
-                      </p>
-                    </div>
+                <div key={m.id} className="flex items-center gap-3 px-4 py-2.5">
+                  <div className="w-7 h-7 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {m.usuario?.nome?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>
+                      {m.usuario?.nome || 'Usuário'}
+                    </p>
+                    <p className="text-xs truncate" style={{ color: 'var(--color-text-secondary)' }}>
+                      {m.usuario?.email}
+                    </p>
                   </div>
                   <PermissaoGuarda permissao="times.gerenciar">
                     <button
                       onClick={() => handleRemover(m.usuario?.id)}
                       disabled={removendo === m.usuario?.id}
-                      className="text-slate-400 hover:text-red-500 p-1 text-xs disabled:opacity-50"
+                      className="text-xs text-muted hover:text-red-400 transition-colors disabled:opacity-50 flex-shrink-0"
                       title="Remover do time"
                     >
-                      ✕
+                      {removendo === m.usuario?.id ? '⏳' : '✕'}
                     </button>
                   </PermissaoGuarda>
                 </div>
@@ -464,13 +451,20 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
             </div>
           )}
 
+          {/* Botão adicionar membro */}
           <PermissaoGuarda permissao="times.gerenciar">
-            <button
-              onClick={() => setModalMembro(true)}
-              className="w-full mt-2 py-2 rounded-xl text-xs font-bold border border-dashed border-[#0E382C]/30 text-[#0E382C] hover:bg-[#EDF2EE] transition-colors"
-            >
-              + Adicionar colaborador
-            </button>
+            <div className="p-3">
+              <button
+                onClick={() => setModalMembro(true)}
+                className="w-full py-2 rounded-lg text-sm font-medium transition-colors border border-dashed"
+                style={{
+                  borderColor: 'var(--color-surface-border)',
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
+                + Adicionar membro
+              </button>
+            </div>
           </PermissaoGuarda>
         </div>
       )}
@@ -488,7 +482,7 @@ const CardTime = ({ time, onEditar, onExcluir, onAdicionarMembro, onRemoverMembr
 };
 
 // ----------------------------------------------------------
-// COMPONENTE PRINCIPAL: TIMES (ORGANIZAÇÃO)
+// PÁGINA PRINCIPAL: TIMES
 // ----------------------------------------------------------
 const Times = () => {
   const {
@@ -502,13 +496,13 @@ const Times = () => {
     listarUsuariosTenant,
   } = useOrg();
 
-  const [times, setTimes]                 = useState([]);
+  const [times, setTimes]               = useState([]);
   const [todosUsuarios, setTodosUsuarios] = useState([]);
-  const [modalTime, setModalTime]         = useState(false);
-  const [timeEditando, setTimeEditando]   = useState(null);
-  const [excluindo, setExcluindo]         = useState(null);
-  const [erro, setErro]                   = useState('');
-  const [inicializado, setInicializado]   = useState(false);
+  const [modalTime, setModalTime]       = useState(false);
+  const [timeEditando, setTimeEditando] = useState(null);
+  const [excluindo, setExcluindo]       = useState(null);
+  const [erro, setErro]                 = useState('');
+  const [inicializado, setInicializado] = useState(false);
 
   const carregar = useCallback(async () => {
     const [timesData, usuariosData] = await Promise.all([
@@ -532,7 +526,7 @@ const Times = () => {
   };
 
   const handleExcluir = async (id) => {
-    if (!window.confirm('Deseja excluir este time? Os colaboradores permanecerão cadastrados na organização.')) return;
+    if (!window.confirm('Excluir este time? Os membros não serão excluídos, apenas removidos do time.')) return;
     setExcluindo(id);
     try {
       await excluirTime(id);
@@ -568,32 +562,29 @@ const Times = () => {
   if (!inicializado && carregando) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const alocacoesTotais = times.reduce((acc, t) => acc + (t.membros?.length || 0), 0);
-
   return (
-    <div className="w-full flex-1 flex flex-col space-y-5">
+    <div className="p-6 max-w-4xl mx-auto">
       {/* Cabeçalho */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-start justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
-            Times e Equipes
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+            👥 Times e Pessoas
           </h1>
-          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
-            Estruture sua equipe em núcleos de trabalho, gerencie membros e lideranças de forma colaborativa.
+          <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+            Organize sua equipe em times e gerencie os membros de cada um.
           </p>
         </div>
-
         <PermissaoGuarda permissao="times.gerenciar">
           <button
             onClick={abrirCriar}
-            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer self-start sm:self-auto"
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
           >
-            <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.2} />
+            <span>+</span>
             <span>Novo time</span>
           </button>
         </PermissaoGuarda>
@@ -601,68 +592,61 @@ const Times = () => {
 
       {/* Erro global */}
       {erro && (
-        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center justify-between">
+        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between">
           <span>{erro}</span>
-          <button onClick={() => setErro('')} className="text-red-500 hover:text-red-700">✕</button>
+          <button onClick={() => setErro('')} className="text-red-400 hover:text-red-300">✕</button>
         </div>
       )}
 
-      {/* Stats Cards em Grid de 3 Colunas */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-2xl font-extrabold text-[#111915]">{times.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Times Ativos</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center">
-            <HugeiconsIcon icon={UserGroupIcon} size={20} strokeWidth={1.8} />
-          </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+        <div
+          className="p-4 rounded-xl"
+          style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+        >
+          <p className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{times.length}</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Times ativos</p>
         </div>
-
-        <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-2xl font-extrabold text-[#111915]">{alocacoesTotais}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Alocações Totais</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center">
-            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} strokeWidth={1.8} />
-          </div>
+        <div
+          className="p-4 rounded-xl"
+          style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+        >
+          <p className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+            {times.reduce((acc, t) => acc + (t.membros?.length || 0), 0)}
+          </p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Alocações totais</p>
         </div>
-
-        <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-2xl font-extrabold text-[#111915]">{todosUsuarios.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Pessoas na Organização</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center">
-            <HugeiconsIcon icon={Building01Icon} size={20} strokeWidth={1.8} />
-          </div>
+        <div
+          className="p-4 rounded-xl"
+          style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+        >
+          <p className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{todosUsuarios.length}</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Pessoas na org</p>
         </div>
       </div>
 
-      {/* Grid de Times em Múltiplas Colunas */}
+      {/* Lista de times */}
       {times.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#E4ECE7] p-12 text-center shadow-xs flex flex-col items-center justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center mb-4">
-            <HugeiconsIcon icon={UserGroupIcon} size={32} strokeWidth={1.8} />
-          </div>
-          <h3 className="font-bold text-base text-[#111915] mb-1">
-            Nenhum time criado ainda
+        <div
+          className="text-center py-16 rounded-xl"
+          style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+        >
+          <div className="text-5xl mb-3">👥</div>
+          <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>
+            Nenhum time criado
           </h3>
-          <p className="text-xs text-[#687770] max-w-sm mb-5">
-            Crie times para organizar seus colaboradores por departamentos, squads ou projetos específicos.
+          <p className="text-sm mb-5" style={{ color: 'var(--color-text-secondary)' }}>
+            Crie o primeiro time da sua organização.
           </p>
-          <PermissaoGuarda permissao="times.gerenciar">
-            <button
-              onClick={abrirCriar}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer"
-            >
-              + Criar primeiro time
-            </button>
-          </PermissaoGuarda>
+          <button
+            onClick={abrirCriar}
+            className="px-5 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
+          >
+            Criar primeiro time
+          </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
+        <div className="grid gap-4 sm:grid-cols-2">
           {times.map((time) => (
             <CardTime
               key={time.id}
@@ -678,7 +662,7 @@ const Times = () => {
         </div>
       )}
 
-      {/* Modal Criar / Editar Time */}
+      {/* Modal criar/editar time */}
       <ModalTime
         aberto={modalTime}
         onFechar={() => setModalTime(false)}
