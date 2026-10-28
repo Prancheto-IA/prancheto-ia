@@ -1,36 +1,70 @@
 // =============================================================
 // PRANCHETO.IA - HUB DE ORGANIZAÇÃO
-// Página de entrada do módulo Organização com menu horizontal
-// superior unificado e sub-navegação para Times, Cargos e Identidade.
+// Página de entrada do módulo Organização com sub-navegação
+// para Times, Cargos e Identidade Visual.
+// Usa React Router nested routes via <Outlet>.
 // =============================================================
 
 import React from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
-import AjustesTopNav from '../../../components/Ajustes/AjustesTopNav.jsx';
 
+// ----------------------------------------------------------
+// SUB-NAVEGAÇÃO DO MÓDULO
+// ----------------------------------------------------------
 const SUB_NAV = [
   {
     slug:  'times',
-    label: 'Times e Equipes',
+    label: 'Times e Pessoas',
+    emoji: '👥',
     rota:  '/dashboard/organizacao/times',
+    desc:  'Gerencie times e membros',
   },
   {
     slug:  'cargos',
     label: 'Cargos e Permissões',
+    emoji: '🎭',
     rota:  '/dashboard/organizacao/cargos',
+    desc:  'Defina cargos e acessos',
   },
   {
     slug:  'usuarios',
-    label: 'Usuários da Organização',
+    label: 'Usuários',
+    emoji: '👤',
     rota:  '/dashboard/organizacao/usuarios',
+    desc:  'Crie e gerencie usuários',
   },
   {
     slug:  'identidade',
     label: 'Identidade Visual',
+    emoji: '🎨',
     rota:  '/dashboard/organizacao/identidade',
+    desc:  'Logo, cores e tipografia',
   },
 ];
 
+// ----------------------------------------------------------
+// COMPONENTE: Tab de sub-navegação
+// ----------------------------------------------------------
+const TabNav = ({ item }) => (
+  <NavLink
+    to={item.rota}
+    className={({ isActive }) =>
+      `flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+        isActive
+          ? 'bg-primary-500/15 text-primary-300 border border-primary-500/20'
+          : 'text-muted hover:text-white hover:bg-white/5 border border-transparent'
+      }`
+    }
+  >
+    <span className="text-base">{item.emoji}</span>
+    <span className="hidden sm:inline">{item.label}</span>
+    <span className="sm:hidden">{item.emoji}</span>
+  </NavLink>
+);
+
+// ----------------------------------------------------------
+// COMPONENTE PRINCIPAL: Layout do módulo Organização
+// ----------------------------------------------------------
 const Organizacao = () => {
   const location = useLocation();
 
@@ -40,33 +74,22 @@ const Organizacao = () => {
   }
 
   return (
-    <div className="w-full flex-1 flex flex-col space-y-5">
-      {/* 1. Menu Horizontal no Topo (Configurações / Organização e Times) */}
-      <AjustesTopNav />
-
-      {/* 2. Sub-navegação das Áreas da Organização */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+    <div className="min-h-full">
+      {/* Sub-navegação horizontal */}
+      <div
+        className="sticky top-0 z-10 px-6 py-3 flex items-center gap-2 overflow-x-auto"
+        style={{
+          backgroundColor: 'var(--color-surface-card)',
+          borderBottom: '1px solid var(--color-surface-border)',
+        }}
+      >
         {SUB_NAV.map((item) => (
-          <NavLink
-            key={item.slug}
-            to={item.rota}
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                isActive
-                  ? 'bg-[#0E382C] text-[#D4EC9D] shadow-xs'
-                  : 'bg-white border border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
-              }`
-            }
-          >
-            <span>{item.label}</span>
-          </NavLink>
+          <TabNav key={item.slug} item={item} />
         ))}
       </div>
 
-      {/* 3. Conteúdo da sub-rota (Times, Cargos, etc.) */}
-      <div className="w-full flex-1 flex flex-col min-h-0">
-        <Outlet />
-      </div>
+      {/* Conteúdo da sub-rota */}
+      <Outlet />
     </div>
   );
 };

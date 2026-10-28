@@ -1,181 +1,224 @@
 // =============================================================
-// PRANCHETO.IA - PAINEL ADMINISTRATIVO (EMITLY DESIGN SYSTEM)
-// Painel Super Admin com cards orgânicos, visual moderno e ícones vetoriais.
+// PRANCHETO.IA - PAINEL ADMINISTRATIVO (Super Admin / Conta Tronco)
+// Painel OCULTO acessível apenas pela Conta Tronco.
+// Usuários comuns são redirecionados automaticamente pelo App.jsx
+// antes mesmo de chegar neste componente.
+//
+// ROTEAMENTO INTERNO (sub-rotas do /admin):
+//   /admin                → Dashboard com cards de módulos
+//   /admin/chat           → Chat com IA (OpenAI)
+//   /admin/usuarios       → Gestão de Usuários + Impersonation
+//   /admin/clientes       → Gestão de Clientes (Tenants)
+//   /admin/planos         → Planos e Limites
+//   /admin/seguranca      → Logs de Segurança e Auditoria
+//   /admin/monitoramento  → Monitoramento do Sistema
+//   /admin/tickets        → Tickets Recebidos (suporte de todos os tenants)
 // =============================================================
 
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  BotIcon,
-  UserGroupIcon,
-  Building01Icon,
-  PackageIcon,
-  Analytics01Icon,
-  Shield01Icon,
-  Ticket01Icon,
-  LockKeyIcon,
-} from '@hugeicons/core-free-icons';
+import { useTema } from '../../hooks/useTema.js';
 
 // Lazy loading das sub-páginas do painel admin
-const PaginaChatIA           = lazy(() => import('./ChatIA/ChatIA.jsx'));
-const PaginaGestaoUsuarios   = lazy(() => import('./Usuarios/GestaoUsuarios.jsx'));
-const PaginaGestaoClientes   = lazy(() => import('./Clientes/GestaoClientes.jsx'));
-const PaginaPlanoLimites     = lazy(() => import('./Planos/PlanoLimites.jsx'));
-const PaginaLogsSeguranca    = lazy(() => import('./Seguranca/LogsSeguranca.jsx'));
-const PaginaMonitoramento    = lazy(() => import('./Monitoramento/Monitoramento.jsx'));
+const PaginaChatIA          = lazy(() => import('./ChatIA/ChatIA.jsx'));
+const PaginaGestaoUsuarios  = lazy(() => import('./Usuarios/GestaoUsuarios.jsx'));
+const PaginaGestaoClientes  = lazy(() => import('./Clientes/GestaoClientes.jsx'));
+const PaginaPlanoLimites    = lazy(() => import('./Planos/PlanoLimites.jsx'));
+const PaginaLogsSeguranca   = lazy(() => import('./Seguranca/LogsSeguranca.jsx'));
+const PaginaMonitoramento   = lazy(() => import('./Monitoramento/Monitoramento.jsx'));
 const PaginaTicketsRecebidos = lazy(() => import('./Suporte/TicketsRecebidos.jsx'));
 
+// =============================================================
+// COMPONENTE: TelaCarregandoAdmin
+// =============================================================
 const TelaCarregandoAdmin = () => (
-  <div className="flex items-center justify-center flex-1 min-h-screen bg-[#F2F5F3]">
+  <div
+    className="flex items-center justify-center flex-1"
+    style={{ backgroundColor: 'var(--color-surface)' }}
+  >
     <div className="flex flex-col items-center gap-3">
-      <div className="w-8 h-8 border-3 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
-      <p className="text-xs text-[#687770]">Carregando painel admin...</p>
+      <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Carregando módulo...</p>
     </div>
   </div>
 );
 
-const CardModulo = ({ icone, titulo, descricao, status, onClick }) => {
+// =============================================================
+// COMPONENTE: CardModulo
+// =============================================================
+const CardModulo = ({ emoji, titulo, descricao, status, onClick }) => {
   const ativo = status === 'ativo';
 
   return (
     <div
       onClick={ativo ? onClick : undefined}
-      className={`bg-white rounded-2xl p-5 border border-[#E4ECE7] shadow-[0_4px_20px_-2px_rgba(14,56,44,0.04)] flex flex-col justify-between space-y-4 transition-all ${
+      className={`rounded-xl p-5 border transition-all ${
         ativo
-          ? 'hover:shadow-md cursor-pointer hover:border-[#0E382C]/30'
-          : 'opacity-50 cursor-default'
+          ? 'hover:border-primary-600/60 cursor-pointer hover:bg-primary-900/10'
+          : 'opacity-60 cursor-default'
       }`}
+      style={{
+        backgroundColor: 'var(--color-surface-card)',
+        borderColor: 'var(--color-surface-border)',
+      }}
     >
-      <div className="space-y-2">
-        <div className="w-10 h-10 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-[#0E382C] flex items-center justify-center">
-          {icone}
-        </div>
-        <h3 className="font-extrabold text-sm text-[#111915]">{titulo}</h3>
-        <p className="text-xs text-[#687770] leading-relaxed">{descricao}</p>
-      </div>
+      <div className="text-3xl mb-3">{emoji}</div>
+      <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>{titulo}</h3>
+      <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{descricao}</p>
 
-      <div className="pt-2">
-        {ativo ? (
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCF5E4] text-[#15803D]">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Ativo
-          </span>
-        ) : (
-          <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
-            Em breve
-          </span>
-        )}
-      </div>
+      {ativo ? (
+        <span className="mt-3 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          Disponível
+        </span>
+      ) : (
+        <span className="mt-3 inline-block text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+          Em breve
+        </span>
+      )}
     </div>
   );
 };
 
+// =============================================================
+// COMPONENTE: DashboardAdmin
+// =============================================================
 const DashboardAdmin = () => {
-  const navigate = useNavigate();
+  const navigate            = useNavigate();
   const { usuario, logout } = useAuthStore();
+  const { temaEscuro, alternarTema } = useTema();
 
   const modulos = [
     {
-      icone: <HugeiconsIcon icon={BotIcon} size={20} strokeWidth={1.8} />,
+      emoji:    '🤖',
       titulo:   'Chat com IA',
       descricao: 'Gerar novos módulos, código e configurações via chat com a IA.',
       status:   'ativo',
       onClick:  () => navigate('/admin/chat'),
     },
     {
-      icone: <HugeiconsIcon icon={UserGroupIcon} size={20} strokeWidth={1.8} />,
-      titulo:   'Gestão de Usuários',
-      descricao: 'Gerenciar todos os usuários, cargos e sessão de impersonation.',
+      emoji:    '👥',
+      titulo:   'Usuários',
+      descricao: 'Gerenciar usuários de todos os tenants, cargos e impersonation.',
       status:   'ativo',
       onClick:  () => navigate('/admin/usuarios'),
     },
     {
-      icone: <HugeiconsIcon icon={Building01Icon} size={20} strokeWidth={1.8} />,
-      titulo:   'Clientes & Tenants',
-      descricao: 'Criar, editar e gerenciar tenants de organizações parceiras.',
+      emoji:    '🏢',
+      titulo:   'Gestão de Clientes',
+      descricao: 'Criar, editar e gerenciar tenants (empresas clientes).',
       status:   'ativo',
       onClick:  () => navigate('/admin/clientes'),
     },
     {
-      icone: <HugeiconsIcon icon={PackageIcon} size={20} strokeWidth={1.8} />,
+      emoji:    '📦',
       titulo:   'Planos e Limites',
-      descricao: 'Configurar planos, recursos liberados e limites por empresa.',
+      descricao: 'Configurar planos, módulos disponíveis e limites por cliente.',
       status:   'ativo',
       onClick:  () => navigate('/admin/planos'),
     },
     {
-      icone: <HugeiconsIcon icon={Analytics01Icon} size={20} strokeWidth={1.8} />,
+      emoji:    '📊',
       titulo:   'Monitoramento',
-      descricao: 'Saúde do sistema, tempo de resposta e métricas de servidores.',
+      descricao: 'Saúde do sistema, logs de erros e métricas de uso.',
       status:   'ativo',
       onClick:  () => navigate('/admin/monitoramento'),
     },
     {
-      icone: <HugeiconsIcon icon={Shield01Icon} size={20} strokeWidth={1.8} />,
-      titulo:   'Segurança & Auditoria',
-      descricao: 'Logs de acessos, registros de auditoria e controle LGPD.',
+      emoji:    '🛡️',
+      titulo:   'Segurança',
+      descricao: 'Logs de acesso, auditoria de eventos e rastreabilidade LGPD.',
       status:   'ativo',
       onClick:  () => navigate('/admin/seguranca'),
     },
     {
-      icone: <HugeiconsIcon icon={Ticket01Icon} size={20} strokeWidth={1.8} />,
+      emoji:    '🎫',
       titulo:   'Tickets Recebidos',
-      descricao: 'Atender tickets de suporte abertos por qualquer empresa parceira.',
+      descricao: 'Tickets de suporte abertos por qualquer cliente, com resposta e notas internas.',
       status:   'ativo',
       onClick:  () => navigate('/admin/tickets'),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F2F5F3] flex flex-col font-sans">
-      {/* Header Admin */}
-      <header className="h-16 bg-white border-b border-[#E4ECE7] px-6 flex items-center justify-between">
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-surface)' }}>
+
+      {/* Header do Painel Admin */}
+      <header
+        className="flex items-center justify-between px-6 py-4 border-b"
+        style={{
+          backgroundColor: 'var(--color-surface-card)',
+          borderColor: 'var(--color-surface-border)',
+        }}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center font-bold shadow-xs">
-            <HugeiconsIcon icon={LockKeyIcon} size={18} strokeWidth={2} />
-          </div>
+          <span className="text-2xl">🔐</span>
           <div>
-            <span className="font-extrabold text-[#111915]">Prancheto.IA</span>
-            <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0E382C] text-[#D4EC9D]">
-              Super Admin
+            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+              Prancheto.IA
+            </span>
+            <span
+              className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-300 border border-primary-500/30"
+            >
+              Painel Admin
             </span>
           </div>
         </div>
-
         <div className="flex items-center gap-4">
-          <span className="text-xs font-bold text-[#111915] hidden sm:block">
+          <span className="text-sm hidden sm:block" style={{ color: 'var(--color-text-secondary)' }}>
             {usuario?.nome || usuario?.email}
           </span>
+          {/* Toggle de tema */}
+          <button
+            onClick={alternarTema}
+            className="w-9 h-9 rounded-lg flex items-center justify-center border transition-all hover:border-primary-500/50"
+            style={{
+              backgroundColor: 'var(--color-surface)',
+              borderColor: 'var(--color-surface-border)',
+            }}
+            title={temaEscuro ? 'Tema claro' : 'Tema escuro'}
+          >
+            {temaEscuro ? '☀️' : '🌙'}
+          </button>
           <button
             onClick={logout}
-            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+            className="text-sm px-3 py-1.5 rounded-lg border transition-colors hover:border-red-500/50 hover:text-red-400"
+            style={{
+              borderColor: 'var(--color-surface-border)',
+              color: 'var(--color-text-secondary)',
+            }}
           >
             Sair
           </button>
         </div>
       </header>
 
-      {/* Main Stream */}
-      <main className="flex-1 p-6 sm:p-8 max-w-7xl mx-auto w-full space-y-6">
-        <div>
-          <h1 className="text-xl font-extrabold text-[#111915]">Painel de Controle Super Admin</h1>
-          <p className="text-xs text-[#687770]">
-            Área restrita de governança. Gerencie permissões, empresas parceiras e auditorias do sistema.
+      {/* Conteúdo principal */}
+      <main className="flex-1 p-6 sm:p-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+            Painel Administrativo
+          </h1>
+          <p className="mb-8" style={{ color: 'var(--color-text-secondary)' }}>
+            Área exclusiva da equipe fundadora. Gerencie clientes, planos e módulos do sistema.
           </p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {modulos.map((modulo, i) => (
-            <CardModulo key={i} {...modulo} />
-          ))}
+          {/* Grid de cards de módulos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {modulos.map((modulo, i) => (
+              <CardModulo key={i} {...modulo} />
+            ))}
+          </div>
         </div>
       </main>
     </div>
   );
 };
 
+// =============================================================
+// COMPONENTE PRINCIPAL: PaginaAdminPanel
+// =============================================================
 const PaginaAdminPanel = () => {
   return (
     <Suspense fallback={<TelaCarregandoAdmin />}>

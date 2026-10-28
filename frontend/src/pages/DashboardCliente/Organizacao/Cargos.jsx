@@ -1,7 +1,7 @@
 // =============================================================
-// PRANCHETO.IA - CARGOS E PERMISSÕES (ORGANIZAÇÃO)
-// Gerencia os cargos e permissões da organização em layout multi-coluna.
-// Cargos de sistema (e_sistema=true) têm permissões editáveis,
+// PRANCHETO.IA - CARGOS E PERMISSÕES
+// Gerencia os cargos customizáveis da organização.
+// Cargos de sistema (e_sistema=true) podem ter permissões editadas
 // mas não podem ser excluídos nem renomeados.
 // =============================================================
 
@@ -10,42 +10,31 @@ import {
   useOrg,
   PERMISSOES_POR_GRUPO,
   PERMISSOES_DISPONIVEIS,
+  SLUGS_CONHECIDOS,
   PERMISSOES_PADRAO_CARGO_NOVO,
 } from '../../../hooks/useOrg.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  PencilEdit01Icon,
-  Delete02Icon,
-  ArrowDown01Icon,
-  Add01Icon,
-  Shield01Icon,
-  LockIcon,
-  SparklesIcon,
-  InformationCircleIcon,
-  UserAdd01Icon,
-} from '@hugeicons/core-free-icons';
 
 /** Índice slug → definição, para não varrer o catálogo a cada permissão exibida. */
 const CATALOGO_POR_SLUG = new Map(PERMISSOES_DISPONIVEIS.map(p => [p.slug, p]));
 
 // ----------------------------------------------------------
-// BADGES
+// BADGE DE CARGO
 // ----------------------------------------------------------
 const BadgeSistema = () => (
-  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
+  <span className="text-xs px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-medium">
     Sistema
   </span>
 );
 
 const BadgePadrao = () => (
-  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium">
     Padrão
   </span>
 );
 
 // ----------------------------------------------------------
-// EDITOR DE PERMISSÕES
+// EDITOR DE PERMISSÕES (inline dentro do card)
 // ----------------------------------------------------------
 const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) => {
   const grupos = Object.entries(PERMISSOES_POR_GRUPO);
@@ -72,43 +61,48 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {grupos.map(([grupo, perms]) => {
         const slugsGrupo = perms.map(p => p.slug);
         const todosMarcados = slugsGrupo.every(s => permissoesSelecionadas.includes(s));
         const algunsMarcados = slugsGrupo.some(s => permissoesSelecionadas.includes(s)) && !todosMarcados;
 
         return (
-          <div key={grupo} className="p-3.5 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7]">
+          <div key={grupo}>
             {/* Header do grupo */}
             <button
               type="button"
               onClick={() => toggleGrupo(perms)}
               disabled={desabilitado}
-              className="flex items-center gap-2 mb-2 w-full text-left disabled:cursor-not-allowed cursor-pointer"
+              className="flex items-center gap-2 mb-1.5 w-full text-left disabled:cursor-not-allowed"
             >
               <div
                 className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-colors ${
                   todosMarcados
-                    ? 'bg-[#0E382C] text-[#D4EC9D]'
+                    ? 'bg-primary-600'
                     : algunsMarcados
-                    ? 'bg-[#0E382C]/60 text-white'
-                    : 'bg-white border border-[#E4ECE7]'
+                    ? 'bg-primary-600/50'
+                    : 'bg-transparent border'
                 }`}
+                style={
+                  todosMarcados || algunsMarcados
+                    ? undefined
+                    : { borderColor: 'var(--color-control-border)' }
+                }
               >
                 {(todosMarcados || algunsMarcados) && (
-                  <span className="text-[10px] font-bold leading-none">
+                  <span className="text-white text-xs leading-none">
                     {todosMarcados ? '✓' : '−'}
                   </span>
                 )}
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0E382C]">
+              <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-secondary)' }}>
                 {grupo}
               </span>
             </button>
 
             {/* Permissões do grupo */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-6">
+            <div className="grid grid-cols-2 gap-1 pl-6">
               {perms.map((perm) => {
                 const marcado = permissoesSelecionadas.includes(perm.slug);
                 return (
@@ -117,20 +111,22 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
                     type="button"
                     onClick={() => toggle(perm.slug)}
                     disabled={desabilitado}
-                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-left border transition-all disabled:cursor-not-allowed cursor-pointer ${
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-left border transition-all disabled:cursor-not-allowed ${
                       marcado
-                        ? 'bg-white border-[#0E382C] text-[#0E382C] font-semibold shadow-2xs'
-                        : 'bg-transparent border-transparent text-[#687770] hover:bg-white hover:border-[#E4ECE7]'
+                        ? 'bg-primary-500/15 border-primary-500/30'
+                        : 'acao-sutil acao-sutil-bloco border-transparent'
                     }`}
+                    style={marcado ? { color: 'var(--color-primaria-contraste)' } : undefined}
                   >
                     <span
-                      className={`w-3.5 h-3.5 rounded flex-shrink-0 flex items-center justify-center ${
-                        marcado ? 'bg-[#0E382C] text-[#D4EC9D]' : 'border border-slate-300 bg-white'
+                      className={`w-3 h-3 rounded flex-shrink-0 flex items-center justify-center ${
+                        marcado ? 'bg-primary-600' : 'border'
                       }`}
+                      style={marcado ? undefined : { borderColor: 'var(--color-control-border)' }}
                     >
-                      {marcado && <span className="text-[9px] font-bold leading-none">✓</span>}
+                      {marcado && <span className="text-white text-xs leading-none">✓</span>}
                     </span>
-                    <span className="truncate">{perm.label}</span>
+                    {perm.label}
                   </button>
                 );
               })}
@@ -145,6 +141,8 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
 // ----------------------------------------------------------
 // MODAL: Criar / Editar Cargo
 // ----------------------------------------------------------
+// O cargo novo abre com as permissões liberadas por padrão já marcadas —
+// desmarcar é uma decisão do chefe, não o ponto de partida.
 const formVazio = (nivelSugerido = 0) => ({
   nome: '',
   descricao: '',
@@ -152,33 +150,32 @@ const formVazio = (nivelSugerido = 0) => ({
   nivel: nivelSugerido,
 });
 
+// meuNivel/souDono: um cargo só gerencia (cria/edita) cargos de nível
+// estritamente menor que o de quem está mexendo — validado de novo no
+// banco (trg_valida_nivel_cargo), isto aqui é só pra guiar a digitação.
 const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDono }) => {
-  const [form, setForm]         = useState(formVazio());
+  const nivelMaximo = souDono ? null : Math.max(meuNivel - 1, 0);
+  const [form, setForm] = useState(() => formVazio(nivelMaximo ?? 0));
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro]         = useState('');
-
-  const nivelMaximoPermitido = souDono ? 100 : Math.max(0, meuNivel - 1);
 
   useEffect(() => {
     if (cargoEditando) {
       setForm({
-        nome:        cargoEditando.nome || '',
-        descricao:   cargoEditando.descricao || '',
-        permissoes:  Array.isArray(cargoEditando.permissoes) ? cargoEditando.permissoes : [],
-        nivel:       cargoEditando.nivel ?? 0,
+        nome:       cargoEditando.nome       || '',
+        descricao:  cargoEditando.descricao  || '',
+        permissoes: cargoEditando.permissoes || [],
+        nivel:      cargoEditando.nivel ?? 0,
       });
     } else {
-      setForm(formVazio(Math.min(10, nivelMaximoPermitido)));
+      setForm(formVazio(nivelMaximo ?? 0));
     }
     setErro('');
-  }, [cargoEditando, aberto, nivelMaximoPermitido]);
+  }, [cargoEditando, aberto, nivelMaximo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!cargoEditando?.e_sistema && !form.nome.trim()) {
-      setErro('Nome do cargo é obrigatório.');
-      return;
-    }
+    if (!form.nome.trim()) { setErro('Nome é obrigatório.'); return; }
     setSalvando(true);
     setErro('');
     try {
@@ -191,114 +188,159 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
     }
   };
 
+  const eSistema = cargoEditando?.e_sistema;
+
   if (!aberto) return null;
 
-  const ehSistema = cargoEditando?.e_sistema;
+  const inputStyle = {
+    backgroundColor: 'var(--color-surface)',
+    border: '1px solid var(--color-surface-border)',
+    color: 'var(--color-text-primary)',
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto" onClick={onFechar}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onFechar}>
       <div
-        className="w-full max-w-2xl bg-white rounded-2xl border border-[#E4ECE7] shadow-2xl my-8 max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-2xl rounded-xl shadow-2xl max-h-[90vh] flex flex-col"
+        style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4ECE7]">
-          <div>
-            <h2 className="font-bold text-base text-[#111915]">
-              {cargoEditando ? `Editar Cargo: ${cargoEditando.nome}` : 'Novo Cargo'}
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-surface-border)' }}>
+          <div className="flex items-center gap-2">
+            <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
+              {cargoEditando ? '✏️ Editar Cargo' : '➕ Novo Cargo'}
             </h2>
-            <p className="text-xs text-[#687770]">
-              {ehSistema
-                ? 'Cargo de sistema: permissões e descrição podem ser alteradas.'
-                : 'Defina o nome, nível hierárquico e permissões concedidas.'}
-            </p>
+            {eSistema && <BadgeSistema />}
           </div>
-          <button onClick={onFechar} className="text-slate-400 hover:text-[#111915] transition-colors text-lg p-1">
-            ✕
-          </button>
+          <button onClick={onFechar} className="acao-sutil text-xl">✕</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {erro && (
-            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
-              {erro}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="p-5 space-y-4 overflow-y-auto flex-1">
             {/* Nome */}
             <div>
-              <label className="block text-xs font-semibold text-[#687770] mb-1.5">
-                Nome do Cargo *
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+                Nome *
               </label>
               <input
                 type="text"
-                disabled={ehSistema}
                 value={form.nome}
                 onChange={(e) => setForm(f => ({ ...f, nome: e.target.value }))}
-                placeholder="Ex: Supervisor de Vendas"
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-60"
+                placeholder="Ex: Coordenador de Vendas"
+                disabled={eSistema}
+                className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={inputStyle}
+              />
+              {eSistema && (
+                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                  Cargos de sistema não podem ser renomeados.
+                </p>
+              )}
+            </div>
+
+            {/* Descrição */}
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+                Descrição
+              </label>
+              <input
+                type="text"
+                value={form.descricao}
+                onChange={(e) => setForm(f => ({ ...f, descricao: e.target.value }))}
+                placeholder="Breve descrição do cargo"
+                className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                style={inputStyle}
               />
             </div>
 
-            {/* Nível */}
+            {/* Nível hierárquico */}
             <div>
-              <label className="block text-xs font-semibold text-[#687770] mb-1.5">
-                Nível Hierárquico (0 a {nivelMaximoPermitido})
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+                Nível hierárquico
               </label>
               <input
                 type="number"
-                min="0"
-                max={nivelMaximoPermitido}
-                disabled={ehSistema}
+                min={0}
+                max={nivelMaximo ?? undefined}
                 value={form.nivel}
-                onChange={(e) => setForm(f => ({ ...f, nivel: parseInt(e.target.value, 10) || 0 }))}
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-60"
+                onChange={(e) => setForm(f => ({ ...f, nivel: Number(e.target.value) }))}
+                className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                style={inputStyle}
               />
+              <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                Quanto maior o número, mais alto na hierarquia. {nivelMaximo !== null && `Você só pode usar até ${nivelMaximo} (seu nível: ${meuNivel}).`}
+              </p>
             </div>
-          </div>
 
-          {/* Descrição */}
-          <div>
-            <label className="block text-xs font-semibold text-[#687770] mb-1.5">
-              Descrição do Cargo
-            </label>
-            <input
-              type="text"
-              value={form.descricao}
-              onChange={(e) => setForm(f => ({ ...f, descricao: e.target.value }))}
-              placeholder="Breve descrição da função e escopo de atuação"
-              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
-            />
-          </div>
-
-          {/* Editor de Permissões */}
-          <div>
-            <label className="block text-xs font-semibold text-[#687770] mb-2">
-              Permissões de Acesso ({form.permissoes.length} selecionadas)
-            </label>
-            <div className="max-h-72 overflow-y-auto pr-1">
-              <EditorPermissoes
-                permissoesSelecionadas={form.permissoes}
-                onChange={(novas) => setForm(f => ({ ...f, permissoes: novas }))}
-              />
+            {/* Permissões */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                  Permissões ({form.permissoes.length} selecionadas)
+                </label>
+                <div className="flex gap-2">
+                  {/* Ambos preservam slugs fora do catálogo: o editor não os
+                      exibe, então o admin não pode ter intenção de removê-los. */}
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({
+                      ...f,
+                      permissoes: [...new Set([
+                        ...f.permissoes.filter(s => !SLUGS_CONHECIDOS.has(s)),
+                        ...PERMISSOES_DISPONIVEIS.map(p => p.slug),
+                      ])],
+                    }))}
+                    className="text-xs transition-colors hover:opacity-80"
+                    style={{ color: 'var(--color-primaria-contraste)' }}
+                  >
+                    Selecionar todas
+                  </button>
+                  <span style={{ color: 'var(--color-text-secondary)' }}>·</span>
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({
+                      ...f,
+                      permissoes: f.permissoes.filter(s => !SLUGS_CONHECIDOS.has(s)),
+                    }))}
+                    className="acao-sutil text-xs"
+                  >
+                    Limpar
+                  </button>
+                </div>
+              </div>
+              <div
+                className="p-4 rounded-xl"
+                style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)' }}
+              >
+                <EditorPermissoes
+                  permissoesSelecionadas={form.permissoes}
+                  onChange={(novas) => setForm(f => ({ ...f, permissoes: novas }))}
+                  desabilitado={false}
+                />
+              </div>
             </div>
+
+            {erro && <p className="text-red-400 text-xs">{erro}</p>}
           </div>
 
-          {/* Ações */}
-          <div className="flex items-center gap-3 pt-3 border-t border-[#E4ECE7]">
+          {/* Botões */}
+          <div className="flex gap-3 p-5 flex-shrink-0" style={{ borderTop: '1px solid var(--color-surface-border)' }}>
             <button
               type="button"
               onClick={onFechar}
-              className="flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold border border-[#E4ECE7] text-[#687770] hover:bg-slate-50 transition-colors"
+              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-surface-border)' }}
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={salvando}
-              className="flex-1 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors disabled:opacity-50 shadow-xs"
+              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors disabled:opacity-50"
             >
-              {salvando ? 'Salvando...' : cargoEditando ? 'Salvar Alterações' : 'Criar Cargo'}
+              {salvando ? 'Salvando...' : cargoEditando ? 'Salvar' : 'Criar cargo'}
             </button>
           </div>
         </form>
@@ -312,119 +354,110 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
 // ----------------------------------------------------------
 const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
   const [expandido, setExpandido] = useState(false);
-  const permissoes = Array.isArray(cargo.permissoes) ? cargo.permissoes : [];
+  const totalPerms = cargo.permissoes?.length || 0;
 
-  const permsAgrupadas = permissoes.reduce((acc, slug) => {
+  // Agrupa permissões por grupo para exibição.
+  // Slugs fora do catálogo aparecem em um grupo próprio, em vez de sumirem:
+  // uma permissão invisível é impossível de revisar ou remover.
+  const permsAgrupadas = (cargo.permissoes || []).reduce((acc, slug) => {
     const perm = CATALOGO_POR_SLUG.get(slug);
-    if (!perm) return acc;
-    const grupo = perm.grupo || 'Outros';
+    const grupo = perm ? perm.grupo : 'Fora do catálogo';
     if (!acc[grupo]) acc[grupo] = [];
-    acc[grupo].push(perm.label);
+    acc[grupo].push(perm ? perm.label : slug);
     return acc;
   }, {});
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs hover:border-[#0E382C]/30 transition-all flex flex-col justify-between">
-      <div>
-        {/* Topo do Card */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
+    <div
+      className="rounded-xl overflow-hidden transition-all"
+      style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+    >
+      {/* Header */}
+      <div className="p-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary-500/15 flex items-center justify-center text-xl flex-shrink-0">
+            🎭
+          </div>
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-sm text-[#111915] truncate">
+              <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>
                 {cargo.nome}
               </h3>
               {cargo.e_sistema && <BadgeSistema />}
-              {cargo.e_padrao && <BadgePadrao />}
+              {cargo.e_padrao  && <BadgePadrao />}
             </div>
-            <p className="text-[11px] text-[#687770] mt-0.5">
-              Nível hierárquico: <strong className="text-[#111915]">{cargo.nivel ?? 0}</strong>
+            {cargo.descricao && (
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+                {cargo.descricao}
+              </p>
+            )}
+            <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+              {totalPerms} {totalPerms === 1 ? 'permissão' : 'permissões'} · nível {cargo.nivel ?? 0}
             </p>
           </div>
 
           {/* Ações */}
           <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              onClick={() => setExpandido(e => !e)}
+              className="acao-sutil acao-sutil-bloco p-1.5 rounded-lg text-sm"
+              title={expandido ? 'Recolher' : 'Ver permissões'}
+            >
+              {expandido ? '▲' : '▼'}
+            </button>
             <PermissaoGuarda permissao="cargos.gerenciar">
               <button
                 onClick={() => onEditar(cargo)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#0E382C] hover:bg-[#F7FAF8] transition-colors"
+                className="acao-sutil acao-sutil-bloco p-1.5 rounded-lg text-sm"
                 title="Editar cargo"
               >
-                <HugeiconsIcon icon={PencilEdit01Icon} size={15} strokeWidth={1.8} />
+                ✏️
               </button>
             </PermissaoGuarda>
-
             {!cargo.e_sistema && (
               <PermissaoGuarda permissao="cargos.gerenciar">
                 <button
                   onClick={() => onExcluir(cargo.id)}
                   disabled={excluindo === cargo.id}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                  className="acao-sutil p-1.5 rounded-lg text-sm hover:text-red-500 hover:bg-red-500/10 disabled:opacity-50"
                   title="Excluir cargo"
                 >
-                  {excluindo === cargo.id ? (
-                    <div className="w-3.5 h-3.5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={1.8} />
-                  )}
+                  {excluindo === cargo.id ? '⏳' : '🗑️'}
                 </button>
               </PermissaoGuarda>
             )}
           </div>
         </div>
-
-        {/* Descrição */}
-        {cargo.descricao && (
-          <p className="text-xs text-[#687770] mt-2.5 line-clamp-2">
-            {cargo.descricao}
-          </p>
-        )}
-
-        {/* Resumo de Permissões */}
-        <div className="mt-4 pt-3 border-t border-[#E4ECE7] flex items-center justify-between">
-          <span className="inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#EDF2EE] text-[#0E382C]">
-            {permissoes.length} {permissoes.length === 1 ? 'permissão ativa' : 'permissões ativas'}
-          </span>
-
-          <button
-            onClick={() => setExpandido(v => !v)}
-            className="text-xs font-semibold text-[#0E382C] hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <span>{expandido ? 'Ocultar' : 'Ver permissões'}</span>
-            <HugeiconsIcon
-              icon={ArrowDown01Icon}
-              size={14}
-              strokeWidth={2}
-              className={`transition-transform duration-200 ${expandido ? 'rotate-180' : ''}`}
-            />
-          </button>
-        </div>
       </div>
 
-      {/* Permissões Expandidas */}
+      {/* Permissões expandidas */}
       {expandido && (
-        <div className="mt-3 pt-3 border-t border-[#E4ECE7] space-y-2 max-h-56 overflow-y-auto pr-1">
-          {permissoes.length === 0 ? (
-            <p className="text-center py-2 text-xs text-[#687770]">
+        <div className="px-4 pb-4" style={{ borderTop: '1px solid var(--color-surface-border)', paddingTop: '12px' }}>
+          {totalPerms === 0 ? (
+            <p className="text-xs text-center py-2" style={{ color: 'var(--color-text-secondary)' }}>
               Nenhuma permissão atribuída.
             </p>
           ) : (
-            Object.entries(permsAgrupadas).map(([grupo, labels]) => (
-              <div key={grupo} className="p-2 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7]/60">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#0E382C] mb-1">
-                  {grupo}
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {labels.map((label) => (
-                    <span
-                      key={label}
-                      className="text-[10px] px-2 py-0.5 rounded-md bg-white border border-[#E4ECE7] text-[#111915] font-medium"
-                    >
-                      {label}
-                    </span>
-                  ))}
+            <div className="space-y-2">
+              {Object.entries(permsAgrupadas).map(([grupo, labels]) => (
+                <div key={grupo}>
+                  <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: 'var(--color-text-secondary)' }}>
+                    {grupo}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {labels.map((label) => (
+                      <span
+                        key={label}
+                        className="text-xs px-2 py-0.5 rounded-full bg-primary-500/10"
+                        style={{ color: 'var(--color-primaria-contraste)' }}
+                      >
+                        {label}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       )}
@@ -433,7 +466,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE PRINCIPAL: CARGOS
+// PÁGINA PRINCIPAL: CARGOS
 // ----------------------------------------------------------
 const Cargos = () => {
   const {
@@ -446,14 +479,14 @@ const Cargos = () => {
     souDonoTenant,
   } = useOrg();
 
-  const [cargos, setCargos]               = useState([]);
-  const [modalCargo, setModalCargo]       = useState(false);
+  const [cargos, setCargos]             = useState([]);
+  const [modalCargo, setModalCargo]     = useState(false);
   const [cargoEditando, setCargoEditando] = useState(null);
-  const [excluindo, setExcluindo]         = useState(null);
-  const [erro, setErro]                   = useState('');
-  const [inicializado, setInicializado]   = useState(false);
-  const [meuNivel, setMeuNivel]           = useState(0);
-  const [souDono, setSouDono]             = useState(false);
+  const [excluindo, setExcluindo]       = useState(null);
+  const [erro, setErro]                 = useState('');
+  const [inicializado, setInicializado] = useState(false);
+  const [meuNivel, setMeuNivel]         = useState(0);
+  const [souDono, setSouDono]           = useState(false);
 
   const carregar = useCallback(async () => {
     const [data, nivel, dono] = await Promise.all([listarCargos(), obterMeuNivel(), souDonoTenant()]);
@@ -467,6 +500,7 @@ const Cargos = () => {
 
   const handleSalvar = async (dados) => {
     if (cargoEditando) {
+      // Cargo de sistema: só atualiza permissões e descrição
       if (cargoEditando.e_sistema) {
         await atualizarCargo(cargoEditando.id, {
           descricao:  dados.descricao,
@@ -482,7 +516,7 @@ const Cargos = () => {
   };
 
   const handleExcluir = async (id) => {
-    if (!window.confirm('Excluir este cargo? Usuários atribuídos a este cargo ficarão sem cargo até nova designação.')) return;
+    if (!window.confirm('Excluir este cargo? Usuários com este cargo ficarão sem cargo atribuído.')) return;
     setExcluindo(id);
     try {
       await excluirCargo(id);
@@ -497,36 +531,36 @@ const Cargos = () => {
   const abrirCriar  = () => { setCargoEditando(null); setModalCargo(true); };
   const abrirEditar = (cargo) => { setCargoEditando(cargo); setModalCargo(true); };
 
-  const cargosSistema = cargos.filter(c => c.e_sistema);
-  const cargosCustom  = cargos.filter(c => !c.e_sistema);
+  // Separa cargos de sistema dos customizados
+  const cargosSistema    = cargos.filter(c => c.e_sistema);
+  const cargosCustom     = cargos.filter(c => !c.e_sistema);
 
   if (!inicializado && carregando) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="w-full flex-1 flex flex-col space-y-5">
+    <div className="p-6 max-w-4xl mx-auto">
       {/* Cabeçalho */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-start justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
-            Cargos e Permissões
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+            🎭 Cargos e Permissões
           </h1>
-          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
-            Defina os cargos da organização e configure os acessos e limites de cada função.
+          <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+            Defina os cargos da organização e controle o que cada um pode fazer.
           </p>
         </div>
-
         <PermissaoGuarda permissao="cargos.gerenciar">
           <button
             onClick={abrirCriar}
-            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer self-start sm:self-auto"
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
           >
-            <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.2} />
+            <span>+</span>
             <span>Novo cargo</span>
           </button>
         </PermissaoGuarda>
@@ -534,62 +568,31 @@ const Cargos = () => {
 
       {/* Erro global */}
       {erro && (
-        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center justify-between">
+        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between">
           <span>{erro}</span>
-          <button onClick={() => setErro('')} className="text-red-500 hover:text-red-700">✕</button>
+          <button onClick={() => setErro('')} className="text-red-400 hover:text-red-300">✕</button>
         </div>
       )}
 
-      {/* KPI Stats em 3 Colunas */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-2xl font-extrabold text-[#111915]">{cargos.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Total de Cargos</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center">
-            <HugeiconsIcon icon={Shield01Icon} size={20} strokeWidth={1.8} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-2xl font-extrabold text-[#111915]">{cargosSistema.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Cargos de Sistema</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center">
-            <HugeiconsIcon icon={LockIcon} size={20} strokeWidth={1.8} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-2xl font-extrabold text-[#111915]">{cargosCustom.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Cargos Customizados</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
-            <HugeiconsIcon icon={SparklesIcon} size={20} strokeWidth={1.8} />
-          </div>
-        </div>
-      </div>
-
-      {/* Info Card de Boas Práticas */}
-      <div className="bg-[#F7FAF8] border border-[#E4ECE7] rounded-2xl p-4 flex items-start gap-3">
-        <div className="w-8 h-8 rounded-xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center flex-shrink-0 mt-0.5">
-          <HugeiconsIcon icon={InformationCircleIcon} size={18} strokeWidth={1.8} />
-        </div>
-        <p className="text-xs text-[#687770] leading-relaxed">
-          Cargos marcados como <strong className="text-[#0E382C]">Sistema</strong> são pré-configurados pela plataforma e não podem ser excluídos ou renomeados, mas suas permissões internas podem ser customizadas. Cargos marcados como <strong className="text-emerald-800">Padrão</strong> são automaticamente atribuídos aos novos usuários convidados.
+      {/* Info sobre cargos de sistema */}
+      <div
+        className="mb-5 p-3 rounded-xl flex items-start gap-3"
+        style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)' }}
+      >
+        <span className="text-lg flex-shrink-0">ℹ️</span>
+        <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+          Cargos marcados como <strong className="text-violet-300">Sistema</strong> são criados automaticamente e não podem ser excluídos ou renomeados, mas você pode editar suas permissões.
+          O cargo marcado como <strong className="text-emerald-300">Padrão</strong> é atribuído automaticamente a novos usuários.
         </p>
       </div>
 
-      {/* Seção: Cargos de Sistema */}
+      {/* Cargos de sistema */}
       {cargosSistema.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#687770]">
-            Cargos de Sistema ({cargosSistema.length})
+        <div className="mb-6">
+          <h2 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+            Cargos de sistema
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
+          <div className="grid gap-3 sm:grid-cols-2">
             {cargosSistema.map((cargo) => (
               <CardCargo
                 key={cargo.id}
@@ -603,36 +606,32 @@ const Cargos = () => {
         </div>
       )}
 
-      {/* Seção: Cargos Customizados */}
-      <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#687770]">
-            Cargos Customizados ({cargosCustom.length})
-          </h2>
-        </div>
-
+      {/* Cargos customizados */}
+      <div>
+        <h2 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+          Cargos customizados
+        </h2>
         {cargosCustom.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-[#E4ECE7] p-10 text-center flex flex-col items-center justify-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center mb-3">
-              <HugeiconsIcon icon={UserAdd01Icon} size={24} strokeWidth={1.8} />
-            </div>
-            <h3 className="font-bold text-sm text-[#111915] mb-1">
-              Nenhum cargo customizado criado
+          <div
+            className="text-center py-12 rounded-xl"
+            style={{ backgroundColor: 'var(--color-surface-card)', border: '1px dashed var(--color-surface-border)' }}
+          >
+            <div className="text-4xl mb-3">🎭</div>
+            <h3 className="font-semibold mb-1 text-sm" style={{ color: 'var(--color-text-primary)' }}>
+              Nenhum cargo customizado
             </h3>
-            <p className="text-xs text-[#687770] max-w-sm mb-4">
-              Crie cargos sob medida com permissões granulares para a sua estrutura corporativa.
+            <p className="text-xs mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+              Crie cargos personalizados com permissões específicas para sua organização.
             </p>
-            <PermissaoGuarda permissao="cargos.gerenciar">
-              <button
-                onClick={abrirCriar}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer"
-              >
-                + Criar primeiro cargo
-              </button>
-            </PermissaoGuarda>
+            <button
+              onClick={abrirCriar}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white transition-colors"
+            >
+              Criar cargo
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
+          <div className="grid gap-3 sm:grid-cols-2">
             {cargosCustom.map((cargo) => (
               <CardCargo
                 key={cargo.id}
@@ -646,7 +645,7 @@ const Cargos = () => {
         )}
       </div>
 
-      {/* Modal Criar / Editar Cargo */}
+      {/* Modal criar/editar cargo */}
       <ModalCargo
         aberto={modalCargo}
         onFechar={() => setModalCargo(false)}

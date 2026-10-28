@@ -1,10 +1,20 @@
 // =============================================================
-// PRANCHETO.IA - LAYOUT DO CLIENTE (DESIGN SYSTEM EMITLY)
-// Shell principal do aplicativo com Sidebar orgânica, Header responsivo,
-// modal de personalização DnD e Bolha Chat IA.
+// PRANCHETO.IA - LAYOUT DO CLIENTE (com Sidebar)
+// Wrapper com navegação lateral para todas as páginas do cliente.
+// Inclui:
+//   - Sidebar responsiva com h-screen (P3)
+//   - Itens de nav personalizáveis por usuário via useSidebarPrefs (P1/P4)
+//   - Modal de personalização da sidebar com DnD (P4)
+//   - Bloco de usuário fixo no rodapé da sidebar (P3)
+//   - Scroll interno na área de navegação (P3)
+//
+// É também o ponto onde a identidade visual da organização entra em cena:
+// carrega o tenant uma vez e o tenantStore aplica as cores no documento,
+// valendo para toda a área do cliente.
 // =============================================================
-import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   DndContext,
   PointerSensor,
@@ -23,103 +33,52 @@ import { useAuthStore } from '../../store/authStore.js';
 import { useTenantStore } from '../../store/tenantStore.js';
 import { useAuth, carregarPermissoesCargo } from '../../hooks/useAuth.js';
 import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
+import { NOME_PRODUTO } from '../../lib/ambiente.js';
 import BolhaChatIA from '../../components/ChatIA/BolhaChatIA.jsx';
 
+// Páginas onde o botão Voltar NÃO aparece (raízes do dashboard)
+const ROTAS_SEM_VOLTAR = [
+  '/dashboard', '/crm', '/suporte', '/dashboard/organizacao',
+  '/chat', '/calendario', '/tarefas', '/projetos', '/times-pessoas',
+];
 
+// Dois tons por cargo: o escuro para o tema claro, o claro para o escuro.
+// A classe .badge-cargo (index.css) escolhe qual usar. Antes eram só os tons
+// claros, ilegíveis sobre a barra branca do tema claro.
 const BADGE_CARGO = {
-  admin:   { label: 'Admin',        bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
-  manager: { label: 'Gerente',      bg: 'bg-blue-100',   text: 'text-blue-800' },
-  member:  { label: 'Membro',       bg: 'bg-[#EBF0ED]', text: 'text-[#0E382C]' },
-  viewer:  { label: 'Visualizador', bg: 'bg-slate-100',  text: 'text-slate-600' },
+  admin:   { label: 'Admin',        rgb: '124  58 237', rgbClaro: '196 181 253' },
+  manager: { label: 'Gerente',      rgb: ' 37  99 235', rgbClaro: '147 197 253' },
+  member:  { label: 'Membro',       rgb: '  5 150 105', rgbClaro: '110 231 183' },
+  viewer:  { label: 'Visualizador', rgb: ' 71  85 105', rgbClaro: '203 213 225' },
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Logo da Marca
+// COMPONENTE: Marca (logo da organização + nome do produto)
+// Cai no ícone padrão quando a organização não tem logo, e também
+// quando a URL salva não carrega — logo quebrado é pior que nenhum.
 // ----------------------------------------------------------
-const MarcaLogo = () => {
+const Marca = ({ className = 'text-2xl' }) => {
   const logoUrl = useTenantStore((s) => s.tenant?.logo_url);
   const [falhou, setFalhou] = useState(false);
 
   useEffect(() => { setFalhou(false); }, [logoUrl]);
 
-  if (logoUrl && !falhou) {
-    return (
-      <img
-        src={logoUrl}
-        alt="Logo"
-        className="h-8 w-8 rounded-lg object-contain flex-shrink-0"
-        onError={() => setFalhou(true)}
-      />
-    );
-  }
+  if (!logoUrl || falhou) return <span className={className}>🧠</span>;
 
   return (
-    <div className="w-8 h-8 rounded-xl bg-[#0E382C] flex items-center justify-center text-[#D4EC9D] shadow-sm flex-shrink-0">
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
-        <polygon points="12 2 2 7 12 12 22 7 12 2" />
-        <polyline points="2 17 12 22 22 17" />
-        <polyline points="2 12 12 17 22 12" />
-      </svg>
-    </div>
+    <img
+      src={logoUrl}
+      alt=""
+      className="h-7 w-7 rounded object-contain flex-shrink-0"
+      onError={() => setFalhou(true)}
+    />
   );
 };
 
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  DashboardSquare01Icon,
-  UserGroupIcon,
-  Folder01Icon,
-  Task01Icon,
-  Calendar03Icon,
-  Comment01Icon,
-  CustomerSupportIcon,
-  Building01Icon,
-  Settings02Icon,
-  SentIcon,
-  Analytics01Icon,
-  UserMultiple02Icon,
-  DragDropVerticalIcon,
-  PencilEdit01Icon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Menu01Icon,
-  Search01Icon,
-  Notification01Icon,
-  UserIcon,
-  HelpCircleIcon,
-  Logout01Icon,
-  LockKeyIcon,
-  Cancel01Icon,
-  PinIcon,
-  BotIcon,
-} from '@hugeicons/core-free-icons';
-
-// Mapeamento de Hugeicons para a Sidebar
-const ICONES_MAP = {
-  dashboard: DashboardSquare01Icon,
-  crm: UserGroupIcon,
-  projetos: Folder01Icon,
-  tarefas: Task01Icon,
-  calendario: Calendar03Icon,
-  chat: Comment01Icon,
-  chat_ia: BotIcon,
-  suporte: CustomerSupportIcon,
-  organizacao: Building01Icon,
-  configuracoes: Settings02Icon,
-  outbound: SentIcon,
-  relatorios: Analytics01Icon,
-  times_pessoas: UserMultiple02Icon,
-};
-
-const getIconeItem = (slug) => {
-  const IconComp = ICONES_MAP[slug] || ICONES_MAP.dashboard;
-  return <HugeiconsIcon icon={IconComp} size={18} strokeWidth={1.8} />;
-};
-
 // ----------------------------------------------------------
-// COMPONENTE: ItemNav Emitly
+// COMPONENTE: Item da Sidebar
 // ----------------------------------------------------------
-const ItemNav = ({ item, colapsada, onClick }) => {
+const ItemNav = ({ item, onClick }) => {
   const location = useLocation();
   const ativoViaPrefixo = item.prefixoAtivo
     ? location.pathname.startsWith(item.prefixoAtivo)
@@ -130,44 +89,18 @@ const ItemNav = ({ item, colapsada, onClick }) => {
       to={item.rota}
       end={item.exact}
       onClick={onClick}
-      title={item.label}
-      className={({ isActive }) => {
-        const ativo = isActive || ativoViaPrefixo;
-        return `h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 group relative overflow-hidden ${
-          colapsada ? 'w-10' : 'w-full'
-        } ${
-          ativo
-            ? 'bg-[#D4EC9D] text-[#132E22] font-semibold shadow-xs'
-            : 'text-[#687770] hover:bg-[#EDF2EE] hover:text-[#111915]'
-        }`;
-      }}
+      className={({ isActive }) =>
+        `nav-lateral ${isActive || ativoViaPrefixo ? 'nav-lateral-ativo' : ''}`
+      }
     >
-      {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
-      <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-        {getIconeItem(item.slug)}
-      </span>
-
-      {/* Rótulo de texto: visível no estado expandido, clipe limpo no recolhido */}
-      <span
-        className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${
-          colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
-        }`}
-      >
-        {item.label}
-      </span>
-
-      {/* Tooltip flutuante quando colapsada */}
-      {colapsada && (
-        <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-[#0E382C] text-[#D4EC9D] text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
-          {item.label}
-        </span>
-      )}
+      <span className="text-base flex-shrink-0">{item.emoji}</span>
+      <span className="truncate">{item.label}</span>
     </NavLink>
   );
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: ItemSortableModal (Personalizar Sidebar)
+// COMPONENTE: Item arrastável no modal de personalização
 // ----------------------------------------------------------
 const ItemSortableModal = ({ item, onToggle }) => {
   const {
@@ -185,44 +118,46 @@ const ItemSortableModal = ({ item, onToggle }) => {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    // O modal fica sobre a superfície do tema, não sobre a barra: aqui as
+    // cores seguem o tema, e não a identidade da organização.
+    backgroundColor: item.visivel ? 'var(--color-hover-surface)' : 'transparent',
+    borderColor: item.visivel ? 'transparent' : 'var(--color-surface-border)',
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${
-        item.visivel
-          ? 'bg-white border-[#E4ECE7] text-[#111915]'
-          : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all ${
+        item.visivel ? '' : 'border-dashed opacity-60'
       }`}
     >
+      {/* Handle de drag */}
       <button
         {...attributes}
         {...listeners}
-        className="text-slate-400 hover:text-slate-600 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none p-1"
+        className="acao-sutil cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
         title="Arrastar para reordenar"
       >
-        <HugeiconsIcon icon={DragDropVerticalIcon} size={16} strokeWidth={1.8} />
+        ⠿
       </button>
 
-      <span className="flex-shrink-0 text-slate-600">{getIconeItem(item.slug)}</span>
-      <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
+      <span className="text-base flex-shrink-0">{item.emoji}</span>
+      <span className="flex-1 text-sm truncate">{item.label}</span>
 
       {fixo ? (
-        <span className="text-slate-400 flex-shrink-0 flex items-center justify-center p-1" title="Item fixo">
-          <HugeiconsIcon icon={LockKeyIcon} size={14} strokeWidth={1.8} />
-        </span>
+        <span className="text-xs opacity-40 flex-shrink-0" title="Item fixo — não pode ser ocultado">🔒</span>
       ) : (
         <button
           onClick={() => onToggle(item.slug)}
-          className={`text-xs px-2.5 py-1 rounded-lg font-semibold transition-colors ${
+          className={`flex-shrink-0 text-xs px-2 py-1 rounded-md transition-colors ${
             item.visivel
-              ? 'text-red-600 hover:bg-red-50'
-              : 'text-[#15803D] hover:bg-[#DCF5E4]'
+              ? 'acao-sutil hover:text-red-500 hover:bg-red-500/10'
+              : 'text-emerald-500 hover:bg-emerald-500/10'
           }`}
+          title={item.visivel ? 'Ocultar da sidebar' : 'Mostrar na sidebar'}
         >
-          {item.visivel ? 'Ocultar' : '+ Mostrar'}
+          {item.visivel ? '🗑️ Ocultar' : '+ Mostrar'}
         </button>
       )}
     </div>
@@ -230,7 +165,7 @@ const ItemSortableModal = ({ item, onToggle }) => {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Modal Personalizar Sidebar
+// COMPONENTE: Modal de personalização da sidebar
 // ----------------------------------------------------------
 const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
   const {
@@ -265,75 +200,125 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
     setOrdemLocal(null);
   };
 
+  const handleToggle = async (slug) => {
+    await toggleVisivel(slug);
+  };
+
+  const handleResetar = async () => {
+    await resetar();
+    setOrdemLocal(null);
+  };
+
   return (
     <>
-      <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50" onClick={onFechar} />
-      <div className="fixed inset-y-0 right-0 w-80 bg-white z-50 flex flex-col shadow-2xl border-l border-[#E4ECE7]">
-        {/* Header Modal */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E4ECE7]">
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 bg-black/60 z-50"
+        onClick={onFechar}
+      />
+
+      {/* Modal */}
+      <div
+        className="fixed inset-y-0 right-0 w-80 z-50 flex flex-col shadow-2xl"
+        style={{
+          backgroundColor: 'var(--color-surface-card)',
+          borderLeft: '1px solid var(--color-surface-border)',
+        }}
+      >
+        {/* Cabeçalho */}
+        <div
+          className="flex items-center justify-between px-4 py-4 flex-shrink-0"
+          style={{ borderBottom: '1px solid var(--color-surface-border)' }}
+        >
           <div>
-            <h2 className="text-base font-bold text-[#111915]">Personalizar Navegação</h2>
-            <p className="text-xs text-[#687770]">Arraste para organizar o seu menu</p>
+            <h2 className="text-sm font-semibold">Personalizar barra lateral</h2>
+            <p className="text-xs opacity-50 mt-0.5">Arraste para reordenar • clique para ocultar</p>
           </div>
-          <button
-            onClick={onFechar}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-            title="Fechar"
-          >
-            <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.8} />
+          <button onClick={onFechar} className="acao-sutil text-lg">
+            ✕
           </button>
         </div>
 
-        {/* Chat IA Config */}
-        <div className="p-4 border-b border-[#E4ECE7]">
-          <p className="text-xs font-bold uppercase tracking-wider text-[#687770] mb-2">
-            Assistente Chat IA
+        {/* Chat IA: bolha flutuante ou item fixo — fica fora da lista
+            arrastável porque não é um item de navegação comum. */}
+        <div className="px-3 pt-3 flex-shrink-0">
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-40 mb-2">
+            🤖 Chat com IA
           </p>
-          <div className="flex rounded-xl bg-[#F7FAF8] p-1 border border-[#E4ECE7]">
+          <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
             <button
               onClick={() => definirChatIaModo('flutuante')}
-              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${
-                chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
+              className={`flex-1 text-xs py-2 transition-colors ${
+                chatIaModo === 'flutuante' ? 'bg-primary-600 text-white' : 'acao-sutil'
               }`}
             >
-              <HugeiconsIcon icon={Comment01Icon} size={14} strokeWidth={1.8} />
-              <span>Flutuante</span>
+              💬 Bolha flutuante
             </button>
             <button
               onClick={() => definirChatIaModo('fixo')}
-              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${
-                chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
+              className={`flex-1 text-xs py-2 transition-colors ${
+                chatIaModo === 'fixo' ? 'bg-primary-600 text-white' : 'acao-sutil'
               }`}
             >
-              <HugeiconsIcon icon={PinIcon} size={14} strokeWidth={1.8} />
-              <span>Na Sidebar</span>
+              📌 Item fixo
             </button>
           </div>
+          <p className="text-xs opacity-50 mt-1.5">
+            {chatIaModo === 'flutuante'
+              ? 'Aparece como bolinha arrastável em qualquer tela.'
+              : 'Aparece como item normal na barra lateral, como antes.'}
+          </p>
         </div>
 
-        {/* Items List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <p className="text-xs font-bold uppercase tracking-wider text-[#687770] mb-1">
-            Itens Visíveis ({slugsVisiveis.length})
+        {/* Lista de itens */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-40 px-3 mb-2">
+            Visíveis ({slugsVisiveis.length})
           </p>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={itensExibidos.map(i => i.slug)} strategy={verticalListSortingStrategy}>
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={itensExibidos.map(i => i.slug)}
+              strategy={verticalListSortingStrategy}
+            >
               {itensExibidos.map(item => (
-                <ItemSortableModal key={item.slug} item={item} onToggle={toggleVisivel} />
+                <ItemSortableModal
+                  key={item.slug}
+                  item={item}
+                  onToggle={handleToggle}
+                />
               ))}
             </SortableContext>
           </DndContext>
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-4 border-t border-[#E4ECE7] space-y-2 bg-[#F7FAF8]">
+        {/* Rodapé */}
+        <div
+          className="p-3 flex-shrink-0 space-y-2"
+          style={{ borderTop: '1px solid var(--color-surface-border)' }}
+        >
           {salvando && (
-            <p className="text-xs text-center text-emerald-700 font-medium animate-pulse">Salvando alterações...</p>
+            <p className="text-xs opacity-40 text-center flex items-center justify-center gap-1">
+              <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin inline-block" />
+              Salvando…
+            </p>
           )}
-          <button onClick={resetar} className="w-full text-xs py-2 text-[#687770] hover:text-[#111915] font-semibold text-center">
-            Restaurar Padrão
+          <button
+            onClick={handleResetar}
+            className="acao-sutil acao-sutil-bloco w-full text-xs py-1.5 rounded-lg"
+          >
+            ↺ Restaurar padrão
           </button>
-          <button onClick={onFechar} className="w-full py-2.5 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-sm rounded-xl transition-all shadow-xs">
+          {/* Usava a variável --color-primary, que nunca existiu: o botão
+              ficava sem fundo. A classe é a mesma dos demais botões primários. */}
+          <button
+            onClick={onFechar}
+            className="w-full text-sm font-medium py-2 rounded-lg bg-primary-600 hover:bg-primary-500 text-white transition-colors"
+          >
             Concluído
           </button>
         </div>
@@ -343,86 +328,125 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Sidebar Principal Emitly
+// COMPONENTE: Sidebar
+// P3: h-screen, flex-col, nav com overflow-y-auto flex-1,
+//     bloco de usuário fixo no rodapé (flex-shrink-0)
 // ----------------------------------------------------------
 const Sidebar = ({ aberta, onFechar, prefs }) => {
+  const { usuario } = useAuthStore();
+  const { logout }  = useAuth();
   const [modalAberto, setModalAberto] = useState(false);
+
   const { itensVisiveis, colapsada } = prefs;
+
+  const badgeCargo  = BADGE_CARGO[usuario?.cargo] || BADGE_CARGO.member;
+  const primeiroNome = usuario?.nome?.split(' ')[0] || 'Usuário';
 
   return (
     <>
+      {/* Overlay mobile */}
       {aberta && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 lg:hidden" onClick={onFechar} />
+        <div
+          className="fixed inset-0 bg-black/60 z-30 lg:hidden"
+          onClick={onFechar}
+        />
       )}
 
+      {/* Sidebar — P3: h-screen garante altura total no desktop.
+          "Colapsada" é um conceito só de desktop: esconde a barra inteira
+          (largura 0), ganhando espaço de tela. No mobile o drawer overlay
+          já resolve isso do jeito dele (aberta/onFechar), então ignora
+          colapsada e sempre abre em largura cheia. */}
       <aside
         className={`
-          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-white border-r border-[#E4ECE7]
-          transition-[width] duration-300 ease-in-out flex-shrink-0
-          lg:static lg:z-auto lg:translate-x-0
+          fixed top-0 left-0 h-screen w-64 flex flex-col z-40 transition-all duration-300 overflow-hidden
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
-          w-64 ${colapsada ? 'lg:w-16' : 'lg:w-64'}
+          lg:translate-x-0 lg:static lg:z-auto lg:h-screen
+          ${colapsada ? 'lg:w-0 lg:!border-0' : 'lg:w-64'}
         `}
+        style={{
+          // --brand-superficie só existe quando a organização aplica a
+          // própria identidade visual; sem ela, a superfície do tema vale.
+          backgroundColor: 'var(--brand-superficie, var(--color-surface-card))',
+          borderRight: '1px solid var(--color-surface-border)',
+        }}
       >
+        {/* Conteúdo com largura fixa — evita que o texto quebre feio
+            enquanto a transição de largura do <aside> está em andamento. */}
         <div className="w-64 h-full flex flex-col flex-shrink-0">
-          {/* Logo Header */}
-          <div className="h-16 flex items-center px-3 border-b border-[#E4ECE7] flex-shrink-0 overflow-hidden">
-            <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-              <MarcaLogo />
-            </div>
+          {/* Logo */}
+          <div
+            className="h-16 flex items-center gap-3 px-4 flex-shrink-0"
+            style={{ borderBottom: '1px solid var(--color-surface-border)' }}
+          >
+            <Marca />
+            {/* Era text-white fixo, invisível no tema claro. Com identidade
+                aplicada, segue a cor de acento sobre a cor secundária. */}
             <span
-              className={`font-extrabold text-lg tracking-tight text-[#0E382C] truncate whitespace-nowrap ml-2 transition-opacity duration-150 ${
-                colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100'
-              }`}
+              className="font-bold text-lg truncate"
+              style={{ color: 'var(--sidebar-texto)' }}
             >
-              Prancheto<span className="text-emerald-600">.IA</span>
+              {NOME_PRODUTO}
             </span>
-            <button onClick={onFechar} className="ml-auto text-slate-400 hover:text-slate-600 lg:hidden p-1 rounded-lg" title="Fechar menu">
-              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
+            {/* Botão fechar mobile */}
+            <button onClick={onFechar} className="acao-lateral ml-auto lg:hidden">
+              ✕
             </button>
           </div>
 
-          {/* Nav Items */}
-          <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1">
+          {/* Navegação — P3: flex-1 + overflow-y-auto = scroll interno */}
+          <nav className="flex-1 overflow-y-auto p-3 space-y-1 min-h-0">
             {itensVisiveis.map((item) => (
-              <ItemNav
-                key={item.slug}
-                item={item}
-                colapsada={colapsada}
-                onClick={onFechar}
-              />
+              <ItemNav key={item.slug} item={item} onClick={onFechar} />
             ))}
           </nav>
 
-          {/* Base da Sidebar: Apenas o botão de editar sidebar */}
-          <div className="p-3 border-t border-[#E4ECE7] flex-shrink-0 overflow-hidden">
-            <button
-              onClick={() => setModalAberto(true)}
-              className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 text-[#687770] hover:bg-[#EDF2EE] hover:text-[#111915] group relative overflow-hidden ${
-                colapsada ? 'w-10' : 'w-full'
-              }`}
-              title="Personalizar itens da sidebar"
-            >
-              <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-                <HugeiconsIcon icon={PencilEdit01Icon} size={18} strokeWidth={1.8} />
-              </span>
-              <span
-                className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${
-                  colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
-                }`}
-              >
-                Editar Menu
-              </span>
-              {colapsada && (
-                <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-[#0E382C] text-[#D4EC9D] text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
-                  Editar Menu
+          {/* Perfil do usuário — P3: flex-shrink-0 = sempre visível no rodapé */}
+          <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid var(--color-surface-border)' }}>
+            <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
+              {/* Avatar */}
+              <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                {primeiroNome[0]?.toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-sm font-medium truncate"
+                  style={{ color: 'var(--sidebar-texto)' }}
+                >
+                  {primeiroNome}
+                </p>
+                <span
+                  className="badge-cargo"
+                  style={{
+                    '--badge-cargo-rgb':       badgeCargo.rgb,
+                    '--badge-cargo-rgb-claro': badgeCargo.rgbClaro,
+                  }}
+                >
+                  {badgeCargo.label}
                 </span>
-              )}
-            </button>
+              </div>
+              {/* Botão personalizar sidebar — P4 */}
+              <button
+                onClick={() => setModalAberto(true)}
+                title="Personalizar barra lateral"
+                className="acao-lateral flex-shrink-0 text-base"
+              >
+                ✏️
+              </button>
+              {/* Botão sair */}
+              <button
+                onClick={logout}
+                title="Sair"
+                className="acao-lateral flex-shrink-0 text-lg hover:text-red-500"
+              >
+                🚪
+              </button>
+            </div>
           </div>
         </div>
       </aside>
 
+      {/* Modal de personalização */}
       <ModalPersonalizarSidebar
         aberto={modalAberto}
         onFechar={() => setModalAberto(false)}
@@ -433,26 +457,83 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE PRINCIPAL: LayoutCliente
+// COMPONENTE: Header mobile
+// ----------------------------------------------------------
+const HeaderMobile = ({ onAbrirSidebar, mostrarVoltar, onVoltar }) => (
+  <header
+    className="h-14 flex items-center px-4 gap-3 lg:hidden sticky top-0 z-20"
+    style={{
+      backgroundColor: 'var(--color-surface-card)',
+      borderBottom: '1px solid var(--color-surface-border)',
+    }}
+  >
+    {mostrarVoltar ? (
+      <button onClick={onVoltar} className="acao-sutil text-xl flex items-center gap-1" title="Voltar">
+        ←
+      </button>
+    ) : (
+      <button onClick={onAbrirSidebar} className="acao-sutil text-xl" title="Abrir menu">
+        ☰
+      </button>
+    )}
+    <Marca />
+    <span className="font-bold truncate" style={{ color: 'var(--color-text-primary)' }}>
+      {NOME_PRODUTO}
+    </span>
+    {mostrarVoltar && (
+      <button onClick={onAbrirSidebar} className="acao-sutil ml-auto" title="Abrir menu">
+        ☰
+      </button>
+    )}
+  </header>
+);
+
+// ----------------------------------------------------------
+// COMPONENTE: Barra de topo desktop (com botão Voltar)
+// ----------------------------------------------------------
+const BarraTopo = ({ mostrarVoltar, onVoltar }) => {
+  if (!mostrarVoltar) return null;
+  return (
+    <div
+      className="hidden lg:flex items-center gap-2 px-6 py-3"
+      style={{
+        borderBottom: '1px solid var(--color-surface-border)',
+        backgroundColor: 'color-mix(in srgb, var(--color-surface-card) 30%, transparent)',
+      }}
+    >
+      <button onClick={onVoltar} className="acao-sutil flex items-center gap-2 text-sm group">
+        <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
+        <span>Voltar</span>
+      </button>
+    </div>
+  );
+};
+
+// ----------------------------------------------------------
+// COMPONENTE PRINCIPAL: Layout do Cliente
+// P3: wrapper usa items-stretch para que a sidebar ocupe 100vh
 // ----------------------------------------------------------
 const LayoutCliente = ({ children }) => {
   const [sidebarAberta, setSidebarAberta] = useState(false);
-  const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
-  const menuUsuarioRef = useRef(null);
-
+  const navigate  = useNavigate();
   const location  = useLocation();
-  const prefs     = useSidebarPrefs();
 
-  const usuario   = useAuthStore((s) => s.usuario);
-  const { logout } = useAuth();
-  const badgeCargo  = BADGE_CARGO[usuario?.cargo] || BADGE_CARGO.member;
-  const primeiroNome = usuario?.nome?.split(' ')[0] || 'Usuário';
+  // Uma só instância de useSidebarPrefs para todo o layout: Sidebar,
+  // o botão de recolher e a bolinha do Chat IA precisam do mesmo estado
+  // (colapsada / chatIaModo), então sobe pra cá em vez de cada um buscar
+  // separado no banco.
+  const prefs = useSidebarPrefs();
 
-  const tenantId        = usuario?.tenant_id;
+  // Carrega a organização uma única vez por sessão. O tenantStore aplica a
+  // identidade visual no documento, então isto vale para a área inteira.
+  const tenantId        = useAuthStore((s) => s.usuario?.tenant_id);
   const carregarTenant  = useTenantStore((s) => s.carregar);
   useEffect(() => { carregarTenant(tenantId); }, [tenantId, carregarTenant]);
 
-  const cargoId          = usuario?.cargo_id;
+  // Revalida as permissões do cargo. A lista vem do login e fica em cache no
+  // localStorage: sem isto, alteração de cargo feita pelo administrador só
+  // valeria para quem fizesse logout e login de novo.
+  const cargoId          = useAuthStore((s) => s.usuario?.cargo_id);
   const atualizarUsuario = useAuthStore((s) => s.atualizarUsuario);
   useEffect(() => {
     if (!cargoId) return;
@@ -461,21 +542,15 @@ const LayoutCliente = ({ children }) => {
     });
   }, [cargoId, atualizarUsuario]);
 
-  // Fechar dropdown de perfil ao clicar fora
-  useEffect(() => {
-    const handleClickFora = (e) => {
-      if (menuUsuarioRef.current && !menuUsuarioRef.current.contains(e.target)) {
-        setMenuUsuarioAberto(false);
-      }
-    };
-    if (menuUsuarioAberto) {
-      document.addEventListener('mousedown', handleClickFora);
-    }
-    return () => document.removeEventListener('mousedown', handleClickFora);
-  }, [menuUsuarioAberto]);
+  const mostrarVoltar = !ROTAS_SEM_VOLTAR.includes(location.pathname);
+  const voltar = () => navigate(-1);
 
   return (
-    <div className="h-screen bg-[#F2F5F3] flex items-stretch overflow-hidden font-sans">
+    // P3: items-stretch garante que a sidebar (static no desktop) ocupe toda a altura.
+    // h-screen + overflow-hidden (em vez de min-h-screen) dá altura DEFINIDA à árvore
+    // flex: sem isso, "main" (flex-1 overflow-auto) nunca tem um teto pra recortar o
+    // scroll e a rolagem acontece no documento inteiro, arrastando a sidebar junto.
+    <div className="h-screen bg-surface flex items-stretch overflow-hidden">
       {/* Sidebar */}
       <Sidebar
         aberta={sidebarAberta}
@@ -483,161 +558,43 @@ const LayoutCliente = ({ children }) => {
         prefs={prefs}
       />
 
-      {/* Toggle Sidebar Desktop Button */}
+      {/* Botão recolher/expandir a barra lateral — fixo, fora do <aside>
+          de propósito: quando colapsada a sidebar fica com largura 0, e um
+          botão preso a ela sumiria junto. Só desktop; no mobile o menu
+          hamburguer do HeaderMobile já cobre esse papel. */}
       <button
         onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
-        title={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
-        className="hidden lg:flex fixed top-4 z-50 items-center justify-center w-7 h-7 rounded-full bg-white border border-[#E4ECE7] shadow-sm text-slate-500 hover:text-[#0E382C] hover:border-[#0E382C] transition-[left] duration-300 ease-in-out cursor-pointer"
+        title={prefs.colapsada ? 'Expandir barra lateral' : 'Recolher barra lateral'}
+        className="hidden lg:flex fixed top-5 z-50 items-center justify-center w-7 h-7 rounded-full border shadow-md text-xs acao-sutil transition-[left] duration-300"
         style={{
-          left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
+          left: prefs.colapsada ? '0.75rem' : 'calc(16rem - 0.875rem)',
+          backgroundColor: 'var(--color-surface-card)',
+          borderColor: 'var(--color-surface-border)',
         }}
       >
-        <HugeiconsIcon
-          icon={prefs.colapsada ? ArrowRight01Icon : ArrowLeft01Icon}
-          size={14}
-          strokeWidth={2.2}
-          className="transition-transform duration-200"
-        />
+        ☰
       </button>
 
-      {/* Main App Canvas */}
+      {/* Área de conteúdo */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
-        <header className="h-16 bg-white border-b border-[#E4ECE7] px-6 flex items-center justify-between gap-4 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarAberta(true)}
-              className="lg:hidden p-2 text-slate-600 hover:text-[#0E382C] rounded-lg"
-            >
-              <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
-            </button>
-          </div>
+        {/* Header mobile */}
+        <HeaderMobile
+          onAbrirSidebar={() => setSidebarAberta(true)}
+          mostrarVoltar={mostrarVoltar}
+          onVoltar={voltar}
+        />
 
-          {/* Search Pill */}
-          <div className="flex-1 max-w-md hidden sm:block relative">
-            <HugeiconsIcon
-              icon={Search01Icon}
-              size={16}
-              strokeWidth={1.8}
-              className="text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
-            />
-            <input
-              type="text"
-              placeholder="Pesquisar projetos, clientes ou tarefas..."
-              className="w-full pl-9 pr-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-full text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C] transition-all"
-            />
-          </div>
+        {/* Barra de topo desktop com botão Voltar */}
+        <BarraTopo mostrarVoltar={mostrarVoltar} onVoltar={voltar} />
 
-          {/* Actions: Notificação, Configuração, Foto de Perfil */}
-          <div className="flex items-center gap-2.5">
-            {/* 1. Botão de Notificação */}
-            <button
-              title="Notificações"
-              className="w-9 h-9 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] hover:text-[#0E382C] flex items-center justify-center transition-colors relative"
-            >
-              <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
-              <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-2 right-2"></span>
-            </button>
-
-            {/* 2. Botão de Configuração */}
-            <NavLink
-              to="/dashboard/configuracoes"
-              title="Configurações e Organização"
-              className={({ isActive }) => {
-                const ativa = isActive || location.pathname.startsWith('/dashboard/organizacao');
-                return `w-9 h-9 rounded-xl border border-[#E4ECE7] flex items-center justify-center transition-colors ${
-                  ativa
-                    ? 'bg-[#0E382C] text-[#D4EC9D]'
-                    : 'bg-[#F7FAF8] text-[#687770] hover:text-[#0E382C]'
-                }`;
-              }}
-            >
-              <HugeiconsIcon icon={Settings02Icon} size={18} strokeWidth={1.8} />
-            </NavLink>
-
-            {/* 3. Foto de Perfil */}
-            <div className="relative" ref={menuUsuarioRef}>
-              <button
-                onClick={() => setMenuUsuarioAberto((v) => !v)}
-                className="w-9 h-9 rounded-xl bg-[#0E382C] text-[#D4EC9D] font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs hover:ring-2 hover:ring-[#0E382C]/20 transition-all cursor-pointer overflow-hidden border border-[#E4ECE7]"
-                title={`Perfil: ${usuario?.nome || 'Usuário'}`}
-              >
-                {usuario?.avatar_url || usuario?.foto_url ? (
-                  <img
-                    src={usuario.avatar_url || usuario.foto_url}
-                    alt={primeiroNome}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{primeiroNome[0]?.toUpperCase()}</span>
-                )}
-              </button>
-
-              {menuUsuarioAberto && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#E4ECE7] py-2 z-50 animate-fade-in text-xs">
-                  {/* Dados do usuário */}
-                  <div className="px-4 py-2.5 border-b border-[#E4ECE7]">
-                    <p className="font-bold text-[#111915] truncate">{usuario?.nome || 'Usuário'}</p>
-                    <p className="text-[11px] text-[#687770] truncate">{usuario?.email}</p>
-                    <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold mt-1.5 ${badgeCargo.bg} ${badgeCargo.text}`}>
-                      {badgeCargo.label}
-                    </span>
-                  </div>
-
-                  {/* Links rápidos */}
-                  <div className="py-1">
-                    <NavLink
-                      to="/dashboard/configuracoes"
-                      onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
-                    >
-                      <HugeiconsIcon icon={UserIcon} size={16} strokeWidth={1.8} className="text-[#687770]" />
-                      <span>Meu Perfil</span>
-                    </NavLink>
-                    <NavLink
-                      to="/dashboard/configuracoes"
-                      onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
-                    >
-                      <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.8} className="text-[#687770]" />
-                      <span>Configurações</span>
-                    </NavLink>
-                    <NavLink
-                      to="/suporte"
-                      onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
-                    >
-                      <HugeiconsIcon icon={HelpCircleIcon} size={16} strokeWidth={1.8} className="text-[#687770]" />
-                      <span>Suporte</span>
-                    </NavLink>
-                  </div>
-
-                  {/* Sair */}
-                  <div className="pt-1 border-t border-[#E4ECE7]">
-                    <button
-                      onClick={() => {
-                        setMenuUsuarioAberto(false);
-                        logout();
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-red-600 hover:bg-red-50 font-semibold text-left"
-                    >
-                      <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={1.8} className="text-red-600" />
-                      <span>Sair da Conta</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Page Content Stream */}
-        <main className="flex-1 overflow-auto px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0">
+        {/* Conteúdo da página */}
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
       </div>
 
-      {/* Floating Chat IA */}
+      {/* Bolinha do Chat IA — some daqui quando o usuário prefere o item
+          fixo na sidebar (modo antigo), já coberto por itensVisiveis. */}
       {prefs.chatIaModo === 'flutuante' && !prefs.carregando && <BolhaChatIA />}
     </div>
   );

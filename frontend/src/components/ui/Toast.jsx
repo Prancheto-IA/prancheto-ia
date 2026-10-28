@@ -11,40 +11,28 @@
 
 import React from 'react';
 import { useUIStore } from '../../store/uiStore.js';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  CheckmarkCircle02Icon,
-  CancelCircleIcon,
-  Alert02Icon,
-  InformationCircleIcon,
-  Cancel01Icon,
-} from '@hugeicons/core-free-icons';
 
 // Mapeamento de tipos para estilos e ícones
 const ESTILOS_TOAST = {
   success: {
-    container: 'bg-green-950/90 border-green-700/50',
-    icon: CheckmarkCircle02Icon,
-    iconColor: 'text-emerald-400',
-    texto:     'text-green-200',
+    container: 'bg-green-900/90 border-green-700/50',
+    icone:     '✅',
+    texto:     'text-green-300',
   },
   error: {
-    container: 'bg-red-950/90 border-red-700/50',
-    icon: CancelCircleIcon,
-    iconColor: 'text-red-400',
-    texto:     'text-red-200',
+    container: 'bg-red-900/90 border-red-700/50',
+    icone:     '❌',
+    texto:     'text-red-300',
   },
   warning: {
-    container: 'bg-amber-950/90 border-amber-700/50',
-    icon: Alert02Icon,
-    iconColor: 'text-amber-400',
-    texto:     'text-amber-200',
+    container: 'bg-yellow-900/90 border-yellow-700/50',
+    icone:     '⚠️',
+    texto:     'text-yellow-300',
   },
   info: {
-    container: 'bg-blue-950/90 border-blue-700/50',
-    icon: InformationCircleIcon,
-    iconColor: 'text-blue-400',
-    texto:     'text-blue-200',
+    container: 'bg-blue-900/90 border-blue-700/50',
+    icone:     'ℹ️',
+    texto:     'text-blue-300',
   },
 };
 
@@ -54,26 +42,23 @@ const ESTILOS_TOAST = {
 const ToastItem = ({ id, tipo, mensagem }) => {
   const { removerNotificacao } = useUIStore();
   const estilo = ESTILOS_TOAST[tipo] || ESTILOS_TOAST.info;
-  const IconComp = estilo.icon;
 
   return (
     <div
       className={`
-        flex items-start gap-3 p-4 rounded-xl border backdrop-blur-sm
+        flex items-start gap-3 p-4 rounded-lg border backdrop-blur-sm
         shadow-lg max-w-sm w-full animate-slide-in
         ${estilo.container}
       `}
     >
-      <span className={`flex-shrink-0 mt-0.5 ${estilo.iconColor}`}>
-        <HugeiconsIcon icon={IconComp} size={18} strokeWidth={2} />
-      </span>
+      <span className="text-lg flex-shrink-0">{estilo.icone}</span>
       <p className={`text-sm flex-1 ${estilo.texto}`}>{mensagem}</p>
       <button
         onClick={() => removerNotificacao(id)}
-        className="text-slate-400 hover:text-white transition-colors flex-shrink-0 ml-2 p-0.5"
+        className="text-muted hover:text-white transition-colors flex-shrink-0 ml-2"
         aria-label="Fechar notificação"
       >
-        <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={1.8} />
+        ✕
       </button>
     </div>
   );
@@ -90,13 +75,17 @@ const ToastContainer = () => {
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"
+      className="fixed bottom-6 right-6 z-50 flex flex-col gap-3"
       aria-live="polite"
+      aria-label="Notificações"
     >
-      {notificacoes.map((n) => (
-        <div key={n.id} className="pointer-events-auto">
-          <ToastItem id={n.id} tipo={n.tipo} mensagem={n.mensagem} />
-        </div>
+      {notificacoes.map((notificacao) => (
+        <ToastItem
+          key={notificacao.id}
+          id={notificacao.id}
+          tipo={notificacao.tipo}
+          mensagem={notificacao.mensagem}
+        />
       ))}
     </div>
   );

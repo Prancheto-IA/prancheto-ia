@@ -11,49 +11,69 @@
 // As demais preferências vivem em user_preferencias.
 // =============================================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore.js';
 import { useTema } from '../../../hooks/useTema.js';
 import { usePermission } from '../../../hooks/usePermission.js';
 import { useRotulosOutbound, STATUS_ORDEM, ROTULOS_PADRAO } from '../../../hooks/useRotulosOutbound.js';
 import { supabase } from '../../../lib/supabase.js';
-import AjustesTopNav from '../../../components/Ajustes/AjustesTopNav.jsx';
-import SecaoPlano from './SecaoPlano.jsx';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Sun01Icon, Moon02Icon, Key01Icon, Shield01Icon } from '@hugeicons/core-free-icons';
+
+const SecaoPlano = lazy(() => import('./SecaoPlano.jsx'));
 
 const ABAS = [
-  { slug: 'geral', label: 'Geral' },
-  { slug: 'plano', label: 'Plano da Organização' },
+  { slug: 'geral', label: 'Geral', emoji: '⚙️' },
+  { slug: 'plano', label: 'Plano', emoji: '🚀' },
 ];
 
+// Descrição do que cada status técnico significa — o rótulo em si é o que
+// o usuário customiza no campo abaixo.
 const DESCRICAO_STATUS = {
-  pendente:    'Pendente',
-  enviado:     'Enviado',
-  respondido:  'Respondido',
-  sem_retorno: 'Sem Retorno',
-  convertido:  'Convertido',
-};
-
-const SUBTITULO_STATUS = {
-  pendente:    'Ainda não contatado',
-  enviado:     'Primeiro contato feito',
-  respondido:  'A pessoa retornou',
-  sem_retorno: 'Não respondeu',
-  convertido:  'Fechou negócio',
+  pendente:    'Pendente (ainda não contatado)',
+  enviado:     'Enviado (primeiro contato feito)',
+  respondido:  'Respondido (a pessoa retornou)',
+  sem_retorno: 'Sem retorno (não respondeu)',
+  convertido:  'Convertido (fechou negócio)',
 };
 
 const NOME_MAX     = 120;
+// Espelha a constraint users_telefone_tamanho: cortar aqui evita a viagem
+// até o banco só para receber a violação de volta.
 const TELEFONE_MAX = 32;
+
+const SecaoConfig = ({ titulo, descricao, children }) => (
+  <div
+    className="border rounded-xl overflow-hidden mb-4"
+    style={{
+      backgroundColor: 'var(--color-surface-card)',
+      borderColor: 'var(--color-surface-border)',
+    }}
+  >
+    <div
+      className="px-5 py-4 border-b"
+      style={{ borderColor: 'var(--color-surface-border)' }}
+    >
+      <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>
+        {titulo}
+      </h3>
+      {descricao && (
+        <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+          {descricao}
+        </p>
+      )}
+    </div>
+    <div className="p-5">{children}</div>
+  </div>
+);
 
 const CampoTexto = ({ label, valor, placeholder, disabled = false, ajuda, maxLength, onChange }) => {
   const id = `config-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`;
   return (
-    <div className="flex flex-col">
+    <div className="mb-4">
       <label
         htmlFor={id}
-        className="block text-xs font-semibold text-[#687770] mb-1.5"
+        className="block text-xs font-medium mb-1.5"
+        style={{ color: 'var(--color-text-secondary)' }}
       >
         {label}
       </label>
@@ -65,10 +85,15 @@ const CampoTexto = ({ label, valor, placeholder, disabled = false, ajuda, maxLen
         disabled={disabled}
         maxLength={maxLength}
         onChange={onChange}
-        className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm placeholder-slate-400 focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-2xs"
+        className="w-full rounded-lg px-3 py-2.5 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-surface-border)',
+          color: 'var(--color-text-primary)',
+        }}
       />
       {ajuda && (
-        <p className="text-[11px] text-[#687770] mt-1.5 leading-tight">
+        <p className="text-xs mt-1.5" style={{ color: 'var(--color-text-secondary)' }}>
           {ajuda}
         </p>
       )}
@@ -76,14 +101,17 @@ const CampoTexto = ({ label, valor, placeholder, disabled = false, ajuda, maxLen
   );
 };
 
-const ToggleSwitch = ({ label, descricao, ativo, onChange }) => (
-  <div className="flex items-center justify-between py-3 border-b border-[#E4ECE7] last:border-0">
-    <div className="pr-4">
-      <p className="text-xs sm:text-sm font-semibold text-[#111915]">
+const Toggle = ({ label, descricao, ativo, onChange }) => (
+  <div
+    className="flex items-center justify-between py-3 border-b last:border-0"
+    style={{ borderColor: 'var(--color-surface-border)' }}
+  >
+    <div>
+      <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
         {label}
       </p>
       {descricao && (
-        <p className="text-[11px] sm:text-xs text-[#687770] mt-0.5">
+        <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
           {descricao}
         </p>
       )}
@@ -94,12 +122,12 @@ const ToggleSwitch = ({ label, descricao, ativo, onChange }) => (
       aria-checked={ativo}
       aria-label={label}
       onClick={() => onChange(!ativo)}
-      className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 cursor-pointer ${
-        ativo ? 'bg-[#0E382C]' : 'bg-slate-300'
+      className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ml-4 ${
+        ativo ? 'bg-primary-600' : 'bg-slate-600'
       }`}
     >
       <span
-        className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+        className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
           ativo ? 'translate-x-6' : 'translate-x-1'
         }`}
       />
@@ -107,8 +135,28 @@ const ToggleSwitch = ({ label, descricao, ativo, onChange }) => (
   </div>
 );
 
+// ----------------------------------------------------------
+// ABA: navegação entre Geral e Plano
+// ----------------------------------------------------------
+const TabAba = ({ aba, ativa, onSelecionar }) => (
+  <button
+    type="button"
+    onClick={() => onSelecionar(aba.slug)}
+    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap border ${
+      ativa
+        ? 'bg-primary-500/15 border-primary-500/20'
+        : 'acao-sutil acao-sutil-bloco border-transparent'
+    }`}
+    style={ativa ? { color: 'var(--color-primaria-contraste)' } : undefined}
+  >
+    <span className="text-base">{aba.emoji}</span>
+    <span>{aba.label}</span>
+  </button>
+);
+
 const Configuracoes = () => {
   const { usuario, atualizarUsuario } = useAuthStore();
+  // sincronizarComBanco: banco prevalece sobre localStorage (fonte de verdade)
   const { temaEscuro, setTemaEscuro, sincronizarComBanco } = useTema();
   const { pode } = usePermission();
   const { rotulos: rotulosSalvos, salvar: salvarRotulosOutbound } = useRotulosOutbound(usuario?.id);
@@ -143,6 +191,7 @@ const Configuracoes = () => {
         if (error && error.code !== 'PGRST116') throw error;
 
         const prefs = data || {};
+        // Banco é a fonte de verdade: sincroniza localStorage com o valor do banco
         sincronizarComBanco(prefs.tema || null);
         setNotifEmail(prefs.notif_email !== false);
         setNotifSistema(prefs.notif_sistema !== false);
@@ -155,6 +204,8 @@ const Configuracoes = () => {
     carregar();
   }, [usuario?.id, sincronizarComBanco]);
 
+  // Rótulos de status do Outbound vêm de user_preferencias.metadata,
+  // carregados por useRotulosOutbound — refletidos aqui para edição.
   useEffect(() => {
     setRotulosStatus(rotulosSalvos);
   }, [rotulosSalvos]);
@@ -165,6 +216,7 @@ const Configuracoes = () => {
 
   const salvar = async () => {
     const nomeLimpo     = nome.trim();
+    // Telefone vazio é ausência de telefone: grava null, como o gatilho espera.
     const telefoneLimpo = telefone.trim() || null;
 
     if (podeEditarPerfil && !nomeLimpo) {
@@ -175,6 +227,9 @@ const Configuracoes = () => {
     setSalvando(true);
     setErro('');
     try {
+      // Perfil: só toca em 'users' quando há permissão e algo mudou.
+      // O RLS e o gatilho no banco barram a gravação de quem não pode, mas
+      // evitar a requisição deixa o retorno mais claro para quem pode.
       const alterouPerfil =
         nomeLimpo     !== (usuario?.nome     || '') ||
         telefoneLimpo !== (usuario?.telefone || null);
@@ -191,6 +246,7 @@ const Configuracoes = () => {
           .select('nome, telefone')
           .single();
         if (error) throw error;
+        // Reflete na sidebar e nos avatares sem exigir novo login.
         atualizarUsuario({ nome: data.nome, telefone: data.telefone });
       }
 
@@ -221,288 +277,196 @@ const Configuracoes = () => {
   if (carregando) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const inicial = nome.trim()[0]?.toUpperCase() || 'U';
-
   return (
-    <div className="w-full flex-1 flex flex-col space-y-5">
-      {/* 1. Menu Horizontal no Topo */}
-      <AjustesTopNav />
+    <div className={`p-6 mx-auto ${abaAtiva === 'plano' ? 'max-w-5xl' : 'max-w-2xl'}`}>
 
-      {/* 2. Cabeçalho com Abas Internas */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
-            Configurações
-          </h1>
-          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
-            Personalize sua conta, preferências do sistema e acompanhe o plano da organização.
-          </p>
-        </div>
-
-        {/* Sub-abas: Geral e Plano */}
-        <div className="flex items-center gap-1.5 bg-[#F7FAF8] p-1 rounded-xl border border-[#E4ECE7] self-start sm:self-auto">
-          {ABAS.map((aba) => (
-            <button
-              key={aba.slug}
-              type="button"
-              onClick={() => selecionarAba(aba.slug)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                aba.slug === abaAtiva
-                  ? 'bg-[#0E382C] text-[#D4EC9D] shadow-xs'
-                  : 'text-[#687770] hover:text-[#111915]'
-              }`}
-            >
-              <span>{aba.label}</span>
-            </button>
-          ))}
-        </div>
+      {/* Cabeçalho */}
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+          ⚙️ Configurações
+        </h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+          Personalize sua conta e acompanhe o plano da organização.
+        </p>
       </div>
 
-      {/* 3. Conteúdo da Aba */}
+      {/* Abas */}
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto">
+        {ABAS.map((aba) => (
+          <TabAba
+            key={aba.slug}
+            aba={aba}
+            ativa={aba.slug === abaAtiva}
+            onSelecionar={selecionarAba}
+          />
+        ))}
+      </div>
+
       {abaAtiva === 'plano' ? (
-        <SecaoPlano />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-64">
+              <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }
+        >
+          <SecaoPlano />
+        </Suspense>
       ) : (
-        /* Layout Reorganizado em Múltiplas Colunas */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          {/* COLUNA ESQUERDA (lg:col-span-7) */}
-          <div className="lg:col-span-7 flex flex-col space-y-5">
-            {/* Card: Perfil */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
-              <div className="flex items-center justify-between pb-4 border-b border-[#E4ECE7]">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center text-lg font-bold shadow-xs flex-shrink-0 border border-[#E4ECE7]">
-                    {inicial}
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-[#111915]">
-                      {nome || 'Seu Perfil'}
-                    </h2>
-                    <p className="text-xs text-[#687770]">{usuario?.email}</p>
-                  </div>
-                </div>
-                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#EDF2EE] text-[#0E382C] border border-[#E4ECE7]">
-                  {usuario?.cargo?.toUpperCase() || 'MEMBRO'}
+        <>
+          {/* Perfil */}
+          <SecaoConfig titulo="Perfil" descricao="Informações da sua conta.">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-14 h-14 rounded-full bg-primary-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                {nome.trim()[0]?.toUpperCase() || '?'}
+              </div>
+              <div>
+                <p className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                  {nome || 'Usuário'}
+                </p>
+                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                  {usuario?.email}
+                </p>
+              </div>
+            </div>
+            <CampoTexto
+              label="Nome completo"
+              valor={nome}
+              placeholder="Seu nome"
+              disabled={!podeEditarPerfil}
+              maxLength={NOME_MAX}
+              ajuda={podeEditarPerfil
+                ? undefined
+                : 'Seu cargo não permite alterar os próprios dados. Fale com o administrador da organização.'}
+              onChange={(e) => setNome(e.target.value)}
+            />
+            <CampoTexto
+              label="Telefone"
+              valor={telefone}
+              placeholder="(11) 99999-0000"
+              disabled={!podeEditarPerfil}
+              maxLength={TELEFONE_MAX}
+              onChange={(e) => setTelefone(e.target.value)}
+            />
+            {/* E-mail é a credencial de login, espelhada de auth.users.
+                Trocá-lo exige o fluxo de confirmação do Supabase Auth. */}
+            <CampoTexto label="E-mail"  valor={usuario?.email || ''} disabled />
+            <CampoTexto label="Cargo"   valor={usuario?.cargo || ''} disabled />
+          </SecaoConfig>
+
+          {/* Aparência */}
+          <SecaoConfig titulo="Aparência" descricao="Personalize a interface visual.">
+            <Toggle
+              label="Tema escuro"
+              descricao="Interface com fundo escuro (recomendado para uso prolongado)."
+              ativo={temaEscuro}
+              onChange={setTemaEscuro}
+            />
+            <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--color-surface-border)' }}>
+              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                Tema atual:{' '}
+                <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                  {temaEscuro ? '🌙 Escuro' : '☀️ Claro'}
                 </span>
-              </div>
-
-              {/* Grid de Campos em 2 Colunas */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-                <CampoTexto
-                  label="Nome completo"
-                  valor={nome}
-                  placeholder="Seu nome completo"
-                  disabled={!podeEditarPerfil}
-                  maxLength={NOME_MAX}
-                  ajuda={
-                    podeEditarPerfil
-                      ? undefined
-                      : 'Seu cargo não permite alterar o nome.'
-                  }
-                  onChange={(e) => setNome(e.target.value)}
-                />
-                <CampoTexto
-                  label="Telefone / WhatsApp"
-                  valor={telefone}
-                  placeholder="(11) 99999-0000"
-                  disabled={!podeEditarPerfil}
-                  maxLength={TELEFONE_MAX}
-                  onChange={(e) => setTelefone(e.target.value)}
-                />
-                <CampoTexto
-                  label="E-mail de Login"
-                  valor={usuario?.email || ''}
-                  disabled
-                  ajuda="Gerenciado via autenticação segura."
-                />
-                <CampoTexto
-                  label="Cargo Atual"
-                  valor={usuario?.cargo || 'Membro'}
-                  disabled
-                  ajuda="Definido pelo administrador da organização."
-                />
-              </div>
-            </div>
-
-            {/* Card: Rótulos do Outbound */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-[#E4ECE7]">
-                <div>
-                  <h2 className="text-base font-bold text-[#111915]">
-                    Rótulos do Outbound
-                  </h2>
-                  <p className="text-xs text-[#687770] mt-0.5">
-                    Personalize como os status dos contatos são exibidos no seu funil de vendas.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setRotulosStatus(ROTULOS_PADRAO)}
-                  className="text-xs font-semibold text-[#0E382C] hover:underline self-start sm:self-auto cursor-pointer"
-                >
-                  Restaurar padrões
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-                {STATUS_ORDEM.map((status) => (
-                  <div key={status} className="flex flex-col">
-                    <CampoTexto
-                      label={`${DESCRICAO_STATUS[status]} (${SUBTITULO_STATUS[status]})`}
-                      valor={rotulosStatus[status] ?? ''}
-                      placeholder={ROTULOS_PADRAO[status]}
-                      maxLength={40}
-                      onChange={(e) =>
-                        setRotulosStatus((prev) => ({ ...prev, [status]: e.target.value }))
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* COLUNA DIREITA (lg:col-span-5) */}
-          <div className="lg:col-span-5 flex flex-col space-y-5">
-            {/* Card: Aparência */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
-              <h2 className="text-base font-bold text-[#111915]">Aparência</h2>
-              <p className="text-xs text-[#687770] mt-0.5 mb-4">
-                Escolha o tema visual da interface.
               </p>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setTemaEscuro(false)}
-                  className={`flex flex-col items-center gap-2.5 p-3.5 rounded-xl border text-center transition-all cursor-pointer ${
-                    !temaEscuro
-                      ? 'border-[#0E382C] bg-[#F7FAF8] ring-2 ring-[#0E382C]/15 font-bold text-[#0E382C]'
-                      : 'border-[#E4ECE7] bg-white text-[#687770] hover:border-slate-300'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-white border border-[#E4ECE7] flex items-center justify-center text-slate-700 shadow-2xs">
-                    <HugeiconsIcon icon={Sun01Icon} size={18} strokeWidth={1.8} />
-                  </div>
-                  <span className="text-xs">Modo Claro</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setTemaEscuro(true)}
-                  className={`flex flex-col items-center gap-2.5 p-3.5 rounded-xl border text-center transition-all cursor-pointer ${
-                    temaEscuro
-                      ? 'border-[#0E382C] bg-[#F7FAF8] ring-2 ring-[#0E382C]/15 font-bold text-[#0E382C]'
-                      : 'border-[#E4ECE7] bg-white text-[#687770] hover:border-slate-300'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center shadow-2xs">
-                    <HugeiconsIcon icon={Moon02Icon} size={18} strokeWidth={1.8} />
-                  </div>
-                  <span className="text-xs">Modo Escuro</span>
-                </button>
-              </div>
             </div>
+          </SecaoConfig>
 
-            {/* Card: Notificações */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
-              <h2 className="text-base font-bold text-[#111915]">Notificações</h2>
-              <p className="text-xs text-[#687770] mt-0.5 mb-3">
-                Controle os canais de recebimento de alertas.
-              </p>
+          {/* Notificações */}
+          <SecaoConfig titulo="Notificações" descricao="Controle como você recebe alertas.">
+            <Toggle
+              label="Notificações por e-mail"
+              descricao="Receba atualizações importantes no seu e-mail."
+              ativo={notifEmail}
+              onChange={setNotifEmail}
+            />
+            <Toggle
+              label="Notificações do sistema"
+              descricao="Alertas dentro da plataforma."
+              ativo={notifSistema}
+              onChange={setNotifSistema}
+            />
+          </SecaoConfig>
 
-              <ToggleSwitch
-                label="Notificações por e-mail"
-                descricao="Receba atualizações importantes sobre projetos e tarefas."
-                ativo={notifEmail}
-                onChange={setNotifEmail}
+          {/* Rótulos do Outbound */}
+          <SecaoConfig
+            titulo="Rótulos do Outbound"
+            descricao="Personalize como cada status aparece pra você. O status técnico continua o mesmo para todos — só o nome exibido muda."
+          >
+            {STATUS_ORDEM.map((status) => (
+              <CampoTexto
+                key={status}
+                label={DESCRICAO_STATUS[status]}
+                valor={rotulosStatus[status] ?? ''}
+                placeholder={ROTULOS_PADRAO[status]}
+                ajuda={`Padrão: "${ROTULOS_PADRAO[status]}"`}
+                maxLength={40}
+                onChange={(e) =>
+                  setRotulosStatus((prev) => ({ ...prev, [status]: e.target.value }))
+                }
               />
-              <ToggleSwitch
-                label="Notificações no sistema"
-                descricao="Alertas instantâneos na interface da plataforma."
-                ativo={notifSistema}
-                onChange={setNotifSistema}
-              />
-            </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setRotulosStatus(ROTULOS_PADRAO)}
+              className="text-primary-400 hover:text-primary-300 text-xs transition-colors"
+            >
+              Restaurar rótulos padrão
+            </button>
+          </SecaoConfig>
 
-            {/* Card: Segurança */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
-              <h2 className="text-base font-bold text-[#111915]">Segurança</h2>
-              <p className="text-xs text-[#687770] mt-0.5 mb-4">
-                Gerencie credenciais e proteção da sua conta.
-              </p>
-
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between p-3 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8]">
+          {/* Segurança */}
+          <SecaoConfig titulo="Segurança" descricao="Gerencie o acesso à sua conta.">
+            <div className="space-y-3">
+              {[
+                { emoji: '🔑', titulo: 'Alterar senha' },
+                { emoji: '🛡️', titulo: 'Autenticação em dois fatores' },
+              ].map((item) => (
+                <button
+                  key={item.titulo}
+                  disabled
+                  className="w-full text-left flex items-center justify-between p-3 rounded-lg border transition-colors opacity-60 cursor-not-allowed"
+                  style={{ borderColor: 'var(--color-surface-border)' }}
+                >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white border border-[#E4ECE7] flex items-center justify-center text-[#0E382C]">
-                      <HugeiconsIcon icon={Key01Icon} size={18} strokeWidth={1.8} />
-                    </div>
+                    <span>{item.emoji}</span>
                     <div>
-                      <p className="text-xs font-semibold text-[#111915]">Alterar senha</p>
-                      <p className="text-[11px] text-[#687770]">Recuperação via e-mail</p>
+                      <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                        {item.titulo}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                        Em breve
+                      </p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
-                    Em breve
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white border border-[#E4ECE7] flex items-center justify-center text-[#0E382C]">
-                      <HugeiconsIcon icon={Shield01Icon} size={18} strokeWidth={1.8} />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-[#111915]">Autenticação 2FA</p>
-                      <p className="text-[11px] text-[#687770]">Segurança em dois fatores</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
-                    Em breve
-                  </span>
-                </div>
-              </div>
+                  <span style={{ color: 'var(--color-text-secondary)' }}>›</span>
+                </button>
+              ))}
             </div>
+          </SecaoConfig>
 
-            {/* Barra de Ação: Salvar */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="w-full sm:w-auto">
-                {erro && <p className="text-red-500 text-xs font-medium">{erro}</p>}
-                {salvo && (
-                  <p className="text-emerald-700 text-xs font-bold flex items-center gap-1">
-                    ✓ Alterações salvas com sucesso!
-                  </p>
-                )}
-                {!erro && !salvo && (
-                  <p className="text-xs text-[#687770]">
-                    Salve as alterações para aplicar suas preferências.
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={salvar}
-                disabled={salvando}
-                className="w-full sm:w-auto bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                {salvando ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-[#D4EC9D] border-t-transparent rounded-full animate-spin" />
-                    <span>Salvando...</span>
-                  </>
-                ) : (
-                  <span>Salvar alterações</span>
-                )}
-              </button>
-            </div>
+          {/* Botão salvar */}
+          {erro && <p className="text-red-400 text-sm mb-3">{erro}</p>}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={salvar}
+              disabled={salvando}
+              className="bg-primary-600 hover:bg-primary-500 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              {salvando ? 'Salvando...' : 'Salvar alterações'}
+            </button>
+            {salvo && (
+              <span className="text-emerald-400 text-sm flex items-center gap-1">
+                ✓ Salvo com sucesso!
+              </span>
+            )}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
