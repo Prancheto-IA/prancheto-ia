@@ -12,7 +12,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 
 // Itens que nunca podem ser ocultados (apenas reordenados)
-export const SLUGS_FIXOS = ['configuracoes'];
+export const SLUGS_FIXOS = [];
 
 // Catálogo completo de itens da sidebar com defaults
 // Ordem padrão e visibilidade inicial
@@ -28,9 +28,6 @@ export const CATALOGO_SIDEBAR = [
   { slug: 'times_pessoas',label: 'Times e Pessoas',emoji: '👥', rota: '/times-pessoas',               exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'relatorios',   label: 'Relatórios',     emoji: '📊', rota: '/dashboard/relatorios',        exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'outbound',     label: 'Outbound',       emoji: '📧', rota: '/dashboard/outbound',          exact: false, prefixoAtivo: null,                    removivel: true  },
-  { slug: 'organizacao',  label: 'Organização',    emoji: '🏢', rota: '/dashboard/organizacao/times', exact: false, prefixoAtivo: '/dashboard/organizacao', removivel: true  },
-  { slug: 'suporte',      label: 'Suporte',        emoji: '🎧', rota: '/suporte',                     exact: false, prefixoAtivo: '/suporte',              removivel: true  },
-  { slug: 'configuracoes',label: 'Configurações',  emoji: '⚙️', rota: '/dashboard/configuracoes',    exact: false, prefixoAtivo: null,                    removivel: false },
 ];
 
 // 'planos' e 'modulos' saíram do catálogo: o plano da empresa passou a

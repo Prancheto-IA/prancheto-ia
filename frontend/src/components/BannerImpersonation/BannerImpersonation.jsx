@@ -16,6 +16,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
 import { supabase } from '../../lib/supabase.js';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ViewIcon, ArrowLeft01Icon } from '@hugeicons/core-free-icons';
 
 // =============================================================
 // COMPONENTE PRINCIPAL
@@ -63,7 +65,9 @@ const BannerImpersonation = () => {
     >
       {/* Ícone + Informações do usuário impersonado */}
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-xl flex-shrink-0" aria-hidden="true">👁️</span>
+        <span className="w-8 h-8 rounded-lg bg-amber-950/10 flex items-center justify-center flex-shrink-0 text-amber-950" aria-hidden="true">
+          <HugeiconsIcon icon={ViewIcon} size={18} strokeWidth={2} />
+        </span>
         <div className="min-w-0">
           <p className="font-semibold text-sm leading-tight truncate">
             Modo Visualização Ativo
@@ -108,7 +112,7 @@ const BannerImpersonation = () => {
           </>
         ) : (
           <>
-            <span aria-hidden="true">🔙</span>
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2} aria-hidden="true" />
             Voltar para Admin
           </>
         )}
