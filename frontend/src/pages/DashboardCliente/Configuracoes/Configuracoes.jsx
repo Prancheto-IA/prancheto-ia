@@ -16,7 +16,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore.js';
 import { useTema } from '../../../hooks/useTema.js';
 import { usePermission } from '../../../hooks/usePermission.js';
-import { useRotulosOutbound, STATUS_ORDEM, ROTULOS_PADRAO } from '../../../hooks/useRotulosOutbound.js';
 import { supabase } from '../../../lib/supabase.js';
 import AjustesTopNav from '../../../components/Ajustes/AjustesTopNav.jsx';
 import SecaoPlano from './SecaoPlano.jsx';
@@ -27,22 +26,6 @@ const ABAS = [
   { slug: 'geral', label: 'Geral' },
   { slug: 'plano', label: 'Plano da Organização' },
 ];
-
-const DESCRICAO_STATUS = {
-  pendente:    'Pendente',
-  enviado:     'Enviado',
-  respondido:  'Respondido',
-  sem_retorno: 'Sem Retorno',
-  convertido:  'Convertido',
-};
-
-const SUBTITULO_STATUS = {
-  pendente:    'Ainda não contatado',
-  enviado:     'Primeiro contato feito',
-  respondido:  'A pessoa retornou',
-  sem_retorno: 'Não respondeu',
-  convertido:  'Fechou negócio',
-};
 
 const NOME_MAX     = 120;
 const TELEFONE_MAX = 32;
@@ -111,7 +94,6 @@ const Configuracoes = () => {
   const { usuario, atualizarUsuario } = useAuthStore();
   const { temaEscuro, setTemaEscuro, sincronizarComBanco } = useTema();
   const { pode } = usePermission();
-  const { rotulos: rotulosSalvos, salvar: salvarRotulosOutbound } = useRotulosOutbound(usuario?.id);
 
   const [parametros, setParametros] = useSearchParams();
   const abaAtiva = ABAS.some(a => a.slug === parametros.get('aba'))
@@ -122,7 +104,6 @@ const Configuracoes = () => {
   const [telefone, setTelefone]         = useState(usuario?.telefone || '');
   const [notifEmail, setNotifEmail]     = useState(true);
   const [notifSistema, setNotifSistema] = useState(true);
-  const [rotulosStatus, setRotulosStatus] = useState(ROTULOS_PADRAO);
   const [carregando, setCarregando]     = useState(true);
   const [salvando, setSalvando]         = useState(false);
   const [salvo, setSalvo]               = useState(false);
@@ -154,10 +135,6 @@ const Configuracoes = () => {
     };
     carregar();
   }, [usuario?.id, sincronizarComBanco]);
-
-  useEffect(() => {
-    setRotulosStatus(rotulosSalvos);
-  }, [rotulosSalvos]);
 
   const selecionarAba = (slug) => {
     setParametros(slug === 'geral' ? {} : { aba: slug }, { replace: true });
@@ -206,8 +183,6 @@ const Configuracoes = () => {
         }, { onConflict: 'user_id' });
 
       if (erroPrefs) throw erroPrefs;
-
-      await salvarRotulosOutbound(rotulosStatus);
 
       setSalvo(true);
       setTimeout(() => setSalvo(false), 2500);
@@ -325,43 +300,6 @@ const Configuracoes = () => {
                   disabled
                   ajuda="Definido pelo administrador da organização."
                 />
-              </div>
-            </div>
-
-            {/* Card: Rótulos do Outbound */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-[#E4ECE7]">
-                <div>
-                  <h2 className="text-base font-bold text-[#111915]">
-                    Rótulos do Outbound
-                  </h2>
-                  <p className="text-xs text-[#687770] mt-0.5">
-                    Personalize como os status dos contatos são exibidos no seu funil de vendas.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setRotulosStatus(ROTULOS_PADRAO)}
-                  className="text-xs font-semibold text-[#0E382C] hover:underline self-start sm:self-auto cursor-pointer"
-                >
-                  Restaurar padrões
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-                {STATUS_ORDEM.map((status) => (
-                  <div key={status} className="flex flex-col">
-                    <CampoTexto
-                      label={`${DESCRICAO_STATUS[status]} (${SUBTITULO_STATUS[status]})`}
-                      valor={rotulosStatus[status] ?? ''}
-                      placeholder={ROTULOS_PADRAO[status]}
-                      maxLength={40}
-                      onChange={(e) =>
-                        setRotulosStatus((prev) => ({ ...prev, [status]: e.target.value }))
-                      }
-                    />
-                  </div>
-                ))}
               </div>
             </div>
           </div>

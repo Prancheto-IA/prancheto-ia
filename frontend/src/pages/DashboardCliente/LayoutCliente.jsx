@@ -75,7 +75,6 @@ import {
   CustomerSupportIcon,
   Building01Icon,
   Settings02Icon,
-  SentIcon,
   Analytics01Icon,
   UserMultiple02Icon,
   DragDropVerticalIcon,
@@ -106,7 +105,6 @@ const ICONES_MAP = {
   suporte: CustomerSupportIcon,
   organizacao: Building01Icon,
   configuracoes: Settings02Icon,
-  outbound: SentIcon,
   relatorios: Analytics01Icon,
   times_pessoas: UserMultiple02Icon,
 };

@@ -584,13 +584,11 @@ const ColunaPipeline = ({
 const ModalConfigColuna = ({ aberto, onFechar, etapa, onSalvar }) => {
   const [titulo, setTitulo] = useState('');
   const [probabilidade, setProbabilidade] = useState('');
-  const [limiteWip, setLimiteWip] = useState('');
 
   useEffect(() => {
     if (etapa) {
       setTitulo(etapa.titulo || '');
       setProbabilidade(etapa.probabilidadePadrao != null ? String(etapa.probabilidadePadrao) : '50');
-      setLimiteWip(etapa.limiteWip != null ? String(etapa.limiteWip) : '');
     }
   }, [etapa, aberto]);
 
@@ -602,7 +600,7 @@ const ModalConfigColuna = ({ aberto, onFechar, etapa, onSalvar }) => {
     onSalvar(etapa.key, {
       titulo: titulo.trim(),
       probabilidadePadrao: probabilidade ? Number(probabilidade) : 50,
-      limiteWip: limiteWip ? Number(limiteWip) : null,
+      limiteWip: null,
     });
   };
 
@@ -631,29 +629,16 @@ const ModalConfigColuna = ({ aberto, onFechar, etapa, onSalvar }) => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1">Probabilidade Padrão (%)</label>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                value={probabilidade}
-                onChange={(e) => setProbabilidade(e.target.value)}
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl px-3.5 py-2 text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1">Limite Máximo (WIP)</label>
-              <input
-                type="number"
-                min="1"
-                placeholder="Sem limite"
-                value={limiteWip}
-                onChange={(e) => setLimiteWip(e.target.value)}
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl px-3.5 py-2 text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-[#111915] mb-1">Probabilidade Padrão (%)</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={probabilidade}
+              onChange={(e) => setProbabilidade(e.target.value)}
+              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl px-3.5 py-2 text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+            />
           </div>
 
           <div className="flex gap-2.5 pt-2 border-t border-[#E4ECE7]">

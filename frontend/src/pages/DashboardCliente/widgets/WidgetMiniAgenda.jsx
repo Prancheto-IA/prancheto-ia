@@ -48,8 +48,8 @@ const WidgetMiniAgenda = () => {
     <WidgetShell
       titulo="Próximos Compromissos"
       icone={<HugeiconsIcon icon={Calendar03Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />}
-      acaoLabel="Ver agenda"
-      onAcao={() => navigate('/dashboard/agenda')}
+      acaoLabel="Ver calendário"
+      onAcao={() => navigate('/calendario')}
     >
       {carregando ? (
         <div className="flex items-center justify-center py-6">
@@ -65,7 +65,7 @@ const WidgetMiniAgenda = () => {
           {eventos.map((e) => (
             <div
               key={e.id}
-              onClick={() => navigate('/dashboard/agenda')}
+              onClick={() => navigate('/calendario')}
               className="flex items-center gap-3 p-2.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-white hover:shadow-xs transition-all cursor-pointer"
             >
               <div className="w-1.5 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: e.cor || '#0E382C' }} />

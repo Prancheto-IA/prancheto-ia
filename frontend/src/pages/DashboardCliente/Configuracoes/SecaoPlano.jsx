@@ -74,25 +74,22 @@ const RECURSOS_FALLBACK = {
   starter: [
     { slug: 'crm',           nome: 'Gestão de Funil e Negócios', habilitado: true,  limite: 500 },
     { slug: 'chat_ia',       nome: 'Assistente IA Integrado',    habilitado: false, limite: null },
-    { slug: 'agenda',        nome: 'Agenda e Compromissos',      habilitado: false, limite: null },
+    { slug: 'calendario',    nome: 'Calendário Integrado',       habilitado: true,  limite: null },
     { slug: 'relatorios',    nome: 'Relatórios e Métricas',      habilitado: false, limite: null },
-    { slug: 'outbound',      nome: 'Campanhas de Outbound',      habilitado: false, limite: null },
     { slug: 'configuracoes', nome: 'Membros e Organização',      habilitado: true,  limite: null },
   ],
   pro: [
     { slug: 'crm',           nome: 'Gestão de Funil e Negócios', habilitado: true,  limite: 5000 },
     { slug: 'chat_ia',       nome: 'Assistente IA Integrado',    habilitado: true,  limite: null },
-    { slug: 'agenda',        nome: 'Agenda e Compromissos',      habilitado: true,  limite: null },
+    { slug: 'calendario',    nome: 'Calendário Integrado',       habilitado: true,  limite: null },
     { slug: 'relatorios',    nome: 'Relatórios e Métricas',      habilitado: true,  limite: null },
-    { slug: 'outbound',      nome: 'Campanhas de Outbound',      habilitado: false, limite: null },
     { slug: 'configuracoes', nome: 'Membros e Organização',      habilitado: true,  limite: null },
   ],
   enterprise: [
     { slug: 'crm',           nome: 'Gestão de Funil e Negócios', habilitado: true, limite: null },
     { slug: 'chat_ia',       nome: 'Assistente IA Integrado',    habilitado: true, limite: null },
-    { slug: 'agenda',        nome: 'Agenda e Compromissos',      habilitado: true, limite: null },
+    { slug: 'calendario',    nome: 'Calendário Integrado',       habilitado: true, limite: null },
     { slug: 'relatorios',    nome: 'Relatórios e Métricas',      habilitado: true, limite: null },
-    { slug: 'outbound',      nome: 'Campanhas de Outbound',      habilitado: true, limite: null },
     { slug: 'configuracoes', nome: 'Membros e Organização',      habilitado: true, limite: null },
   ],
 };

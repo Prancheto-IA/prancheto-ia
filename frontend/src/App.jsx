@@ -29,10 +29,8 @@ const LayoutCliente          = lazy(() => import('./pages/DashboardCliente/Layou
 
 // Páginas do cliente
 const PaginaDashboardCliente = lazy(() => import('./pages/DashboardCliente/DashboardCliente.jsx'));
-const PaginaAgenda           = lazy(() => import('./pages/DashboardCliente/Agenda/Agenda.jsx'));
 const PaginaChat             = lazy(() => import('./pages/DashboardCliente/Chat/Chat.jsx'));
 const PaginaRelatorios       = lazy(() => import('./pages/DashboardCliente/Relatorios/Relatorios.jsx'));
-const PaginaOutbound         = lazy(() => import('./pages/DashboardCliente/Outbound/Outbound.jsx'));
 const PaginaConfiguracoes    = lazy(() => import('./pages/DashboardCliente/Configuracoes/Configuracoes.jsx'));
 
 // Módulo Organização (Times, Cargos, Identidade Visual)
@@ -180,32 +178,12 @@ const App = () => {
               }
             />
 
-            {/* Agenda */}
-            <Route
-              path="/dashboard/agenda"
-              element={
-                <ClienteComLayout>
-                  <PaginaAgenda />
-                </ClienteComLayout>
-              }
-            />
-
             {/* Relatórios */}
             <Route
               path="/dashboard/relatorios"
               element={
                 <ClienteComLayout>
                   <PaginaRelatorios />
-                </ClienteComLayout>
-              }
-            />
-
-            {/* Outbound */}
-            <Route
-              path="/dashboard/outbound"
-              element={
-                <ClienteComLayout>
-                  <PaginaOutbound />
                 </ClienteComLayout>
               }
             />
