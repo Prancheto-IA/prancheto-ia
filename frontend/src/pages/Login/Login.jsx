@@ -16,11 +16,13 @@ import {
   ViewOffSlashIcon,
   AlertCircleIcon,
   ArrowRight01Icon,
-  GoogleIcon,
-  AppleIcon,
-  Facebook01Icon,
-  NewTwitterIcon,
-  SourceCodeIcon,
+  AiBrain01Icon,
+  BotIcon,
+  Analytics01Icon,
+  SparklesIcon,
+  FlashIcon,
+  CheckmarkCircle02Icon,
+  Task01Icon,
 } from '@hugeicons/core-free-icons';
 
 const PaginaLogin = () => {
@@ -33,6 +35,17 @@ const PaginaLogin = () => {
   const [senha, setSenha]               = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [lembrar, setLembrar]           = useState(true);
+  const [slideAtual, setSlideAtual]     = useState(0);
+  const [pausado, setPausado]           = useState(false);
+
+  // Alternância automática dos slides do banner (pausa ao passar o mouse)
+  useEffect(() => {
+    if (pausado) return;
+    const timer = setInterval(() => {
+      setSlideAtual((prev) => (prev + 1) % 3);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [pausado]);
 
   // Redirecionamento automático se já estiver autenticado
   useEffect(() => {
@@ -213,36 +226,6 @@ const PaginaLogin = () => {
                 )}
               </button>
             </form>
-
-            {/* Social Auth Divider */}
-            <div className="max-w-sm mx-auto my-6 flex items-center">
-              <div className="flex-grow border-t border-slate-200"></div>
-              <span className="px-3 text-xs text-slate-400 uppercase tracking-wider font-medium">Ou continue com</span>
-              <div className="flex-grow border-t border-slate-200"></div>
-            </div>
-
-            {/* Social Buttons Grid */}
-            <div className="max-w-xs mx-auto flex items-center justify-center gap-3" data-purpose="social-login">
-              {/* Google */}
-              <button type="button" className="w-11 h-11 flex items-center justify-center rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition-colors shadow-2xs" title="Continuar com Google">
-                <HugeiconsIcon icon={GoogleIcon} size={20} strokeWidth={1.8} />
-              </button>
-
-              {/* Apple */}
-              <button type="button" className="w-11 h-11 flex items-center justify-center rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition-colors shadow-2xs" title="Continuar com Apple">
-                <HugeiconsIcon icon={AppleIcon} size={20} strokeWidth={1.8} className="text-slate-900" />
-              </button>
-
-              {/* Facebook */}
-              <button type="button" className="w-11 h-11 flex items-center justify-center rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition-colors shadow-2xs" title="Continuar com Facebook">
-                <HugeiconsIcon icon={Facebook01Icon} size={20} strokeWidth={1.8} className="text-[#1877F2]" />
-              </button>
-
-              {/* X (Twitter) */}
-              <button type="button" className="w-11 h-11 flex items-center justify-center rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition-colors shadow-2xs" title="Continuar com X">
-                <HugeiconsIcon icon={NewTwitterIcon} size={18} strokeWidth={1.8} className="text-slate-900" />
-              </button>
-            </div>
           </div>
 
           {/* Footer Copyright and Legal */}
@@ -258,99 +241,309 @@ const PaginaLogin = () => {
         {/* END: LeftColumnAuthentication */}
 
         {/* BEGIN: RightColumnHeroVisual */}
-        <section className="lg:col-span-6 relative bg-gradient-to-b from-[#08261e] to-[#0e382c] p-8 sm:p-12 lg:p-14 flex flex-col justify-between overflow-hidden text-white hero-grid-pattern rounded-[2.5rem]" data-purpose="hero-panel">
+        <section
+          onMouseEnter={() => setPausado(true)}
+          onMouseLeave={() => setPausado(false)}
+          className="lg:col-span-6 relative bg-gradient-to-b from-[#08261e] to-[#0e382c] p-8 sm:p-12 lg:p-14 flex flex-col justify-between overflow-hidden text-white hero-grid-pattern rounded-[2.5rem] select-none"
+          data-purpose="hero-panel"
+        >
           {/* Top Ambient Decorative Glow */}
           <div className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute top-1/2 -left-20 w-80 h-80 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
           {/* Floating App Showcase Cards Container */}
-          <div className="relative w-full max-w-[440px] mx-auto pt-4 pb-8 min-h-[360px] flex items-center justify-center" data-purpose="floating-cards-showcase">
-            {/* Background Card (Financial Plan / Metrics) */}
-            <article className="absolute -top-1 left-2 sm:left-4 w-60 sm:w-64 bg-white/95 text-slate-900 rounded-2xl p-4 shadow-floating-card border border-white/80 transform -rotate-1 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
-                <span className="text-xs font-bold text-slate-800 tracking-tight">Plano de Criação</span>
-                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">Este Mês</span>
-              </div>
-              <div className="flex items-center gap-3.5 mb-3">
-                <div className="w-12 h-12 rounded-full donut-visual p-[7px] flex items-center justify-center flex-shrink-0">
-                  <div className="w-full h-full bg-white rounded-full"></div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 font-medium leading-none">Disponível em IA</div>
-                  <div className="text-base font-extrabold text-slate-900">R$ 2.450,00</div>
-                  <div className="flex items-center gap-2 mt-1 text-[9px] text-slate-500 font-medium">
-                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Produção</span>
-                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Buffer</span>
+          <div
+            key={`cards-${slideAtual}`}
+            className="relative w-full max-w-[440px] mx-auto pt-4 pb-8 min-h-[360px] flex items-center justify-center animate-fade-in"
+            data-purpose="floating-cards-showcase"
+          >
+            {/* SLIDE 0: PIPELINE & PREVISÃO DE VENDAS COM IA */}
+            {slideAtual === 0 && (
+              <>
+                {/* Background Card (Pipeline & Volume Comercial) */}
+                <article className="absolute -top-1 left-2 sm:left-4 w-60 sm:w-64 bg-white/95 text-slate-900 rounded-2xl p-4 shadow-floating-card border border-white/80 transform -rotate-1 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                    <span className="text-xs font-bold text-slate-800 tracking-tight">Funil de Vendas Ativo</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      IA Preditiva
+                    </span>
                   </div>
-                </div>
-              </div>
-              <div className="bg-[#0e382c] text-white rounded-xl py-1.5 px-3 text-center text-[10px] font-semibold tracking-wide">
-                Explorar Painel Completo
-              </div>
-            </article>
+                  <div className="flex items-center gap-3.5 mb-3">
+                    <div className="w-12 h-12 rounded-full donut-visual p-[7px] flex items-center justify-center flex-shrink-0">
+                      <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+                        <span className="text-[9px] font-black text-emerald-700">92%</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400 font-medium leading-none">Negociações no Mês</div>
+                      <div className="text-base font-extrabold text-slate-900">R$ 184.500,00</div>
+                      <div className="flex items-center gap-2 mt-1 text-[9px] text-slate-500 font-medium">
+                        <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Fechamento</span>
+                        <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Proposta</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-[#0e382c] text-white rounded-xl py-1.5 px-3 text-center text-[10px] font-semibold tracking-wide flex items-center justify-center gap-1.5">
+                    <HugeiconsIcon icon={FlashIcon} size={12} className="text-emerald-300" />
+                    <span>Previsão de Fechamento: +34%</span>
+                  </div>
+                </article>
 
-            {/* Right Overlapping Card (AI Flow / Goals) */}
-            <article className="absolute top-16 right-0 sm:-right-2 w-56 sm:w-60 bg-white/95 text-slate-900 rounded-2xl p-3.5 shadow-floating-card border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-800">Fluxo de Trabalho IA</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              </div>
-              <p className="text-[10px] text-slate-500">Geração de Design System</p>
-              <div className="flex justify-between items-baseline my-1">
-                <span className="text-sm font-bold text-slate-900">1.920 <span className="text-[10px] font-normal text-slate-400">/ 2.500</span></span>
-                <span className="text-[10px] font-bold text-emerald-600">82%</span>
-              </div>
-              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full" style={{ width: '82%' }}></div>
-              </div>
-            </article>
+                {/* Right Overlapping Card (Lead Scoring por IA) */}
+                <article className="absolute top-16 right-0 sm:-right-2 w-56 sm:w-60 bg-white/95 text-slate-900 rounded-2xl p-3.5 shadow-floating-card border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-800">Lead Score por IA</span>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      98 / 100
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-semibold text-slate-800 truncate">TechCorp Enterprise</p>
+                  <div className="flex justify-between items-baseline my-1">
+                    <span className="text-xs font-bold text-slate-900">R$ 48.000 <span className="text-[10px] font-normal text-slate-400">/ ano</span></span>
+                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 rounded">Lead Quente</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-1.5">
+                    <div className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full" style={{ width: '98%' }}></div>
+                  </div>
+                </article>
 
-            {/* Front Lower Card (Team Performance) */}
-            <article className="relative z-15 mt-28 -ml-6 sm:-ml-12 w-64 sm:w-72 bg-white/95 text-slate-900 rounded-2xl p-4 shadow-floating-card border border-white/90 backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-2">
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Alocação de Projetos</span>
-                  <span className="text-base font-extrabold text-slate-900">R$ 17.366,00</span>
-                </div>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center">
-                  ↑ 12%
-                </span>
-              </div>
-              <div className="space-y-1.5 text-[11px] border-t border-slate-100 pt-2 mb-2.5">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600 font-medium">Design System 2.0</span>
-                  <span className="font-bold text-slate-800">R$ 7.100</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600 font-medium">Render 3D &amp; E-commerce</span>
-                  <span className="font-bold text-slate-800">R$ 5.400</span>
-                </div>
-              </div>
-              <button type="button" className="w-full bg-slate-900 hover:bg-[#0e382c] text-white rounded-lg py-1.5 text-[11px] font-medium transition-colors">
-                Revisar Alocações
-              </button>
-            </article>
+                {/* Front Lower Card (Insight & Ação Recomendada) */}
+                <article className="relative z-15 mt-28 -ml-6 sm:-ml-12 w-64 sm:w-72 bg-white/95 text-slate-900 rounded-2xl p-4 shadow-floating-card border border-white/90 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Insight Prancheto IA</span>
+                      <span className="text-sm font-extrabold text-slate-900">Oportunidade no Ponto</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <HugeiconsIcon icon={SparklesIcon} size={12} className="text-emerald-600" />
+                      Agir Agora
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-snug mb-3 border-t border-slate-100 pt-2">
+                    Roberto (Decisor) abriu a proposta 3x hoje. Momento ideal para contato direto.
+                  </p>
+                  <div className="w-full bg-[#0e382c] text-white rounded-lg py-1.5 text-[11px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer hover:bg-[#07241c]">
+                    <span>Disparar Follow-up Inteligente</span>
+                  </div>
+                </article>
+              </>
+            )}
+
+            {/* SLIDE 1: ATENDIMENTO 24/7 & QUALIFICAÇÃO COM CHAT IA */}
+            {slideAtual === 1 && (
+              <>
+                {/* Background Card (Métricas do Agente IA) */}
+                <article className="absolute -top-1 left-2 sm:left-4 w-60 sm:w-64 bg-white/95 text-slate-900 rounded-2xl p-4 shadow-floating-card border border-white/80 transform -rotate-1 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                    <span className="text-xs font-bold text-slate-800 tracking-tight">Pranchetinho IA</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                      Online 24/7
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3.5 mb-3">
+                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 border border-emerald-200">
+                      <HugeiconsIcon icon={BotIcon} size={24} strokeWidth={2} />
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400 font-medium leading-none">Tempo de Resposta</div>
+                      <div className="text-base font-extrabold text-slate-900">&lt; 1.2 segundos</div>
+                      <div className="flex items-center gap-2 mt-1 text-[9px] text-slate-500 font-medium">
+                        <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>1.840 conversas no mês</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-[#0e382c] text-white rounded-xl py-1.5 px-3 text-center text-[10px] font-semibold tracking-wide flex items-center justify-center gap-1">
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} className="text-emerald-300" />
+                    <span>96% de Satisfação dos Clientes</span>
+                  </div>
+                </article>
+
+                {/* Right Overlapping Card (Lead Qualificado Automático) */}
+                <article className="absolute top-16 right-0 sm:-right-2 w-56 sm:w-60 bg-white/95 text-slate-900 rounded-2xl p-3.5 shadow-floating-card border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-800">Lead Qualificado</span>
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} className="text-emerald-600" />
+                  </div>
+                  <p className="text-[11px] font-semibold text-slate-800">Mariana Souza</p>
+                  <p className="text-[9px] text-slate-400 mb-1.5">FinTech Brasil • Decisora</p>
+                  <div className="bg-emerald-50 text-emerald-800 rounded-lg p-2 text-[10px] font-medium leading-tight mb-1">
+                    "Demonstração agendada para amanhã às 10h via IA"
+                  </div>
+                  <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1">
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }}></div>
+                  </div>
+                </article>
+
+                {/* Front Lower Card (Mini Chat Interativo IA) */}
+                <article className="relative z-15 mt-28 -ml-6 sm:-ml-12 w-64 sm:w-72 bg-white/95 text-slate-900 rounded-2xl p-4 shadow-floating-card border border-white/90 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-100">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span className="text-[11px] font-bold text-slate-800">Triagem Comercial com IA</span>
+                    </div>
+                    <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-mono">Chat IA</span>
+                  </div>
+                  <div className="space-y-2 mb-2.5">
+                    <div className="bg-slate-100 text-slate-700 rounded-xl rounded-tl-sm p-2 text-[10px] leading-relaxed">
+                      "Olá! Preciso de um CRM para equipe comercial de 15 pessoas."
+                    </div>
+                    <div className="bg-[#0e382c] text-emerald-100 rounded-xl rounded-tr-sm p-2 text-[10px] leading-relaxed">
+                      "Temos o plano ideal! Quer agendar uma apresentação de 15 min?"
+                    </div>
+                  </div>
+                  <div className="w-full bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg py-1 px-2 text-center text-[10px] font-semibold">
+                    ✓ Lead Direcionado ao SDR
+                  </div>
+                </article>
+              </>
+            )}
+
+            {/* SLIDE 2: GESTÃO 360°, METAS & RETENÇÃO */}
+            {slideAtual === 2 && (
+              <>
+                {/* Background Card (Metas Comerciais & Batimento) */}
+                <article className="absolute -top-1 left-2 sm:left-4 w-60 sm:w-64 bg-white/95 text-slate-900 rounded-2xl p-4 shadow-floating-card border border-white/80 transform -rotate-1 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                    <span className="text-xs font-bold text-slate-800 tracking-tight">Meta Comercial (Trimestre)</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">89% Atingida</span>
+                  </div>
+                  <div className="flex items-center gap-3.5 mb-3">
+                    <div className="w-12 h-12 rounded-full donut-visual p-[7px] flex items-center justify-center flex-shrink-0">
+                      <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+                        <span className="text-[9px] font-black text-emerald-700">89%</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400 font-medium leading-none">Receita Recorrente</div>
+                      <div className="text-base font-extrabold text-slate-900">R$ 420.000,00</div>
+                      <div className="flex items-center gap-2 mt-1 text-[9px] text-slate-500 font-medium">
+                        <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Meta: R$ 480k</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-[#0e382c] text-white rounded-xl py-1.5 px-3 text-center text-[10px] font-semibold tracking-wide">
+                    Previsão de Superação: 104%
+                  </div>
+                </article>
+
+                {/* Right Overlapping Card (Health Score da Carteira) */}
+                <article className="absolute top-16 right-0 sm:-right-2 w-56 sm:w-60 bg-white/95 text-slate-900 rounded-2xl p-3.5 shadow-floating-card border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-800">Saúde da Carteira</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  </div>
+                  <p className="text-[10px] text-slate-500">NPS Geral &amp; Retenção</p>
+                  <div className="flex justify-between items-baseline my-1">
+                    <span className="text-sm font-bold text-slate-900">94 <span className="text-[10px] font-normal text-slate-400">/ 100</span></span>
+                    <span className="text-[10px] font-bold text-emerald-600">Churn 0.5%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full" style={{ width: '94%' }}></div>
+                  </div>
+                </article>
+
+                {/* Front Lower Card (Follow-ups & Tarefas Comerciais) */}
+                <article className="relative z-15 mt-28 -ml-6 sm:-ml-12 w-64 sm:w-72 bg-white/95 text-slate-900 rounded-2xl p-4 shadow-floating-card border border-white/90 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Follow-ups do Dia</span>
+                      <span className="text-base font-extrabold text-slate-900">12 Atividades</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center">
+                      ↑ 100% no prazo
+                    </span>
+                  </div>
+                  <div className="space-y-1.5 text-[11px] border-t border-slate-100 pt-2 mb-2.5">
+                    <div className="flex justify-between items-center text-slate-700">
+                      <span className="font-medium flex items-center gap-1.5 truncate">
+                        <span className="text-emerald-600">✓</span> Assinatura de Contrato
+                      </span>
+                      <span className="font-bold text-slate-900 text-[10px]">R$ 36.000</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-700">
+                      <span className="font-medium flex items-center gap-1.5 truncate">
+                        <span className="text-amber-500">◷</span> Demo Comercial Agendada
+                      </span>
+                      <span className="font-bold text-slate-900 text-[10px]">15:00</span>
+                    </div>
+                  </div>
+                  <div className="w-full bg-slate-900 hover:bg-[#0e382c] text-white rounded-lg py-1.5 text-[11px] font-medium transition-colors text-center cursor-pointer">
+                    Acessar Painel de Tarefas
+                  </div>
+                </article>
+              </>
+            )}
           </div>
 
           {/* Value Proposition Header & Content */}
-          <div className="relative z-10 text-center max-w-lg mx-auto mt-4 mb-2">
+          <div
+            key={`text-${slideAtual}`}
+            className="relative z-10 text-center max-w-lg mx-auto mt-4 mb-2 animate-fade-in"
+          >
             {/* Floating Brand Icon Badge */}
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-4 shadow-lg">
-              <HugeiconsIcon icon={SourceCodeIcon} size={24} strokeWidth={2} className="text-emerald-400" />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-4 shadow-lg transition-transform duration-300 hover:scale-110">
+              {slideAtual === 0 && <HugeiconsIcon icon={AiBrain01Icon} size={24} strokeWidth={2} className="text-emerald-400" />}
+              {slideAtual === 1 && <HugeiconsIcon icon={BotIcon} size={24} strokeWidth={2} className="text-emerald-400" />}
+              {slideAtual === 2 && <HugeiconsIcon icon={Analytics01Icon} size={24} strokeWidth={2} className="text-emerald-400" />}
             </div>
-            <h2 className="text-2xl sm:text-[1.85rem] font-bold text-white tracking-tight leading-snug mb-3">
-              Um Hub Unificado para Design Inteligente e Decisões Ágeis
-            </h2>
-            <p className="text-xs sm:text-sm text-emerald-100/75 leading-relaxed font-normal max-w-md mx-auto">
-              O Prancheto.IA capacita times modernos com uma central completa de prototipagem, automação e inteligência artificial para acelerar seu fluxo criativo.
-            </p>
+
+            {slideAtual === 0 && (
+              <>
+                <h2 className="text-2xl sm:text-[1.85rem] font-bold text-white tracking-tight leading-snug mb-3">
+                  Pipeline Comercial &amp; Previsão de Vendas com IA
+                </h2>
+                <p className="text-xs sm:text-sm text-emerald-100/75 leading-relaxed font-normal max-w-md mx-auto">
+                  Monitore negociações em tempo real, priorize os leads mais quentes e impulsione conversões com recomendações preditivas automatizadas.
+                </p>
+              </>
+            )}
+
+            {slideAtual === 1 && (
+              <>
+                <h2 className="text-2xl sm:text-[1.85rem] font-bold text-white tracking-tight leading-snug mb-3">
+                  Atendimento Automatizado &amp; Qualificação 24/7
+                </h2>
+                <p className="text-xs sm:text-sm text-emerald-100/75 leading-relaxed font-normal max-w-md mx-auto">
+                  O Pranchetinho IA engaja clientes instantaneamente, esclarece dúvidas, qualifica oportunidades e agenda reuniões diretamente na sua agenda.
+                </p>
+              </>
+            )}
+
+            {slideAtual === 2 && (
+              <>
+                <h2 className="text-2xl sm:text-[1.85rem] font-bold text-white tracking-tight leading-snug mb-3">
+                  Visão 360°, Metas &amp; Retenção de Clientes
+                </h2>
+                <p className="text-xs sm:text-sm text-emerald-100/75 leading-relaxed font-normal max-w-md mx-auto">
+                  Acompanhe metas comerciais, saúde da carteira de clientes, automações de tarefas e follow-ups em um único ecossistema integrado.
+                </p>
+              </>
+            )}
           </div>
 
           {/* Carousel / Step Indicator Pills */}
-          <div aria-label="Indicadores de slides" className="flex justify-center items-center gap-2 pt-4 pb-1" data-purpose="carousel-pills">
-            <span className="w-10 h-1 bg-white rounded-full transition-all"></span>
-            <span className="w-10 h-1 bg-white/20 hover:bg-white/40 rounded-full cursor-pointer transition-all"></span>
-            <span className="w-10 h-1 bg-white/20 hover:bg-white/40 rounded-full cursor-pointer transition-all"></span>
+          <div
+            aria-label="Indicadores de slides"
+            className="flex justify-center items-center gap-2 pt-4 pb-1"
+            data-purpose="carousel-pills"
+          >
+            {[0, 1, 2].map((idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setSlideAtual(idx)}
+                aria-label={`Ir para o slide ${idx + 1}`}
+                title={`Slide ${idx + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-300 focus:outline-none ${
+                  slideAtual === idx
+                    ? 'w-10 bg-white shadow-sm'
+                    : 'w-7 bg-white/25 hover:bg-white/55 cursor-pointer'
+                }`}
+              />
+            ))}
           </div>
         </section>
         {/* END: RightColumnHeroVisual */}
