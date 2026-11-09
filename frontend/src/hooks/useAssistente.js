@@ -137,7 +137,7 @@ export const useAssistente = () => {
     const eu = await identidadeDaSessao();
     const { data, error } = await supabase
       .from('ai_conversations')
-      .insert({ user_id: eu.id, tenant_id: eu.tenant_id, titulo, modelo: 'gpt-4o-mini' })
+      .insert({ user_id: eu.id, tenant_id: eu.tenant_id, titulo })
       .select('*')
       .single();
     if (error) {

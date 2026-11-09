@@ -17,13 +17,14 @@ import { useAuthStore } from '../../../store/authStore.js';
 import { useTema } from '../../../hooks/useTema.js';
 import { usePermission } from '../../../hooks/usePermission.js';
 import { supabase } from '../../../lib/supabase.js';
-import AjustesTopNav from '../../../components/Ajustes/AjustesTopNav.jsx';
 import SecaoPlano from './SecaoPlano.jsx';
+import IdentidadeVisual from './IdentidadeVisual.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Sun01Icon, Moon02Icon, Key01Icon, Shield01Icon } from '@hugeicons/core-free-icons';
 
 const ABAS = [
   { slug: 'geral', label: 'Geral' },
+  { slug: 'identidade', label: 'Identidade Visual' },
   { slug: 'plano', label: 'Plano da Organização' },
 ];
 
@@ -205,28 +206,25 @@ const Configuracoes = () => {
 
   return (
     <div className="w-full flex-1 flex flex-col space-y-5">
-      {/* 1. Menu Horizontal no Topo */}
-      <AjustesTopNav />
-
-      {/* 2. Cabeçalho com Abas Internas */}
+      {/* 1. Cabeçalho com Abas Internas */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
             Configurações
           </h1>
           <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
-            Personalize sua conta, preferências do sistema e acompanhe o plano da organização.
+            Personalize sua conta, identidade visual e acompanhe o plano da organização.
           </p>
         </div>
 
-        {/* Sub-abas: Geral e Plano */}
+        {/* Sub-abas: Geral, Identidade Visual e Plano */}
         <div className="flex items-center gap-1.5 bg-[#F7FAF8] p-1 rounded-xl border border-[#E4ECE7] self-start sm:self-auto">
           {ABAS.map((aba) => (
             <button
               key={aba.slug}
               type="button"
               onClick={() => selecionarAba(aba.slug)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 cursor-pointer ${
                 aba.slug === abaAtiva
                   ? 'bg-[#0E382C] text-[#D4EC9D] shadow-xs'
                   : 'text-[#687770] hover:text-[#111915]'
@@ -238,11 +236,9 @@ const Configuracoes = () => {
         </div>
       </div>
 
-      {/* 3. Conteúdo da Aba */}
-      {abaAtiva === 'plano' ? (
-        <SecaoPlano />
-      ) : (
-        /* Layout Reorganizado em Múltiplas Colunas */
+      {/* 2. Conteúdo da Aba Geral */}
+      <div className={`w-full flex-1 ${abaAtiva === 'geral' ? 'block' : 'hidden'}`}>
+        {/* Layout Reorganizado em Múltiplas Colunas */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* COLUNA ESQUERDA (lg:col-span-7) */}
           <div className="lg:col-span-7 flex flex-col space-y-5">
@@ -441,7 +437,17 @@ const Configuracoes = () => {
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* 3. Conteúdo da Aba Identidade Visual */}
+      <div className={`w-full flex-1 ${abaAtiva === 'identidade' ? 'block' : 'hidden'}`}>
+        <IdentidadeVisual />
+      </div>
+
+      {/* 4. Conteúdo da Aba Plano */}
+      <div className={`w-full flex-1 ${abaAtiva === 'plano' ? 'block' : 'hidden'}`}>
+        <SecaoPlano />
+      </div>
     </div>
   );
 };

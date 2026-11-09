@@ -33,15 +33,8 @@ const PaginaChat             = lazy(() => import('./pages/DashboardCliente/Chat/
 const PaginaRelatorios       = lazy(() => import('./pages/DashboardCliente/Relatorios/Relatorios.jsx'));
 const PaginaConfiguracoes    = lazy(() => import('./pages/DashboardCliente/Configuracoes/Configuracoes.jsx'));
 
-// Módulo Organização (Times, Cargos, Identidade Visual)
-const PaginaOrganizacao      = lazy(() => import('./pages/DashboardCliente/Organizacao/Organizacao.jsx'));
-const PaginaTimes            = lazy(() => import('./pages/DashboardCliente/Organizacao/Times.jsx'));
-const PaginaCargos           = lazy(() => import('./pages/DashboardCliente/Organizacao/Cargos.jsx'));
-const PaginaUsuariosOrg      = lazy(() => import('./pages/DashboardCliente/Organizacao/Usuarios.jsx'));
-const PaginaIdentidadeVisual = lazy(() => import('./pages/DashboardCliente/Organizacao/IdentidadeVisual.jsx'));
-
 // ============================================================
-// Chat, Calendário, Projetos, Tarefas e Times e Pessoas — itens diretos
+// Chat, Calendário, Projetos, Tarefas e Organização — itens diretos
 // da sidebar (o hub /modulos foi extinto: Dashboard virou a Home em
 // /dashboard, Feed virou o widget Mural de Anúncios da Home).
 // ============================================================
@@ -168,14 +161,18 @@ const App = () => {
               }
             />
 
-            {/* Chat com IA */}
+            {/* Agente / Chat com IA */}
             <Route
-              path="/dashboard/chat"
+              path="/dashboard/agente"
               element={
                 <ClienteComLayout>
                   <PaginaChat />
                 </ClienteComLayout>
               }
+            />
+            <Route
+              path="/dashboard/chat"
+              element={<Navigate to="/dashboard/agente" replace />}
             />
 
             {/* Relatórios */}
@@ -207,22 +204,16 @@ const App = () => {
             />
 
             {/* ============================================================
-                ORGANIZAÇÃO: Times, Cargos e Identidade Visual
-                Sub-rotas aninhadas dentro do layout do módulo
+                ORGANIZAÇÃO LEGADA: redirecionamentos para /times-pessoas
+                e /dashboard/configuracoes?aba=identidade
             ============================================================ */}
-            <Route
-              path="/dashboard/organizacao"
-              element={
-                <ClienteComLayout>
-                  <PaginaOrganizacao />
-                </ClienteComLayout>
-              }
-            >
-              <Route path="times"      element={<PaginaTimes />} />
-              <Route path="cargos"     element={<PaginaCargos />} />
-              <Route path="usuarios"   element={<PaginaUsuariosOrg />} />
-              <Route path="identidade" element={<PaginaIdentidadeVisual />} />
-            </Route>
+            <Route path="/dashboard/organizacao/identidade" element={<Navigate to="/dashboard/configuracoes?aba=identidade" replace />} />
+            <Route path="/dashboard/organizacao/cargos"     element={<Navigate to="/times-pessoas?aba=cargos" replace />} />
+            <Route path="/dashboard/organizacao/usuarios"   element={<Navigate to="/times-pessoas?aba=usuarios" replace />} />
+            <Route path="/dashboard/organizacao/times"      element={<Navigate to="/times-pessoas?aba=times" replace />} />
+            <Route path="/dashboard/organizacao"            element={<Navigate to="/times-pessoas" replace />} />
+            <Route path="/dashboard/organizacao/*"          element={<Navigate to="/times-pessoas" replace />} />
+            <Route path="/organizacao"                      element={<Navigate to="/times-pessoas" replace />} />
 
             {/* Wildcard do dashboard (redireciona para /dashboard) */}
             <Route
@@ -317,7 +308,7 @@ const App = () => {
               }
             />
 
-            {/* Times e Pessoas */}
+            {/* Organização (Times, Usuários e Cargos) */}
             <Route
               path="/times-pessoas"
               element={

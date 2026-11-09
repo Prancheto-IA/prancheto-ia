@@ -76,7 +76,6 @@ import {
   Building01Icon,
   Settings02Icon,
   Analytics01Icon,
-  UserMultiple02Icon,
   DragDropVerticalIcon,
   PencilEdit01Icon,
   ArrowLeft01Icon,
@@ -106,7 +105,7 @@ const ICONES_MAP = {
   organizacao: Building01Icon,
   configuracoes: Settings02Icon,
   relatorios: Analytics01Icon,
-  times_pessoas: UserMultiple02Icon,
+  times_pessoas: Building01Icon,
 };
 
 const getIconeItem = (slug) => {
@@ -540,9 +539,9 @@ const LayoutCliente = ({ children }) => {
             {/* 2. Botão de Configuração */}
             <NavLink
               to="/dashboard/configuracoes"
-              title="Configurações e Organização"
+              title="Configurações"
               className={({ isActive }) => {
-                const ativa = isActive || location.pathname.startsWith('/dashboard/organizacao');
+                const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
                 return `w-9 h-9 rounded-xl border border-[#E4ECE7] flex items-center justify-center transition-colors ${
                   ativa
                     ? 'bg-[#0E382C] text-[#D4EC9D]'

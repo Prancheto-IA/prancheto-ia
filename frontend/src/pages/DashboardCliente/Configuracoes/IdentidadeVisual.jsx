@@ -191,13 +191,13 @@ const IdentidadeVisual = () => {
 
   return (
     <div className="w-full flex-1 flex flex-col space-y-5">
-      {/* Cabeçalho */}
+      {/* Cabeçalho da Seção */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
+          <h2 className="text-base sm:text-lg font-bold text-[#111915]">
             Identidade Visual da Organização
-          </h1>
-          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
+          </h2>
+          <p className="text-xs text-[#687770] mt-0.5">
             Personalize logotipo, paleta cromática e tipografia para adequar a plataforma à sua marca.
           </p>
         </div>
@@ -206,14 +206,14 @@ const IdentidadeVisual = () => {
           <div className="flex items-center gap-2.5 self-start sm:self-auto">
             <button
               onClick={restaurarPadrao}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold border border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8] transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold border border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8] transition-colors cursor-pointer"
             >
               Restaurar Padrão
             </button>
             <button
               onClick={salvar}
               disabled={salvando}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors shadow-xs disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
               {salvando ? 'Salvando...' : 'Salvar Alterações'}
             </button>

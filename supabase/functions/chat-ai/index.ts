@@ -91,14 +91,17 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY não configurada na Edge Function')
     }
 
-    const openAiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const baseUrl = (Deno.env.get('OPENAI_BASE_URL') || Deno.env.get('OPENAI_ENDPOINT') || 'https://api.openai.com/v1').replace(/\/+$/, '')
+    const url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`
+
+    const openAiResponse = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${openaiApiKey}`
       },
       body: JSON.stringify({
-        model: conversa.modelo || 'gpt-4o-mini',
+        model: conversa.modelo || Deno.env.get('OPENAI_MODEL') || 'gpt-4o-mini',
         messages: mensagensOpenAI,
         max_tokens: 2048,
         temperature: 0.7

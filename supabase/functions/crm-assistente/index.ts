@@ -43,7 +43,7 @@ const corsHeaders = {
 // um loop de raciocinio vira conta aberta.
 const MAX_RODADAS = 5;
 const MAX_TOKENS = 1500;
-const MODELO_PADRAO = 'gpt-4o-mini';
+const MODELO_PADRAO = Deno.env.get('OPENAI_MODEL') || 'gpt-4o-mini';
 
 const responder = (corpo: unknown, status = 200) =>
   new Response(JSON.stringify(corpo), {
@@ -104,7 +104,10 @@ const montarMensagens = (historico: any[]) => {
 };
 
 const chamarOpenAI = async (chave: string, corpo: unknown) => {
-  const resposta = await fetch('https://api.openai.com/v1/chat/completions', {
+  const baseUrl = (Deno.env.get('OPENAI_BASE_URL') || Deno.env.get('OPENAI_ENDPOINT') || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`;
+
+  const resposta = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${chave}` },
     body: JSON.stringify(corpo),
@@ -348,8 +351,11 @@ serve(async (req) => {
         .eq('conversation_id', conversa.id)
         .order('criado_em', { ascending: true });
 
+      const modeloEnv = Deno.env.get('OPENAI_MODEL');
+      const modeloFinal = modeloEnv || (conversa.modelo && conversa.modelo !== 'gpt-4o-mini' ? conversa.modelo : null) || MODELO_PADRAO;
+
       const resposta = await chamarOpenAI(chaveOpenAI, {
-        model: conversa.modelo || MODELO_PADRAO,
+        model: modeloFinal,
         messages: [
           { role: 'system', content: promptSistema(ctx.usuario, hoje) },
           ...montarMensagens(historico ?? []),
