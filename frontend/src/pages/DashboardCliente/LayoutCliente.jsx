@@ -54,7 +54,7 @@ const MarcaLogo = () => {
   }
 
   return (
-    <div className="w-8 h-8 rounded-xl bg-[#134436] border border-[#1F5C4A] flex items-center justify-center text-[#D4EC9D] shadow-sm flex-shrink-0">
+    <div className="w-8 h-8 rounded-xl bg-brand-secondary border border-brand-secondary-border flex items-center justify-center text-brand-accent shadow-sm flex-shrink-0">
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
         <polygon points="12 2 2 7 12 12 22 7 12 2" />
         <polyline points="2 17 12 22 22 17" />
@@ -132,7 +132,7 @@ const ItemNav = ({ item, colapsada, onClick }) => {
         const ativo = isActive || ativoViaPrefixo;
         return `h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 group relative overflow-hidden ${colapsada ? 'w-10' : 'w-full'
           } ${ativo
-            ? 'bg-[#D4EC9D] text-[#0E382C] font-semibold shadow-xs'
+            ? 'bg-brand-accent text-brand-primary font-semibold shadow-xs'
             : 'text-white hover:bg-white/10 hover:text-white'
           }`;
       }}
@@ -152,7 +152,7 @@ const ItemNav = ({ item, colapsada, onClick }) => {
 
       {/* Tooltip flutuante quando colapsada */}
       {colapsada && (
-        <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-[#134436] border border-[#1F5C4A] text-[#D4EC9D] text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
+        <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
           {item.label}
         </span>
       )}
@@ -347,7 +347,7 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 
       <aside
         className={`
-          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-[#0E382C]
+          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-brand-primary
           transition-[width] duration-300 ease-in-out flex-shrink-0
           lg:static lg:z-auto lg:translate-x-0
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
@@ -364,9 +364,9 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
               className={`font-extrabold text-lg tracking-tight text-white truncate whitespace-nowrap ml-2 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 }`}
             >
-              Prancheto<span className="text-[#D4EC9D]">.IA</span>
+              Prancheto<span className="text-brand-accent">.IA</span>
             </span>
-            <button onClick={onFechar} className="ml-auto text-[#9EBAAF] hover:text-white lg:hidden p-1 rounded-lg" title="Fechar menu">
+            <button onClick={onFechar} className="ml-auto text-white/70 hover:text-white lg:hidden p-1 rounded-lg" title="Fechar menu">
               <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
             </button>
           </div>
@@ -401,7 +401,7 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
                 Editar Menu
               </span>
               {colapsada && (
-                <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-[#134436] border border-[#1F5C4A] text-[#D4EC9D] text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
+                <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
                   Editar Menu
                 </span>
               )}
@@ -462,7 +462,7 @@ const LayoutCliente = ({ children }) => {
   }, [menuUsuarioAberto]);
 
   return (
-    <div className="h-screen bg-[#0E382C] flex items-stretch overflow-hidden font-sans">
+    <div className="h-screen bg-brand-primary flex items-stretch overflow-hidden font-sans">
       {/* Sidebar */}
       <Sidebar
         aberta={sidebarAberta}
@@ -474,7 +474,7 @@ const LayoutCliente = ({ children }) => {
       <button
         onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
         title={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
-        className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-[#D4EC9D] text-[#0E382C] shadow-sm hover:bg-[#c5e485] transition-[left] duration-300 ease-in-out cursor-pointer"
+        className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover transition-[left] duration-300 ease-in-out cursor-pointer"
         style={{
           left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
         }}
@@ -490,7 +490,7 @@ const LayoutCliente = ({ children }) => {
       {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-16 bg-[#0E382C] px-6 flex items-center justify-between gap-4 flex-shrink-0">
+        <header className="h-16 bg-brand-primary px-6 flex items-center justify-between gap-4 flex-shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarAberta(true)}
@@ -511,7 +511,7 @@ const LayoutCliente = ({ children }) => {
             <input
               type="text"
               placeholder="Pesquisar projetos, clientes ou tarefas..."
-              className="w-full h-10 pl-11 pr-4 bg-white rounded-full text-sm text-[#111915] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#D4EC9D] shadow-xs transition-all"
+              className="w-full h-10 pl-11 pr-4 bg-white rounded-full text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent shadow-xs transition-all"
             />
           </div>
 
@@ -520,7 +520,7 @@ const LayoutCliente = ({ children }) => {
             {/* 1. Botão de Notificação */}
             <button
               title="Notificações"
-              className="w-9 h-9 rounded-xl bg-[#D4EC9D] text-[#0E382C] hover:bg-[#c5e485] flex items-center justify-center transition-colors relative shadow-xs"
+              className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors relative shadow-xs"
             >
               <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
               <span className="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2"></span>
@@ -533,8 +533,8 @@ const LayoutCliente = ({ children }) => {
               className={({ isActive }) => {
                 const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
                 return `w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow-xs ${ativa
-                  ? 'bg-[#c5e485] text-[#0E382C]'
-                  : 'bg-[#D4EC9D] text-[#0E382C] hover:bg-[#c5e485]'
+                  ? 'bg-brand-accent-hover text-brand-primary'
+                  : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover'
                   }`;
               }}
             >
@@ -545,7 +545,7 @@ const LayoutCliente = ({ children }) => {
             <div className="relative" ref={menuUsuarioRef}>
               <button
                 onClick={() => setMenuUsuarioAberto((v) => !v)}
-                className="w-9 h-9 rounded-xl bg-[#D4EC9D] text-[#0E382C] font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-[#c5e485] transition-all cursor-pointer overflow-hidden border border-[#D4EC9D]"
+                className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent"
                 title={`Perfil: ${usuario?.nome || 'Usuário'}`}
               >
                 {usuario?.avatar_url || usuario?.foto_url ? (
@@ -560,11 +560,11 @@ const LayoutCliente = ({ children }) => {
               </button>
 
               {menuUsuarioAberto && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#E4ECE7] py-2 z-50 animate-fade-in text-xs">
+                <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-xs">
                   {/* Dados do usuário */}
-                  <div className="px-4 py-2.5 border-b border-[#E4ECE7]">
-                    <p className="font-bold text-[#111915] truncate">{usuario?.nome || 'Usuário'}</p>
-                    <p className="text-[11px] text-[#687770] truncate">{usuario?.email}</p>
+                  <div className="px-4 py-2.5 border-b border-surface-border">
+                    <p className="font-bold text-ink-primary truncate">{usuario?.nome || 'Usuário'}</p>
+                    <p className="text-[11px] text-ink-secondary truncate">{usuario?.email}</p>
                     <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold mt-1.5 ${badgeCargo.bg} ${badgeCargo.text}`}>
                       {badgeCargo.label}
                     </span>
@@ -575,31 +575,31 @@ const LayoutCliente = ({ children }) => {
                     <NavLink
                       to="/dashboard/configuracoes"
                       onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
+                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
                     >
-                      <HugeiconsIcon icon={UserIcon} size={16} strokeWidth={1.8} className="text-[#687770]" />
+                      <HugeiconsIcon icon={UserIcon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
                       <span>Meu Perfil</span>
                     </NavLink>
                     <NavLink
                       to="/dashboard/configuracoes"
                       onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
+                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
                     >
-                      <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.8} className="text-[#687770]" />
+                      <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
                       <span>Configurações</span>
                     </NavLink>
                     <NavLink
                       to="/suporte"
                       onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
+                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
                     >
-                      <HugeiconsIcon icon={HelpCircleIcon} size={16} strokeWidth={1.8} className="text-[#687770]" />
+                      <HugeiconsIcon icon={HelpCircleIcon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
                       <span>Suporte</span>
                     </NavLink>
                   </div>
 
                   {/* Sair */}
-                  <div className="pt-1 border-t border-[#E4ECE7]">
+                  <div className="pt-1 border-t border-surface-border">
                     <button
                       onClick={() => {
                         setMenuUsuarioAberto(false);
@@ -618,7 +618,7 @@ const LayoutCliente = ({ children }) => {
         </header>
 
         {/* Page Content Stream (Nível 1) */}
-        <main className="flex-1 overflow-auto bg-[#F2F5F3] rounded-tl-3xl px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0 shadow-sm">
+        <main className="flex-1 overflow-auto bg-surface rounded-tl-3xl px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0 shadow-sm">
           {children}
         </main>
       </div>

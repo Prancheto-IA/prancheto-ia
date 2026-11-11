@@ -19,14 +19,60 @@
 // personalizou nada. Quem liga é o administrador, na própria tela.
 // =============================================================
 
-/** Espelha o default da coluna tenants.identidade_visual, mais a chave. */
+/** Espelha o default da coluna tenants.identidade_visual (Padrão Emitly). */
 export const IDENTIDADE_PADRAO = {
-  cor_primaria:   '#1e3a5f',
-  cor_secundaria: '#000000',
-  cor_acento:     '#ffffff',
+  cor_primaria:   '#0E382C',
+  cor_secundaria: '#134436',
+  cor_acento:     '#D4EC9D',
   fonte:          'Inter',
   aplicar:        false,
 };
+
+/** Catálogo central de paletas pré-definidas do Design System. */
+export const PALETAS_PREDEFINIDAS = [
+  {
+    id: 'verde-institucional',
+    nome: 'Emitly Verde (Padrão)',
+    cor_primaria: '#0E382C',
+    cor_secundaria: '#134436',
+    cor_acento: '#D4EC9D',
+  },
+  {
+    id: 'azul-corporativo',
+    nome: 'Azul Corporativo',
+    cor_primaria: '#1E3A5F',
+    cor_secundaria: '#0F2338',
+    cor_acento: '#60A5FA',
+  },
+  {
+    id: 'grafite-elegante',
+    nome: 'Grafite Elegante',
+    cor_primaria: '#18181B',
+    cor_secundaria: '#27272A',
+    cor_acento: '#F4F4F5',
+  },
+  {
+    id: 'roxo-moderno',
+    nome: 'Roxo Moderno',
+    cor_primaria: '#4C1D95',
+    cor_secundaria: '#2E1065',
+    cor_acento: '#C4B5FD',
+  },
+  {
+    id: 'petroleo-menta',
+    nome: 'Petróleo & Menta',
+    cor_primaria: '#0F4C5C',
+    cor_secundaria: '#092F38',
+    cor_acento: '#5EEAD4',
+  },
+  {
+    id: 'terracota-cobre',
+    nome: 'Terracota & Cobre',
+    cor_primaria: '#7C2D12',
+    cor_secundaria: '#431407',
+    cor_acento: '#FDBA74',
+  },
+];
 
 /**
  * Fontes oferecidas ao administrador. Também é a lista de famílias que
@@ -96,13 +142,32 @@ const VAR_SUPERFICIE = '--brand-superficie';
 const VAR_FONTE      = '--brand-fonte';
 const VAR_NAV_ATIVA  = '--sidebar-primaria-ativa';
 
+const VARS_MARCA = [
+  '--brand-primary',
+  '--brand-primary-rgb',
+  '--brand-primary-hover',
+  '--brand-primary-hover-rgb',
+  '--brand-secondary',
+  '--brand-secondary-rgb',
+  '--brand-secondary-border',
+  '--brand-secondary-border-rgb',
+  '--brand-accent',
+  '--brand-accent-rgb',
+  '--brand-accent-hover',
+  '--brand-accent-hover-rgb',
+];
+
 const TODAS_AS_VARS = [
   ...TONS.map((tom) => `--color-primary-${tom}`),
+  ...VARS_MARCA,
   VAR_CONTRASTE,
   VAR_SUPERFICIE,
   VAR_FONTE,
   VAR_NAV_ATIVA,
 ];
+
+const paraHex = (rgb) =>
+  '#' + rgb.map((c) => Math.max(0, Math.min(255, c)).toString(16).padStart(2, '0')).join('');
 
 const ID_LINK_FONTE = 'prancheto-fonte-marca';
 
@@ -147,8 +212,7 @@ export const aplicarIdentidadeNoDOM = (identidade) => {
 
   const raiz = document.documentElement;
 
-  // Cor primária: alimenta a paleta primary-* inteira. Cor inválida
-  // volta para a paleta do produto em vez de deixar o app sem cor.
+  // Cor primária: alimenta a paleta primary-* inteira e --brand-primary
   const rampa = gerarRampaPrimaria(identidade.cor_primaria);
   TONS.forEach((tom) => {
     const nome = `--color-primary-${tom}`;
@@ -156,11 +220,35 @@ export const aplicarIdentidadeNoDOM = (identidade) => {
     else raiz.style.removeProperty(nome);
   });
 
-  // O item ativo da navegação lateral fica sobre a cor secundária, que é
-  // escura por definição — então o tom claro serve nos dois temas, e não
-  // apenas no escuro como no padrão de index.css.
   if (rampa) raiz.style.setProperty(VAR_NAV_ATIVA, `rgb(${rampa[300]})`);
   else raiz.style.removeProperty(VAR_NAV_ATIVA);
+
+  const rgbPrimaria = paraRgb(identidade.cor_primaria);
+  if (rgbPrimaria) {
+    const rgbHover = misturar(rgbPrimaria, PRETO, 0.3);
+    raiz.style.setProperty('--brand-primary', paraHex(rgbPrimaria));
+    raiz.style.setProperty('--brand-primary-rgb', rgbPrimaria.join(' '));
+    raiz.style.setProperty('--brand-primary-hover', paraHex(rgbHover));
+    raiz.style.setProperty('--brand-primary-hover-rgb', rgbHover.join(' '));
+  }
+
+  const rgbSecundaria = paraRgb(identidade.cor_secundaria);
+  if (rgbSecundaria) {
+    const rgbBorda = misturar(rgbSecundaria, BRANCO, 0.12);
+    raiz.style.setProperty('--brand-secondary', paraHex(rgbSecundaria));
+    raiz.style.setProperty('--brand-secondary-rgb', rgbSecundaria.join(' '));
+    raiz.style.setProperty('--brand-secondary-border', paraHex(rgbBorda));
+    raiz.style.setProperty('--brand-secondary-border-rgb', rgbBorda.join(' '));
+  }
+
+  const rgbAcento = paraRgb(identidade.cor_acento);
+  if (rgbAcento) {
+    const rgbAcentoHover = misturar(rgbAcento, PRETO, 0.08);
+    raiz.style.setProperty('--brand-accent', paraHex(rgbAcento));
+    raiz.style.setProperty('--brand-accent-rgb', rgbAcento.join(' '));
+    raiz.style.setProperty('--brand-accent-hover', paraHex(rgbAcentoHover));
+    raiz.style.setProperty('--brand-accent-hover-rgb', rgbAcentoHover.join(' '));
+  }
 
   const definirCor = (nome, hex) => {
     if (paraRgb(hex)) raiz.style.setProperty(nome, hex.trim());
@@ -179,7 +267,13 @@ export const aplicarIdentidadeNoDOM = (identidade) => {
 };
 
 /** Completa o que vier do banco com os padrões, para as telas não checarem campo a campo. */
-export const normalizarIdentidade = (identidadeSalva) => ({
-  ...IDENTIDADE_PADRAO,
-  ...(identidadeSalva || {}),
-});
+export const normalizarIdentidade = (identidadeSalva) => {
+  // Ignora configurações legadas salvas antes do novo Design System Emitly (versao_ds: 2)
+  if (!identidadeSalva || identidadeSalva.versao_ds !== 2) {
+    return { ...IDENTIDADE_PADRAO };
+  }
+  return {
+    ...IDENTIDADE_PADRAO,
+    ...identidadeSalva,
+  };
+};

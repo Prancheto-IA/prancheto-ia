@@ -36,16 +36,31 @@ export default {
           900: 'rgb(var(--color-primary-900) / <alpha-value>)',
           950: 'rgb(var(--color-primary-950) / <alpha-value>)',
         },
-        // Cor de fundo do painel (estilo escuro profissional)
-        // Usa CSS variables para suporte a tema claro/escuro
-        // A classe 'dark' no <html> alterna os valores via index.css
-        'surface':        'var(--color-surface)',
-        'surface-card':   'var(--color-surface-card)',
-        'surface-border': 'var(--color-surface-border)',
+        // --- TOKENS DE MARCA (EMITLY DESIGN SYSTEM + WHITE-LABEL) ---
+        brand: {
+          primary:          'rgb(var(--brand-primary-rgb) / <alpha-value>)',
+          'primary-hover':  'rgb(var(--brand-primary-hover-rgb) / <alpha-value>)',
+          secondary:        'rgb(var(--brand-secondary-rgb) / <alpha-value>)',
+          'secondary-border': 'rgb(var(--brand-secondary-border-rgb) / <alpha-value>)',
+          accent:           'rgb(var(--brand-accent-rgb) / <alpha-value>)',
+          'accent-hover':   'rgb(var(--brand-accent-hover-rgb) / <alpha-value>)',
+        },
 
-        // Texto secundário/discreto que acompanha o tema (rótulos, legendas,
-        // texto de apoio). Substitui as antigas cores fixas do slate
-        // (text-slate-400/500/600), que ficavam claras demais no tema claro.
+        // --- SUPERFÍCIES E NEUTROS DO DESIGN SYSTEM ---
+        'surface':               'var(--color-surface)',
+        'surface-subtle':        'var(--color-surface-subtle)',
+        'surface-hover':         'var(--color-surface-hover)',
+        'surface-muted':         'var(--color-surface-muted)',
+        'surface-card':          'var(--color-surface-card)',
+        'surface-border':        'var(--color-surface-border)',
+        'surface-border-strong': 'var(--color-surface-border-strong)',
+
+        // --- TIPOGRAFIA ---
+        ink: {
+          primary:   'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          muted:     'var(--color-text-muted)',
+        },
         'muted': 'var(--color-text-secondary)',
       },
 

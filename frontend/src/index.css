@@ -17,30 +17,54 @@
 /* --- CSS VARIABLES: TEMA CLARO (padrão base — sem classe) --- */
 /* O tema claro é o padrão. O tema escuro é aplicado via html.dark */
 :root {
-  --color-surface:        #f1f5f9;
-  --color-surface-card:   #ffffff;
-  --color-surface-border: #e2e8f0;
-  --color-text-primary:   #0f172a;
-  --color-text-secondary: #475569;
+  /* --- SUPERFÍCIES E NEUTROS (EMITLY DESIGN SYSTEM) --- */
+  --color-surface:               #F2F5F3;
+  --color-surface-subtle:        #F7FAF8;
+  --color-surface-hover:         #EDF2EE;
+  --color-surface-muted:         #EBF0ED;
+  --color-surface-card:          #FFFFFF;
+  --color-surface-border:        #E4ECE7;
+  --color-surface-border-strong: #CBDCD1;
 
-  /* --- PALETA PRIMARY: a marca do produto ---
+  /* --- TIPOGRAFIA --- */
+  --color-text-primary:          #111915;
+  --color-text-secondary:        #687770;
+  --color-text-muted:            #8A9A92;
+
+  /* --- IDENTIDADE DA MARCA (PADRÃO EMITLY + WHITE-LABEL) --- */
+  --brand-primary:               #0E382C;
+  --brand-primary-rgb:           14 56 44;
+  --brand-primary-hover:         #07261E;
+  --brand-primary-hover-rgb:     7 38 30;
+
+  --brand-secondary:             #134436;
+  --brand-secondary-rgb:         19 68 54;
+  --brand-secondary-border:      #1F5C4A;
+  --brand-secondary-border-rgb:  31 92 74;
+
+  --brand-accent:                #D4EC9D;
+  --brand-accent-rgb:            212 236 157;
+  --brand-accent-hover:          #C5E485;
+  --brand-accent-hover-rgb:      197 228 133;
+
+  /* --- PALETA PRIMARY: rampa 50..950 derivada de #0E382C ---
      É também o fallback quando o tenant não aplica identidade própria.
      Os valores são canais RGB, e não hex, porque o Tailwind injeta a
      opacidade das classes com barra (bg-primary-500/15) dentro de
      rgb(<canais> / <alpha-value>) — ver tailwind.config.js.
      utils/identidadeVisual.js sobrescreve estas variáveis no <html>
      quando a organização liga a própria identidade visual. */
-  --color-primary-50:  240 244 255;
-  --color-primary-100: 224 233 255;
-  --color-primary-200: 199 214 254;
-  --color-primary-300: 165 184 252;
-  --color-primary-400: 129 145 248;
-  --color-primary-500:  99 102 241;
-  --color-primary-600:  79  70 229;
-  --color-primary-700:  67  56 202;
-  --color-primary-800:  55  48 163;
-  --color-primary-900:  49  46 129;
-  --color-primary-950:  30  27  75;
+  --color-primary-50:  243 245 244;
+  --color-primary-100: 231 235 234;
+  --color-primary-200: 202 211 209;
+  --color-primary-300: 164 180 175;
+  --color-primary-400: 101 128 120;
+  --color-primary-500:  14  56  44;
+  --color-primary-600:  12  49  39;
+  --color-primary-700:  11  43  33;
+  --color-primary-800:   9  36  28;
+  --color-primary-900:   7  29  23;
+  --color-primary-950:   4  18  14;
 
   /* Fundo de estados de hover em superfícies do tema. */
   --color-hover-surface: rgb(15 23 42 / 0.06);
@@ -82,20 +106,25 @@
   --color-neutro-rgb: 100 116 139;
 }
 
-/* --- CSS VARIABLES: TEMA ESCURO (override via classe html.dark) --- */
+/* --- CSS VARIABLES: TEMA ESCURO (desativado no Design System Emitly para manter as cores originais) --- */
 html.dark {
-  --color-surface:        #0f172a;
-  --color-surface-card:   #1e293b;
-  --color-surface-border: #334155;
-  --color-text-primary:   #f8fafc;
-  --color-text-secondary: #94a3b8;
+  --color-surface:               #F2F5F3;
+  --color-surface-subtle:        #F7FAF8;
+  --color-surface-hover:         #EDF2EE;
+  --color-surface-muted:         #EBF0ED;
+  --color-surface-card:          #FFFFFF;
+  --color-surface-border:        #E4ECE7;
+  --color-surface-border-strong: #CBDCD1;
+  --color-text-primary:          #111915;
+  --color-text-secondary:        #687770;
+  --color-text-muted:            #8A9A92;
 
-  --color-hover-surface:  rgb(255 255 255 / 0.06);
-  --color-control-border: #475569;
+  --color-hover-surface:  rgb(15 23 42 / 0.06);
+  --color-control-border: #94a3b8;
 
-  --color-primaria-contraste: rgb(var(--color-primary-300));
-  --sidebar-primaria-ativa:   rgb(var(--color-primary-300));
-  --color-neutro-rgb: 148 163 184;
+  --color-primaria-contraste: rgb(var(--color-primary-700));
+  --sidebar-primaria-ativa:   rgb(var(--color-primary-700));
+  --color-neutro-rgb: 100 116 139;
 }
 
 /* --- ESTILOS BASE GLOBAIS --- */
@@ -275,9 +304,149 @@ html:not(.dark) .text-primary-400 {
   color: var(--color-primaria-contraste);
 }
 
-/* 'hover:text-white' é o pior caso: o item some justamente quando o
-   mouse chega nele. A exceção é quando o hover também pinta um fundo
-   escuro — aí o branco está correto e a regra se afasta. */
-html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-primary"]):hover {
+/* 'hover:text-white' em superfícies claras: a exceção é quando o elemento
+   está na sidebar/header escuros ou pinta fundo próprio no hover. */
+html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside *):not(header *):hover {
   color: var(--color-text-primary);
+}
+
+/* =============================================================
+   CENTRALIZAÇÃO DO DESIGN SYSTEM EMITLY & WHITE-LABEL
+   =============================================================
+   Conecta todas as classes utilitárias do Design System Emitly às
+   variáveis CSS globais (--brand-primary, --brand-secondary,
+   --brand-accent, --color-surface-* e --color-text-*).
+   Assim, tanto os tokens semânticos do Tailwind (bg-brand-primary,
+   text-brand-accent, bg-surface, border-surface-border, text-ink-*)
+   quanto as classes arbitrárias existentes nas telas respondem em
+   tempo real à paleta definida aqui e em Identidade Visual.
+   ============================================================= */
+
+/* --- Cor Primária da Marca (--brand-primary) --- */
+.bg-brand-primary,
+.bg-\[\#0E382C\] {
+  background-color: var(--brand-primary) !important;
+}
+.hover\:bg-brand-primary:hover,
+.hover\:bg-\[\#0E382C\]:hover {
+  background-color: var(--brand-primary) !important;
+}
+.bg-brand-primary-hover,
+.hover\:bg-brand-primary-hover:hover,
+.hover\:bg-\[\#07261E\]:hover {
+  background-color: var(--brand-primary-hover) !important;
+}
+.text-brand-primary,
+.text-\[\#0E382C\],
+.text-\[\#132E22\] {
+  color: var(--brand-primary) !important;
+}
+.hover\:text-brand-primary:hover,
+.hover\:text-\[\#0E382C\]:hover {
+  color: var(--brand-primary) !important;
+}
+.border-brand-primary,
+.border-\[\#0E382C\] {
+  border-color: var(--brand-primary) !important;
+}
+.hover\:border-brand-primary:hover,
+.focus\:border-brand-primary:focus,
+.hover\:border-\[\#0E382C\]:hover,
+.focus\:border-\[\#0E382C\]:focus {
+  border-color: var(--brand-primary) !important;
+}
+
+/* --- Cor Secundária da Marca (--brand-secondary) --- */
+.bg-brand-secondary,
+.bg-\[\#134436\] {
+  background-color: var(--brand-secondary) !important;
+}
+.hover\:bg-brand-secondary:hover,
+.hover\:bg-\[\#134436\]:hover {
+  background-color: var(--brand-secondary) !important;
+}
+.border-brand-secondary-border,
+.border-\[\#1F5C4A\] {
+  border-color: var(--brand-secondary-border) !important;
+}
+
+/* --- Cor de Acento da Marca (--brand-accent) --- */
+.bg-brand-accent,
+.bg-\[\#D4EC9D\] {
+  background-color: var(--brand-accent) !important;
+}
+.hover\:bg-brand-accent:hover,
+.hover\:bg-\[\#D4EC9D\]:hover {
+  background-color: var(--brand-accent) !important;
+}
+.bg-brand-accent-hover,
+.hover\:bg-brand-accent-hover:hover,
+.hover\:bg-\[\#c5e485\]:hover,
+.bg-\[\#c5e485\] {
+  background-color: var(--brand-accent-hover) !important;
+}
+.text-brand-accent,
+.text-\[\#D4EC9D\] {
+  color: var(--brand-accent) !important;
+}
+.border-brand-accent,
+.border-\[\#D4EC9D\] {
+  border-color: var(--brand-accent) !important;
+}
+.focus\:ring-brand-accent:focus,
+.focus\:ring-\[\#D4EC9D\]:focus {
+  --tw-ring-color: var(--brand-accent) !important;
+}
+
+/* --- Superfícies e Bordas Neutras --- */
+.bg-surface,
+.bg-\[\#F2F5F3\] {
+  background-color: var(--color-surface);
+}
+.bg-surface-card {
+  background-color: var(--color-surface-card);
+}
+.bg-surface-subtle,
+.bg-\[\#F7FAF8\] {
+  background-color: var(--color-surface-subtle);
+}
+.hover\:bg-surface-subtle:hover,
+.hover\:bg-\[\#F7FAF8\]:hover {
+  background-color: var(--color-surface-subtle);
+}
+.bg-surface-hover,
+.hover\:bg-surface-hover:hover,
+.bg-\[\#EDF2EE\],
+.hover\:bg-\[\#EDF2EE\]:hover {
+  background-color: var(--color-surface-hover);
+}
+.bg-surface-muted,
+.bg-\[\#EBF0ED\] {
+  background-color: var(--color-surface-muted);
+}
+.border-surface-border,
+.border-\[\#E4ECE7\],
+.divide-\[\#E4ECE7\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--color-surface-border);
+}
+.border-surface-border-strong,
+.hover\:border-surface-border-strong:hover {
+  border-color: var(--color-surface-border-strong);
+}
+
+/* --- Tipografia --- */
+.text-ink-primary,
+.text-\[\#111915\] {
+  color: var(--color-text-primary);
+}
+.hover\:text-ink-primary:hover {
+  color: var(--color-text-primary);
+}
+.text-ink-secondary,
+.text-\[\#687770\] {
+  color: var(--color-text-secondary);
+}
+.text-ink-muted,
+.text-\[\#8A9A92\] {
+  color: var(--color-text-muted);
 }
