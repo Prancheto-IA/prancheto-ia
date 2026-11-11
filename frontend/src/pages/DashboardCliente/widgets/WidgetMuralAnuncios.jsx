@@ -94,7 +94,7 @@ const WidgetMuralAnuncios = () => {
           ) : postagens.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
               <HugeiconsIcon icon={Megaphone01Icon} size={32} strokeWidth={1.5} className="text-[#687770]/50 mb-2" />
-              <p className="text-xs font-semibold text-[#687770]">
+              <p className="text-sm font-semibold text-[#687770]">
                 {pagina === 0 ? 'Nenhum anúncio publicado ainda.' : 'Não há anúncios mais antigos.'}
               </p>
             </div>
@@ -105,10 +105,10 @@ const WidgetMuralAnuncios = () => {
               return (
                 <div key={p.id} className="p-3 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7] space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#111915]">{p.autor?.nome || 'Usuário'}</span>
+                    <span className="text-sm font-semibold text-[#111915]">{p.autor?.nome || 'Usuário'}</span>
                     <span className="text-[10px] text-[#687770]">{formatarTempo(p.criado_em)}</span>
                   </div>
-                  <p className="text-xs text-[#687770] leading-relaxed line-clamp-2">{p.conteudo}</p>
+                  <p className="text-sm text-[#687770] leading-relaxed line-clamp-2">{p.conteudo}</p>
                   <div className="flex items-center gap-3 pt-1 border-t border-[#E4ECE7]/60">
                     <button
                       onClick={() => reagir(p.id)}
@@ -129,14 +129,14 @@ const WidgetMuralAnuncios = () => {
           <button
             onClick={() => carregar(pagina - 1)}
             disabled={pagina === 0 || carregando}
-            className="text-xs font-semibold text-[#0E382C] disabled:opacity-30 disabled:cursor-not-allowed hover:underline"
+            className="text-sm font-semibold text-[#0E382C] disabled:opacity-30 disabled:cursor-not-allowed hover:underline"
           >
             ← Anúncios recentes
           </button>
           <button
             onClick={() => carregar(pagina + 1)}
             disabled={!temMais || carregando}
-            className="text-xs font-semibold text-[#0E382C] disabled:opacity-30 disabled:cursor-not-allowed hover:underline"
+            className="text-sm font-semibold text-[#0E382C] disabled:opacity-30 disabled:cursor-not-allowed hover:underline"
           >
             Mais antigos →
           </button>

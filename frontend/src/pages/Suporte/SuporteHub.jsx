@@ -47,7 +47,7 @@ const NavSuporte = () => (
         <h1 className="text-xl font-extrabold text-[#111915] tracking-tight">
           Central de Suporte &amp; Ajuda
         </h1>
-        <p className="text-xs text-[#687770]">
+        <p className="text-sm text-[#687770]">
           Abra chamados técnicos, consulte a documentação ou verifique a saúde dos serviços.
         </p>
       </div>
@@ -59,7 +59,7 @@ const NavSuporte = () => (
           key={aba.path}
           to={aba.path}
           className={({ isActive }) =>
-            `flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+            `flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
               isActive
                 ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
                 : 'text-[#687770] hover:bg-[#F7FAF8] hover:text-[#111915]'

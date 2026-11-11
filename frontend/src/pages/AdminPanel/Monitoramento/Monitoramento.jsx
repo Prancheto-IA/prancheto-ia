@@ -70,7 +70,7 @@ const CardMetrica = ({ emoji, titulo, valor, subtitulo, corValor = '', destaque 
     <div className="flex items-start justify-between mb-2">
       <span className="text-2xl">{emoji}</span>
       {destaque && (
-        <span className="badge bg-primary-900 text-primary-300 border border-primary-700 text-xs">
+        <span className="badge bg-primary-900 text-primary-300 border border-primary-700 text-sm">
           Destaque
         </span>
       )}
@@ -79,7 +79,7 @@ const CardMetrica = ({ emoji, titulo, valor, subtitulo, corValor = '', destaque 
       {typeof valor === 'number' ? valor.toLocaleString('pt-BR') : valor}
     </p>
     <p className="text-muted text-sm font-medium">{titulo}</p>
-    {subtitulo && <p className="text-muted text-xs mt-1">{subtitulo}</p>}
+    {subtitulo && <p className="text-muted text-sm mt-1">{subtitulo}</p>}
   </div>
 );
 
@@ -240,7 +240,7 @@ const Monitoramento = () => {
         </div>
         <div className="flex items-center gap-3">
           {ultimaAtt && (
-            <span className="text-slate-500 text-xs">
+            <span className="text-slate-500 text-sm">
               Atualizado às {ultimaAtt.toLocaleTimeString('pt-BR')} · próximo em {contadorAtt}s
             </span>
           )}
@@ -346,7 +346,7 @@ const Monitoramento = () => {
                   {/* Ambiente */}
                   <div className="flex items-center justify-between">
                     <span className="text-muted text-sm">Ambiente</span>
-                    <span className={`badge border text-xs ${
+                    <span className={`badge border text-sm ${
                       overview.servidor.ambiente === 'production'
                         ? 'bg-green-900/50 text-green-400 border-green-700/50'
                         : 'bg-amber-900/50 text-amber-400 border-amber-700/50'
@@ -384,7 +384,7 @@ const Monitoramento = () => {
                         <div key={plano}>
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-muted text-sm">{info.label}</span>
-                            <span className="text-muted text-xs">{qtd} cliente{qtd !== 1 ? 's' : ''} ({pct}%)</span>
+                            <span className="text-muted text-sm">{qtd} cliente{qtd !== 1 ? 's' : ''} ({pct}%)</span>
                           </div>
                           <div className="w-full h-2 bg-primary-800 rounded-full overflow-hidden">
                             <div
@@ -400,7 +400,7 @@ const Monitoramento = () => {
 
                 {/* Status dos tenants */}
                 <div className="mt-5 pt-4 border-t border-primary-800">
-                  <p className="text-muted text-xs mb-3">Status dos clientes</p>
+                  <p className="text-muted text-sm mb-3">Status dos clientes</p>
                   <div className="flex gap-4">
                     {overview.distribuicaoStatus.map(({ status, qtd }) => (
                       <div key={status} className="text-center">
@@ -408,7 +408,7 @@ const Monitoramento = () => {
                           status === 'active' ? 'text-green-400' :
                           status === 'suspended' ? 'text-red-400' : 'text-muted'
                         }`}>{qtd}</p>
-                        <p className="text-muted text-xs capitalize">{
+                        <p className="text-muted text-sm capitalize">{
                           status === 'active' ? 'Ativos' :
                           status === 'suspended' ? 'Suspensos' : 'Cancelados'
                         }</p>
@@ -436,18 +436,18 @@ const Monitoramento = () => {
                       return (
                         <div key={t.id} className="flex items-center gap-3">
                           <span className="text-muted text-sm w-5 text-right">{i + 1}.</span>
-                          <div className="w-7 h-7 rounded-lg bg-primary-800 flex items-center justify-center text-primary-300 font-bold text-xs flex-shrink-0">
+                          <div className="w-7 h-7 rounded-lg bg-primary-800 flex items-center justify-center text-primary-300 font-bold text-sm flex-shrink-0">
                             {(t.nome || '?')[0].toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{t.nome}</p>
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className={`w-2 h-2 rounded-full ${info.cor}`} />
-                              <span className="text-muted text-xs">{info.label}</span>
+                              <span className="text-muted text-sm">{info.label}</span>
                             </div>
                           </div>
                           <span className="text-muted text-sm font-semibold flex-shrink-0">
-                            {t.qtdUsuarios} <span className="text-muted font-normal text-xs">usuários</span>
+                            {t.qtdUsuarios} <span className="text-muted font-normal text-sm">usuários</span>
                           </span>
                         </div>
                       );
@@ -461,7 +461,7 @@ const Monitoramento = () => {
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <span>🚨</span> Alertas Recentes
                   {atividade?.alertas?.length > 0 && (
-                    <span className="badge bg-red-900/50 text-red-400 border border-red-700/50 text-xs ml-1">
+                    <span className="badge bg-red-900/50 text-red-400 border border-red-700/50 text-sm ml-1">
                       {atividade.alertas.length}
                     </span>
                   )}
@@ -470,7 +470,7 @@ const Monitoramento = () => {
                   <div className="flex flex-col items-center justify-center py-6 gap-2">
                     <span className="text-3xl">✅</span>
                     <p className="text-muted text-sm">Nenhum alerta recente.</p>
-                    <p className="text-muted text-xs">Sistema operando normalmente.</p>
+                    <p className="text-muted text-sm">Sistema operando normalmente.</p>
                   </div>
                 ) : (
                   <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
@@ -480,8 +480,8 @@ const Monitoramento = () => {
                           {alerta.resultado === 'failure' ? '❌' : '🛡️'}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="text-muted text-xs truncate">{alerta.descricao || alerta.acao}</p>
-                          <p className="text-muted text-xs mt-0.5">
+                          <p className="text-muted text-sm truncate">{alerta.descricao || alerta.acao}</p>
+                          <p className="text-muted text-sm mt-0.5">
                             {alerta.user_email || '—'} · {formatarDataHora(alerta.criado_em)}
                           </p>
                         </div>
@@ -511,7 +511,7 @@ const Monitoramento = () => {
                         <div className="relative w-full flex flex-col items-center justify-end" style={{ height: '80px' }}>
                           {/* Tooltip */}
                           <div className="absolute bottom-full mb-1 hidden group-hover:flex flex-col items-center z-10">
-                            <div className="bg-primary-900 border border-primary-700 rounded px-2 py-1 text-xs text-white whitespace-nowrap">
+                            <div className="bg-primary-900 border border-primary-700 rounded px-2 py-1 text-sm text-white whitespace-nowrap">
                               {d.total} eventos · {errosDia} erros
                             </div>
                           </div>
@@ -528,12 +528,12 @@ const Monitoramento = () => {
                             style={{ height: `${altura - (errosDia > 0 ? Math.max(4, Math.round((errosDia / Math.max(d.total, 1)) * altura)) : 0)}px` }}
                           />
                         </div>
-                        <span className="text-muted text-xs">{dataFormatada}</span>
+                        <span className="text-muted text-sm">{dataFormatada}</span>
                       </div>
                     );
                   })}
                 </div>
-                <div className="flex items-center gap-4 mt-3 text-xs text-muted">
+                <div className="flex items-center gap-4 mt-3 text-sm text-muted">
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-2 rounded bg-primary-500 inline-block" /> Eventos
                   </span>

@@ -529,7 +529,7 @@ const CardTarefaVisual = ({
 
           {menuOpcoesAberto && (
             <div
-              className="absolute right-0 top-full mt-1 w-44 bg-white rounded-2xl shadow-xl border border-[#E4ECE7] py-1.5 z-40 text-xs font-semibold animate-fade-in"
+              className="absolute right-0 top-full mt-1 w-44 bg-white rounded-2xl shadow-xl border border-[#E4ECE7] py-1.5 z-40 text-sm font-semibold animate-fade-in"
               onClick={e => e.stopPropagation()}
             >
               <button
@@ -557,7 +557,7 @@ const CardTarefaVisual = ({
                     setMenuOpcoesAberto(false);
                     if (onMoverStatus) onMoverStatus(tarefa.id, col.slug);
                   }}
-                  className={`w-full text-left px-3.5 py-1 hover:bg-neutral-50 flex items-center justify-between text-xs ${
+                  className={`w-full text-left px-3.5 py-1 hover:bg-neutral-50 flex items-center justify-between text-sm ${
                     tarefa.status === col.slug ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-700'
                   }`}
                 >
@@ -584,7 +584,7 @@ const CardTarefaVisual = ({
       </div>
 
       {/* Título da Tarefa */}
-      <h4 className="text-xs sm:text-[13px] font-bold text-[#14221D] leading-snug tracking-tight">
+      <h4 className="text-sm sm:text-[13px] font-bold text-[#14221D] leading-snug tracking-tight">
         {tarefa.titulo}
       </h4>
 
@@ -687,7 +687,7 @@ const CardTarefaVisual = ({
       </div>
 
       {/* Rodapé: Avatares Sobrepostos + Badges de Métricas */}
-      <div className="flex items-center justify-between pt-1 text-xs">
+      <div className="flex items-center justify-between pt-1 text-sm">
         {/* Avatares dos Membros */}
         <div className="flex items-center -space-x-2">
           {membros.map((m, idx) => {
@@ -835,8 +835,8 @@ const ColunaDroppable = ({
       {/* Cabeçalho da Coluna: ▸ Nome, + e ⋮ */}
       <div className="flex items-center justify-between mb-3 px-1.5 pt-0.5">
         <div className="flex items-center gap-1.5">
-          <span className="text-neutral-500 font-bold text-xs select-none">▸</span>
-          <span className="text-xs sm:text-sm font-bold text-[#14221D]">
+          <span className="text-neutral-500 font-bold text-sm select-none">▸</span>
+          <span className="text-sm font-bold text-[#14221D]">
             {coluna.label}
           </span>
           <span className="ml-1 text-[11px] font-semibold text-neutral-500 bg-white/90 px-2 py-0.2 rounded-full border border-black/5 shadow-2xs">
@@ -860,7 +860,7 @@ const ColunaDroppable = ({
       <SortableContext items={tarefas.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="flex-1 space-y-3 min-h-[160px]">
           {tarefas.length === 0 ? (
-            <div className="h-32 rounded-2xl border border-dashed border-[#CCD9D2] flex flex-col items-center justify-center text-xs text-[#99A6A0] gap-1 bg-white/40">
+            <div className="h-32 rounded-2xl border border-dashed border-[#CCD9D2] flex flex-col items-center justify-center text-sm text-[#99A6A0] gap-1 bg-white/40">
               <span className="font-semibold">Nenhuma tarefa aqui</span>
               <span className="text-[10px] text-neutral-400">Arraste ou clique em +</span>
             </div>
@@ -1411,7 +1411,7 @@ const Tarefas = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-[#111915] tracking-tight">
             {dataHoje.mes}
           </h2>
-          <p className="text-xs text-[#687770] mt-0.5 font-medium">
+          <p className="text-sm text-[#687770] mt-0.5 font-medium">
             {dataHoje.subtitulo}
           </p>
         </div>
@@ -1421,14 +1421,14 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => setDropdownViews(v => !v)}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-[#14221D] bg-white border border-[#E4ECE7] shadow-2xs hover:border-[#CCD9D2] transition-all"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-bold text-[#14221D] bg-white border border-[#E4ECE7] shadow-2xs hover:border-[#CCD9D2] transition-all"
           >
             <span>{viewSelecionada}</span>
             <HugeiconsIcon icon={ArrowDown01Icon} size={14} strokeWidth={2} className="text-[#687770]" />
           </button>
 
           {dropdownViews && (
-            <div className="absolute left-0 mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-[#E4ECE7] py-2 z-40 text-xs font-semibold animate-fade-in">
+            <div className="absolute left-0 mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-[#E4ECE7] py-2 z-40 text-sm font-semibold animate-fade-in">
               {[
                 'Quadro – Tarefas Diárias',
                 'Quadro – Todas as Tarefas',
@@ -1474,7 +1474,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => setMostrarFiltrosAvancados(v => !v)}
-            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 shadow-2xs ${
+            className={`px-3 py-2 rounded-xl text-sm font-bold border transition-all flex items-center gap-1.5 shadow-2xs ${
               mostrarFiltrosAvancados
                 ? 'bg-[#0E382C] text-white border-[#0E382C]'
                 : 'bg-white text-[#14221D] border-[#E4ECE7] hover:border-[#CCD9D2]'
@@ -1488,7 +1488,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => handleAbrirModal(null, 'pendente')}
-            className="px-4 py-2 bg-[#111915] hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            className="px-4 py-2 bg-[#111915] hover:bg-black text-white text-sm font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
           >
             <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.5} />
             <span>Criar tarefa</span>
@@ -1500,7 +1500,7 @@ const Tarefas = () => {
               type="button"
               onClick={() => setVisao('kanban')}
               title="Visualização em Quadro Kanban"
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${
                 visao === 'kanban'
                   ? 'bg-[#0E382C] text-white shadow-2xs'
                   : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
@@ -1513,7 +1513,7 @@ const Tarefas = () => {
               type="button"
               onClick={() => setVisao('lista')}
               title="Visualização em Lista / Tabela"
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${
                 visao === 'lista'
                   ? 'bg-[#0E382C] text-white shadow-2xs'
                   : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
@@ -1531,14 +1531,14 @@ const Tarefas = () => {
          ───────────────────────────────────────────────────────── */}
       {mostrarFiltrosAvancados && (
         <div className="bg-white rounded-2xl border border-[#E4ECE7] p-3.5 shadow-xs flex items-center justify-between flex-wrap gap-3 animate-fade-in">
-          <div className="flex items-center gap-4 flex-wrap text-xs">
+          <div className="flex items-center gap-4 flex-wrap text-sm">
             {/* Filtro por Prioridade */}
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-[#14221D]">Prioridade:</span>
               <SelectField
                 value={filtroPrioridade}
                 onChange={e => setFiltroPrioridade(e.target.value)}
-                className="h-8 w-36 text-xs"
+                className="h-8 w-36 text-sm"
               >
                 <option value="todas">Todas</option>
                 <option value="critica">Crítica</option>
@@ -1554,7 +1554,7 @@ const Tarefas = () => {
               <SelectField
                 value={filtroPrazo}
                 onChange={e => setFiltroPrazo(e.target.value)}
-                className="h-8 w-40 text-xs"
+                className="h-8 w-40 text-sm"
               >
                 <option value="todos">Todos os prazos</option>
                 <option value="hoje">Vencem Hoje</option>
@@ -1570,7 +1570,7 @@ const Tarefas = () => {
                 setFiltroPrioridade('todas');
                 setFiltroPrazo('todos');
               }}
-              className="text-xs font-semibold text-rose-600 hover:underline"
+              className="text-sm font-semibold text-rose-600 hover:underline"
             >
               Limpar filtros avançados
             </button>
@@ -1587,7 +1587,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => setFiltroPill('todos')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+            className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
               filtroPill === 'todos'
                 ? 'bg-[#0E382C] text-white shadow-xs'
                 : 'bg-white text-[#687770] border border-[#E4ECE7] hover:border-[#CCD9D2] hover:text-[#111915]'
@@ -1606,7 +1606,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => setFiltroPill('pendente')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+            className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
               filtroPill === 'pendente'
                 ? 'bg-[#0E382C] text-white shadow-xs'
                 : 'bg-white text-[#687770] border border-[#E4ECE7] hover:border-[#CCD9D2] hover:text-[#111915]'
@@ -1625,7 +1625,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => setFiltroPill('andamento')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+            className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
               filtroPill === 'andamento'
                 ? 'bg-[#0E382C] text-white shadow-xs'
                 : 'bg-white text-[#687770] border border-[#E4ECE7] hover:border-[#CCD9D2] hover:text-[#111915]'
@@ -1644,7 +1644,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => setFiltroPill('revisao')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+            className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
               filtroPill === 'revisao'
                 ? 'bg-[#0E382C] text-white shadow-xs'
                 : 'bg-white text-[#687770] border border-[#E4ECE7] hover:border-[#CCD9D2] hover:text-[#111915]'
@@ -1663,7 +1663,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => setFiltroPill('concluidas')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+            className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
               filtroPill === 'concluidas'
                 ? 'bg-[#0E382C] text-white shadow-xs'
                 : 'bg-white text-[#687770] border border-[#E4ECE7] hover:border-[#CCD9D2] hover:text-[#111915]'
@@ -1683,7 +1683,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => setFiltroPill('minhas')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+            className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
               filtroPill === 'minhas'
                 ? 'bg-[#0E382C] text-white shadow-xs'
                 : 'bg-white text-[#687770] border border-[#E4ECE7] hover:border-[#CCD9D2] hover:text-[#111915]'
@@ -1704,7 +1704,7 @@ const Tarefas = () => {
             <button
               type="button"
               onClick={() => setFiltroPill('atrasadas')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+              className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
                 filtroPill === 'atrasadas'
                   ? 'bg-rose-700 text-white shadow-xs'
                   : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
@@ -1732,7 +1732,7 @@ const Tarefas = () => {
               placeholder="Buscar tarefa ou tag..."
               value={busca}
               onChange={e => setBusca(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C] shadow-2xs"
+              className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-sm text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C] shadow-2xs"
             />
           </div>
 
@@ -1741,7 +1741,7 @@ const Tarefas = () => {
             <SelectField
               value={ordenacao}
               onChange={e => setOrdenacao(e.target.value)}
-              className="h-7 w-32 border-0 bg-transparent px-1.5 py-0 text-xs font-semibold shadow-none focus:ring-0"
+              className="h-7 w-32 border-0 bg-transparent px-1.5 py-0 text-sm font-semibold shadow-none focus:ring-0"
             >
               <option value="padrao">Padrão</option>
               <option value="prazo">Prazo</option>
@@ -1823,7 +1823,7 @@ const Tarefas = () => {
                   <th className="py-3.5 pr-5 text-right">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E4ECE7] text-xs">
+              <tbody className="divide-y divide-[#E4ECE7] text-sm">
                 {tarefasFiltradas.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="py-12 text-center text-[#687770]">
@@ -1932,7 +1932,7 @@ const Tarefas = () => {
                             >
                               {letraResp}
                             </div>
-                            <span className="text-xs text-[#111915] font-medium truncate max-w-[100px]">
+                            <span className="text-sm text-[#111915] font-medium truncate max-w-[100px]">
                               {nomeResp}
                             </span>
                           </div>
@@ -1986,7 +1986,7 @@ const Tarefas = () => {
                 <h2 className="text-base font-bold text-[#111915]">
                   {tarefaEditando ? 'Editar Tarefa' : 'Nova Tarefa'}
                 </h2>
-                <p className="text-xs text-[#687770]">Selecione a cor pastel e os detalhes da tarefa</p>
+                <p className="text-sm text-[#687770]">Selecione a cor pastel e os detalhes da tarefa</p>
               </div>
               <button
                 type="button"
@@ -2000,7 +2000,7 @@ const Tarefas = () => {
             <form onSubmit={handleSalvarTarefa} className="space-y-3.5">
               {/* Seletor de Tom Pastel */}
               <div>
-                <label className="block text-xs font-semibold text-[#111915] mb-1.5">
+                <label className="block text-sm font-semibold text-[#111915] mb-1.5">
                   Tom Pastel do Card
                 </label>
                 <div className="grid grid-cols-7 gap-2">
@@ -2026,13 +2026,13 @@ const Tarefas = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#111915] mb-1">Título da Tarefa *</label>
+                <label className="block text-sm font-semibold text-[#111915] mb-1">Título da Tarefa *</label>
                 <input
                   type="text"
                   placeholder="Ex: Pesquisa de Inspirações para Novos Projetos"
                   value={formTarefa.titulo}
                   onChange={e => setFormTarefa(f => ({ ...f, titulo: e.target.value }))}
-                  className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                  className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   required
                   autoFocus
                 />
@@ -2040,18 +2040,18 @@ const Tarefas = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#111915] mb-1">Projeto ou Categoria</label>
+                  <label className="block text-sm font-semibold text-[#111915] mb-1">Projeto ou Categoria</label>
                   <input
                     type="text"
                     placeholder="Ex: Website, Mobile App"
                     value={formTarefa.projeto}
                     onChange={e => setFormTarefa(f => ({ ...f, projeto: e.target.value }))}
-                    className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#111915] mb-1">Progresso (%)</label>
+                  <label className="block text-sm font-semibold text-[#111915] mb-1">Progresso (%)</label>
                   <input
                     type="number"
                     min="0"
@@ -2059,36 +2059,36 @@ const Tarefas = () => {
                     step="5"
                     value={formTarefa.progresso}
                     onChange={e => setFormTarefa(f => ({ ...f, progresso: Number(e.target.value) }))}
-                    className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#111915] mb-1">Nota Rápida (Subtítulo itálico)</label>
+                <label className="block text-sm font-semibold text-[#111915] mb-1">Nota Rápida (Subtítulo itálico)</label>
                 <input
                   type="text"
                   placeholder="Ex: Referência principal: Behance project Mise"
                   value={formTarefa.nota}
                   onChange={e => setFormTarefa(f => ({ ...f, nota: e.target.value }))}
-                  className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                  className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#111915] mb-1">Descrição Detalhada</label>
+                <label className="block text-sm font-semibold text-[#111915] mb-1">Descrição Detalhada</label>
                 <textarea
                   rows={2}
                   placeholder="Instruções ou escopo detalhado..."
                   value={formTarefa.descricao}
                   onChange={e => setFormTarefa(f => ({ ...f, descricao: e.target.value }))}
-                  className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                  className="w-full px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
                 />
               </div>
 
               {/* Gerenciador de Checklist no Modal */}
               <div className="space-y-2 pt-1 border-t border-neutral-100">
-                <label className="block text-xs font-semibold text-[#111915]">Itens do Checklist</label>
+                <label className="block text-sm font-semibold text-[#111915]">Itens do Checklist</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -2101,12 +2101,12 @@ const Tarefas = () => {
                         handleAdicionarItemChecklist(e);
                       }
                     }}
-                    className="flex-1 px-3 py-1.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none"
+                    className="flex-1 px-3 py-1.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={handleAdicionarItemChecklist}
-                    className="px-3 py-1.5 bg-[#0E382C] text-white rounded-xl text-xs font-bold hover:bg-[#07261E]"
+                    className="px-3 py-1.5 bg-[#0E382C] text-white rounded-xl text-sm font-bold hover:bg-[#07261E]"
                   >
                     +
                   </button>
@@ -2117,13 +2117,13 @@ const Tarefas = () => {
                     {formTarefa.checklist.map((item, idx) => (
                       <div
                         key={item.id || idx}
-                        className="flex items-center justify-between gap-2 px-3 py-1.5 bg-neutral-50 rounded-xl text-xs border border-neutral-100"
+                        className="flex items-center justify-between gap-2 px-3 py-1.5 bg-neutral-50 rounded-xl text-sm border border-neutral-100"
                       >
                         <span className="text-neutral-700 truncate">{item.texto}</span>
                         <button
                           type="button"
                           onClick={() => handleRemoverItemChecklist(item.id)}
-                          className="text-neutral-400 hover:text-rose-600 text-xs px-1"
+                          className="text-neutral-400 hover:text-rose-600 text-sm px-1"
                           title="Remover item"
                         >
                           ✕
@@ -2136,7 +2136,7 @@ const Tarefas = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#111915] mb-1">Coluna / Status</label>
+                  <label className="block text-sm font-semibold text-[#111915] mb-1">Coluna / Status</label>
                   <SelectField
                     value={formTarefa.status}
                     onChange={e => setFormTarefa(f => ({ ...f, status: e.target.value }))}
@@ -2149,7 +2149,7 @@ const Tarefas = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#111915] mb-1">Prioridade</label>
+                  <label className="block text-sm font-semibold text-[#111915] mb-1">Prioridade</label>
                   <SelectField
                     value={formTarefa.prioridade}
                     onChange={e => setFormTarefa(f => ({ ...f, prioridade: e.target.value }))}
@@ -2164,7 +2164,7 @@ const Tarefas = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#111915] mb-1">Data de Vencimento</label>
+                  <label className="block text-sm font-semibold text-[#111915] mb-1">Data de Vencimento</label>
                   <DatePicker
                     value={formTarefa.data_vencimento}
                     onChange={e => setFormTarefa(f => ({ ...f, data_vencimento: e.target.value }))}
@@ -2173,14 +2173,14 @@ const Tarefas = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#111915] mb-1">Estimativa (Horas)</label>
+                  <label className="block text-sm font-semibold text-[#111915] mb-1">Estimativa (Horas)</label>
                   <input
                     type="number"
                     step="0.5"
                     placeholder="Ex: 4"
                     value={formTarefa.estimativa_h}
                     onChange={e => setFormTarefa(f => ({ ...f, estimativa_h: e.target.value }))}
-                    className="w-full px-3 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full px-3 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   />
                 </div>
               </div>
@@ -2190,7 +2190,7 @@ const Tarefas = () => {
                   <button
                     type="button"
                     onClick={() => handleExcluirTarefa(tarefaEditando.id)}
-                    className="text-xs font-bold text-rose-600 hover:underline"
+                    className="text-sm font-bold text-rose-600 hover:underline"
                   >
                     Excluir
                   </button>
@@ -2199,13 +2199,13 @@ const Tarefas = () => {
                   <button
                     type="button"
                     onClick={() => setModalAberto(false)}
-                    className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl hover:text-[#111915]"
+                    className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-sm font-semibold rounded-xl hover:text-[#111915]"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#111915] hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs"
+                    className="px-4 py-2 bg-[#111915] hover:bg-black text-white text-sm font-bold rounded-xl shadow-xs"
                   >
                     Salvar Tarefa
                   </button>

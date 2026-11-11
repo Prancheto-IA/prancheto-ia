@@ -106,24 +106,24 @@ const ModalComponente = ({ aberto, componenteEditando, onFechar, onSalvar }) => 
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Nome *</label>
+            <label className="block text-muted text-sm font-medium mb-1">Nome *</label>
             <input type="text" value={form.nome} placeholder="Ex: API, Banco de dados, Chat"
               onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))} className={inputBase} />
           </div>
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Descrição</label>
+            <label className="block text-muted text-sm font-medium mb-1">Descrição</label>
             <input type="text" value={form.descricao} placeholder="Opcional"
               onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} className={inputBase} />
           </div>
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Status</label>
+            <label className="block text-muted text-sm font-medium mb-1">Status</label>
             <SelectField value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}>
               {Object.entries(STATUS_COMPONENTE).map(([k, v]) => (
                 <option key={k} value={k}>{v.emoji} {v.label}</option>
               ))}
             </SelectField>
           </div>
-          {erro && <p className="text-red-400 text-xs">{erro}</p>}
+          {erro && <p className="text-red-400 text-sm">{erro}</p>}
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
               className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">Cancelar</button>
@@ -178,18 +178,18 @@ const ModalIncidente = ({ aberto, componentes, onFechar, onSalvar }) => {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Título *</label>
+            <label className="block text-muted text-sm font-medium mb-1">Título *</label>
             <input type="text" value={form.titulo} placeholder="Ex: Lentidão na API"
               onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))} className={inputBase} />
           </div>
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Descrição</label>
+            <label className="block text-muted text-sm font-medium mb-1">Descrição</label>
             <textarea value={form.descricao} rows={3} placeholder="O que está acontecendo..."
               onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} className={`${inputBase} resize-none`} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-muted text-xs font-medium mb-1">Impacto</label>
+              <label className="block text-muted text-sm font-medium mb-1">Impacto</label>
               <SelectField value={form.impacto} onChange={(e) => setForm((f) => ({ ...f, impacto: e.target.value }))}>
                 {Object.entries(IMPACTO_INCIDENTE).map(([k, v]) => (
                   <option key={k} value={k}>{v.label}</option>
@@ -197,14 +197,14 @@ const ModalIncidente = ({ aberto, componentes, onFechar, onSalvar }) => {
               </SelectField>
             </div>
             <div>
-              <label className="block text-muted text-xs font-medium mb-1">Componente</label>
+              <label className="block text-muted text-sm font-medium mb-1">Componente</label>
               <SelectField value={form.componente_id} onChange={(e) => setForm((f) => ({ ...f, componente_id: e.target.value }))}>
                 <option value="">Geral</option>
                 {componentes.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
               </SelectField>
             </div>
           </div>
-          {erro && <p className="text-red-400 text-xs">{erro}</p>}
+          {erro && <p className="text-red-400 text-sm">{erro}</p>}
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
               className="flex-1 bg-surface border border-surface-border text-muted py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">Cancelar</button>
@@ -227,14 +227,14 @@ const LinhaComponente = ({ componente, podeEditar, onMudarStatus, onEditar, onEx
       <span className="text-lg">{s.emoji}</span>
       <div className="min-w-0 flex-1">
         <p className="text-white text-sm font-medium truncate">{componente.nome}</p>
-        {componente.descricao && <p className="text-muted text-xs truncate">{componente.descricao}</p>}
+        {componente.descricao && <p className="text-muted text-sm truncate">{componente.descricao}</p>}
       </div>
       {podeEditar ? (
         <div className="flex items-center gap-2 flex-shrink-0">
           <SelectField
             value={componente.status}
             onChange={(e) => onMudarStatus(componente.id, e.target.value)}
-            className="h-8 w-40 text-xs"
+            className="h-8 w-40 text-sm"
           >
             {Object.entries(STATUS_COMPONENTE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </SelectField>
@@ -242,7 +242,7 @@ const LinhaComponente = ({ componente, podeEditar, onMudarStatus, onEditar, onEx
           <button onClick={() => onExcluir(componente.id)} className="text-muted hover:text-red-400 text-sm" title="Excluir">🗑️</button>
         </div>
       ) : (
-        <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.cor + '22', color: s.cor }}>
+        <span className="text-sm px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.cor + '22', color: s.cor }}>
           {s.label}
         </span>
       )}
@@ -258,23 +258,23 @@ const CardIncidente = ({ incidente, componente, podeEditar, onResolver, onExclui
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: imp.cor + '22', color: imp.cor }}>
+            <span className="text-sm px-2 py-0.5 rounded-full" style={{ backgroundColor: imp.cor + '22', color: imp.cor }}>
               {imp.label}
             </span>
             {incidente.resolvido
-              ? <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Resolvido</span>
-              : <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">Ativo</span>}
-            {componente && <span className="text-muted text-xs">• {componente.nome}</span>}
+              ? <span className="text-sm px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Resolvido</span>
+              : <span className="text-sm px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">Ativo</span>}
+            {componente && <span className="text-muted text-sm">• {componente.nome}</span>}
           </div>
           <p className="text-white text-sm font-medium mt-2">{incidente.titulo}</p>
-          {incidente.descricao && <p className="text-muted text-xs mt-1">{incidente.descricao}</p>}
-          <p className="text-muted text-xs mt-2">📅 {formatarDataHora(incidente.criado_em)}</p>
+          {incidente.descricao && <p className="text-muted text-sm mt-1">{incidente.descricao}</p>}
+          <p className="text-muted text-sm mt-2">📅 {formatarDataHora(incidente.criado_em)}</p>
         </div>
         {podeEditar && (
           <div className="flex items-center gap-2 flex-shrink-0">
             {!incidente.resolvido && (
               <button onClick={() => onResolver(incidente.id)}
-                className="text-emerald-400 hover:text-emerald-300 text-xs whitespace-nowrap" title="Marcar como resolvido">
+                className="text-emerald-400 hover:text-emerald-300 text-sm whitespace-nowrap" title="Marcar como resolvido">
                 ✓ Resolver
               </button>
             )}

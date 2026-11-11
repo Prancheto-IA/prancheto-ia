@@ -17,7 +17,7 @@ const Spinner = () => (
 const BadgeTipo = ({ tipo }) => {
   const t = TIPOS_CAMPO.find(t => t.key === tipo) || TIPOS_CAMPO[0];
   return (
-    <span className="text-xs px-2 py-0.5 rounded-full border badge-neutro">
+    <span className="text-sm px-2 py-0.5 rounded-full border badge-neutro">
       {t.label}
     </span>
   );
@@ -130,7 +130,7 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Label (exibição) */}
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
               Label (exibição) *
             </label>
             <input type="text" value={form.label} onChange={handleLabelChange}
@@ -141,21 +141,21 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
 
           {/* Nome (slug interno) */}
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
               Nome interno (slug) *
             </label>
             <input type="text" value={form.nome} onChange={set('nome')}
               placeholder="Ex: valor_proposta"
               className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500 font-mono"
               style={inputStyle} />
-            <p className="text-xs mt-1 text-muted">
+            <p className="text-sm mt-1 text-muted">
               Usado como variável: {'{{'}{form.nome || 'nome_do_campo'}{'}}'} 
             </p>
           </div>
 
           {/* Tipo */}
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Tipo</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Tipo</label>
             <SelectField value={form.tipo} onChange={set('tipo')}>
               {TIPOS_CAMPO.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
             </SelectField>
@@ -164,7 +164,7 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
           {/* Opções (para select/multiselect) */}
           {precisaOpcoes && (
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
                 Opções (uma por linha) *
               </label>
               <textarea value={form.opcoes} onChange={set('opcoes')} rows={4}
@@ -176,7 +176,7 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
 
           {/* Time (escopo) */}
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
               Escopo (time)
             </label>
             <SelectField value={form.time_id} onChange={set('time_id')}>
@@ -185,7 +185,7 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
                 <option key={t.id} value={t.id}>{t.icone} {t.nome}</option>
               ))}
             </SelectField>
-            <p className="text-xs mt-1 text-muted">
+            <p className="text-sm mt-1 text-muted">
               Campos de times diferentes com o mesmo nome coexistem com namespace próprio.
             </p>
           </div>
@@ -197,7 +197,7 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
             <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>Campo obrigatório</span>
           </label>
 
-          {erro && <p className="text-red-400 text-xs">{erro}</p>}
+          {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
@@ -228,22 +228,22 @@ const CardCampo = ({ campo, onEditar, onExcluir }) => (
         <p className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>{campo.label}</p>
         <BadgeTipo tipo={campo.tipo} />
         {campo.obrigatorio && (
-          <span className="text-xs text-red-400">* obrigatório</span>
+          <span className="text-sm text-red-400">* obrigatório</span>
         )}
       </div>
-      <p className="text-xs font-mono mt-0.5 text-muted">
+      <p className="text-sm font-mono mt-0.5 text-muted">
         {'{{'}{campo.nome}{'}}'}
       </p>
       <div className="flex items-center gap-2 mt-1 flex-wrap">
         {campo.time ? (
-          <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             {campo.time.icone} {campo.time.nome}
           </span>
         ) : (
-          <span className="text-xs text-muted">🌐 Global</span>
+          <span className="text-sm text-muted">🌐 Global</span>
         )}
         {campo.opcoes?.length > 0 && (
-          <span className="text-xs text-muted">
+          <span className="text-sm text-muted">
             {campo.opcoes.length} opções
           </span>
         )}
@@ -310,16 +310,16 @@ const PaginaCamposCustomizados = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-            🧩 Campos Customizados
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink-primary">
+            Campos Customizados
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-sm text-ink-secondary font-medium mt-0.5">
             {campos.length} campos ativos · Molde a estrutura de dados sem código
           </p>
         </div>
         <button
           onClick={() => { setCampoEditando(null); setModalAberto(true); }}
-          className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+          className="bg-brand-primary hover:bg-brand-primary-hover text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-xs flex items-center gap-1.5">
           + Novo Campo
         </button>
       </div>
@@ -331,8 +331,7 @@ const PaginaCamposCustomizados = () => {
           value={busca}
           onChange={e => setBusca(e.target.value)}
           placeholder="Buscar campo..."
-          className="flex-1 min-w-48 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-          style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
+          className="flex-1 min-w-48 rounded-xl px-3.5 py-2 text-sm bg-surface-card border border-surface-border text-ink-primary placeholder-slate-400 focus:outline-none focus:border-brand-primary shadow-2xs"
         />
         <SelectField
           value={filtroTime}
@@ -362,7 +361,7 @@ const PaginaCamposCustomizados = () => {
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-2"
             style={{ color: 'var(--color-text-secondary)' }}>
             🌐 Campos Globais
-            <span className="text-xs px-2 py-0.5 rounded-full"
+            <span className="text-sm px-2 py-0.5 rounded-full"
               style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}>
               {camposGlobais.length}
             </span>
@@ -381,7 +380,7 @@ const PaginaCamposCustomizados = () => {
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-2"
             style={{ color: 'var(--color-text-secondary)' }}>
             {time.icone} {time.nome}
-            <span className="text-xs px-2 py-0.5 rounded-full"
+            <span className="text-sm px-2 py-0.5 rounded-full"
               style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}>
               {lista.length}
             </span>

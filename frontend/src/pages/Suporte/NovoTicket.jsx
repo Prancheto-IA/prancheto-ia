@@ -69,7 +69,7 @@ const NovoTicket = () => {
         className="bg-surface-card border border-surface-border rounded-xl p-6 space-y-4"
       >
         <div>
-          <label className="block text-muted text-xs font-medium mb-1">Assunto *</label>
+          <label className="block text-muted text-sm font-medium mb-1">Assunto *</label>
           <input
             type="text"
             value={form.assunto}
@@ -81,7 +81,7 @@ const NovoTicket = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Categoria</label>
+            <label className="block text-muted text-sm font-medium mb-1">Categoria</label>
             <SelectField value={form.categoria} onChange={set('categoria')}>
               {Object.entries(CATEGORIA_TICKET).map(([k, v]) => (
                 <option key={k} value={k}>{v.emoji} {v.label}</option>
@@ -89,7 +89,7 @@ const NovoTicket = () => {
             </SelectField>
           </div>
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Prioridade</label>
+            <label className="block text-muted text-sm font-medium mb-1">Prioridade</label>
             <SelectField value={form.prioridade} onChange={set('prioridade')}>
               {Object.entries(PRIORIDADE_TICKET).map(([k, v]) => (
                 <option key={k} value={k}>{v.label}</option>
@@ -99,7 +99,7 @@ const NovoTicket = () => {
         </div>
 
         <div>
-          <label className="block text-muted text-xs font-medium mb-1">Descrição</label>
+          <label className="block text-muted text-sm font-medium mb-1">Descrição</label>
           <textarea
             value={form.descricao}
             onChange={set('descricao')}
@@ -109,7 +109,7 @@ const NovoTicket = () => {
           />
         </div>
 
-        {erro && <p className="text-red-400 text-xs">{erro}</p>}
+        {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
         <div className="flex gap-3 pt-1">
           <button

@@ -102,7 +102,7 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
 
         {criado ? (
           <div className="p-6 space-y-4">
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
               <p className="font-bold mb-1">Usuário cadastrado com sucesso!</p>
               <p>Copie e repasse as credenciais abaixo ao colaborador. A senha só é exibida agora.</p>
             </div>
@@ -124,14 +124,14 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
               <button
                 type="button"
                 onClick={copiarCredenciais}
-                className="flex-1 py-2.5 rounded-xl text-xs font-bold border border-[#E4ECE7] hover:bg-[#F7FAF8] text-[#111915] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-[#E4ECE7] hover:bg-[#F7FAF8] text-[#111915] transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>{copiado ? '✓ Copiado!' : 'Copiar dados'}</span>
               </button>
               <button
                 type="button"
                 onClick={onFechar}
-                className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors shadow-xs cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors shadow-xs cursor-pointer"
               >
                 Concluído
               </button>
@@ -140,49 +140,49 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {erro && (
-              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
+              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
                 {erro}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-[#687770] mb-1.5">Nome Completo *</label>
+              <label className="block text-sm font-semibold text-[#687770] mb-1.5">Nome Completo *</label>
               <input
                 type="text"
                 required
                 value={form.nome}
                 onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))}
                 placeholder="Ex: Ana Silva"
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#687770] mb-1.5">E-mail Corporativo *</label>
+              <label className="block text-sm font-semibold text-[#687770] mb-1.5">E-mail Corporativo *</label>
               <input
                 type="email"
                 required
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 placeholder="ana@suaempresa.com"
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#687770] mb-1.5">Senha Temporária *</label>
+              <label className="block text-sm font-semibold text-[#687770] mb-1.5">Senha Temporária *</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   required
                   value={form.senha}
                   onChange={(e) => setForm((f) => ({ ...f, senha: e.target.value }))}
-                  className="flex-1 bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+                  className="flex-1 bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, senha: gerarSenhaAleatoria() }))}
-                  className="px-3 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-white text-[#687770] text-xs font-semibold cursor-pointer transition-colors"
+                  className="px-3 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-white text-[#687770] text-sm font-semibold cursor-pointer transition-colors"
                   title="Gerar outra senha"
                 >
                   Gerar
@@ -194,7 +194,7 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#687770] mb-1.5">Cargo Inicial</label>
+              <label className="block text-sm font-semibold text-[#687770] mb-1.5">Cargo Inicial</label>
               <SelectField
                 value={form.cargoId}
                 onChange={(e) => setForm((f) => ({ ...f, cargoId: e.target.value }))}
@@ -212,14 +212,14 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
               <button
                 type="button"
                 onClick={onFechar}
-                className="flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold border border-[#E4ECE7] text-[#687770] hover:bg-slate-50 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold border border-[#E4ECE7] text-[#687770] hover:bg-slate-50 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={salvando}
-                className="flex-1 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
               >
                 {salvando ? 'Criando usuário...' : 'Criar Usuário'}
               </button>
@@ -273,7 +273,7 @@ const CardUsuario = ({ usuario, souEu, podeGerenciar, cargosDisponiveis, ocupado
                   </span>
                 )}
               </div>
-              <p className="text-xs text-[#687770] truncate mt-0.5">{usuario.email}</p>
+              <p className="text-sm text-[#687770] truncate mt-0.5">{usuario.email}</p>
             </div>
           </div>
 
@@ -302,7 +302,7 @@ const CardUsuario = ({ usuario, souEu, podeGerenciar, cargosDisponiveis, ocupado
               value={usuario.cargo_id || ''}
               disabled={estaOcupado || !usuario.ativo}
               onChange={(e) => onMudarCargo(usuario, e.target.value ? e.target.value : null)}
-              className="h-9 text-xs"
+              className="h-9 text-sm"
             >
               <option value="">Sem cargo atribuído</option>
               {cargosDisponiveis.map((c) => (
@@ -312,7 +312,7 @@ const CardUsuario = ({ usuario, souEu, podeGerenciar, cargosDisponiveis, ocupado
               ))}
             </SelectField>
           ) : (
-            <div className="px-3 py-2 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-xs font-semibold text-[#111915]">
+            <div className="px-3 py-2 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-sm font-semibold text-[#111915]">
               {usuario.cargo_org?.nome || 'Sem cargo atribuído'}
             </div>
           )}
@@ -329,7 +329,7 @@ const CardUsuario = ({ usuario, souEu, podeGerenciar, cargosDisponiveis, ocupado
           <button
             onClick={() => onToggleAtivo(usuario)}
             disabled={estaOcupado}
-            className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50 ${
+            className={`text-sm font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50 ${
               usuario.ativo
                 ? 'text-red-600 hover:bg-red-50'
                 : 'text-emerald-700 hover:bg-emerald-50'
@@ -467,7 +467,7 @@ const Usuarios = () => {
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
             Usuários da Organização
           </h1>
-          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
+          <p className="text-sm text-[#687770] mt-0.5">
             Gerencie os colaboradores da organização, atribua cargos e controle os acessos à plataforma.
           </p>
         </div>
@@ -475,7 +475,7 @@ const Usuarios = () => {
         {podeGerenciarGeral && (
           <button
             onClick={() => setModalAberto(true)}
-            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer self-start sm:self-auto"
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer self-start sm:self-auto"
           >
             <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.2} />
             <span>Novo usuário</span>
@@ -484,7 +484,7 @@ const Usuarios = () => {
       </div>
 
       {erro && (
-        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm flex items-center justify-between">
           <span>{erro}</span>
           <button onClick={() => setErro('')} className="text-red-500 hover:text-red-700">✕</button>
         </div>
@@ -495,7 +495,7 @@ const Usuarios = () => {
         <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-2xl font-extrabold text-[#111915]">{usuarios.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Total de Colaboradores</p>
+            <p className="text-sm font-semibold text-[#687770] mt-0.5">Total de Colaboradores</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center">
             <HugeiconsIcon icon={UserGroupIcon} size={20} strokeWidth={1.8} />
@@ -505,7 +505,7 @@ const Usuarios = () => {
         <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-2xl font-extrabold text-[#111915]">{ativosCount}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Usuários Ativos</p>
+            <p className="text-sm font-semibold text-[#687770] mt-0.5">Usuários Ativos</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
             <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} strokeWidth={1.8} />
@@ -515,7 +515,7 @@ const Usuarios = () => {
         <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-2xl font-extrabold text-[#111915]">{inativosCount}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Usuários Inativos</p>
+            <p className="text-sm font-semibold text-[#687770] mt-0.5">Usuários Inativos</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
             <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={1.8} />
@@ -532,7 +532,7 @@ const Usuarios = () => {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por nome ou e-mail..."
-            className="w-full pl-9 pr-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+            className="w-full pl-9 pr-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
           />
         </div>
 
@@ -540,7 +540,7 @@ const Usuarios = () => {
           <SelectField
             value={filtroCargo}
             onChange={(e) => setFiltroCargo(e.target.value)}
-            className="flex-1 md:w-44 text-xs font-semibold"
+            className="flex-1 md:w-44 text-sm font-semibold"
           >
             <option value="todos">Todos os cargos</option>
             <option value="sem_cargo">Sem cargo</option>
@@ -552,7 +552,7 @@ const Usuarios = () => {
           <SelectField
             value={filtroStatus}
             onChange={(e) => setFiltroStatus(e.target.value)}
-            className="flex-1 md:w-44 text-xs font-semibold"
+            className="flex-1 md:w-44 text-sm font-semibold"
           >
             <option value="todos">Todos os status</option>
             <option value="ativos">Somente Ativos</option>
@@ -570,7 +570,7 @@ const Usuarios = () => {
           <h3 className="font-bold text-sm text-[#111915] mb-1">
             Nenhum usuário encontrado
           </h3>
-          <p className="text-xs text-[#687770]">
+          <p className="text-sm text-[#687770]">
             Tente ajustar os termos de pesquisa ou filtros selecionados.
           </p>
         </div>

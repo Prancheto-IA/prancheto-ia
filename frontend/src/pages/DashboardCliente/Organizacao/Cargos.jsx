@@ -102,7 +102,7 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
                   </span>
                 )}
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0E382C]">
+              <span className="text-sm font-bold uppercase tracking-wider text-[#0E382C]">
                 {grupo}
               </span>
             </button>
@@ -117,7 +117,7 @@ const EditorPermissoes = ({ permissoesSelecionadas, onChange, desabilitado }) =>
                     type="button"
                     onClick={() => toggle(perm.slug)}
                     disabled={desabilitado}
-                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-left border transition-all disabled:cursor-not-allowed cursor-pointer ${
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm text-left border transition-all disabled:cursor-not-allowed cursor-pointer ${
                       marcado
                         ? 'bg-white border-[#0E382C] text-[#0E382C] font-semibold shadow-2xs'
                         : 'bg-transparent border-transparent text-[#687770] hover:bg-white hover:border-[#E4ECE7]'
@@ -206,7 +206,7 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
             <h2 className="font-bold text-base text-[#111915]">
               {cargoEditando ? `Editar Cargo: ${cargoEditando.nome}` : 'Novo Cargo'}
             </h2>
-            <p className="text-xs text-[#687770]">
+            <p className="text-sm text-[#687770]">
               {ehSistema
                 ? 'Cargo de sistema: permissões e descrição podem ser alteradas.'
                 : 'Defina o nome, nível hierárquico e permissões concedidas.'}
@@ -219,7 +219,7 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {erro && (
-            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
+            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
               {erro}
             </div>
           )}
@@ -227,7 +227,7 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Nome */}
             <div>
-              <label className="block text-xs font-semibold text-[#687770] mb-1.5">
+              <label className="block text-sm font-semibold text-[#687770] mb-1.5">
                 Nome do Cargo *
               </label>
               <input
@@ -236,13 +236,13 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
                 value={form.nome}
                 onChange={(e) => setForm(f => ({ ...f, nome: e.target.value }))}
                 placeholder="Ex: Supervisor de Vendas"
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-60"
+                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-60"
               />
             </div>
 
             {/* Nível */}
             <div>
-              <label className="block text-xs font-semibold text-[#687770] mb-1.5">
+              <label className="block text-sm font-semibold text-[#687770] mb-1.5">
                 Nível Hierárquico (0 a {nivelMaximoPermitido})
               </label>
               <input
@@ -252,14 +252,14 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
                 disabled={ehSistema}
                 value={form.nivel}
                 onChange={(e) => setForm(f => ({ ...f, nivel: parseInt(e.target.value, 10) || 0 }))}
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-60"
+                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-60"
               />
             </div>
           </div>
 
           {/* Descrição */}
           <div>
-            <label className="block text-xs font-semibold text-[#687770] mb-1.5">
+            <label className="block text-sm font-semibold text-[#687770] mb-1.5">
               Descrição do Cargo
             </label>
             <input
@@ -267,13 +267,13 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
               value={form.descricao}
               onChange={(e) => setForm(f => ({ ...f, descricao: e.target.value }))}
               placeholder="Breve descrição da função e escopo de atuação"
-              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
             />
           </div>
 
           {/* Editor de Permissões */}
           <div>
-            <label className="block text-xs font-semibold text-[#687770] mb-2">
+            <label className="block text-sm font-semibold text-[#687770] mb-2">
               Permissões de Acesso ({form.permissoes.length} selecionadas)
             </label>
             <div className="max-h-72 overflow-y-auto pr-1">
@@ -289,14 +289,14 @@ const ModalCargo = ({ aberto, onFechar, onSalvar, cargoEditando, meuNivel, souDo
             <button
               type="button"
               onClick={onFechar}
-              className="flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold border border-[#E4ECE7] text-[#687770] hover:bg-slate-50 transition-colors"
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold border border-[#E4ECE7] text-[#687770] hover:bg-slate-50 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={salvando}
-              className="flex-1 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors disabled:opacity-50 shadow-xs"
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-colors disabled:opacity-50 shadow-xs"
             >
               {salvando ? 'Salvando...' : cargoEditando ? 'Salvar Alterações' : 'Criar Cargo'}
             </button>
@@ -374,7 +374,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
 
         {/* Descrição */}
         {cargo.descricao && (
-          <p className="text-xs text-[#687770] mt-2.5 line-clamp-2">
+          <p className="text-sm text-[#687770] mt-2.5 line-clamp-2">
             {cargo.descricao}
           </p>
         )}
@@ -387,7 +387,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
 
           <button
             onClick={() => setExpandido(v => !v)}
-            className="text-xs font-semibold text-[#0E382C] hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-sm font-semibold text-[#0E382C] hover:underline flex items-center gap-1 cursor-pointer"
           >
             <span>{expandido ? 'Ocultar' : 'Ver permissões'}</span>
             <HugeiconsIcon
@@ -404,7 +404,7 @@ const CardCargo = ({ cargo, onEditar, onExcluir, excluindo }) => {
       {expandido && (
         <div className="mt-3 pt-3 border-t border-[#E4ECE7] space-y-2 max-h-56 overflow-y-auto pr-1">
           {permissoes.length === 0 ? (
-            <p className="text-center py-2 text-xs text-[#687770]">
+            <p className="text-center py-2 text-sm text-[#687770]">
               Nenhuma permissão atribuída.
             </p>
           ) : (
@@ -516,7 +516,7 @@ const Cargos = () => {
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
             Cargos e Permissões
           </h1>
-          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
+          <p className="text-sm text-[#687770] mt-0.5">
             Defina os cargos da organização e configure os acessos e limites de cada função.
           </p>
         </div>
@@ -524,7 +524,7 @@ const Cargos = () => {
         <PermissaoGuarda permissao="cargos.gerenciar">
           <button
             onClick={abrirCriar}
-            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer self-start sm:self-auto"
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer self-start sm:self-auto"
           >
             <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.2} />
             <span>Novo cargo</span>
@@ -534,7 +534,7 @@ const Cargos = () => {
 
       {/* Erro global */}
       {erro && (
-        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm flex items-center justify-between">
           <span>{erro}</span>
           <button onClick={() => setErro('')} className="text-red-500 hover:text-red-700">✕</button>
         </div>
@@ -545,7 +545,7 @@ const Cargos = () => {
         <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-2xl font-extrabold text-[#111915]">{cargos.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Total de Cargos</p>
+            <p className="text-sm font-semibold text-[#687770] mt-0.5">Total de Cargos</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center">
             <HugeiconsIcon icon={Shield01Icon} size={20} strokeWidth={1.8} />
@@ -555,7 +555,7 @@ const Cargos = () => {
         <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-2xl font-extrabold text-[#111915]">{cargosSistema.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Cargos de Sistema</p>
+            <p className="text-sm font-semibold text-[#687770] mt-0.5">Cargos de Sistema</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center">
             <HugeiconsIcon icon={LockIcon} size={20} strokeWidth={1.8} />
@@ -565,7 +565,7 @@ const Cargos = () => {
         <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-2xl font-extrabold text-[#111915]">{cargosCustom.length}</p>
-            <p className="text-xs font-semibold text-[#687770] mt-0.5">Cargos Customizados</p>
+            <p className="text-sm font-semibold text-[#687770] mt-0.5">Cargos Customizados</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
             <HugeiconsIcon icon={SparklesIcon} size={20} strokeWidth={1.8} />
@@ -578,7 +578,7 @@ const Cargos = () => {
         <div className="w-8 h-8 rounded-xl bg-[#EDF2EE] text-[#0E382C] flex items-center justify-center flex-shrink-0 mt-0.5">
           <HugeiconsIcon icon={InformationCircleIcon} size={18} strokeWidth={1.8} />
         </div>
-        <p className="text-xs text-[#687770] leading-relaxed">
+        <p className="text-sm text-[#687770] leading-relaxed">
           Cargos marcados como <strong className="text-[#0E382C]">Sistema</strong> são pré-configurados pela plataforma e não podem ser excluídos ou renomeados, mas suas permissões internas podem ser customizadas. Cargos marcados como <strong className="text-emerald-800">Padrão</strong> são automaticamente atribuídos aos novos usuários convidados.
         </p>
       </div>
@@ -586,7 +586,7 @@ const Cargos = () => {
       {/* Seção: Cargos de Sistema */}
       {cargosSistema.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#687770]">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-[#687770]">
             Cargos de Sistema ({cargosSistema.length})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
@@ -606,7 +606,7 @@ const Cargos = () => {
       {/* Seção: Cargos Customizados */}
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#687770]">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-[#687770]">
             Cargos Customizados ({cargosCustom.length})
           </h2>
         </div>
@@ -619,13 +619,13 @@ const Cargos = () => {
             <h3 className="font-bold text-sm text-[#111915] mb-1">
               Nenhum cargo customizado criado
             </h3>
-            <p className="text-xs text-[#687770] max-w-sm mb-4">
+            <p className="text-sm text-[#687770] max-w-sm mb-4">
               Crie cargos sob medida com permissões granulares para a sua estrutura corporativa.
             </p>
             <PermissaoGuarda permissao="cargos.gerenciar">
               <button
                 onClick={abrirCriar}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer"
+                className="px-4 py-2 rounded-xl text-sm font-bold bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] transition-all shadow-xs cursor-pointer"
               >
                 + Criar primeiro cargo
               </button>

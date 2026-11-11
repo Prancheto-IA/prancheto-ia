@@ -414,7 +414,7 @@ const LeadDetalhe = () => {
       <div className="flex-1 flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-semibold text-[#687770]">Carregando detalhes do lead...</p>
+          <p className="text-sm font-semibold text-[#687770]">Carregando detalhes do lead...</p>
         </div>
       </div>
     );
@@ -447,7 +447,7 @@ const LeadDetalhe = () => {
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => navigate('/crm/leads')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687770] hover:text-[#0E382C] transition-colors group"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-[#687770] hover:text-[#0E382C] transition-colors group"
         >
           <div className="w-7 h-7 rounded-full border border-[#E4ECE7] bg-white group-hover:border-[#0E382C] group-hover:bg-[#F7FAF8] flex items-center justify-center transition-all shadow-sm">
             <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2} />
@@ -457,7 +457,7 @@ const LeadDetalhe = () => {
 
         <button
           onClick={() => setModalEditar(true)}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0E382C] bg-white border border-[#E4ECE7] hover:bg-[#F7FAF8] hover:border-[#CCD9D2] px-3.5 py-1.5 rounded-xl transition-all shadow-sm"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0E382C] bg-white border border-[#E4ECE7] hover:bg-[#F7FAF8] hover:border-[#CCD9D2] px-3.5 py-1.5 rounded-xl transition-all shadow-sm"
         >
           <HugeiconsIcon icon={Edit02Icon} size={14} strokeWidth={2} className="text-[#0E382C]" />
           <span>Editar Informações</span>
@@ -480,7 +480,7 @@ const LeadDetalhe = () => {
               <h1 className="text-xl sm:text-2xl font-bold text-[#111915] tracking-tight">
                 {deal.nome || 'Lead Sem Nome'}
               </h1>
-              <div className="flex items-center gap-4 mt-1 flex-wrap text-xs text-[#687770]">
+              <div className="flex items-center gap-4 mt-1 flex-wrap text-sm text-[#687770]">
                 {/* Localização */}
                 <span className="flex items-center gap-1.5">
                   <HugeiconsIcon icon={Location01Icon} size={14} strokeWidth={1.8} className="text-[#99A6A0]" />
@@ -501,7 +501,7 @@ const LeadDetalhe = () => {
             <a
               href={`mailto:${deal.email || ''}`}
               title="Enviar e-mail"
-              className="w-9 h-9 rounded-full border border-[#E4ECE7] bg-white hover:border-[#0E382C] hover:bg-[#F7FAF8] text-[#687770] hover:text-[#0E382C] flex items-center justify-center transition-all shadow-sm"
+              className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-primary hover:bg-surface-subtle text-ink-secondary hover:text-brand-primary flex items-center justify-center transition-all shadow-2xs"
             >
               <HugeiconsIcon icon={Mail01Icon} size={16} strokeWidth={1.8} />
             </a>
@@ -510,7 +510,7 @@ const LeadDetalhe = () => {
             <a
               href={`tel:${deal.telefone || deal.whatsapp || ''}`}
               title="Ligar"
-              className="w-9 h-9 rounded-full border border-[#E4ECE7] bg-white hover:border-[#0E382C] hover:bg-[#F7FAF8] text-[#687770] hover:text-[#0E382C] flex items-center justify-center transition-all shadow-sm"
+              className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-primary hover:bg-surface-subtle text-ink-secondary hover:text-brand-primary flex items-center justify-center transition-all shadow-2xs"
             >
               <HugeiconsIcon icon={Call02Icon} size={16} strokeWidth={1.8} />
             </a>
@@ -521,7 +521,7 @@ const LeadDetalhe = () => {
               target="_blank"
               rel="noopener noreferrer"
               title="Abrir WhatsApp"
-              className="w-9 h-9 rounded-full border border-[#E4ECE7] bg-white hover:border-emerald-600 hover:bg-emerald-50 text-[#687770] hover:text-emerald-700 flex items-center justify-center transition-all shadow-sm"
+              className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-secondary hover:bg-brand-accent/40 text-ink-secondary hover:text-brand-secondary flex items-center justify-center transition-all shadow-2xs"
             >
               <HugeiconsIcon icon={WhatsappIcon} size={16} strokeWidth={1.8} />
             </a>
@@ -530,9 +530,9 @@ const LeadDetalhe = () => {
             <button
               onClick={() => dispararCopilot('proxima_acao')}
               title="Copiloto IA: Sugestão Estratégica"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#D4EC9D] bg-[#F7FAF8] hover:bg-[#EBF5EC] text-[#0E382C] text-xs font-semibold transition-all shadow-sm ml-1"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-brand-accent bg-surface-subtle hover:bg-brand-accent text-brand-primary text-sm font-semibold transition-all shadow-2xs ml-1"
             >
-              <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} className="text-[#0E382C]" />
+              <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} className="text-brand-primary" />
               <span>Copiloto IA</span>
             </button>
           </div>
@@ -540,7 +540,7 @@ const LeadDetalhe = () => {
 
         {/* Linha Inferior: Faixa de Metadados Horizontal Clean */}
         <div className="pt-4 overflow-x-auto no-scrollbar">
-          <div className="flex items-center min-w-max divide-x divide-[#E4ECE7] text-xs">
+          <div className="flex items-center min-w-max divide-x divide-[#E4ECE7] text-sm">
             {/* Cargo */}
             <div className="pr-4 sm:pr-5 flex flex-col">
               <span className="text-[10px] font-semibold text-[#687770] uppercase tracking-wider mb-0.5">Cargo</span>
@@ -618,8 +618,8 @@ const LeadDetalhe = () => {
               : 'polygon(0% 0%, calc(100% - 14px) 0%, 100% 50%, calc(100% - 14px) 100%, 0% 100%, 14px 50%)',
             borderRadius: idx === 0 ? '8px 0 0 8px' : idx === ETAPAS_PIPELINE.length - 1 ? '0 8px 8px 0' : '0',
             filter: isAtual
-              ? 'drop-shadow(0 2px 5px rgba(14, 56, 44, 0.28))'
-              : 'drop-shadow(0 1px 3px rgba(14, 56, 44, 0.08))',
+              ? 'drop-shadow(0 2px 5px rgba(0, 23, 105, 0.25))'
+              : 'drop-shadow(0 1px 3px rgba(0, 23, 105, 0.06))',
           };
 
           return (
@@ -627,12 +627,12 @@ const LeadDetalhe = () => {
               key={etapa.key}
               type="button"
               onClick={() => handleMudarEtapa(etapa.key)}
-              className={`flex-1 min-w-[130px] h-11 px-4 flex items-center justify-center transition-all duration-150 select-none text-xs font-semibold
+              className={`flex-1 min-w-[130px] h-11 px-4 flex items-center justify-center transition-all duration-150 select-none text-sm font-semibold
                 ${isAtual
-                  ? 'bg-[#0E382C] text-white'
+                  ? 'bg-brand-primary text-white'
                   : isPassado
-                  ? 'bg-[#D2EBD7] text-[#0A4D34] hover:bg-[#C0E2C7]'
-                  : 'bg-[#D8E2DC] text-[#24362D] hover:bg-[#CBD7D0] hover:text-[#0E382C]'
+                  ? 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover'
+                  : 'bg-surface-hover text-ink-secondary hover:bg-surface-muted hover:text-brand-primary'
                 }
               `}
               style={clipStyle}
@@ -644,7 +644,7 @@ const LeadDetalhe = () => {
                     icon={CheckmarkCircle02Icon}
                     size={14}
                     strokeWidth={2.5}
-                    className={`flex-shrink-0 ${isAtual ? 'text-[#D4EC9D]' : 'text-[#0A4D34]'}`}
+                    className={`flex-shrink-0 ${isAtual ? 'text-brand-accent' : 'text-brand-secondary'}`}
                   />
                 )}
                 <span className="truncate">{etapa.titulo}</span>
@@ -661,14 +661,14 @@ const LeadDetalhe = () => {
         {/* COLUNA ESQUERDA: FEED DE ATIVIDADES E ABAS (~67% de largura) */}
         <div className="lg:col-span-2 space-y-4">
           {/* Barra de Abas e Botão Rápido de Adição */}
-          <div className="bg-white rounded-2xl border border-[#E4ECE7] p-4 shadow-sm flex items-center justify-between flex-wrap gap-3">
+          <div className="bg-surface-card rounded-2xl border border-surface-border p-4 shadow-2xs flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-1 sm:gap-2">
               <button
                 onClick={() => setAbaAtiva('timeline')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 ${
                   abaAtiva === 'timeline'
-                    ? 'bg-[#0E382C] text-white shadow-sm'
-                    : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle'
                 }`}
               >
                 <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} />
@@ -677,42 +677,42 @@ const LeadDetalhe = () => {
 
               <button
                 onClick={() => setAbaAtiva('notas')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 ${
                   abaAtiva === 'notas'
-                    ? 'bg-[#0E382C] text-white shadow-sm'
-                    : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle'
                 }`}
               >
                 <span>Notas</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${abaAtiva === 'notas' ? 'bg-[#D4EC9D] text-[#0E382C]' : 'bg-[#EBF0ED] text-[#687770]'}`}>
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${abaAtiva === 'notas' ? 'bg-brand-accent text-brand-primary' : 'bg-surface-muted text-ink-secondary'}`}>
                   {contagemNotas}
                 </span>
               </button>
 
               <button
                 onClick={() => setAbaAtiva('tarefas')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 ${
                   abaAtiva === 'tarefas'
-                    ? 'bg-[#0E382C] text-white shadow-sm'
-                    : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle'
                 }`}
               >
                 <span>Tarefas</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${abaAtiva === 'tarefas' ? 'bg-[#D4EC9D] text-[#0E382C]' : 'bg-[#EBF0ED] text-[#687770]'}`}>
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${abaAtiva === 'tarefas' ? 'bg-brand-accent text-brand-primary' : 'bg-surface-muted text-ink-secondary'}`}>
                   {contagemTarefas}
                 </span>
               </button>
 
               <button
                 onClick={() => setAbaAtiva('reunioes')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 ${
                   abaAtiva === 'reunioes'
-                    ? 'bg-[#0E382C] text-white shadow-sm'
-                    : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle'
                 }`}
               >
                 <span>Reuniões</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${abaAtiva === 'reunioes' ? 'bg-[#D4EC9D] text-[#0E382C]' : 'bg-[#EBF0ED] text-[#687770]'}`}>
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${abaAtiva === 'reunioes' ? 'bg-brand-accent text-brand-primary' : 'bg-surface-muted text-ink-secondary'}`}>
                   {contagemReunioes}
                 </span>
               </button>
@@ -722,19 +722,19 @@ const LeadDetalhe = () => {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setCriandoTipo(criandoTipo === 'reuniao' ? null : 'reuniao')}
-                className="px-2.5 py-1.5 rounded-lg border border-[#E4ECE7] text-xs font-semibold text-[#0E382C] hover:bg-[#F7FAF8] transition-colors"
+                className="px-3 py-1.5 rounded-xl border border-surface-border text-sm font-semibold text-brand-primary hover:bg-surface-subtle transition-colors"
               >
                 + Reunião
               </button>
               <button
                 onClick={() => setCriandoTipo(criandoTipo === 'tarefa' ? null : 'tarefa')}
-                className="px-2.5 py-1.5 rounded-lg border border-[#E4ECE7] text-xs font-semibold text-[#0E382C] hover:bg-[#F7FAF8] transition-colors"
+                className="px-3 py-1.5 rounded-xl border border-surface-border text-sm font-semibold text-brand-primary hover:bg-surface-subtle transition-colors"
               >
                 + Tarefa
               </button>
               <button
                 onClick={() => setCriandoTipo(criandoTipo === 'nota' ? null : 'nota')}
-                className="px-2.5 py-1.5 rounded-lg bg-[#0E382C] text-white text-xs font-semibold hover:bg-[#07261E] transition-colors shadow-sm"
+                className="px-3 py-1.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-hover transition-colors shadow-2xs"
               >
                 + Nota
               </button>
@@ -745,7 +745,7 @@ const LeadDetalhe = () => {
           {criandoTipo && (
             <div className="bg-white rounded-2xl border-2 border-[#0E382C] p-4 shadow-md transition-all">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-[#0E382C] uppercase tracking-wider">
+                <span className="text-sm font-bold text-[#0E382C] uppercase tracking-wider">
                   {criandoTipo === 'reuniao' && 'Nova Reunião'}
                   {criandoTipo === 'tarefa' && 'Nova Tarefa'}
                   {criandoTipo === 'nota' && 'Nova Nota Rápida'}
@@ -753,7 +753,7 @@ const LeadDetalhe = () => {
                 <button
                   type="button"
                   onClick={() => setCriandoTipo(null)}
-                  className="text-xs text-[#687770] hover:text-[#111915]"
+                  className="text-sm text-[#687770] hover:text-[#111915]"
                 >
                   ✕ Cancelar
                 </button>
@@ -771,7 +771,7 @@ const LeadDetalhe = () => {
                   }
                   value={novoTitulo}
                   onChange={(e) => setNovoTitulo(e.target.value)}
-                  className="w-full text-xs font-semibold text-[#111915] border border-[#E4ECE7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0E382C]"
+                  className="w-full text-sm font-semibold text-[#111915] border border-[#E4ECE7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0E382C]"
                   autoFocus
                 />
 
@@ -780,7 +780,7 @@ const LeadDetalhe = () => {
                   placeholder="Detalhes ou anotações adicionais..."
                   value={novoTexto}
                   onChange={(e) => setNovoTexto(e.target.value)}
-                  className="w-full text-xs text-[#111915] border border-[#E4ECE7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0E382C]"
+                  className="w-full text-sm text-[#111915] border border-[#E4ECE7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0E382C]"
                 />
 
                 <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
@@ -790,13 +790,13 @@ const LeadDetalhe = () => {
                         value={novoPrazo}
                         onChange={(e) => setNovoPrazo(e.target.value)}
                         placeholder="Prazo"
-                        className="h-8 w-44 text-xs"
+                        className="h-8 w-44 text-sm"
                       />
                     )}
                     <SelectField
                       value={novaPrioridade}
                       onChange={(e) => setNovaPrioridade(e.target.value)}
-                      className="h-8 w-44 text-xs"
+                      className="h-8 w-44 text-sm"
                     >
                       <option value="Baixa">Prioridade: Baixa</option>
                       <option value="Média">Prioridade: Média</option>
@@ -807,7 +807,7 @@ const LeadDetalhe = () => {
                   <button
                     type="submit"
                     disabled={salvandoAtividade}
-                    className="px-4 py-1.5 rounded-xl bg-[#0E382C] text-white text-xs font-semibold hover:bg-[#07261E] shadow-sm disabled:opacity-50"
+                    className="px-4 py-1.5 rounded-xl bg-[#0E382C] text-white text-sm font-semibold hover:bg-[#07261E] shadow-sm disabled:opacity-50"
                   >
                     {salvandoAtividade ? 'Salvando...' : 'Salvar Registro'}
                   </button>
@@ -819,7 +819,7 @@ const LeadDetalhe = () => {
           {/* Lista de Atividades em Accordion (Estilo Idêntico ao Screenshot) */}
           <div className="space-y-4">
             {atividadesFiltradas.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-[#E4ECE7] p-8 text-center text-xs text-[#687770]">
+              <div className="bg-white rounded-2xl border border-[#E4ECE7] p-8 text-center text-sm text-[#687770]">
                 Nenhuma atividade registrada nesta aba. Clique nos botões acima para adicionar.
               </div>
             ) : (
@@ -829,16 +829,16 @@ const LeadDetalhe = () => {
                 const isTarefa = act.tipo === 'tarefa';
 
                 // Cores sutis de fundo do cabeçalho
-                const headerBg = isReuniao ? 'bg-[#F4F8FA]' : isNota ? 'bg-[#F2F7F4]' : 'bg-[#FAF8F2]';
+                const headerBg = isReuniao ? 'bg-surface-subtle' : isNota ? 'bg-[#F5F2FC]' : 'bg-[#FAF8F2]';
 
                 return (
                   <div
                     key={act.id}
-                    className="bg-white rounded-2xl border border-[#E4ECE7] overflow-hidden shadow-sm hover:border-[#CCD9D2] transition-all"
+                    className="bg-surface-card rounded-2xl border border-surface-border overflow-hidden shadow-2xs hover:border-surface-border-strong transition-all"
                   >
                     {/* Cabeçalho do Card (Accordion Bar) */}
                     <div
-                      className={`px-4 sm:px-5 py-3 ${headerBg} border-b border-[#E4ECE7] flex items-center justify-between cursor-pointer select-none`}
+                      className={`px-4 sm:px-5 py-3 ${headerBg} border-b border-surface-border flex items-center justify-between cursor-pointer select-none`}
                       onClick={() => toggleExpandido(act.id)}
                     >
                       <div className="flex items-center gap-3">
@@ -847,18 +847,18 @@ const LeadDetalhe = () => {
                           icon={ArrowDown01Icon}
                           size={14}
                           strokeWidth={2}
-                          className={`text-[#687770] transition-transform duration-200 ${
+                          className={`text-ink-secondary transition-transform duration-200 ${
                             act.expandido ? 'rotate-180' : ''
                           }`}
                         />
 
                         {/* Ícone do Tipo */}
-                        <div className="w-6 h-6 rounded-lg bg-white border border-[#E4ECE7] flex items-center justify-center text-[#0E382C] shadow-2xs">
+                        <div className="w-6 h-6 rounded-lg bg-surface-card border border-surface-border flex items-center justify-center text-brand-primary shadow-2xs">
                           {isReuniao && (
-                            <HugeiconsIcon icon={Calendar03Icon} size={14} strokeWidth={2} className="text-blue-700" />
+                            <HugeiconsIcon icon={Calendar03Icon} size={14} strokeWidth={2} className="text-brand-secondary" />
                           )}
                           {isNota && (
-                            <HugeiconsIcon icon={Note01Icon} size={14} strokeWidth={2} className="text-emerald-700" />
+                            <HugeiconsIcon icon={Note01Icon} size={14} strokeWidth={2} className="text-brand-purple" />
                           )}
                           {isTarefa && (
                             <HugeiconsIcon icon={Task01Icon} size={14} strokeWidth={2} className="text-amber-700" />
@@ -867,7 +867,7 @@ const LeadDetalhe = () => {
 
                         {/* Rótulo e Autor */}
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-[#111915]">
+                          <span className="text-sm font-semibold text-[#111915]">
                             {isReuniao && `Reunião registrada por ${act.autor}`}
                             {isNota && `Nota criada por ${act.autor}`}
                             {isTarefa && `Tarefa delegada por ${act.autor}`}
@@ -898,13 +898,13 @@ const LeadDetalhe = () => {
                           <h3 className="text-sm font-bold text-[#111915] mb-1">
                             {act.titulo}
                           </h3>
-                          <p className="text-xs text-[#687770] leading-relaxed">
+                          <p className="text-sm text-[#687770] leading-relaxed">
                             {act.descricao}
                           </p>
                         </div>
 
                         {/* Linha de Metadados: Local, Prioridade, Responsável */}
-                        <div className="flex items-center gap-4 flex-wrap text-xs text-[#687770] pt-1">
+                        <div className="flex items-center gap-4 flex-wrap text-sm text-[#687770] pt-1">
                           {act.local && (
                             <span className="flex items-center gap-1.5">
                               <span className="text-[#99A6A0]">Local:</span>
@@ -938,7 +938,7 @@ const LeadDetalhe = () => {
 
                         {/* Rodapé: Prazo de Vencimento e Botão de Conclusão */}
                         <div className="flex items-center justify-between pt-3 border-t border-[#E4ECE7] flex-wrap gap-2">
-                          <div className="flex items-center gap-1.5 text-xs text-[#687770]">
+                          <div className="flex items-center gap-1.5 text-sm text-[#687770]">
                             <HugeiconsIcon icon={Calendar03Icon} size={14} strokeWidth={2} className="text-[#99A6A0]" />
                             <span>
                               {act.prazo
@@ -949,7 +949,7 @@ const LeadDetalhe = () => {
 
                           <button
                             onClick={() => toggleConcluida(act.id)}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-sm font-semibold transition-all ${
                               act.concluida
                                 ? 'bg-[#EBF5EC] text-[#0E382C] border border-[#D4EC9D]'
                                 : 'bg-white border border-[#0E382C] text-[#0E382C] hover:bg-[#F7FAF8]'
@@ -972,7 +972,7 @@ const LeadDetalhe = () => {
         <div className="space-y-4">
           {/* Card 1: Resumo do Negócio & Probabilidade */}
           <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-sm">
-            <h2 className="text-xs font-bold text-[#111915] uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-bold text-[#111915] uppercase tracking-wider mb-3">
               Métricas do Negócio
             </h2>
 
@@ -985,7 +985,7 @@ const LeadDetalhe = () => {
               </div>
 
               <div>
-                <div className="flex items-center justify-between text-xs mb-1">
+                <div className="flex items-center justify-between text-sm mb-1">
                   <span className="text-[#687770]">Probabilidade de Sucesso</span>
                   <span className="font-bold text-[#0E382C]">{deal.score || etapaAtual?.probabilidadePadrao || 70}%</span>
                 </div>
@@ -998,7 +998,7 @@ const LeadDetalhe = () => {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[#E4ECE7] flex items-center justify-between text-xs">
+              <div className="pt-2 border-t border-[#E4ECE7] flex items-center justify-between text-sm">
                 <span className="text-[#687770]">Previsão de Fechamento</span>
                 <span className="font-semibold text-[#111915]">
                   {deal.previsao_fechamento ? formatarData(deal.previsao_fechamento) : 'Definir data'}
@@ -1010,7 +1010,7 @@ const LeadDetalhe = () => {
           {/* Card 2: Negócios Recentes (Estilo Idêntico ao Screenshot) */}
           <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-bold text-[#111915] uppercase tracking-wider">
+              <h2 className="text-sm font-bold text-[#111915] uppercase tracking-wider">
                 Negócios Relacionados
               </h2>
               <span className="text-[10px] text-[#687770] font-medium">Conta</span>
@@ -1020,14 +1020,14 @@ const LeadDetalhe = () => {
             <div className="p-3.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:border-[#0E382C] hover:bg-white transition-all group cursor-pointer">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-white border border-[#E4ECE7] flex items-center justify-center text-xs font-bold text-[#0E382C]">
+                  <div className="w-6 h-6 rounded-full bg-white border border-[#E4ECE7] flex items-center justify-center text-sm font-bold text-[#0E382C]">
                     $
                   </div>
-                  <span className="text-xs font-bold text-[#111915]">Expansão de Licenças</span>
+                  <span className="text-sm font-bold text-[#111915]">Expansão de Licenças</span>
                 </div>
                 <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} className="text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" />
               </div>
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-[#0E382C]">R$ 5.600</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">
                   Proposta
@@ -1040,14 +1040,14 @@ const LeadDetalhe = () => {
             <div className="p-3.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:border-[#0E382C] hover:bg-white transition-all group cursor-pointer">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-white border border-[#E4ECE7] flex items-center justify-center text-xs font-bold text-[#0E382C]">
+                  <div className="w-6 h-6 rounded-full bg-white border border-[#E4ECE7] flex items-center justify-center text-sm font-bold text-[#0E382C]">
                     $
                   </div>
-                  <span className="text-xs font-bold text-[#111915]">Suporte e Onboarding</span>
+                  <span className="text-sm font-bold text-[#111915]">Suporte e Onboarding</span>
                 </div>
                 <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} className="text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" />
               </div>
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-[#0E382C]">R$ 1.200</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
                   Fechamento
@@ -1063,18 +1063,18 @@ const LeadDetalhe = () => {
               <div className="w-6 h-6 rounded-full bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center">
                 <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} />
               </div>
-              <h2 className="text-xs font-bold text-[#0E382C] uppercase tracking-wider">
+              <h2 className="text-sm font-bold text-[#0E382C] uppercase tracking-wider">
                 Copiloto IA
               </h2>
             </div>
 
-            <p className="text-xs text-[#111915] leading-relaxed">
+            <p className="text-sm text-[#111915] leading-relaxed">
               O lead está na etapa de <strong>{etapaAtual?.titulo}</strong>. Recomendamos alinhamento imediato via WhatsApp para validação de escopo.
             </p>
 
             <button
               onClick={() => dispararCopilot('mensagem_whatsapp')}
-              className="w-full py-2 px-3 rounded-xl bg-white border border-[#0E382C] text-[#0E382C] hover:bg-[#0E382C] hover:text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+              className="w-full py-2 px-3 rounded-xl bg-white border border-[#0E382C] text-[#0E382C] hover:bg-[#0E382C] hover:text-white text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
             >
               <HugeiconsIcon icon={Copy01Icon} size={14} strokeWidth={2} />
               <span>Copiar Mensagem WhatsApp</span>
@@ -1107,7 +1107,7 @@ const LeadDetalhe = () => {
                     type="text"
                     value={formEdicao.nome || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, nome: e.target.value }))}
-                    className="w-full text-xs border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
                     required
                   />
                 </div>
@@ -1118,7 +1118,7 @@ const LeadDetalhe = () => {
                     type="text"
                     value={formEdicao.cargo || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, cargo: e.target.value }))}
-                    className="w-full text-xs border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   />
                 </div>
 
@@ -1128,7 +1128,7 @@ const LeadDetalhe = () => {
                     type="text"
                     value={formEdicao.empresa || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, empresa: e.target.value }))}
-                    className="w-full text-xs border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   />
                 </div>
 
@@ -1138,7 +1138,7 @@ const LeadDetalhe = () => {
                     type="number"
                     value={formEdicao.valor_estimado || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, valor_estimado: e.target.value }))}
-                    className="w-full text-xs border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   />
                 </div>
 
@@ -1148,7 +1148,7 @@ const LeadDetalhe = () => {
                     type="email"
                     value={formEdicao.email || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full text-xs border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   />
                 </div>
 
@@ -1158,7 +1158,7 @@ const LeadDetalhe = () => {
                     type="text"
                     value={formEdicao.telefone || formEdicao.whatsapp || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, telefone: e.target.value, whatsapp: e.target.value }))}
-                    className="w-full text-xs border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   />
                 </div>
               </div>
@@ -1169,7 +1169,7 @@ const LeadDetalhe = () => {
                   rows={3}
                   value={formEdicao.observacoes || ''}
                   onChange={(e) => setFormEdicao(prev => ({ ...prev, observacoes: e.target.value }))}
-                  className="w-full text-xs border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                  className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
                 />
               </div>
 
@@ -1177,14 +1177,14 @@ const LeadDetalhe = () => {
                 <button
                   type="button"
                   onClick={() => setModalEditar(false)}
-                  className="px-4 py-2 text-xs font-semibold text-[#687770] hover:text-[#111915]"
+                  className="px-4 py-2 text-sm font-semibold text-[#687770] hover:text-[#111915]"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={salvando}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0E382C] hover:bg-[#07261E] rounded-xl shadow-sm transition-all"
+                  className="px-5 py-2 text-sm font-bold text-white bg-[#0E382C] hover:bg-[#07261E] rounded-xl shadow-sm transition-all"
                 >
                   {salvando ? 'Salvando...' : 'Salvar Alterações'}
                 </button>
@@ -1220,7 +1220,7 @@ const LeadDetalhe = () => {
 
             <div className="space-y-2 bg-[#F7FAF8] p-4 rounded-xl border border-[#E4ECE7]">
               {copilotInsight.itens?.map((item, idx) => (
-                <p key={idx} className="text-xs text-[#111915] leading-relaxed">
+                <p key={idx} className="text-sm text-[#111915] leading-relaxed">
                   {item}
                 </p>
               ))}
@@ -1229,7 +1229,7 @@ const LeadDetalhe = () => {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setCopilotInsight(null)}
-                className="px-4 py-2 rounded-xl bg-[#0E382C] text-white text-xs font-semibold hover:bg-[#07261E]"
+                className="px-4 py-2 rounded-xl bg-[#0E382C] text-white text-sm font-semibold hover:bg-[#07261E]"
               >
                 Entendido
               </button>

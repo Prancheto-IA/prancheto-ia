@@ -82,7 +82,7 @@ const TelaCarregando = () => (
   <div className="flex items-center justify-center min-h-screen bg-[#F2F5F3]">
     <div className="flex flex-col items-center gap-3">
       <div className="w-9 h-9 border-3 border-[#E4ECE7] border-t-[#0E382C] rounded-full animate-spin" />
-      <p className="text-xs font-medium text-[#687770] tracking-wide">Carregando...</p>
+      <p className="text-sm font-medium text-[#687770] tracking-wide">Carregando...</p>
     </div>
   </div>
 );
@@ -120,7 +120,7 @@ const App = () => {
             <p className="text-[#687770] text-sm mb-6">
               Ocorreu um erro inesperado. Nossa equipe foi notificada automaticamente.
             </p>
-            <p className="text-[#687770] text-xs font-mono mb-6 bg-[#F7FAF8] border border-[#E4ECE7] p-2.5 rounded-xl">
+            <p className="text-[#687770] text-sm font-mono mb-6 bg-[#F7FAF8] border border-[#E4ECE7] p-2.5 rounded-xl">
               {error?.message || 'Erro desconhecido'}
             </p>
             <button

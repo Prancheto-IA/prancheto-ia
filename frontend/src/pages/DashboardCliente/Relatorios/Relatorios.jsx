@@ -51,7 +51,7 @@ const ModalInsightsIA = ({ aberto, onFechar, dados }) => {
             </div>
             <div>
               <h2 className="text-base font-extrabold text-[#111915]">Insights de Inteligência Artificial</h2>
-              <p className="text-xs text-[#687770]">Diagnóstico automatizado da sua operação em tempo real</p>
+              <p className="text-sm text-[#687770]">Diagnóstico automatizado da sua operação em tempo real</p>
             </div>
           </div>
           <button onClick={onFechar} className="text-slate-400 hover:text-slate-600 p-1 text-sm font-bold">
@@ -61,11 +61,11 @@ const ModalInsightsIA = ({ aberto, onFechar, dados }) => {
 
         <div className="space-y-3.5 overflow-y-auto pr-1">
           <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#15803D]">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#15803D]">
               <span className="w-2 h-2 rounded-full bg-[#15803D]" />
               Eficiência no Pipeline
             </div>
-            <p className="text-xs text-[#111915] leading-relaxed">
+            <p className="text-sm text-[#111915] leading-relaxed">
               Você possui <strong>{dados.totalLeads} leads ativos</strong> e uma taxa de conversão estimada em{' '}
               <strong>{dados.taxaConversao}%</strong>. O canal mais produtivo atualmente é{' '}
               <span className="capitalize font-semibold text-[#0E382C]">{dados.topCanal || 'Direto'}</span>.
@@ -73,22 +73,22 @@ const ModalInsightsIA = ({ aberto, onFechar, dados }) => {
           </div>
 
           <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-700">
+            <div className="flex items-center gap-2 text-sm font-bold text-amber-700">
               <span className="w-2 h-2 rounded-full bg-amber-500" />
               Oportunidade Imediata
             </div>
-            <p className="text-xs text-[#111915] leading-relaxed">
+            <p className="text-sm text-[#111915] leading-relaxed">
               Existem <strong>{dados.leadsQuentes} leads com alta pontuação (quentes)</strong> aguardando contato prioritário.
               Acelerar o envio de propostas para este grupo pode elevar a receita em até 22%.
             </p>
           </div>
 
           <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#0E382C]">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#0E382C]">
               <span className="w-2 h-2 rounded-full bg-[#0E382C]" />
               Recomendação de Outbound
             </div>
-            <p className="text-xs text-[#111915] leading-relaxed">
+            <p className="text-sm text-[#111915] leading-relaxed">
               Com <strong>{dados.totalAcoes} ações de prospecção</strong> registradas, manter cadências ativas nos canais de maior conversão garantirá estabilidade no fluxo de novos negócios.
             </p>
           </div>
@@ -99,7 +99,7 @@ const ModalInsightsIA = ({ aberto, onFechar, dados }) => {
           <button
             type="button"
             onClick={onFechar}
-            className="px-4 py-2 bg-[#0E382C] text-white text-xs font-semibold rounded-xl hover:bg-[#07261E] transition-all shadow-xs"
+            className="px-4 py-2 bg-[#0E382C] text-white text-sm font-semibold rounded-xl hover:bg-[#07261E] transition-all shadow-xs"
           >
             Entendido
           </button>
@@ -324,7 +324,7 @@ const Relatorios = () => {
           <h1 className="text-xl sm:text-2xl font-extrabold text-[#111915] tracking-tight">
             Relatórios
           </h1>
-          <p className="text-xs sm:text-sm text-[#687770] font-medium mt-0.5">
+          <p className="text-sm text-[#687770] font-medium mt-0.5">
             Métricas e indicadores do seu negócio em tempo real.
           </p>
         </div>
@@ -333,7 +333,7 @@ const Relatorios = () => {
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={carregar}
-            className="px-4 py-2 bg-white hover:bg-[#F7FAF8] text-[#111915] border border-[#E4ECE7] text-xs font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2"
+            className="px-4 py-2 bg-white hover:bg-[#F7FAF8] text-[#111915] border border-[#E4ECE7] text-sm font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2"
             title="Recarregar dados"
           >
             <HugeiconsIcon icon={ArrowReloadHorizontalIcon} size={15} strokeWidth={2} className="text-[#0E382C]" />
@@ -342,7 +342,7 @@ const Relatorios = () => {
 
           <button
             onClick={exportarCSV}
-            className="px-4 py-2 bg-white hover:bg-[#F7FAF8] text-[#111915] border border-[#E4ECE7] text-xs font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2"
+            className="px-4 py-2 bg-white hover:bg-[#F7FAF8] text-[#111915] border border-[#E4ECE7] text-sm font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2"
             title="Exportar planilha CSV"
           >
             <HugeiconsIcon icon={Download01Icon} size={15} strokeWidth={2} className="text-[#687770]" />
@@ -351,7 +351,7 @@ const Relatorios = () => {
 
           <button
             onClick={() => setModalIA(true)}
-            className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-2"
+            className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white text-sm font-semibold rounded-xl shadow-xs transition-all flex items-center gap-2"
           >
             <HugeiconsIcon icon={AiSparklesIcon} size={15} strokeWidth={2} className="text-[#D4EC9D]" />
             <span>Insights com IA</span>
@@ -360,7 +360,7 @@ const Relatorios = () => {
       </div>
 
       {erro && (
-        <div className="bg-rose-50 border border-rose-200 rounded-xl p-3.5 text-xs font-semibold text-rose-700">
+        <div className="bg-rose-50 border border-rose-200 rounded-xl p-3.5 text-sm font-semibold text-rose-700">
           {erro}
         </div>
       )}
@@ -383,7 +383,7 @@ const Relatorios = () => {
             <p className="text-2xl sm:text-3xl font-extrabold text-[#111915] tracking-tight">
               {dados?.totalLeads ?? 0}
             </p>
-            <p className="text-xs font-semibold text-[#687770] mt-1">
+            <p className="text-sm font-semibold text-[#687770] mt-1">
               Total de leads
             </p>
           </div>
@@ -403,7 +403,7 @@ const Relatorios = () => {
             <p className="text-2xl sm:text-3xl font-extrabold text-[#15803D] tracking-tight">
               {dados?.totalClientes ?? 0}
             </p>
-            <p className="text-xs font-semibold text-[#687770] mt-1">
+            <p className="text-sm font-semibold text-[#687770] mt-1">
               Clientes ativos
             </p>
           </div>
@@ -423,7 +423,7 @@ const Relatorios = () => {
             <p className="text-2xl sm:text-3xl font-extrabold text-[#111915] tracking-tight">
               {dados?.fechados ?? 0}
             </p>
-            <p className="text-xs font-semibold text-[#687770] mt-1">
+            <p className="text-sm font-semibold text-[#687770] mt-1">
               Negócios fechados
             </p>
           </div>
@@ -443,7 +443,7 @@ const Relatorios = () => {
             <p className="text-xl sm:text-2xl font-extrabold text-[#111915] tracking-tight truncate">
               R$ {fmt(dados?.valorFechado || 0)}
             </p>
-            <p className="text-xs font-semibold text-[#687770] mt-1">
+            <p className="text-sm font-semibold text-[#687770] mt-1">
               Receita fechada
             </p>
           </div>
@@ -463,7 +463,7 @@ const Relatorios = () => {
             <p className="text-2xl sm:text-3xl font-extrabold text-[#111915] tracking-tight">
               {dados?.taxaConversao || 0}%
             </p>
-            <p className="text-xs font-semibold text-[#687770] mt-1">
+            <p className="text-sm font-semibold text-[#687770] mt-1">
               Taxa de conversão
             </p>
           </div>
@@ -483,7 +483,7 @@ const Relatorios = () => {
             <p className="text-xl sm:text-2xl font-extrabold text-[#0E382C] tracking-tight truncate">
               R$ {fmt(dados?.ltvMedio || 0)}
             </p>
-            <p className="text-xs font-semibold text-[#687770] mt-1">
+            <p className="text-sm font-semibold text-[#687770] mt-1">
               LTV médio (clientes)
             </p>
           </div>
@@ -503,7 +503,7 @@ const Relatorios = () => {
             <p className="text-2xl sm:text-3xl font-extrabold text-rose-600 tracking-tight">
               {dados?.leadsQuentes ?? 0}
             </p>
-            <p className="text-xs font-semibold text-[#687770] mt-1">
+            <p className="text-sm font-semibold text-[#687770] mt-1">
               Leads quentes
             </p>
           </div>
@@ -523,7 +523,7 @@ const Relatorios = () => {
             <p className="text-2xl sm:text-3xl font-extrabold text-sky-700 tracking-tight">
               {dados?.leadsFrios ?? 0}
             </p>
-            <p className="text-xs font-semibold text-[#687770] mt-1">
+            <p className="text-sm font-semibold text-[#687770] mt-1">
               Leads frios
             </p>
           </div>
@@ -552,7 +552,7 @@ const Relatorios = () => {
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-bold text-[#687770] bg-[#F7FAF8] border border-[#E4ECE7] px-2.5 py-1 rounded-xl">
+              <span className="text-sm font-bold text-[#687770] bg-[#F7FAF8] border border-[#E4ECE7] px-2.5 py-1 rounded-xl">
                 {totalFunil} {totalFunil === 1 ? 'oportunidade' : 'oportunidades'}
               </span>
             </div>
@@ -563,7 +563,7 @@ const Relatorios = () => {
                 const pct = totalFunil > 0 ? Math.round((etapa.qtd / totalFunil) * 100) : 0;
                 return (
                   <div key={etapa.key} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-bold text-[#111915]">
+                    <div className="flex items-center justify-between text-sm font-bold text-[#111915]">
                       <span className="flex items-center gap-2">
                         <span className={`w-2 h-2 rounded-full ${etapa.cor}`} />
                         <span>{etapa.titulo}</span>
@@ -588,7 +588,7 @@ const Relatorios = () => {
             {/* Destaque do Pipeline Ativo */}
             <div className="pt-2 border-t border-[#E4ECE7]">
               <div className="p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] flex items-center justify-between">
-                <span className="text-xs font-bold text-[#111915]">
+                <span className="text-sm font-bold text-[#111915]">
                   Pipeline ativo:
                 </span>
                 <span className="text-sm font-extrabold text-[#15803D]">
@@ -614,19 +614,19 @@ const Relatorios = () => {
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-bold text-[#0E382C]">
+              <span className="text-sm font-bold text-[#0E382C]">
                 {dados?.totalContatos || 0} contatos
               </span>
             </div>
 
             {/* Tabela de Fontes */}
             {(dados?.origensLista || []).length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#687770] bg-[#F7FAF8] rounded-xl border border-dashed border-[#E4ECE7]">
+              <div className="py-8 text-center text-sm text-[#687770] bg-[#F7FAF8] rounded-xl border border-dashed border-[#E4ECE7]">
                 Nenhum contato com fonte cadastrada ainda.
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-[#E4ECE7] text-[11px] font-bold text-[#687770]">
                       <th className="pb-2.5 font-bold">Fonte</th>
@@ -770,7 +770,7 @@ const Relatorios = () => {
 
             {/* Lista dos 5 Indicadores Operacionais com ícones padronizados */}
             <div className="space-y-2.5 pt-1">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-xs font-semibold text-[#111915]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-sm font-semibold text-[#111915]">
                 <span className="flex items-center gap-2.5">
                   <HugeiconsIcon icon={Mail01Icon} size={15} className="text-[#687770]" />
                   <span>Total de ações outbound</span>
@@ -780,7 +780,7 @@ const Relatorios = () => {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-xs font-semibold text-[#111915]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-sm font-semibold text-[#111915]">
                 <span className="flex items-center gap-2.5">
                   <HugeiconsIcon icon={HourglassIcon} size={15} className="text-amber-600" />
                   <span>Ações pendentes</span>
@@ -792,7 +792,7 @@ const Relatorios = () => {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-xs font-semibold text-[#111915]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-sm font-semibold text-[#111915]">
                 <span className="flex items-center gap-2.5">
                   <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} className="text-[#15803D]" />
                   <span>Ações concluídas</span>
@@ -804,7 +804,7 @@ const Relatorios = () => {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-xs font-semibold text-[#111915]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-sm font-semibold text-[#111915]">
                 <span className="flex items-center gap-2.5">
                   <HugeiconsIcon icon={Calendar03Icon} size={15} className="text-blue-600" />
                   <span>Eventos na agenda</span>
@@ -814,7 +814,7 @@ const Relatorios = () => {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-xs font-semibold text-[#111915]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-sm font-semibold text-[#111915]">
                 <span className="flex items-center gap-2.5">
                   <HugeiconsIcon icon={Time02Icon} size={15} className="text-[#0E382C]" />
                   <span>Eventos hoje</span>

@@ -52,7 +52,7 @@ const WidgetLeadsQuentes = () => {
           <div className="w-5 h-5 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : leads.length === 0 ? (
-        <p className="text-xs text-[#687770] text-center py-6">Nenhum lead com score ≥ 70 no momento.</p>
+        <p className="text-sm text-[#687770] text-center py-6">Nenhum lead com score ≥ 70 no momento.</p>
       ) : (
         <div className="space-y-2">
           {leads.map((l) => (
@@ -62,7 +62,7 @@ const WidgetLeadsQuentes = () => {
               className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-white hover:shadow-xs transition-all cursor-pointer"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-[#111915] truncate">{l.nome}</p>
+                <p className="text-sm font-bold text-[#111915] truncate">{l.nome}</p>
                 {l.empresa && <p className="text-[11px] text-[#687770] truncate">{l.empresa}</p>}
               </div>
               <div className="text-right flex-shrink-0 flex items-center gap-2">
@@ -70,7 +70,7 @@ const WidgetLeadsQuentes = () => {
                   Score {l.score}
                 </span>
                 {l.valor_estimado ? (
-                  <span className="text-xs font-bold text-[#111915]">{formatarMoeda(l.valor_estimado)}</span>
+                  <span className="text-sm font-bold text-[#111915]">{formatarMoeda(l.valor_estimado)}</span>
                 ) : null}
               </div>
             </div>

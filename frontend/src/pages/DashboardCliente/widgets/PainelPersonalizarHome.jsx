@@ -90,7 +90,7 @@ const ItemSortableWidget = ({ item, onToggle }) => {
       </span>
 
       <div className="flex-1 min-w-0">
-        <p className="text-xs sm:text-sm font-bold text-[#111915] truncate">
+        <p className="text-sm font-bold text-[#111915] truncate">
           {item.label}
         </p>
         <p className="text-[11px] text-[#687770] truncate">
@@ -101,7 +101,7 @@ const ItemSortableWidget = ({ item, onToggle }) => {
       <button
         type="button"
         onClick={() => onToggle(item.slug)}
-        className={`flex-shrink-0 text-xs px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
+        className={`flex-shrink-0 text-sm px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
           item.visivel
             ? 'text-red-600 hover:bg-red-50'
             : 'text-[#15803D] hover:bg-[#DCF5E4]'
@@ -170,7 +170,7 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
             <h2 className="text-base font-bold text-[#111915]">
               Personalizar Início
             </h2>
-            <p className="text-xs text-[#687770]">
+            <p className="text-sm text-[#687770]">
               Arraste para organizar seus blocos
             </p>
           </div>
@@ -186,7 +186,7 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
         {/* Lista de Widgets Sortable */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#687770]">
+            <p className="text-sm font-bold uppercase tracking-wider text-[#687770]">
               Widgets Ativos ({visiveis} de {itensExibidos.length})
             </p>
           </div>
@@ -215,7 +215,7 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
           {/* Seção Em Breve */}
           {CATALOGO_EM_BREVE && CATALOGO_EM_BREVE.length > 0 && (
             <div className="pt-4 mt-3 border-t border-[#E4ECE7] space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-[#687770] mb-2 flex items-center gap-1.5">
+              <p className="text-sm font-bold uppercase tracking-wider text-[#687770] mb-2 flex items-center gap-1.5">
                 <HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={2} />
                 Em Breve
               </p>
@@ -228,7 +228,7 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
                     {getWidgetIcon(item.slug)}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-semibold text-[#111915] truncate">
+                    <p className="text-sm font-semibold text-[#111915] truncate">
                       {item.label}
                     </p>
                     <p className="text-[11px] text-[#687770] truncate">
@@ -247,7 +247,7 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
         {/* Rodapé com Ações */}
         <div className="p-4 border-t border-[#E4ECE7] space-y-2 bg-[#F7FAF8] shrink-0">
           {salvando && (
-            <p className="text-xs text-center text-emerald-700 font-medium animate-pulse flex items-center justify-center gap-1.5">
+            <p className="text-sm text-center text-emerald-700 font-medium animate-pulse flex items-center justify-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-ping" />
               Salvando preferências...
             </p>
@@ -256,7 +256,7 @@ const PainelPersonalizarHome = ({ aberto, onFechar, prefs }) => {
           <button
             type="button"
             onClick={handleResetar}
-            className="w-full text-xs py-2 text-[#687770] hover:text-[#111915] font-semibold text-center cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
+            className="w-full text-sm py-2 text-[#687770] hover:text-[#111915] font-semibold text-center cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
           >
             <HugeiconsIcon icon={RotateLeft01Icon} size={14} strokeWidth={1.8} />
             <span>Restaurar Padrão</span>

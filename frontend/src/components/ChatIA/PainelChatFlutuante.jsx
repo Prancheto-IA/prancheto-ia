@@ -137,7 +137,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
         {carregando && mensagens.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 gap-2 text-center">
             <div className="w-7 h-7 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs font-semibold text-[#687770]">Carregando histórico...</p>
+            <p className="text-sm font-semibold text-[#687770]">Carregando histórico...</p>
           </div>
         )}
 
@@ -154,7 +154,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
             <h4 className="text-sm font-bold text-[#111915] mb-1">
               Olá! Como posso te ajudar hoje?
             </h4>
-            <p className="text-xs text-[#687770] max-w-xs mb-5 leading-relaxed">
+            <p className="text-sm text-[#687770] max-w-xs mb-5 leading-relaxed">
               Consulte seu funil de vendas, adicione novos leads ou registre tarefas usando linguagem natural.
             </p>
 
@@ -167,7 +167,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
                   key={sugestao}
                   type="button"
                   onClick={() => enviar(sugestao)}
-                  className="w-full text-left bg-white hover:bg-[#F2F5F3] hover:border-[#0E382C]/30 text-xs font-semibold text-[#111915] px-3.5 py-2.5 rounded-2xl border border-[#E4ECE7] shadow-2xs transition-all flex items-center gap-2 group cursor-pointer"
+                  className="w-full text-left bg-white hover:bg-[#F2F5F3] hover:border-[#0E382C]/30 text-sm font-semibold text-[#111915] px-3.5 py-2.5 rounded-2xl border border-[#E4ECE7] shadow-2xs transition-all flex items-center gap-2 group cursor-pointer"
                 >
                   <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} className="text-[#15803D] shrink-0" />
                   <span className="truncate flex-1">{sugestao}</span>
@@ -234,7 +234,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
       {/* 3. Rodapé com Campo de Entrada */}
       <form onSubmit={submeter} className="p-3 bg-white border-t border-[#E4ECE7] shrink-0">
         {erro && !indisponivel && (
-          <p className="text-red-500 text-xs mb-2 px-1 font-medium">{erro.mensagem}</p>
+          <p className="text-red-500 text-sm mb-2 px-1 font-medium">{erro.mensagem}</p>
         )}
         <div className="flex items-center gap-2">
           <input
@@ -248,7 +248,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
             }
             disabled={enviando}
             aria-label="Mensagem para o assistente"
-            className="flex-1 bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-2xl px-4 py-2.5 text-xs sm:text-sm placeholder-[#687770]/60 focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-50"
+            className="flex-1 bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-2xl px-4 py-2.5 text-sm placeholder-[#687770]/60 focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-50"
           />
           <button
             type="submit"

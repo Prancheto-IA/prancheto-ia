@@ -214,7 +214,7 @@ html.dark {
   }
 
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium;
   }
 
   /* --- NAVEGAÇÃO DA BARRA LATERAL ---
@@ -272,7 +272,7 @@ html.dark {
     --badge-tom: var(--badge-cargo-rgb);
     background-color: rgb(var(--badge-tom) / 0.15);
     color: rgb(var(--badge-tom));
-    @apply inline-flex items-center text-xs px-1.5 py-0.5 rounded-full font-medium;
+    @apply inline-flex items-center text-sm px-1.5 py-0.5 rounded-full font-medium;
   }
 
   html.dark .badge-cargo {
@@ -463,13 +463,21 @@ html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside 
 .border-brand-violet {
   border-color: var(--brand-violet) !important;
 }
-.bg-\[\#DCF5E4\] {
+.bg-\[\#DCF5E4\],
+.bg-\[\#EBF5EC\],
+.bg-\[\#D2EBD7\] {
   background-color: var(--brand-accent) !important;
 }
-.hover\:bg-\[\#DCF5E4\]:hover {
+.hover\:bg-\[\#DCF5E4\]:hover,
+.hover\:bg-\[\#EBF5EC\]:hover,
+.hover\:bg-\[\#C0E2C7\]:hover {
   background-color: var(--brand-accent-hover) !important;
 }
-.text-\[\#15803D\] {
+.bg-\[\#15803D\] {
+  background-color: var(--brand-secondary) !important;
+}
+.text-\[\#15803D\],
+.text-\[\#0A4D34\] {
   color: var(--brand-secondary) !important;
 }
 .donut-visual {

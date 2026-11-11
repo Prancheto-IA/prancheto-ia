@@ -37,7 +37,7 @@ const CampoTexto = ({ label, valor, placeholder, disabled = false, ajuda, maxLen
     <div className="flex flex-col">
       <label
         htmlFor={id}
-        className="block text-xs font-semibold text-[#687770] mb-1.5"
+        className="block text-sm font-semibold text-[#687770] mb-1.5"
       >
         {label}
       </label>
@@ -49,7 +49,7 @@ const CampoTexto = ({ label, valor, placeholder, disabled = false, ajuda, maxLen
         disabled={disabled}
         maxLength={maxLength}
         onChange={onChange}
-        className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm placeholder-slate-400 focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-2xs"
+        className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-2xs"
       />
       {ajuda && (
         <p className="text-[11px] text-[#687770] mt-1.5 leading-tight">
@@ -63,11 +63,11 @@ const CampoTexto = ({ label, valor, placeholder, disabled = false, ajuda, maxLen
 const ToggleSwitch = ({ label, descricao, ativo, onChange }) => (
   <div className="flex items-center justify-between py-3 border-b border-[#E4ECE7] last:border-0">
     <div className="pr-4">
-      <p className="text-xs sm:text-sm font-semibold text-[#111915]">
+      <p className="text-sm font-semibold text-[#111915]">
         {label}
       </p>
       {descricao && (
-        <p className="text-[11px] sm:text-xs text-[#687770] mt-0.5">
+        <p className="text-[11px] sm:text-sm text-[#687770] mt-0.5">
           {descricao}
         </p>
       )}
@@ -212,7 +212,7 @@ const Configuracoes = () => {
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
             Configurações
           </h1>
-          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
+          <p className="text-sm text-[#687770] mt-0.5">
             Personalize sua conta, identidade visual e acompanhe o plano da organização.
           </p>
         </div>
@@ -224,7 +224,7 @@ const Configuracoes = () => {
               key={aba.slug}
               type="button"
               onClick={() => selecionarAba(aba.slug)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-colors duration-150 cursor-pointer ${
                 aba.slug === abaAtiva
                   ? 'bg-[#0E382C] text-[#D4EC9D] shadow-xs'
                   : 'text-[#687770] hover:text-[#111915]'
@@ -253,7 +253,7 @@ const Configuracoes = () => {
                     <h2 className="text-base font-bold text-[#111915]">
                       {nome || 'Seu Perfil'}
                     </h2>
-                    <p className="text-xs text-[#687770]">{usuario?.email}</p>
+                    <p className="text-sm text-[#687770]">{usuario?.email}</p>
                   </div>
                 </div>
                 <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#EDF2EE] text-[#0E382C] border border-[#E4ECE7]">
@@ -305,7 +305,7 @@ const Configuracoes = () => {
             {/* Card: Aparência */}
             <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
               <h2 className="text-base font-bold text-[#111915]">Aparência</h2>
-              <p className="text-xs text-[#687770] mt-0.5 mb-4">
+              <p className="text-sm text-[#687770] mt-0.5 mb-4">
                 Escolha o tema visual da interface.
               </p>
 
@@ -322,7 +322,7 @@ const Configuracoes = () => {
                   <div className="w-8 h-8 rounded-lg bg-white border border-[#E4ECE7] flex items-center justify-center text-slate-700 shadow-2xs">
                     <HugeiconsIcon icon={Sun01Icon} size={18} strokeWidth={1.8} />
                   </div>
-                  <span className="text-xs">Modo Claro</span>
+                  <span className="text-sm">Modo Claro</span>
                 </button>
 
                 <button
@@ -337,7 +337,7 @@ const Configuracoes = () => {
                   <div className="w-8 h-8 rounded-lg bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center shadow-2xs">
                     <HugeiconsIcon icon={Moon02Icon} size={18} strokeWidth={1.8} />
                   </div>
-                  <span className="text-xs">Modo Escuro</span>
+                  <span className="text-sm">Modo Escuro</span>
                 </button>
               </div>
             </div>
@@ -345,7 +345,7 @@ const Configuracoes = () => {
             {/* Card: Notificações */}
             <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
               <h2 className="text-base font-bold text-[#111915]">Notificações</h2>
-              <p className="text-xs text-[#687770] mt-0.5 mb-3">
+              <p className="text-sm text-[#687770] mt-0.5 mb-3">
                 Controle os canais de recebimento de alertas.
               </p>
 
@@ -366,7 +366,7 @@ const Configuracoes = () => {
             {/* Card: Segurança */}
             <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
               <h2 className="text-base font-bold text-[#111915]">Segurança</h2>
-              <p className="text-xs text-[#687770] mt-0.5 mb-4">
+              <p className="text-sm text-[#687770] mt-0.5 mb-4">
                 Gerencie credenciais e proteção da sua conta.
               </p>
 
@@ -377,7 +377,7 @@ const Configuracoes = () => {
                       <HugeiconsIcon icon={Key01Icon} size={18} strokeWidth={1.8} />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-[#111915]">Alterar senha</p>
+                      <p className="text-sm font-semibold text-[#111915]">Alterar senha</p>
                       <p className="text-[11px] text-[#687770]">Recuperação via e-mail</p>
                     </div>
                   </div>
@@ -392,7 +392,7 @@ const Configuracoes = () => {
                       <HugeiconsIcon icon={Shield01Icon} size={18} strokeWidth={1.8} />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-[#111915]">Autenticação 2FA</p>
+                      <p className="text-sm font-semibold text-[#111915]">Autenticação 2FA</p>
                       <p className="text-[11px] text-[#687770]">Segurança em dois fatores</p>
                     </div>
                   </div>
@@ -406,14 +406,14 @@ const Configuracoes = () => {
             {/* Barra de Ação: Salvar */}
             <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="w-full sm:w-auto">
-                {erro && <p className="text-red-500 text-xs font-medium">{erro}</p>}
+                {erro && <p className="text-red-500 text-sm font-medium">{erro}</p>}
                 {salvo && (
-                  <p className="text-emerald-700 text-xs font-bold flex items-center gap-1">
+                  <p className="text-emerald-700 text-sm font-bold flex items-center gap-1">
                     ✓ Alterações salvas com sucesso!
                   </p>
                 )}
                 {!erro && !salvo && (
-                  <p className="text-xs text-[#687770]">
+                  <p className="text-sm text-[#687770]">
                     Salve as alterações para aplicar suas preferências.
                   </p>
                 )}
@@ -423,7 +423,7 @@ const Configuracoes = () => {
                 type="button"
                 onClick={salvar}
                 disabled={salvando}
-                className="w-full sm:w-auto bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto bg-[#0E382C] hover:bg-[#07261E] text-[#D4EC9D] font-bold text-sm px-6 py-2.5 rounded-xl transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {salvando ? (
                   <>

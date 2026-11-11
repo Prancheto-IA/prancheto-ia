@@ -24,9 +24,9 @@ const Spinner = () => (
 );
 
 const BadgeLTV = ({ ltv }) => {
-  if (!ltv || ltv === 0) return <span className="text-xs text-muted">LTV: —</span>;
+  if (!ltv || ltv === 0) return <span className="text-sm text-muted">LTV: —</span>;
   const cor = ltv >= 10000 ? 'text-emerald-400' : ltv >= 1000 ? 'text-amber-400' : 'text-muted';
-  return <span className={`text-xs font-bold ${cor}`}>💎 {formatarMoeda(ltv)}</span>;
+  return <span className={`text-sm font-bold ${cor}`}>💎 {formatarMoeda(ltv)}</span>;
 };
 
 const BadgeTempo = ({ convertidoEm, criadoEm }) => {
@@ -39,7 +39,7 @@ const BadgeTempo = ({ convertidoEm, criadoEm }) => {
     : dias >= 30
     ? `${Math.floor(dias / 30)} meses`
     : `${dias} dias`;
-  return <span className={`text-xs ${cor}`}>⏱️ {label} na base</span>;
+  return <span className={`text-sm ${cor}`}>⏱️ {label} na base</span>;
 };
 
 // ─── Painel de detalhes do Cliente ────────────────────────────
@@ -86,7 +86,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>{cliente.nome}</h3>
-              <span className="text-xs px-2 py-0.5 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+              <span className="text-sm px-2 py-0.5 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
                 ✅ Cliente
               </span>
             </div>
@@ -94,8 +94,8 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
               <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{cliente.empresa}</p>
             )}
             <div className="flex gap-3 mt-2 flex-wrap">
-              {cliente.email    && <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>✉️ {cliente.email}</span>}
-              {cliente.telefone && <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>📞 {cliente.telefone}</span>}
+              {cliente.email    && <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>✉️ {cliente.email}</span>}
+              {cliente.telefone && <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>📞 {cliente.telefone}</span>}
               <BadgeLTV ltv={cliente.ltv} />
               <BadgeTempo convertidoEm={cliente.convertido_em} criadoEm={cliente.criado_em} />
             </div>
@@ -112,17 +112,17 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
           style={{ borderColor: 'var(--color-surface-border)' }}>
           <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--color-surface)' }}>
             <p className="text-lg font-bold text-emerald-400">{formatarMoeda(cliente.ltv || 0)}</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>LTV</p>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>LTV</p>
           </div>
           <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--color-surface)' }}>
             <p className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>
               {diasNaBase != null ? `${diasNaBase}d` : '—'}
             </p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Dias na base</p>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Dias na base</p>
           </div>
           <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--color-surface)' }}>
             <p className="text-lg font-bold text-amber-400">⚡ {cliente.score || 0}</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Score final</p>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Score final</p>
           </div>
         </div>
 
@@ -147,7 +147,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
           {/* Aba: Histórico (herança completa do período como Lead) */}
           {aba === 'historico' && (
             <div className="p-5 space-y-3">
-              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 Exibindo todo o histórico — incluindo interações do período como Lead.
               </p>
               {carregandoInt ? (
@@ -165,16 +165,16 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
                       <span className="text-lg flex-shrink-0 mt-0.5">{t.emoji}</span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                             {isConversao ? '🎉 Convertido para Cliente' : t.label}
                           </span>
-                          <span className="text-xs ml-auto" style={{ color: 'var(--color-text-secondary)' }}>
+                          <span className="text-sm ml-auto" style={{ color: 'var(--color-text-secondary)' }}>
                             {tempoRelativo(int.criado_em)}
                           </span>
                         </div>
                         <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{int.conteudo}</p>
                         {int.criado_por_user && (
-                          <p className="text-xs mt-0.5 text-muted">por {int.criado_por_user.nome}</p>
+                          <p className="text-sm mt-0.5 text-muted">por {int.criado_por_user.nome}</p>
                         )}
                       </div>
                     </div>
@@ -195,7 +195,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
                   <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                     Nenhum documento anexado.
                   </p>
-                  <p className="text-xs mt-1 text-muted">
+                  <p className="text-sm mt-1 text-muted">
                     Upload de documentos disponível em breve.
                   </p>
                 </div>
@@ -208,7 +208,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{doc.nome}</p>
-                      <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                      <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                         {doc.tipo} · {doc.tamanho_kb ? `${doc.tamanho_kb} KB` : ''} · {formatarData(doc.criado_em)}
                       </p>
                     </div>
@@ -237,21 +237,21 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
                   { label: 'Responsável',     valor: cliente.responsavel?.nome || '—' },
                 ].map(({ label, valor }) => (
                   <div key={label}>
-                    <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
+                    <p className="text-sm font-medium mb-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
                     <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{valor}</p>
                   </div>
                 ))}
               </div>
               {cliente.observacoes && (
                 <div>
-                  <p className="text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Observações</p>
+                  <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Observações</p>
                   <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{cliente.observacoes}</p>
                 </div>
               )}
 
               {temInformacoesExtras(cliente) && (
                 <div className="pt-3 border-t" style={{ borderColor: 'var(--color-surface-border)' }}>
-                  <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                  <p className="text-sm font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-secondary)' }}>
                     Mais informações
                   </p>
                   <div className="grid grid-cols-2 gap-4">
@@ -268,7 +268,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
                       { label: 'Endereço',                valor: formatarEndereco(cliente.endereco) },
                     ].filter(({ valor }) => valor).map(({ label, valor }) => (
                       <div key={label}>
-                        <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
+                        <p className="text-sm font-medium mb-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
                         <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{valor}</p>
                       </div>
                     ))}
@@ -287,7 +287,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
               {TIPOS_INTERACAO.filter(t => t.key !== 'conversao').map(t => (
                 <button key={t.key} type="button"
                   onClick={() => setTipoInteracao(t.key)}
-                  className={`text-xs px-2 py-1 rounded-full border transition-all ${tipoInteracao === t.key ? 'bg-primary-500/20 text-primary-300 border-primary-500/30' : 'text-muted border-slate-700 hover:border-slate-500'}`}>
+                  className={`text-sm px-2 py-1 rounded-full border transition-all ${tipoInteracao === t.key ? 'bg-primary-500/20 text-primary-300 border-primary-500/30' : 'text-muted border-slate-700 hover:border-slate-500'}`}>
                   {t.emoji} {t.label}
                 </button>
               ))}
@@ -326,10 +326,10 @@ const CardCliente = ({ cliente, onAbrir }) => (
           {cliente.nome}
         </p>
         {cliente.empresa && (
-          <p className="text-xs truncate" style={{ color: 'var(--color-text-secondary)' }}>{cliente.empresa}</p>
+          <p className="text-sm truncate" style={{ color: 'var(--color-text-secondary)' }}>{cliente.empresa}</p>
         )}
       </div>
-      <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex-shrink-0">
+      <span className="text-sm px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex-shrink-0">
         ✅
       </span>
     </div>
@@ -348,7 +348,7 @@ const LinhaCliente = ({ cliente, onAbrir, onEditar, onExcluir }) => (
     <td className="px-4 py-3">
       <div>
         <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{cliente.nome}</p>
-        {cliente.empresa && <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{cliente.empresa}</p>}
+        {cliente.empresa && <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{cliente.empresa}</p>}
       </div>
     </td>
     <td className="px-4 py-3"><BadgeLTV ltv={cliente.ltv} /></td>
@@ -359,7 +359,7 @@ const LinhaCliente = ({ cliente, onAbrir, onEditar, onExcluir }) => (
     </td>
     <td className="px-4 py-3"><BadgeTempo convertidoEm={cliente.convertido_em} criadoEm={cliente.criado_em} /></td>
     <td className="px-4 py-3">
-      <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+      <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
         {formatarData(cliente.convertido_em)}
       </span>
     </td>
@@ -463,13 +463,13 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome *</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome *</label>
               <input type="text" value={form.nome} onChange={set('nome')} placeholder="João Silva"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome fantasia</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome fantasia</label>
               <input type="text" value={form.empresa} onChange={set('empresa')} placeholder="Acme Corp"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
@@ -478,13 +478,13 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>E-mail</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>E-mail</label>
               <input type="email" value={form.email} onChange={set('email')} placeholder="joao@empresa.com"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Telefone</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Telefone</label>
               <input type="text" value={form.telefone} onChange={set('telefone')} placeholder="(11) 99999-9999"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
@@ -494,7 +494,7 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
           <div className="grid grid-cols-2 gap-3">
             <CampoWhatsapp form={form} set={set} inputStyle={inputStyle} />
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Cargo</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Cargo</label>
               <input type="text" value={form.cargo} onChange={set('cargo')} placeholder="CEO"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
@@ -513,13 +513,13 @@ const ModalCliente = ({ cliente, onFechar, onSalvar }) => {
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Observações</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Observações</label>
             <textarea value={form.observacoes} onChange={set('observacoes')} rows={2} placeholder="Notas sobre o cliente..."
               className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none"
               style={inputStyle} />
           </div>
 
-          {erro && <p className="text-red-400 text-xs">{erro}</p>}
+          {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
@@ -584,10 +584,10 @@ const PaginaClientes = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-            🏆 Clientes
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink-primary">
+            Clientes
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-sm text-ink-secondary font-medium mt-0.5">
             {clientes.length} clientes · LTV total: {formatarMoeda(totalLTV)}
           </p>
         </div>
@@ -596,15 +596,14 @@ const PaginaClientes = () => {
       {/* Cards de métricas */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { emoji: '👥', label: 'Total de Clientes', valor: clientes.length,           cor: 'text-primary-400' },
-          { emoji: '💎', label: 'LTV Total',          valor: formatarMoeda(totalLTV),   cor: 'text-emerald-400' },
-          { emoji: '📈', label: 'Novos (30 dias)',    valor: novos30dias,               cor: 'text-amber-400'   },
+          { emoji: '👥', label: 'Total de Clientes', valor: clientes.length,           cor: 'text-brand-primary' },
+          { emoji: '💎', label: 'LTV Total',          valor: formatarMoeda(totalLTV),   cor: 'text-brand-secondary' },
+          { emoji: '📈', label: 'Novos (30 dias)',    valor: novos30dias,               cor: 'text-brand-purple'   },
         ].map(({ emoji, label, valor, cor }) => (
-          <div key={label} className="rounded-xl p-4 border"
-            style={{ backgroundColor: 'var(--color-surface-card)', borderColor: 'var(--color-surface-border)' }}>
+          <div key={label} className="rounded-2xl p-4 border bg-surface-card border-surface-border shadow-2xs">
             <p className="text-2xl mb-1">{emoji}</p>
             <p className={`text-xl font-bold ${cor}`}>{valor}</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
+            <p className="text-sm mt-0.5 text-ink-secondary font-medium">{label}</p>
           </div>
         ))}
       </div>
@@ -616,18 +615,15 @@ const PaginaClientes = () => {
           value={busca}
           onChange={e => setBusca(e.target.value)}
           placeholder="Buscar por nome ou empresa..."
-          className="flex-1 min-w-48 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-          style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
+          className="flex-1 min-w-48 rounded-xl px-3.5 py-2 text-sm bg-surface-card border border-surface-border text-ink-primary placeholder-slate-400 focus:outline-none focus:border-brand-primary shadow-2xs"
         />
-        <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
+        <div className="flex items-center bg-surface-card p-1 rounded-xl border border-surface-border shadow-2xs">
           <button onClick={() => setVista('cards')}
-            className={`px-3 py-2 text-sm transition-colors ${vista === 'cards' ? 'bg-primary-600 text-white' : 'text-muted hover:text-white'}`}
-            style={vista !== 'cards' ? { backgroundColor: 'var(--color-surface-card)' } : {}}>
+            className={`px-3 py-1.5 text-sm font-semibold rounded-lg transition-all ${vista === 'cards' ? 'bg-brand-primary text-white shadow-2xs' : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle'}`}>
             🃏 Cards
           </button>
           <button onClick={() => setVista('lista')}
-            className={`px-3 py-2 text-sm transition-colors ${vista === 'lista' ? 'bg-primary-600 text-white' : 'text-muted hover:text-white'}`}
-            style={vista !== 'lista' ? { backgroundColor: 'var(--color-surface-card)' } : {}}>
+            className={`px-3 py-1.5 text-sm font-semibold rounded-lg transition-all ${vista === 'lista' ? 'bg-brand-primary text-white shadow-2xs' : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle'}`}>
             📋 Lista
           </button>
         </div>
@@ -677,7 +673,7 @@ const PaginaClientes = () => {
               <thead>
                 <tr className="border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
                   {['Nome', 'LTV', 'Valor', 'Tempo na base', 'Convertido em', ''].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                    <th key={h} className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider"
                       style={{ color: 'var(--color-text-secondary)' }}>{h}</th>
                   ))}
                 </tr>

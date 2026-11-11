@@ -36,19 +36,19 @@ const ModalMembros = ({ aberto, onFechar, membros, usuariosTenant, podeGerenciar
               <div key={m.id} className="flex items-center gap-3 p-2 rounded-lg">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm truncate">{m.usuario?.nome || 'Usuário removido'}</p>
-                  <p className="text-xs opacity-40 truncate">{m.usuario?.email}</p>
+                  <p className="text-sm opacity-40 truncate">{m.usuario?.email}</p>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full opacity-60 flex-shrink-0" style={{ backgroundColor: 'var(--color-surface-border)' }}>
+                <span className="text-sm px-2 py-0.5 rounded-full opacity-60 flex-shrink-0" style={{ backgroundColor: 'var(--color-surface-border)' }}>
                   {PAPEL_LABEL[m.papel] || m.papel}
                 </span>
                 {podeGerenciar && (
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {m.papel !== 'lider' && (
-                      <button onClick={() => onPromover(m)} className="text-xs opacity-50 hover:opacity-100" title="Promover a líder">
+                      <button onClick={() => onPromover(m)} className="text-sm opacity-50 hover:opacity-100" title="Promover a líder">
                         ⬆️
                       </button>
                     )}
-                    <button onClick={() => onRemover(m.id)} className="text-xs text-red-400 opacity-70 hover:opacity-100" title="Remover">
+                    <button onClick={() => onRemover(m.id)} className="text-sm text-red-400 opacity-70 hover:opacity-100" title="Remover">
                       ✕
                     </button>
                   </div>
@@ -78,7 +78,7 @@ const ModalMembros = ({ aberto, onFechar, membros, usuariosTenant, podeGerenciar
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
                   >
                     <span className="truncate">{u.nome}</span>
-                    <span className="text-xs text-primary-400 flex-shrink-0">+ adicionar</span>
+                    <span className="text-sm text-primary-400 flex-shrink-0">+ adicionar</span>
                   </button>
                 ))}
               </div>
@@ -180,7 +180,7 @@ const ProjetoDetalhe = () => {
             </div>
             <button
               onClick={() => setModalMembrosAberto(true)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium flex-shrink-0 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium flex-shrink-0 transition-colors"
               style={{ border: '1px solid var(--color-surface-border)' }}
               onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)'}
               onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
@@ -190,18 +190,18 @@ const ProjetoDetalhe = () => {
           </div>
           <div className="flex items-center gap-3 mt-3">
             <span
-              className="text-xs px-2 py-1 rounded-full"
+              className="text-sm px-2 py-1 rounded-full"
               style={{ backgroundColor: corStatus + '22', color: corStatus }}
             >
               {projeto.status.replace('_', ' ')}
             </span>
             {projeto.data_inicio && (
-              <span className="text-xs opacity-40">
+              <span className="text-sm opacity-40">
                 📅 {new Date(projeto.data_inicio).toLocaleDateString('pt-BR')}
               </span>
             )}
             {projeto.data_fim && (
-              <span className="text-xs opacity-40">
+              <span className="text-sm opacity-40">
                 🏁 {new Date(projeto.data_fim).toLocaleDateString('pt-BR')}
               </span>
             )}
@@ -221,7 +221,7 @@ const ProjetoDetalhe = () => {
             style={{ width: `${projeto.progresso}%`, backgroundColor: projeto.cor }}
           />
         </div>
-        <div className="flex items-center gap-4 text-xs opacity-50">
+        <div className="flex items-center gap-4 text-sm opacity-50">
           <span>🏁 {concluidos}/{milestones.length} milestones</span>
           <span>✅ {tarefas.filter(t => t.status === 'concluida').length}/{tarefas.length} tarefas</span>
         </div>
@@ -248,17 +248,17 @@ const ProjetoDetalhe = () => {
                   }`}
                   style={!m.concluido ? { borderColor: 'var(--color-surface-border)' } : {}}
                 >
-                  {m.concluido && <span className="text-xs">✓</span>}
+                  {m.concluido && <span className="text-sm">✓</span>}
                 </button>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm ${m.concluido ? 'line-through opacity-40' : ''}`}>{m.titulo}</p>
                   {m.data_alvo && (
-                    <p className="text-xs opacity-40">{new Date(m.data_alvo).toLocaleDateString('pt-BR')}</p>
+                    <p className="text-sm opacity-40">{new Date(m.data_alvo).toLocaleDateString('pt-BR')}</p>
                   )}
                 </div>
                 <button
                   onClick={() => excluirMilestone(m.id)}
-                  className="opacity-0 group-hover:opacity-40 hover:!opacity-100 text-red-400 text-xs"
+                  className="opacity-0 group-hover:opacity-40 hover:!opacity-100 text-red-400 text-sm"
                 >
                   ✕
                 </button>
@@ -307,7 +307,7 @@ const ProjetoDetalhe = () => {
                       {t.titulo}
                     </p>
                     {t.data_vencimento && (
-                      <span className="text-xs opacity-40 flex-shrink-0">
+                      <span className="text-sm opacity-40 flex-shrink-0">
                         {new Date(t.data_vencimento).toLocaleDateString('pt-BR')}
                       </span>
                     )}

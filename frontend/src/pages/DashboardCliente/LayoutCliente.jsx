@@ -153,7 +153,7 @@ const ItemNav = ({ item, colapsada, onClick }) => {
 
       {/* Tooltip flutuante quando colapsada */}
       {colapsada && (
-        <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
+        <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-sm font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
           {item.label}
         </span>
       )}
@@ -210,7 +210,7 @@ const ItemSortableModal = ({ item, onToggle }) => {
       ) : (
         <button
           onClick={() => onToggle(item.slug)}
-          className={`text-xs px-2.5 py-1 rounded-lg font-semibold transition-colors ${item.visivel
+          className={`text-sm px-2.5 py-1 rounded-lg font-semibold transition-colors ${item.visivel
             ? 'text-red-600 hover:bg-red-50'
             : 'text-[#15803D] hover:bg-[#DCF5E4]'
             }`}
@@ -266,7 +266,7 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#E4ECE7]">
           <div>
             <h2 className="text-base font-bold text-[#111915]">Personalizar Navegação</h2>
-            <p className="text-xs text-[#687770]">Arraste para organizar o seu menu</p>
+            <p className="text-sm text-[#687770]">Arraste para organizar o seu menu</p>
           </div>
           <button
             onClick={onFechar}
@@ -279,13 +279,13 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
 
         {/* Chat IA Config */}
         <div className="p-4 border-b border-[#E4ECE7]">
-          <p className="text-xs font-bold uppercase tracking-wider text-[#687770] mb-2">
+          <p className="text-sm font-bold uppercase tracking-wider text-[#687770] mb-2">
             Assistente Chat IA
           </p>
           <div className="flex rounded-xl bg-[#F7FAF8] p-1 border border-[#E4ECE7]">
             <button
               onClick={() => definirChatIaModo('flutuante')}
-              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
+              className={`flex-1 flex items-center justify-center gap-1.5 text-sm py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
                 }`}
             >
               <HugeiconsIcon icon={Comment01Icon} size={14} strokeWidth={1.8} />
@@ -293,7 +293,7 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
             </button>
             <button
               onClick={() => definirChatIaModo('fixo')}
-              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
+              className={`flex-1 flex items-center justify-center gap-1.5 text-sm py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
                 }`}
             >
               <HugeiconsIcon icon={PinIcon} size={14} strokeWidth={1.8} />
@@ -304,7 +304,7 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
 
         {/* Items List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <p className="text-xs font-bold uppercase tracking-wider text-[#687770] mb-1">
+          <p className="text-sm font-bold uppercase tracking-wider text-[#687770] mb-1">
             Itens Visíveis ({slugsVisiveis.length})
           </p>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -319,9 +319,9 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
         {/* Modal Footer */}
         <div className="p-4 border-t border-[#E4ECE7] space-y-2 bg-[#F7FAF8]">
           {salvando && (
-            <p className="text-xs text-center text-emerald-700 font-medium animate-pulse">Salvando alterações...</p>
+            <p className="text-sm text-center text-emerald-700 font-medium animate-pulse">Salvando alterações...</p>
           )}
-          <button onClick={resetar} className="w-full text-xs py-2 text-[#687770] hover:text-[#111915] font-semibold text-center">
+          <button onClick={resetar} className="w-full text-sm py-2 text-[#687770] hover:text-[#111915] font-semibold text-center">
             Restaurar Padrão
           </button>
           <button onClick={onFechar} className="w-full py-2.5 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-sm rounded-xl transition-all shadow-xs">
@@ -402,7 +402,7 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
                 Editar Menu
               </span>
               {colapsada && (
-                <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
+                <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-sm font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
                   Editar Menu
                 </span>
               )}
@@ -571,7 +571,7 @@ const LayoutCliente = ({ children }) => {
             <div className="relative" ref={menuUsuarioRef}>
               <button
                 onClick={() => setMenuUsuarioAberto((v) => !v)}
-                className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent"
+                className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent"
                 title={`Perfil: ${usuario?.nome || 'Usuário'}`}
               >
                 {usuario?.avatar_url || usuario?.foto_url ? (
@@ -586,7 +586,7 @@ const LayoutCliente = ({ children }) => {
               </button>
 
               {menuUsuarioAberto && (
-                <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-xs">
+                <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-sm">
                   {/* Dados do usuário */}
                   <div className="px-4 py-2.5 border-b border-surface-border">
                     <p className="font-bold text-ink-primary truncate">{usuario?.nome || 'Usuário'}</p>

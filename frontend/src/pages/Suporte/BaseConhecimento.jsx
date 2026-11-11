@@ -24,11 +24,11 @@ const LeitorArtigo = ({ artigo, categoria, podeEditar, onFechar, onEditar, onExc
         <div className="flex items-start justify-between gap-3 p-5 border-b border-surface-border">
           <div className="min-w-0">
             {categoria && (
-              <span className="text-xs text-muted">{categoria.icone} {categoria.nome}</span>
+              <span className="text-sm text-muted">{categoria.icone} {categoria.nome}</span>
             )}
             <h3 className="font-semibold text-lg">{artigo.titulo}</h3>
             {!artigo.publicado && (
-              <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300">
+              <span className="inline-block mt-1 text-sm px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300">
                 Rascunho
               </span>
             )}
@@ -116,7 +116,7 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Título *</label>
+            <label className="block text-muted text-sm font-medium mb-1">Título *</label>
             <input
               type="text"
               value={form.titulo}
@@ -127,7 +127,7 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
           </div>
 
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Categoria</label>
+            <label className="block text-muted text-sm font-medium mb-1">Categoria</label>
             <SelectField
               value={form.categoria_id}
               onChange={(e) => setForm((f) => ({ ...f, categoria_id: e.target.value }))}
@@ -140,7 +140,7 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
           </div>
 
           <div>
-            <label className="block text-muted text-xs font-medium mb-1">Conteúdo</label>
+            <label className="block text-muted text-sm font-medium mb-1">Conteúdo</label>
             <textarea
               value={form.conteudo}
               onChange={(e) => setForm((f) => ({ ...f, conteudo: e.target.value }))}
@@ -160,7 +160,7 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
             Publicado (visível para todos os membros)
           </label>
 
-          {erro && <p className="text-red-400 text-xs">{erro}</p>}
+          {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
@@ -245,12 +245,12 @@ const CardArtigo = ({ artigo, categoria, onClick }) => (
     <div className="flex items-start justify-between gap-2">
       <p className="text-white font-medium text-sm">{artigo.titulo}</p>
       {!artigo.publicado && (
-        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 flex-shrink-0">Rascunho</span>
+        <span className="text-sm px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 flex-shrink-0">Rascunho</span>
       )}
     </div>
-    {categoria && <p className="text-muted text-xs mt-1">{categoria.icone} {categoria.nome}</p>}
-    {artigo.conteudo && <p className="text-muted text-xs mt-2 line-clamp-2">{artigo.conteudo}</p>}
-    <p className="text-muted text-xs mt-3">👁️ {artigo.visualizacoes || 0} visualizaç{(artigo.visualizacoes === 1) ? 'ão' : 'ões'}</p>
+    {categoria && <p className="text-muted text-sm mt-1">{categoria.icone} {categoria.nome}</p>}
+    {artigo.conteudo && <p className="text-muted text-sm mt-2 line-clamp-2">{artigo.conteudo}</p>}
+    <p className="text-muted text-sm mt-3">👁️ {artigo.visualizacoes || 0} visualizaç{(artigo.visualizacoes === 1) ? 'ão' : 'ões'}</p>
   </div>
 );
 
@@ -366,7 +366,7 @@ const BaseConhecimento = () => {
           <button
             key={c.id}
             onClick={() => setFiltroCategoria(c.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               filtroCategoria === c.id
                 ? 'bg-primary-600 text-white'
                 : 'bg-surface-card border border-surface-border text-muted hover:text-white'

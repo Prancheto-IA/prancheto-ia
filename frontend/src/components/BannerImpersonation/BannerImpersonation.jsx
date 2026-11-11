@@ -72,7 +72,7 @@ const BannerImpersonation = () => {
           <p className="font-semibold text-sm leading-tight truncate">
             Modo Visualização Ativo
           </p>
-          <p className="text-xs opacity-80 truncate">
+          <p className="text-sm opacity-80 truncate">
             Acessando como:{' '}
             <strong>{usuario?.nome || usuario?.email || 'Usuário'}</strong>
             {usuario?.tenantNome && (
@@ -84,7 +84,7 @@ const BannerImpersonation = () => {
 
       {/* Mensagem de erro inline */}
       {erro && (
-        <p className="text-xs font-medium text-red-800 bg-red-100 px-2 py-1 rounded mx-3 flex-shrink-0">
+        <p className="text-sm font-medium text-red-800 bg-red-100 px-2 py-1 rounded mx-3 flex-shrink-0">
           {erro}
         </p>
       )}

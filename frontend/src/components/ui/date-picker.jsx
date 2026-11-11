@@ -80,7 +80,7 @@ const DatePicker = React.forwardRef(
             type="button"
             disabled={disabled}
             className={cn(
-              'flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-surface-border bg-surface-subtle px-3.5 py-2 text-left text-xs sm:text-sm font-medium transition-all shadow-2xs cursor-pointer',
+              'flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-surface-border bg-surface-subtle px-3.5 py-2 text-left text-sm font-medium transition-all shadow-2xs cursor-pointer',
               'hover:border-surface-border-strong focus:outline-none focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-accent/60',
               'disabled:cursor-not-allowed disabled:opacity-50',
               selectedDate ? 'text-ink-primary' : 'text-ink-muted',

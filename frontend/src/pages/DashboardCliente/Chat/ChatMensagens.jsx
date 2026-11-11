@@ -54,7 +54,7 @@ export const Bolha = ({ mensagem }) => {
     <div className={`flex gap-2.5 sm:gap-3 ${ehUsuario ? 'flex-row-reverse' : 'flex-row'} items-start group`}>
       {/* Avatar */}
       {ehUsuario ? (
-        <div className="w-8 h-8 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center text-xs font-bold shrink-0 shadow-xs mt-0.5">
+        <div className="w-8 h-8 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center text-sm font-bold shrink-0 shadow-xs mt-0.5">
           {usuario?.nome ? usuario.nome[0].toUpperCase() : 'U'}
         </div>
       ) : (
@@ -65,12 +65,12 @@ export const Bolha = ({ mensagem }) => {
 
       {/* Conteúdo */}
       {ehUsuario ? (
-        <div className="max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-xs text-xs sm:text-sm leading-relaxed bg-[#0E382C] text-white shadow-2xs">
+        <div className="max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-xs text-sm leading-relaxed bg-[#0E382C] text-white shadow-2xs">
           <p className="whitespace-pre-wrap">{mensagem.conteudo}</p>
           <p className="text-[10px] mt-1.5 text-emerald-200/80 text-right font-medium">{horario(mensagem.criado_em)}</p>
         </div>
       ) : (
-        <div className="max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl rounded-tl-xs text-xs sm:text-sm leading-relaxed bg-white border border-[#E4ECE7] text-[#111915] shadow-2xs">
+        <div className="max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl rounded-tl-xs text-sm leading-relaxed bg-white border border-[#E4ECE7] text-[#111915] shadow-2xs">
           <p className="whitespace-pre-wrap">{mensagem.conteudo}</p>
           <p className="text-[10px] mt-1.5 text-[#687770] font-medium">{horario(mensagem.criado_em)}</p>
         </div>
@@ -87,7 +87,7 @@ export const LinhaAtividade = ({ ferramenta, falhou }) => {
   const IconComp = rotulo.icon;
 
   return (
-    <div className="flex items-center gap-2 pl-11 text-xs text-[#687770]">
+    <div className="flex items-center gap-2 pl-11 text-sm text-[#687770]">
       <span className={`w-4 h-4 rounded-full flex items-center justify-center ${falhou ? 'text-amber-600 bg-amber-50' : 'text-[#15803D] bg-[#DCF5E4]'}`}>
         <HugeiconsIcon icon={falhou ? Alert02Icon : IconComp} size={11} strokeWidth={2} />
       </span>
@@ -111,10 +111,10 @@ export const CartaoAcao = ({ acao, resolvendo, onResponder }) => {
           <HugeiconsIcon icon={IconComp} size={16} strokeWidth={2} />
         </span>
         <div className="min-w-0">
-          <p className="text-xs sm:text-sm font-bold text-[#111915]">
+          <p className="text-sm font-bold text-[#111915]">
             {acao.resumo}
           </p>
-          <p className="text-xs text-[#687770] mt-0.5">
+          <p className="text-sm text-[#687770] mt-0.5">
             O assistente só grava esta ação após a sua confirmação.
           </p>
         </div>
@@ -124,7 +124,7 @@ export const CartaoAcao = ({ acao, resolvendo, onResponder }) => {
         <button
           onClick={() => onResponder(acao.id, true)}
           disabled={ocupado}
-          className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#0E382C] hover:bg-[#07261E] text-white transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+          className="px-3.5 py-1.5 rounded-xl text-sm font-semibold bg-[#0E382C] hover:bg-[#07261E] text-white transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
         >
           {ocupado ? (
             <>
@@ -138,7 +138,7 @@ export const CartaoAcao = ({ acao, resolvendo, onResponder }) => {
         <button
           onClick={() => onResponder(acao.id, false)}
           disabled={ocupado}
-          className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white border border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8] transition-colors disabled:opacity-50 cursor-pointer"
+          className="px-3.5 py-1.5 rounded-xl text-sm font-semibold bg-white border border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8] transition-colors disabled:opacity-50 cursor-pointer"
         >
           Descartar
         </button>
@@ -151,11 +151,11 @@ export const CartaoAcao = ({ acao, resolvendo, onResponder }) => {
 // FAIXA DE INDISPONIBILIDADE
 // ----------------------------------------------------------
 export const FaixaIndisponivel = ({ erro }) => (
-  <div className="mx-4 my-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-xs sm:text-sm text-amber-900 flex items-start gap-2.5">
+  <div className="mx-4 my-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 flex items-start gap-2.5">
     <HugeiconsIcon icon={Alert02Icon} size={18} strokeWidth={2} className="text-amber-600 shrink-0 mt-0.5" />
     <div>
       <p className="font-bold">Assistente temporariamente indisponível</p>
-      <p className="text-xs text-amber-800/90 mt-0.5">
+      <p className="text-sm text-amber-800/90 mt-0.5">
         {erro.mensagem} As ações do CRM continuam acessíveis diretamente pelas telas do sistema.
       </p>
     </div>

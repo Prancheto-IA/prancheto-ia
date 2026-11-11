@@ -247,7 +247,7 @@ const PaginaChatIA = () => {
           <div className="flex items-center gap-2">
             <span className="text-xl">🤖</span>
             <span className="text-white font-semibold text-sm">Chat com IA</span>
-            <span className="badge bg-primary-900 text-primary-300 border border-primary-700 text-xs">
+            <span className="badge bg-primary-900 text-primary-300 border border-primary-700 text-sm">
               OpenAI
             </span>
           </div>
@@ -268,7 +268,7 @@ const PaginaChatIA = () => {
         {/* SIDEBAR */}
         <aside className="hidden lg:flex flex-col w-72 flex-shrink-0 border-r border-surface-border bg-surface">
           <div className="p-3 border-b border-surface-border">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider px-1">
+            <p className="text-sm font-semibold text-muted uppercase tracking-wider px-1">
               Conversas
             </p>
           </div>
@@ -283,7 +283,7 @@ const PaginaChatIA = () => {
             ) : conversas.length === 0 ? (
               <div className="p-4 text-center">
                 <p className="text-muted text-sm">Nenhuma conversa ainda.</p>
-                <p className="text-muted text-xs mt-1">Clique em "Nova Conversa" para começar.</p>
+                <p className="text-muted text-sm mt-1">Clique em "Nova Conversa" para começar.</p>
               </div>
             ) : (
               conversas.map((conversa) => (
@@ -298,7 +298,7 @@ const PaginaChatIA = () => {
             )}
           </div>
           <div className="p-3 border-t border-surface-border">
-            <p className="text-xs text-muted text-center">Modelo: gpt-4o-mini</p>
+            <p className="text-sm text-muted text-center">Modelo: gpt-4o-mini</p>
           </div>
         </aside>
 
@@ -314,7 +314,7 @@ const PaginaChatIA = () => {
                   <h2 className="font-medium text-sm truncate max-w-md">
                     {conversaAtiva.titulo}
                   </h2>
-                  <p className="text-xs text-muted mt-0.5">
+                  <p className="text-sm text-muted mt-0.5">
                     {(conversaAtiva.mensagens || []).length} mensagens
                     {conversaAtiva.total_tokens > 0 && (
                       <> · {conversaAtiva.total_tokens?.toLocaleString()} tokens</>
@@ -390,7 +390,7 @@ const PaginaChatIA = () => {
                     <span className="hidden sm:inline">{carregando ? 'Enviando...' : 'Enviar'}</span>
                   </button>
                 </form>
-                <p className="text-xs text-muted mt-2 text-center">
+                <p className="text-sm text-muted mt-2 text-center">
                   Enter para enviar · Shift+Enter para nova linha
                 </p>
               </div>

@@ -85,14 +85,14 @@ const CardPlano = ({ plano, qtdClientes, onClick }) => (
   >
     <div className="flex items-start justify-between mb-3">
       <span className="text-3xl">{plano.emoji}</span>
-      <span className={`badge border ${plano.corBadge} text-xs`}>{plano.label}</span>
+      <span className={`badge border ${plano.corBadge} text-sm`}>{plano.label}</span>
     </div>
     <p className={`text-2xl font-bold ${plano.corTexto} mb-1`}>{qtdClientes}</p>
     <p className="text-muted text-sm">cliente{qtdClientes !== 1 ? 's' : ''}</p>
-    <p className="text-muted text-xs mt-2">{plano.descricao}</p>
+    <p className="text-muted text-sm mt-2">{plano.descricao}</p>
     <ul className="mt-3 space-y-1">
       {plano.recursos.map((r, i) => (
-        <li key={i} className="text-xs text-muted flex items-center gap-1.5">
+        <li key={i} className="text-sm text-muted flex items-center gap-1.5">
           <span className="text-green-500">✓</span> {r}
         </li>
       ))}
@@ -158,7 +158,7 @@ const ModalEditarPlano = ({ tenant, onSalvar, onFechar, salvando }) => {
                       {p.label}
                     </span>
                   </div>
-                  <p className="text-muted text-xs">{p.descricao}</p>
+                  <p className="text-muted text-sm">{p.descricao}</p>
                 </button>
               ))}
             </div>
@@ -169,7 +169,7 @@ const ModalEditarPlano = ({ tenant, onSalvar, onFechar, salvando }) => {
             <label className="block text-sm font-medium text-muted mb-1">
               Limite de usuários
               {planoSelecionado && (
-                <span className="ml-2 text-muted font-normal text-xs">
+                <span className="ml-2 text-muted font-normal text-sm">
                   (padrão {plano}: {planoSelecionado.limiteDefault})
                 </span>
               )}
@@ -183,8 +183,8 @@ const ModalEditarPlano = ({ tenant, onSalvar, onFechar, salvando }) => {
               className={`input w-full ${erro ? 'border-red-500' : ''}`}
               disabled={salvando}
             />
-            {erro && <p className="text-red-400 text-xs mt-1">{erro}</p>}
-            <p className="text-muted text-xs mt-1">
+            {erro && <p className="text-red-400 text-sm mt-1">{erro}</p>}
+            <p className="text-muted text-sm mt-1">
               Atualmente: {tenant.qtd_usuarios ?? 0} usuário{(tenant.qtd_usuarios ?? 0) !== 1 ? 's' : ''} ativos
             </p>
           </div>
@@ -353,7 +353,7 @@ const PlanoLimites = () => {
                 {filtroPlano && (
                   <p className="text-muted text-sm mt-3">
                     Filtrando por plano: <strong className="text-white">{DEFINICAO_PLANOS.find(p => p.id === filtroPlano)?.label}</strong>
-                    <button onClick={() => setFiltroPlano('')} className="ml-2 text-primary-400 hover:text-primary-300 underline text-xs">
+                    <button onClick={() => setFiltroPlano('')} className="ml-2 text-primary-400 hover:text-primary-300 underline text-sm">
                       Limpar filtro
                     </button>
                   </p>
@@ -408,12 +408,12 @@ const PlanoLimites = () => {
                                 {/* Cliente */}
                                 <td className="px-4 py-3">
                                   <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-primary-800 flex items-center justify-center text-primary-300 font-bold text-xs flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-lg bg-primary-800 flex items-center justify-center text-primary-300 font-bold text-sm flex-shrink-0">
                                       {(t.nome || '?')[0].toUpperCase()}
                                     </div>
                                     <div className="min-w-0">
                                       <p className="text-white font-medium truncate">{t.nome}</p>
-                                      <p className="text-muted text-xs font-mono">{t.slug}</p>
+                                      <p className="text-muted text-sm font-mono">{t.slug}</p>
                                     </div>
                                   </div>
                                 </td>
@@ -428,7 +428,7 @@ const PlanoLimites = () => {
                                 {/* Usuários */}
                                 <td className="px-4 py-3">
                                   <span className="text-white font-medium">{qtdUsuarios}</span>
-                                  <span className="text-muted text-xs"> / {t.limite_usuarios}</span>
+                                  <span className="text-muted text-sm"> / {t.limite_usuarios}</span>
                                 </td>
 
                                 {/* Barra de uso */}
@@ -440,7 +440,7 @@ const PlanoLimites = () => {
                                         style={{ width: `${pctUso}%` }}
                                       />
                                     </div>
-                                    <span className={`text-xs font-medium ${
+                                    <span className={`text-sm font-medium ${
                                       pctUso >= 90 ? 'text-red-400' :
                                       pctUso >= 70 ? 'text-amber-400' : 'text-muted'
                                     }`}>
@@ -453,7 +453,7 @@ const PlanoLimites = () => {
                                 <td className="px-4 py-3 text-right">
                                   <button
                                     onClick={() => setTenantEditar(t)}
-                                    className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5 ml-auto"
+                                    className="btn-secondary text-sm px-3 py-1.5 flex items-center gap-1.5 ml-auto"
                                   >
                                     ✏️ Editar plano
                                   </button>

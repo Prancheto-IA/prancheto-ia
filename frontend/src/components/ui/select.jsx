@@ -11,7 +11,7 @@ const SelectTrigger = React.forwardRef(({ className, children, ...props }, ref) 
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-10 w-full items-center justify-between gap-2 whitespace-nowrap rounded-xl border border-surface-border bg-surface-subtle px-3.5 py-2 text-xs sm:text-sm font-medium text-ink-primary shadow-2xs transition-all',
+      'flex h-10 w-full items-center justify-between gap-2 whitespace-nowrap rounded-xl border border-surface-border bg-surface-subtle px-3.5 py-2 text-sm font-medium text-ink-primary shadow-2xs transition-all',
       ' hover:border-surface-border-strong focus:outline-none focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-accent/60',
       'disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 cursor-pointer',
       className
@@ -81,7 +81,7 @@ SelectContent.displayName = SelectPrimitive.Content.displayName;
 const SelectLabel = React.forwardRef(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn('px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider text-ink-secondary', className)}
+    className={cn('px-2.5 py-1.5 text-sm font-bold uppercase tracking-wider text-ink-secondary', className)}
     {...props}
   />
 ));
@@ -91,7 +91,7 @@ const SelectItem = React.forwardRef(({ className, children, ...props }, ref) => 
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-3 pr-8 text-xs sm:text-sm font-medium text-ink-primary outline-none transition-colors',
+      'relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-3 pr-8 text-sm font-medium text-ink-primary outline-none transition-colors',
       'focus:bg-brand-accent focus:text-brand-primary data-[highlighted]:bg-brand-accent data-[highlighted]:text-brand-primary',
       'data-[state=checked]:font-semibold data-[state=checked]:text-brand-primary',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-45',

@@ -129,7 +129,7 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
               className={`input w-full ${erros.nome ? 'border-red-500' : ''}`}
               disabled={salvando}
             />
-            {erros.nome && <p className="text-red-400 text-xs mt-1">{erros.nome}</p>}
+            {erros.nome && <p className="text-red-400 text-sm mt-1">{erros.nome}</p>}
           </div>
 
           <div>
@@ -143,9 +143,9 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
               disabled={salvando || editando}
             />
             {editando && (
-              <p className="text-muted text-xs mt-1">E-mail não pode ser alterado.</p>
+              <p className="text-muted text-sm mt-1">E-mail não pode ser alterado.</p>
             )}
-            {erros.email && <p className="text-red-400 text-xs mt-1">{erros.email}</p>}
+            {erros.email && <p className="text-red-400 text-sm mt-1">{erros.email}</p>}
           </div>
 
           <div>
@@ -160,7 +160,7 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
               className={`input w-full ${erros.senha ? 'border-red-500' : ''}`}
               disabled={salvando}
             />
-            {erros.senha && <p className="text-red-400 text-xs mt-1">{erros.senha}</p>}
+            {erros.senha && <p className="text-red-400 text-sm mt-1">{erros.senha}</p>}
           </div>
 
           <div>
@@ -190,9 +190,9 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
               ))}
             </SelectField>
             {editando && (
-              <p className="text-muted text-xs mt-1">Tenant não pode ser alterado.</p>
+              <p className="text-muted text-sm mt-1">Tenant não pode ser alterado.</p>
             )}
-            {erros.tenantId && <p className="text-red-400 text-xs mt-1">{erros.tenantId}</p>}
+            {erros.tenantId && <p className="text-red-400 text-sm mt-1">{erros.tenantId}</p>}
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -542,12 +542,12 @@ const GestaoUsuarios = () => {
                       <tr key={u.id} className="hover:bg-primary-900/20 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-primary-800 flex items-center justify-center text-primary-300 font-semibold text-xs flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-primary-800 flex items-center justify-center text-primary-300 font-semibold text-sm flex-shrink-0">
                               {(u.nome || u.email || '?')[0].toUpperCase()}
                             </div>
                             <div className="min-w-0">
                               <p className="text-white font-medium truncate">{u.nome || '—'}</p>
-                              <p className="text-muted text-xs truncate">{u.email}</p>
+                              <p className="text-muted text-sm truncate">{u.email}</p>
                             </div>
                           </div>
                         </td>
@@ -576,7 +576,7 @@ const GestaoUsuarios = () => {
                           )}
                         </td>
 
-                        <td className="px-4 py-3 text-muted text-xs">
+                        <td className="px-4 py-3 text-muted text-sm">
                           {u.criadoEm || u.created_at
                             ? new Date(u.criadoEm || u.created_at).toLocaleDateString('pt-BR')
                             : '—'}

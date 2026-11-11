@@ -31,7 +31,7 @@ const TelaCarregandoAdmin = () => (
   <div className="flex items-center justify-center flex-1 min-h-screen bg-[#F2F5F3]">
     <div className="flex flex-col items-center gap-3">
       <div className="w-8 h-8 border-3 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
-      <p className="text-xs text-[#687770]">Carregando painel admin...</p>
+      <p className="text-sm text-[#687770]">Carregando painel admin...</p>
     </div>
   </div>
 );
@@ -53,7 +53,7 @@ const CardModulo = ({ icone, titulo, descricao, status, onClick }) => {
           {icone}
         </div>
         <h3 className="font-extrabold text-sm text-[#111915]">{titulo}</h3>
-        <p className="text-xs text-[#687770] leading-relaxed">{descricao}</p>
+        <p className="text-sm text-[#687770] leading-relaxed">{descricao}</p>
       </div>
 
       <div className="pt-2">
@@ -145,12 +145,12 @@ const DashboardAdmin = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="text-xs font-bold text-[#111915] hidden sm:block">
+          <span className="text-sm font-bold text-[#111915] hidden sm:block">
             {usuario?.nome || usuario?.email}
           </span>
           <button
             onClick={logout}
-            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+            className="text-sm font-semibold px-3 py-1.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
           >
             Sair
           </button>
@@ -161,7 +161,7 @@ const DashboardAdmin = () => {
       <main className="flex-1 p-6 sm:p-8 max-w-7xl mx-auto w-full space-y-6">
         <div>
           <h1 className="text-xl font-extrabold text-[#111915]">Painel de Controle Super Admin</h1>
-          <p className="text-xs text-[#687770]">
+          <p className="text-sm text-[#687770]">
             Área restrita de governança. Gerencie permissões, empresas parceiras e auditorias do sistema.
           </p>
         </div>

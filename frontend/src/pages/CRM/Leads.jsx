@@ -11,13 +11,13 @@ import { useLeads } from '../../hooks/useCRM.js';
 import { supabase } from '../../lib/supabase.js';
 import { SelectField } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
+import { AutocompleteReUI9 } from '@/components/reui/c-autocomplete-9';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
   Settings02Icon,
   Add01Icon,
   ArrowDown01Icon,
-  ArrowUp01Icon,
 } from '@hugeicons/core-free-icons';
 
 // ─── 5 ETAPAS DO PIPELINE EM PORTUGUÊS ─────────────────────────
@@ -26,10 +26,10 @@ export const ETAPAS_PIPELINE = [
     key: 'lead',
     titulo: 'Qualificação',
     rotuloPt: 'Qualificação',
-    corTotal: 'text-blue-700',
-    corBg: 'bg-[#F3F7FA]',
-    corBorda: 'border-[#E2EAF1]',
-    corBotaoAdd: 'border-blue-200 text-blue-600 hover:border-blue-300 hover:bg-blue-50/60',
+    corTotal: 'text-brand-secondary',
+    corBg: 'bg-surface',
+    corBorda: 'border-surface-border',
+    corBotaoAdd: 'border-brand-accent text-brand-secondary hover:border-brand-secondary/40 hover:bg-brand-accent/40',
     tagPadrao: 'Novo',
     probabilidadePadrao: 30,
   },
@@ -37,10 +37,10 @@ export const ETAPAS_PIPELINE = [
     key: 'qualificado',
     titulo: 'Descoberta',
     rotuloPt: 'Descoberta',
-    corTotal: 'text-purple-700',
-    corBg: 'bg-[#F7F4FA]',
-    corBorda: 'border-[#E9E2F2]',
-    corBotaoAdd: 'border-purple-200 text-purple-600 hover:border-purple-300 hover:bg-purple-50/60',
+    corTotal: 'text-brand-purple',
+    corBg: 'bg-[#F5F2FC]',
+    corBorda: 'border-[#E4DBF7]',
+    corBotaoAdd: 'border-purple-200 text-brand-purple hover:border-purple-300 hover:bg-purple-50/60',
     tagPadrao: 'Enterprise',
     probabilidadePadrao: 50,
   },
@@ -48,7 +48,7 @@ export const ETAPAS_PIPELINE = [
     key: 'proposta',
     titulo: 'Proposta',
     rotuloPt: 'Proposta',
-    corTotal: 'text-amber-800',
+    corTotal: 'text-amber-700',
     corBg: 'bg-[#FAF7EC]',
     corBorda: 'border-[#EFE8D3]',
     corBotaoAdd: 'border-amber-300 text-amber-700 hover:border-amber-400 hover:bg-amber-50/60',
@@ -59,10 +59,10 @@ export const ETAPAS_PIPELINE = [
     key: 'negociacao',
     titulo: 'Negociação',
     rotuloPt: 'Negociação',
-    corTotal: 'text-rose-800',
-    corBg: 'bg-[#FAF3F3]',
-    corBorda: 'border-[#F2E0E2]',
-    corBotaoAdd: 'border-rose-300 text-rose-600 hover:border-rose-400 hover:bg-rose-50/60',
+    corTotal: 'text-brand-violet',
+    corBg: 'bg-[#F7F3FD]',
+    corBorda: 'border-[#EAE0FA]',
+    corBotaoAdd: 'border-violet-200 text-brand-violet hover:border-violet-300 hover:bg-violet-50/60',
     tagPadrao: 'Ativo',
     probabilidadePadrao: 80,
   },
@@ -70,10 +70,10 @@ export const ETAPAS_PIPELINE = [
     key: 'fechado',
     titulo: 'Fechamento',
     rotuloPt: 'Fechamento',
-    corTotal: 'text-blue-900',
-    corBg: 'bg-[#F2F6F4]',
-    corBorda: 'border-[#E1ECE5]',
-    corBotaoAdd: 'border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50/60',
+    corTotal: 'text-brand-primary',
+    corBg: 'bg-[#EDF4FA]',
+    corBorda: 'border-[#D8E8F2]',
+    corBotaoAdd: 'border-brand-accent text-brand-primary hover:border-brand-secondary/40 hover:bg-brand-accent/50',
     tagPadrao: 'Renovação',
     probabilidadePadrao: 90,
   },
@@ -299,24 +299,24 @@ const MAPA_TAGS_PT = {
 const obterEstiloTag = (tag) => {
   const t = (tag || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (t.includes('new') || t.includes('novo') || t.includes('inbound')) {
-    return 'bg-blue-50 text-blue-700 border border-blue-200/60';
+    return 'bg-brand-accent/70 text-brand-primary border border-brand-secondary/20';
   }
   if (t.includes('enterprise') || t.includes('corporativo') || t.includes('indicacao')) {
-    return 'bg-indigo-50 text-indigo-700 border border-indigo-200/60';
+    return 'bg-[#F5F2FC] text-brand-purple border border-brand-purple/20';
   }
   if (t.includes('warm') || t.includes('morno') || t.includes('evento')) {
     return 'bg-amber-50 text-amber-700 border border-amber-200/60';
   }
   if (t.includes('active') || t.includes('ativo') || t.includes('negociacao')) {
-    return 'bg-orange-50 text-orange-700 border border-orange-200/60';
+    return 'bg-[#F7F3FD] text-brand-violet border border-brand-violet/25';
   }
   if (t.includes('renewal') || t.includes('renovacao') || t.includes('recorrente') || t.includes('saas')) {
-    return 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
+    return 'bg-brand-accent text-brand-secondary border border-brand-secondary/25';
   }
   if (t.includes('review') || t.includes('revisao') || t.includes('proposta')) {
     return 'bg-rose-50 text-rose-700 border border-rose-200/60';
   }
-  return 'bg-slate-50 text-slate-700 border border-slate-200/60';
+  return 'bg-surface-subtle text-ink-secondary border border-surface-border';
 };
 
 const formatarTagTexto = (lead, etapa) => {
@@ -373,19 +373,19 @@ const CardDeal = ({ deal, etapa, onAbrir, onDragStart, onDragEnd }) => {
       onDragStart={(e) => onDragStart(e, deal.id)}
       onDragEnd={onDragEnd}
       onClick={() => onAbrir(deal)}
-      className="bg-white rounded-2xl p-4 border border-[#E4ECE7] shadow-[0_2px_8px_-2px_rgba(14,56,44,0.03)] hover:shadow-md hover:border-[#CBDCD1] transition-all cursor-grab active:cursor-grabbing select-none group space-y-2.5"
+      className="bg-surface-card rounded-2xl p-4 border border-surface-border shadow-[0_2px_8px_-2px_rgba(0,23,105,0.04)] hover:shadow-md hover:border-surface-border-strong transition-all cursor-grab active:cursor-grabbing select-none group space-y-2.5"
     >
       {/* Topo: Título do Negócio e Badge de Categoria */}
       <div>
         <div className="flex items-start justify-between gap-2">
-          <h4 className="text-sm font-extrabold text-[#111915] leading-snug group-hover:text-[#0E382C] transition-colors truncate flex-1">
+          <h4 className="text-sm sm:text-[13px] font-bold text-ink-primary leading-snug group-hover:text-brand-secondary transition-colors truncate flex-1 tracking-tight">
             {deal.negocio_nome || deal.nome}
           </h4>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${tagClasse}`}>
+          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${tagClasse}`}>
             {tagTexto}
           </span>
         </div>
-        <p className="text-xs text-[#687770] font-medium mt-0.5 truncate">
+        <p className="text-sm text-ink-secondary font-medium mt-0.5 truncate">
           {deal.empresa || deal.nome}
         </p>
       </div>
@@ -393,16 +393,16 @@ const CardDeal = ({ deal, etapa, onAbrir, onDragStart, onDragEnd }) => {
       {/* Meio: Valor em destaque e Barra de Probabilidade */}
       <div className="pt-0.5">
         <div className="flex items-baseline justify-between mb-1">
-          <span className="text-lg sm:text-xl font-extrabold text-[#111915] tracking-tight">
+          <span className="text-base sm:text-lg font-bold text-ink-primary tracking-tight">
             {valorFormatado}
           </span>
-          <span className="text-xs font-bold text-[#687770]">
+          <span className="text-sm font-semibold text-ink-secondary">
             {probabilidade}%
           </span>
         </div>
-        <div className="w-full h-1.5 bg-[#EBF0ED] rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-surface-muted rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full bg-[#15803D] transition-all duration-300"
+            className="h-full rounded-full bg-brand-secondary transition-all duration-300"
             style={{ width: `${probabilidade}%` }}
           />
         </div>
@@ -411,12 +411,12 @@ const CardDeal = ({ deal, etapa, onAbrir, onDragStart, onDragEnd }) => {
       {/* Rodapé: Avatar e Tempo na Etapa */}
       <div className="flex items-center justify-between pt-1">
         <div
-          className="w-6 h-6 rounded-full bg-[#FFE8E1] text-[#C84B31] font-bold text-[10px] flex items-center justify-center shrink-0 shadow-2xs"
+          className="w-6 h-6 rounded-full bg-brand-accent text-brand-primary border border-brand-secondary/15 font-bold text-[10px] flex items-center justify-center shrink-0 shadow-2xs"
           title={deal.responsavel?.nome || deal.nome}
         >
           {iniciais}
         </div>
-        <span className="text-[11px] text-[#687770] font-medium">
+        <span className="text-[11px] text-ink-secondary font-medium">
           {tempoEtapa}
         </span>
       </div>
@@ -468,16 +468,16 @@ const ColunaPipeline = ({
       onDragOver={(e) => onDragOver(e, etapa.key)}
       onDragLeave={(e) => onDragLeave(e, etapa.key)}
       onDrop={(e) => onDrop(e, etapa.key)}
-      className={`w-72 sm:w-80 flex-shrink-0 h-full max-h-full flex flex-col rounded-3xl p-3 sm:p-3.5 transition-all duration-200 ${etapa.corBg} border ${
-        isDragOver ? 'ring-2 ring-emerald-500 border-emerald-400 scale-[1.01]' : etapa.corBorda
+      className={`w-72 sm:w-80 flex-shrink-0 h-full max-h-full flex flex-col rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 transition-all duration-200 ${etapa.corBg} border ${
+        isDragOver ? 'ring-2 ring-brand-secondary border-brand-secondary scale-[1.01]' : etapa.corBorda
       } group/coluna relative`}
     >
       {/* Header da Coluna */}
       <div className="px-1 pt-1 pb-3 flex items-center justify-between min-h-[36px] flex-shrink-0">
         {modoBusca ? (
           /* Modo Busca Ativo: Substitui cabeçalho e botões por barra de pesquisa */
-          <div className="flex items-center gap-1.5 w-full bg-white border border-[#E4ECE7] rounded-xl px-2.5 py-1.5 shadow-2xs transition-all duration-300">
-            <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={1.8} className="text-slate-400 shrink-0" />
+          <div className="flex items-center gap-1.5 w-full bg-surface-card border border-surface-border rounded-xl px-2.5 py-1.5 shadow-2xs transition-all duration-300">
+            <HugeiconsIcon icon={Search01Icon} size={15} strokeWidth={1.8} className="text-ink-muted shrink-0" />
             <input
               ref={inputBuscaRef}
               type="text"
@@ -490,7 +490,7 @@ const ColunaPipeline = ({
                 }
               }}
               placeholder={`Pesquisar em ${etapa.titulo}...`}
-              className="w-full bg-transparent text-xs text-[#111915] placeholder-slate-400 focus:outline-none"
+              className="w-full bg-transparent text-sm text-ink-primary placeholder-slate-400 focus:outline-none"
             />
             <button
               type="button"
@@ -498,7 +498,7 @@ const ColunaPipeline = ({
                 setBuscaColuna('');
                 setModoBusca(false);
               }}
-              className="text-slate-400 hover:text-slate-600 text-xs p-0.5 rounded-md shrink-0"
+              className="text-ink-muted hover:text-ink-primary text-sm p-0.5 rounded-md shrink-0"
               title="Fechar pesquisa"
             >
               ✕
@@ -509,13 +509,13 @@ const ColunaPipeline = ({
           <div className="flex items-center justify-between w-full gap-2 min-w-0">
             {/* Lado Esquerdo: Nome da coluna [2] R$ 242k */}
             <div className="flex items-center gap-2 min-w-0 flex-1 truncate">
-              <h3 className="font-extrabold text-xs sm:text-sm text-[#111915] truncate">
+              <h3 className="font-bold text-sm text-ink-primary truncate tracking-tight">
                 {etapa.titulo}
               </h3>
-              <span className="w-5 h-5 min-w-[20px] rounded-md bg-white/90 border border-[#D5E0D9] text-[#111915] flex items-center justify-center text-[11px] font-bold shadow-2xs shrink-0">
+              <span className="w-5 h-5 min-w-[20px] rounded-md bg-surface-card border border-surface-border text-ink-primary flex items-center justify-center text-[11px] font-semibold shadow-2xs shrink-0">
                 {deals.length}
               </span>
-              <span className={`text-xs sm:text-sm font-extrabold shrink-0 ${etapa.corTotal}`}>
+              <span className={`text-sm font-bold shrink-0 ${etapa.corTotal}`}>
                 {totalFormatado}
               </span>
             </div>
@@ -526,30 +526,30 @@ const ColunaPipeline = ({
               <button
                 type="button"
                 onClick={() => onConfigurarColuna(etapa)}
-                className="opacity-0 group-hover/coluna:opacity-100 transition-opacity p-1.5 text-[#687770] hover:text-[#0E382C] hover:bg-white/80 rounded-lg"
+                className="opacity-0 group-hover/coluna:opacity-100 transition-opacity p-1.5 text-ink-secondary hover:text-brand-primary hover:bg-white/80 rounded-lg"
                 title="Configurações da coluna"
               >
-                <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.75} />
+                <HugeiconsIcon icon={Settings02Icon} size={15} strokeWidth={1.8} />
               </button>
 
-              {/* 2. Botão de + para adicionar novo negócio na coluna (com a cor da coluna e traço destacado) */}
+              {/* 2. Botão de + para adicionar novo negócio na coluna */}
               <button
                 type="button"
                 onClick={() => onNovoDealEtapa(etapa.key)}
                 className={`p-1.5 ${etapa.corTotal} hover:bg-white/90 rounded-lg transition-all hover:shadow-2xs active:scale-95`}
                 title="Adicionar negócio nesta coluna"
               >
-                <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.5} />
+                <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.2} />
               </button>
 
               {/* 3. Botão de Lupa para pesquisar negócio na coluna */}
               <button
                 type="button"
                 onClick={() => setModoBusca(true)}
-                className="p-1.5 text-[#687770] hover:text-[#0E382C] hover:bg-white/80 rounded-lg transition-colors"
+                className="p-1.5 text-ink-secondary hover:text-brand-primary hover:bg-white/80 rounded-lg transition-colors"
                 title="Pesquisar negócios nesta coluna"
               >
-                <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={1.75} />
+                <HugeiconsIcon icon={Search01Icon} size={15} strokeWidth={1.8} />
               </button>
             </div>
           </div>
@@ -570,8 +570,8 @@ const ColunaPipeline = ({
         ))}
 
         {dealsExibidos.length === 0 && (
-          <div className="h-28 rounded-2xl border-2 border-dashed border-slate-200/80 flex items-center justify-center p-3 text-center">
-            <p className="text-xs text-[#687770] font-medium">
+          <div className="h-28 rounded-2xl border border-dashed border-surface-border flex items-center justify-center p-3 text-center">
+            <p className="text-sm text-ink-secondary font-medium">
               {buscaColuna ? `Nenhum resultado para "${buscaColuna}"` : 'Nenhum negócio nesta etapa'}
             </p>
           </div>
@@ -607,52 +607,52 @@ const ModalConfigColuna = ({ aberto, onFechar, etapa, onSalvar }) => {
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4" onClick={onFechar}>
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md border border-[#E4ECE7] shadow-2xl space-y-4" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between pb-3 border-b border-[#E4ECE7]">
+      <div className="bg-surface-card rounded-2xl p-6 w-full max-w-md border border-surface-border shadow-2xl space-y-4" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between pb-3 border-b border-surface-border">
           <div>
-            <h3 className="font-extrabold text-base text-[#111915]">
+            <h3 className="font-bold text-base text-ink-primary">
               Configurações da Coluna
             </h3>
-            <p className="text-xs text-[#687770]">Etapa: {etapa.titulo}</p>
+            <p className="text-sm text-ink-secondary">Etapa: {etapa.titulo}</p>
           </div>
-          <button onClick={onFechar} className="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+          <button onClick={onFechar} className="text-ink-muted hover:text-ink-primary text-lg">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-[#111915] mb-1">Nome da Etapa / Coluna</label>
+            <label className="block text-sm font-semibold text-ink-primary mb-1">Nome da Etapa / Coluna</label>
             <input
               type="text"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl px-3.5 py-2 text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2 text-sm text-ink-primary focus:outline-none focus:border-brand-primary"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#111915] mb-1">Probabilidade Padrão (%)</label>
+            <label className="block text-sm font-semibold text-ink-primary mb-1">Probabilidade Padrão (%)</label>
             <input
               type="number"
               min="0"
               max="100"
               value={probabilidade}
               onChange={(e) => setProbabilidade(e.target.value)}
-              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl px-3.5 py-2 text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2 text-sm text-ink-primary focus:outline-none focus:border-brand-primary"
             />
           </div>
 
-          <div className="flex gap-2.5 pt-2 border-t border-[#E4ECE7]">
+          <div className="flex gap-2.5 pt-2 border-t border-surface-border">
             <button
               type="button"
               onClick={onFechar}
-              className="flex-1 py-2.5 rounded-xl text-xs font-bold text-[#687770] bg-[#F7FAF8] hover:bg-[#EDF2EE] border border-[#E4ECE7]"
+              className="flex-1 py-2 rounded-xl text-sm font-semibold text-ink-secondary bg-surface-subtle hover:bg-surface-hover border border-surface-border transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0E382C] hover:bg-[#07261E] shadow-xs"
+              className="flex-1 py-2 rounded-xl text-sm font-semibold text-white bg-brand-primary hover:bg-brand-primary-hover shadow-xs transition-colors"
             >
               Salvar Configurações
             </button>
@@ -732,22 +732,15 @@ const ModalLead = ({
   const [salvando, setSalvando]                 = useState(false);
   const [erro, setErro]                         = useState('');
 
-  // Dropdown de Contatos
-  const [dropdownContatoAberto, setDropdownContato]   = useState(false);
-  const [buscaContato, setBuscaContato]               = useState('');
+  // Estados de Contatos (ReUI Autocomplete + criação inline)
   const [criandoContatoInline, setCriandoContato]     = useState(false);
   const [novoContato, setNovoContato]                 = useState({ nome: '', email: '', telefone: '' });
   const [listaContatos, setListaContatos]             = useState(CONTATOS_SUGERIDOS_PADRAO);
 
-  // Dropdown de Empresas
-  const [dropdownEmpresaAberto, setDropdownEmpresa]   = useState(false);
-  const [buscaEmpresa, setBuscaEmpresa]               = useState('');
+  // Estados de Empresas (ReUI Autocomplete + criação inline)
   const [criandoEmpresaInline, setCriandoEmpresa]     = useState(false);
   const [novaEmpresaNome, setNovaEmpresaNome]         = useState('');
   const [listaEmpresas, setListaEmpresas]             = useState(EMPRESAS_SUGERIDAS_PADRAO);
-
-  const contatoRef = useRef(null);
-  const empresaRef = useRef(null);
 
   // Sincroniza listas de contatos e empresas vindas de deals existentes e do Supabase
   useEffect(() => {
@@ -840,29 +833,31 @@ const ModalLead = ({
     }
 
     setErro('');
-    setDropdownContato(false);
-    setDropdownEmpresa(false);
     setCriandoContato(false);
     setCriandoEmpresa(false);
-    setBuscaContato('');
-    setBuscaEmpresa('');
   }, [leadEditando, aberto, statusInicial]);
 
-  // Fechar dropdowns de contato e empresa ao clicar fora
-  useEffect(() => {
-    const handleClickFora = (e) => {
-      if (contatoRef.current && !contatoRef.current.contains(e.target)) {
-        setDropdownContato(false);
-        setCriandoContato(false);
-      }
-      if (empresaRef.current && !empresaRef.current.contains(e.target)) {
-        setDropdownEmpresa(false);
-        setCriandoEmpresa(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickFora);
-    return () => document.removeEventListener('mousedown', handleClickFora);
-  }, []);
+  // Itens formatados para o componente reui/c-autocomplete-9
+  const contatosAutocompleteItems = useMemo(
+    () =>
+      listaContatos.map((c) => ({
+        id: String(c.id || c.nome),
+        name: c.nome,
+        subtitle: [c.email, c.telefone].filter(Boolean).join(' · ') || 'Contato cadastrado',
+        raw: c,
+      })),
+    [listaContatos]
+  );
+
+  const empresasAutocompleteItems = useMemo(
+    () =>
+      listaEmpresas.map((emp) => ({
+        id: emp,
+        name: emp,
+        subtitle: 'Empresa cadastrada',
+      })),
+    [listaEmpresas]
+  );
 
   if (!aberto) return null;
 
@@ -879,22 +874,6 @@ const ModalLead = ({
     setForm(f => ({ ...f, valor_formatado: masked }));
   };
 
-  // Filtros de busca para contatos e empresas
-  const contatosFiltrados = listaContatos.filter((c) => {
-    if (!buscaContato) return true;
-    const termo = buscaContato.toLowerCase();
-    return (
-      (c.nome || '').toLowerCase().includes(termo) ||
-      (c.email || '').toLowerCase().includes(termo) ||
-      (c.telefone || '').toLowerCase().includes(termo)
-    );
-  });
-
-  const empresasFiltradas = listaEmpresas.filter((emp) => {
-    if (!buscaEmpresa) return true;
-    return emp.toLowerCase().includes(buscaEmpresa.toLowerCase());
-  });
-
   // Ações de seleção de contato
   const selecionarContato = (contato) => {
     setForm(f => ({
@@ -903,8 +882,6 @@ const ModalLead = ({
       contato_email: contato.email || f.contato_email,
       contato_telefone: contato.telefone || f.contato_telefone,
     }));
-    setDropdownContato(false);
-    setBuscaContato('');
   };
 
   const handleSalvarNovoContatoInline = () => {
@@ -924,8 +901,6 @@ const ModalLead = ({
   // Ações de seleção de empresa
   const selecionarEmpresa = (empresaNome) => {
     setForm(f => ({ ...f, empresa: empresaNome }));
-    setDropdownEmpresa(false);
-    setBuscaEmpresa('');
   };
 
   const handleSalvarNovaEmpresaInline = () => {
@@ -973,34 +948,29 @@ const ModalLead = ({
     }
   };
 
-  const inputStyle = {
-    backgroundColor: '#F7FAF8',
-    borderColor: '#E4ECE7',
-  };
-
   return (
     <div
       className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-start justify-center p-3 sm:p-5 overflow-y-auto"
       onClick={onFechar}
     >
       <div
-        className="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-xl my-auto border border-[#E4ECE7] shadow-2xl transition-all"
+        className="bg-surface-card rounded-2xl p-6 sm:p-7 w-full max-w-xl my-auto border border-surface-border shadow-2xl transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Topo do Modal */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#E4ECE7] mb-5">
+        <div className="flex items-center justify-between pb-4 border-b border-surface-border mb-5">
           <div>
-            <h3 className="font-extrabold text-xl text-[#111915] tracking-tight">
+            <h3 className="font-bold text-lg text-ink-primary tracking-tight">
               {leadEditando ? 'Editar negócio' : 'Adicione um novo negócio'}
             </h3>
-            <p className="text-xs text-[#687770] font-medium mt-0.5">
+            <p className="text-sm text-ink-secondary font-medium mt-0.5">
               Defina os parâmetros do negócio, previsões e contatos vinculados
             </p>
           </div>
           <button
             type="button"
             onClick={onFechar}
-            className="w-8 h-8 rounded-lg border border-[#E4ECE7] hover:border-slate-300 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors text-sm font-bold shadow-2xs"
+            className="w-8 h-8 rounded-xl border border-surface-border hover:border-surface-border-strong text-ink-secondary hover:text-ink-primary flex items-center justify-center transition-colors text-sm font-semibold shadow-2xs"
             aria-label="Fechar modal"
           >
             ✕
@@ -1011,7 +981,7 @@ const ModalLead = ({
           {/* Linha 1: Título do Negócio & Valor do negócio */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1.5">
+              <label className="block text-sm font-semibold text-ink-primary mb-1.5">
                 Título do Negócio <span className="text-rose-500">*</span>
               </label>
               <input
@@ -1019,13 +989,12 @@ const ModalLead = ({
                 value={form.negocio_nome}
                 onChange={set('negocio_nome')}
                 placeholder="Ex: Expansão de infraestrutura"
-                className="w-full rounded-xl px-3.5 py-2.5 text-xs sm:text-sm border focus:outline-none focus:border-[#0E382C] text-[#111915] font-medium transition-colors"
-                style={inputStyle}
+                className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1.5">
+              <label className="block text-sm font-semibold text-ink-primary mb-1.5">
                 Valor do negócio
               </label>
               <input
@@ -1033,8 +1002,7 @@ const ModalLead = ({
                 value={form.valor_formatado}
                 onChange={handleValorChange}
                 placeholder="R$ 1.000,00"
-                className="w-full rounded-xl px-3.5 py-2.5 text-xs sm:text-sm border focus:outline-none focus:border-[#0E382C] text-[#111915] font-medium transition-colors"
-                style={inputStyle}
+                className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
               />
             </div>
           </div>
@@ -1042,7 +1010,7 @@ const ModalLead = ({
           {/* Linha 2: Etapa & Responsável pelo Negócio */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1.5">Etapa</label>
+              <label className="block text-sm font-semibold text-ink-primary mb-1.5">Etapa</label>
               <SelectField
                 value={form.status_funil}
                 onChange={set('status_funil')}
@@ -1054,7 +1022,7 @@ const ModalLead = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1.5">
+              <label className="block text-sm font-semibold text-ink-primary mb-1.5">
                 Responsável pelo Negócio
               </label>
               <SelectField
@@ -1074,7 +1042,7 @@ const ModalLead = ({
           {/* Linha 3: Data de fechamento prevista */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1.5">
+              <label className="block text-sm font-semibold text-ink-primary mb-1.5">
                 Data de fechamento prevista
               </label>
               <DatePicker
@@ -1087,7 +1055,7 @@ const ModalLead = ({
 
           {/* Linha 4: Descrição do negócio */}
           <div>
-            <label className="block text-xs font-bold text-[#111915] mb-1.5">
+            <label className="block text-sm font-semibold text-ink-primary mb-1.5">
               Descrição do negócio
             </label>
             <textarea
@@ -1096,317 +1064,151 @@ const ModalLead = ({
               maxLength={1000}
               rows={3}
               placeholder="Descreva detalhes, alinhamentos, escopo ou histórico..."
-              className="w-full rounded-xl px-3.5 py-2.5 text-xs sm:text-sm border focus:outline-none focus:border-[#0E382C] text-[#111915] resize-none"
-              style={inputStyle}
+              className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary resize-none"
             />
-            <div className="text-right text-[11px] text-[#687770] font-medium mt-1">
+            <div className="text-right text-[11px] text-ink-secondary font-medium mt-1">
               {form.observacoes.length}/1000
             </div>
           </div>
 
-          {/* Linha 5: Contato (com dropdown, busca e criação inline - imagem 2) */}
-          <div className="relative" ref={contatoRef}>
-            <label className="block text-xs font-bold text-[#111915] mb-1.5">Contato</label>
-            <button
-              type="button"
-              onClick={() => {
-                setDropdownContato(!dropdownContatoAberto);
-                setDropdownEmpresa(false);
+          {/* Linha 5: Contato (ReUI c-autocomplete-9 + criação inline) */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-ink-primary mb-1.5">Contato</label>
+            <AutocompleteReUI9
+              items={contatosAutocompleteItems}
+              value={form.contato_nome}
+              onValueChange={(val) =>
+                setForm((f) => ({
+                  ...f,
+                  contato_nome: val,
+                  ...(val === '' ? { contato_email: '', contato_telefone: '' } : {}),
+                }))
+              }
+              onSelectItem={(item) => selecionarContato(item.raw || { nome: item.name })}
+              placeholder="Pesquisar ou selecionar contato..."
+              entitySingular="contato"
+              entityPlural="contatos"
+              addLabel="Adicionar um contato"
+              onAddClick={(termo) => {
+                setNovoContato((n) => ({ ...n, nome: termo || n.nome }));
+                setCriandoContato(true);
               }}
-              className={`w-full flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs sm:text-sm border transition-all text-left ${
-                dropdownContatoAberto ? 'border-[#0E382C] ring-2 ring-[#0E382C]/10 bg-white' : ''
-              }`}
-              style={inputStyle}
-            >
-              <span className={form.contato_nome ? 'text-[#111915] font-semibold' : 'text-slate-400'}>
-                {form.contato_nome ? (
-                  <span>
-                    {form.contato_nome}
-                    {form.contato_email && (
-                      <span className="text-[#687770] font-normal text-xs ml-1.5">
-                        · {form.contato_email}
-                      </span>
-                    )}
-                  </span>
-                ) : (
-                  'Selecione ou adicione um contato...'
-                )}
-              </span>
-              <div className="flex items-center gap-1.5 text-slate-400">
-                {form.contato_nome && (
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setForm(f => ({ ...f, contato_nome: '', contato_email: '', contato_telefone: '' }));
-                    }}
-                    className="hover:text-rose-500 p-0.5"
-                    title="Limpar contato"
-                  >
-                    ✕
-                  </span>
-                )}
-                <HugeiconsIcon icon={dropdownContatoAberto ? ArrowUp01Icon : ArrowDown01Icon} size={15} />
-              </div>
-            </button>
+            />
 
-            {/* Dropdown Popover de Contato */}
-            {dropdownContatoAberto && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#E4ECE7] rounded-xl shadow-xl z-50 overflow-hidden">
-                {/* Campo de Busca */}
-                <div className="p-2 border-b border-[#E4ECE7] bg-[#F7FAF8]">
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                      <HugeiconsIcon icon={Search01Icon} size={14} />
-                    </span>
-                    <input
-                      type="text"
-                      value={buscaContato}
-                      onChange={(e) => setBuscaContato(e.target.value)}
-                      placeholder="Pesquisar"
-                      autoFocus
-                      className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-lg text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C]"
-                    />
-                  </div>
+            {criandoContatoInline && (
+              <div className="p-3.5 space-y-2.5 bg-surface-subtle border border-surface-border rounded-xl">
+                <p className="text-sm font-semibold text-ink-primary">Adicionar novo contato</p>
+                <input
+                  type="text"
+                  placeholder="Nome completo *"
+                  value={novoContato.nome}
+                  onChange={(e) => setNovoContato((n) => ({ ...n, nome: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-xl border border-surface-border text-sm focus:outline-none focus:border-brand-primary bg-surface-card text-ink-primary"
+                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input
+                    type="email"
+                    placeholder="E-mail (opcional)"
+                    value={novoContato.email}
+                    onChange={(e) => setNovoContato((n) => ({ ...n, email: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-xl border border-surface-border text-sm focus:outline-none focus:border-brand-primary bg-surface-card text-ink-primary"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Telefone / WhatsApp (opcional)"
+                    value={novoContato.telefone}
+                    onChange={(e) => setNovoContato((n) => ({ ...n, telefone: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-xl border border-surface-border text-sm focus:outline-none focus:border-brand-primary bg-surface-card text-ink-primary"
+                  />
                 </div>
-
-                {/* Lista de Contatos ou formulário inline */}
-                {!criandoContatoInline ? (
-                  <>
-                    <div className="max-h-44 overflow-y-auto divide-y divide-[#F0F4F2] custom-scrollbar">
-                      {contatosFiltrados.length === 0 ? (
-                        <div className="px-4 py-4 text-xs text-center text-[#687770]">
-                          {buscaContato ? 'Nenhum contato encontrado' : 'Inserir um nome, email ou número de telefone'}
-                        </div>
-                      ) : (
-                        contatosFiltrados.map((c) => (
-                          <button
-                            key={c.id || c.nome}
-                            type="button"
-                            onClick={() => selecionarContato(c)}
-                            className={`w-full px-4 py-2.5 text-left hover:bg-[#F7FAF8] flex items-center justify-between text-xs transition-colors ${
-                              form.contato_nome === c.nome ? 'bg-[#DCF5E4]/60 font-semibold text-[#0E382C]' : 'text-[#111915]'
-                            }`}
-                          >
-                            <div className="truncate">
-                              <p className="font-semibold text-xs text-[#111915]">{c.nome}</p>
-                              {(c.email || c.telefone) && (
-                                <p className="text-[11px] text-[#687770] truncate mt-0.5">
-                                  {[c.email, c.telefone].filter(Boolean).join(' · ')}
-                                </p>
-                              )}
-                            </div>
-                            {form.contato_nome === c.nome && (
-                              <span className="text-[#0E382C] font-bold text-xs ml-2">✓</span>
-                            )}
-                          </button>
-                        ))
-                      )}
-                    </div>
-
-                    {/* Botão de Adicionar um contato */}
-                    <div className="p-2 border-t border-[#E4ECE7] bg-white">
-                      <button
-                        type="button"
-                        onClick={() => setCriandoContato(true)}
-                        className="w-full py-2 text-center text-xs font-semibold text-[#0E382C] hover:bg-[#F7FAF8] rounded-lg transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        <HugeiconsIcon icon={Add01Icon} size={14} />
-                        <span>Adicionar um contato</span>
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  /* Form inline de criação de contato */
-                  <div className="p-3 space-y-2 bg-white">
-                    <p className="text-xs font-bold text-[#111915]">Adicionar novo contato</p>
-                    <input
-                      type="text"
-                      placeholder="Nome completo *"
-                      value={novoContato.nome}
-                      onChange={(e) => setNovoContato(n => ({ ...n, nome: e.target.value }))}
-                      className="w-full px-3 py-1.5 rounded-lg border border-[#E4ECE7] text-xs focus:outline-none focus:border-[#0E382C] bg-[#F7FAF8]"
-                    />
-                    <input
-                      type="email"
-                      placeholder="E-mail (opcional)"
-                      value={novoContato.email}
-                      onChange={(e) => setNovoContato(n => ({ ...n, email: e.target.value }))}
-                      className="w-full px-3 py-1.5 rounded-lg border border-[#E4ECE7] text-xs focus:outline-none focus:border-[#0E382C] bg-[#F7FAF8]"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Telefone / WhatsApp (opcional)"
-                      value={novoContato.telefone}
-                      onChange={(e) => setNovoContato(n => ({ ...n, telefone: e.target.value }))}
-                      className="w-full px-3 py-1.5 rounded-lg border border-[#E4ECE7] text-xs focus:outline-none focus:border-[#0E382C] bg-[#F7FAF8]"
-                    />
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => setCriandoContato(false)}
-                        className="flex-1 py-1.5 text-xs font-semibold text-[#687770] bg-[#F7FAF8] hover:bg-[#EDF2EE] border border-[#E4ECE7] rounded-lg transition-colors"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleSalvarNovoContatoInline}
-                        className="flex-1 py-1.5 text-xs font-bold text-white bg-[#0E382C] hover:bg-[#07261E] rounded-lg transition-colors"
-                      >
-                        Adicionar
-                      </button>
-                    </div>
-                  </div>
-                )}
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setCriandoContato(false)}
+                    className="flex-1 py-1.5 text-sm font-semibold text-ink-secondary bg-surface-card hover:bg-surface-hover border border-surface-border rounded-xl transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSalvarNovoContatoInline}
+                    className="flex-1 py-1.5 text-sm font-semibold text-white bg-brand-primary hover:bg-brand-primary-hover rounded-xl transition-colors"
+                  >
+                    Adicionar
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Linha 6: Empresa (Chamará Empresa - imagem 3) */}
-          <div className="relative" ref={empresaRef}>
-            <label className="block text-xs font-bold text-[#111915] mb-1.5">Empresa</label>
-            <button
-              type="button"
-              onClick={() => {
-                setDropdownEmpresa(!dropdownEmpresaAberto);
-                setDropdownContato(false);
+          {/* Linha 6: Empresa (ReUI c-autocomplete-9 + criação inline) */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-ink-primary mb-1.5">Empresa</label>
+            <AutocompleteReUI9
+              items={empresasAutocompleteItems}
+              value={form.empresa}
+              onValueChange={(val) => setForm((f) => ({ ...f, empresa: val }))}
+              onSelectItem={(item) => selecionarEmpresa(item.name)}
+              placeholder="Pesquisar ou selecionar empresa..."
+              entitySingular="empresa"
+              entityPlural="empresas"
+              addLabel="Adicione uma empresa"
+              onAddClick={(termo) => {
+                setNovaEmpresaNome(termo || '');
+                setCriandoEmpresa(true);
               }}
-              className={`w-full flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs sm:text-sm border transition-all text-left ${
-                dropdownEmpresaAberto ? 'border-[#0E382C] ring-2 ring-[#0E382C]/10 bg-white' : ''
-              }`}
-              style={inputStyle}
-            >
-              <span className={form.empresa ? 'text-[#111915] font-semibold' : 'text-slate-400'}>
-                {form.empresa || 'Selecione ou adicione uma empresa...'}
-              </span>
-              <div className="flex items-center gap-1.5 text-slate-400">
-                {form.empresa && (
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setForm(f => ({ ...f, empresa: '' }));
-                    }}
-                    className="hover:text-rose-500 p-0.5"
-                    title="Limpar empresa"
+              avatarClassName="bg-[#F5F2FC] text-brand-purple"
+            />
+
+            {criandoEmpresaInline && (
+              <div className="p-3.5 space-y-2.5 bg-surface-subtle border border-surface-border rounded-xl">
+                <p className="text-sm font-semibold text-ink-primary">Adicionar nova empresa</p>
+                <input
+                  type="text"
+                  placeholder="Nome da empresa *"
+                  value={novaEmpresaNome}
+                  onChange={(e) => setNovaEmpresaNome(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-surface-border text-sm focus:outline-none focus:border-brand-primary bg-surface-card text-ink-primary"
+                />
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setCriandoEmpresa(false)}
+                    className="flex-1 py-1.5 text-sm font-semibold text-ink-secondary bg-surface-card hover:bg-surface-hover border border-surface-border rounded-xl transition-colors"
                   >
-                    ✕
-                  </span>
-                )}
-                <HugeiconsIcon icon={dropdownEmpresaAberto ? ArrowUp01Icon : ArrowDown01Icon} size={15} />
-              </div>
-            </button>
-
-            {/* Dropdown Popover de Empresa */}
-            {dropdownEmpresaAberto && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#E4ECE7] rounded-xl shadow-xl z-50 overflow-hidden">
-                {/* Campo de Busca */}
-                <div className="p-2 border-b border-[#E4ECE7] bg-[#F7FAF8]">
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                      <HugeiconsIcon icon={Search01Icon} size={14} />
-                    </span>
-                    <input
-                      type="text"
-                      value={buscaEmpresa}
-                      onChange={(e) => setBuscaEmpresa(e.target.value)}
-                      placeholder="Pesquisar"
-                      autoFocus
-                      className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-lg text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C]"
-                    />
-                  </div>
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSalvarNovaEmpresaInline}
+                    className="flex-1 py-1.5 text-sm font-semibold text-white bg-brand-primary hover:bg-brand-primary-hover rounded-xl transition-colors"
+                  >
+                    Adicionar
+                  </button>
                 </div>
-
-                {/* Lista de Empresas ou formulário inline */}
-                {!criandoEmpresaInline ? (
-                  <>
-                    <div className="max-h-44 overflow-y-auto divide-y divide-[#F0F4F2] custom-scrollbar">
-                      {empresasFiltradas.length === 0 ? (
-                        <div className="px-4 py-4 text-xs text-center text-[#687770]">
-                          Nenhuma empresa encontrada
-                        </div>
-                      ) : (
-                        empresasFiltradas.map((emp) => (
-                          <button
-                            key={emp}
-                            type="button"
-                            onClick={() => selecionarEmpresa(emp)}
-                            className={`w-full px-4 py-2.5 text-left hover:bg-[#F7FAF8] flex items-center justify-between text-xs transition-colors ${
-                              form.empresa === emp ? 'bg-[#DCF5E4]/60 font-semibold text-[#0E382C]' : 'text-[#111915]'
-                            }`}
-                          >
-                            <span className="truncate">{emp}</span>
-                            {form.empresa === emp && (
-                              <span className="text-[#0E382C] font-bold text-xs ml-2">✓</span>
-                            )}
-                          </button>
-                        ))
-                      )}
-                    </div>
-
-                    {/* Botão de Adicione uma empresa */}
-                    <div className="p-2 border-t border-[#E4ECE7] bg-white">
-                      <button
-                        type="button"
-                        onClick={() => setCriandoEmpresa(true)}
-                        className="w-full py-2 text-center text-xs font-semibold text-[#0E382C] hover:bg-[#F7FAF8] rounded-lg transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        <HugeiconsIcon icon={Add01Icon} size={14} />
-                        <span>Adicione uma empresa</span>
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  /* Form inline de criação de empresa */
-                  <div className="p-3 space-y-2 bg-white">
-                    <p className="text-xs font-bold text-[#111915]">Adicionar nova empresa</p>
-                    <input
-                      type="text"
-                      placeholder="Nome da empresa *"
-                      value={novaEmpresaNome}
-                      onChange={(e) => setNovaEmpresaNome(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg border border-[#E4ECE7] text-xs focus:outline-none focus:border-[#0E382C] bg-[#F7FAF8]"
-                    />
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => setCriandoEmpresa(false)}
-                        className="flex-1 py-1.5 text-xs font-semibold text-[#687770] bg-[#F7FAF8] hover:bg-[#EDF2EE] border border-[#E4ECE7] rounded-lg transition-colors"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleSalvarNovaEmpresaInline}
-                        className="flex-1 py-1.5 text-xs font-bold text-white bg-[#0E382C] hover:bg-[#07261E] rounded-lg transition-colors"
-                      >
-                        Adicionar
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
 
           {erro && (
-            <p className="text-rose-600 text-xs font-semibold bg-rose-50 px-3 py-2 rounded-xl border border-rose-200">
+            <p className="text-rose-600 text-sm font-semibold bg-rose-50 px-3 py-2 rounded-xl border border-rose-200">
               {erro}
             </p>
           )}
 
           {/* Rodapé com Ações (Cancelar e Criar / Salvar) */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E4ECE7]">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-surface-border">
             <button
               type="button"
               onClick={onFechar}
-              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#111915] bg-white border border-[#E4ECE7] hover:bg-[#F7FAF8] transition-all"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-ink-secondary bg-surface-subtle border border-surface-border hover:bg-surface-hover transition-all"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={salvando}
-              className="px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0E382C] hover:bg-[#07261E] transition-all disabled:opacity-50 shadow-xs active:scale-98"
+              className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-brand-primary hover:bg-brand-primary-hover transition-all disabled:opacity-50 shadow-xs"
             >
               {salvando ? 'Salvando...' : leadEditando ? 'Salvar Negócio' : 'Criar'}
             </button>
@@ -1637,10 +1439,10 @@ const PaginaLeads = () => {
          ───────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 flex-shrink-0">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111915] tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-ink-primary tracking-tight">
             Pipeline de Negócios
           </h2>
-          <p className="text-xs sm:text-sm text-[#687770] font-medium mt-1">
+          <p className="text-sm text-ink-secondary font-medium mt-0.5">
             {formatarK(totalValorGeral)} ponderados em {totalDealsAbertos}{' '}
             {totalDealsAbertos === 1 ? 'negócio em aberto' : 'negócios em aberto'} · arraste um card para mudar de etapa
           </p>
@@ -1650,7 +1452,7 @@ const PaginaLeads = () => {
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Busca Rápida Geral */}
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted pointer-events-none">
               <HugeiconsIcon icon={Search01Icon} size={14} strokeWidth={1.8} />
             </span>
             <input
@@ -1658,12 +1460,12 @@ const PaginaLeads = () => {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Pesquisar negócios..."
-              className="pl-8 pr-7 py-2 bg-white border border-[#E4ECE7] rounded-full text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C] shadow-2xs w-44 sm:w-52 transition-all"
+              className="pl-8 pr-7 py-2 bg-surface-card border border-surface-border rounded-xl text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:border-brand-primary shadow-2xs w-48 sm:w-56 transition-all"
             />
             {busca && (
               <button
                 onClick={() => setBusca('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-ink-muted hover:text-ink-primary"
               >
                 ✕
               </button>
@@ -1675,24 +1477,24 @@ const PaginaLeads = () => {
             <button
               type="button"
               onClick={() => setDropdownOwnersAberto(!dropdownOwnersAberto)}
-              className="flex items-center gap-2 px-3.5 py-2 bg-white border border-[#E4ECE7] rounded-full text-xs font-semibold text-[#111915] hover:bg-[#F7FAF8] shadow-2xs transition-all"
+              className="flex items-center gap-2 px-3.5 py-2 bg-surface-card border border-surface-border rounded-xl text-sm font-semibold text-ink-primary hover:bg-surface-subtle shadow-2xs transition-all"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-brand-secondary shrink-0" />
               <span>{ownerSelecionado ? ownerSelecionado.nome : 'Todos os responsáveis'}</span>
-              <HugeiconsIcon icon={ArrowDown01Icon} size={14} strokeWidth={1.8} className="text-[#687770]" />
+              <HugeiconsIcon icon={ArrowDown01Icon} size={14} strokeWidth={1.8} className="text-ink-secondary" />
             </button>
 
             {dropdownOwnersAberto && (
-              <div className="absolute right-0 mt-1.5 w-52 bg-white border border-[#E4ECE7] rounded-2xl shadow-lg p-1.5 z-30 space-y-0.5">
+              <div className="absolute right-0 mt-1.5 w-52 bg-surface-card border border-surface-border rounded-2xl shadow-lg p-1.5 z-30 space-y-0.5">
                 <button
                   type="button"
                   onClick={() => { setOwnerSelecionado(null); setDropdownOwnersAberto(false); }}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl text-left transition-colors ${
-                    !ownerSelecionado ? 'bg-[#DCF5E4] text-[#15803D]' : 'text-[#111915] hover:bg-[#F7FAF8]'
+                  className={`w-full flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-xl text-left transition-colors ${
+                    !ownerSelecionado ? 'bg-brand-accent text-brand-primary' : 'text-ink-primary hover:bg-surface-subtle'
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="w-2 h-2 rounded-full bg-brand-secondary" />
                     Todos os responsáveis
                   </span>
                   {!ownerSelecionado && <span>✓</span>}
@@ -1702,8 +1504,8 @@ const PaginaLeads = () => {
                     key={owner.id}
                     type="button"
                     onClick={() => { setOwnerSelecionado(owner); setDropdownOwnersAberto(false); }}
-                    className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl text-left transition-colors ${
-                      ownerSelecionado?.id === owner.id ? 'bg-[#DCF5E4] text-[#15803D]' : 'text-[#111915] hover:bg-[#F7FAF8]'
+                    className={`w-full flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-xl text-left transition-colors ${
+                      ownerSelecionado?.id === owner.id ? 'bg-brand-accent text-brand-primary' : 'text-ink-primary hover:bg-surface-subtle'
                     }`}
                   >
                     <span className="truncate">{owner.nome}</span>
@@ -1718,9 +1520,10 @@ const PaginaLeads = () => {
           <button
             type="button"
             onClick={() => handleNovoDealEtapa(etapas[0]?.key || 'lead')}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white rounded-full text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-95 shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2 bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl text-sm font-semibold shadow-xs transition-all active:scale-95 shrink-0"
           >
-            <span>+ Novo negócio</span>
+            <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={1.8} />
+            <span>Novo negócio</span>
           </button>
         </div>
       </div>

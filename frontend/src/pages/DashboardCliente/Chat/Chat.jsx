@@ -65,7 +65,7 @@ const Chat = () => {
           <button
             type="button"
             onClick={novaConversa}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#0E382C] hover:bg-[#07261E] text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-98 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#0E382C] hover:bg-[#07261E] text-white rounded-xl text-sm font-semibold shadow-xs transition-all active:scale-98 cursor-pointer"
           >
             <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2} />
             <span>Nova conversa</span>
@@ -80,7 +80,7 @@ const Chat = () => {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Pesquisar conversas..."
-              className="w-full bg-[#F7FAF8] hover:bg-white focus:bg-white text-xs text-[#111915] placeholder-slate-400 pl-8 pr-7 py-2 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] transition-all"
+              className="w-full bg-[#F7FAF8] hover:bg-white focus:bg-white text-sm text-[#111915] placeholder-slate-400 pl-8 pr-7 py-2 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] transition-all"
             />
             {busca && (
               <button
@@ -114,7 +114,7 @@ const Chat = () => {
                 <div className="w-10 h-10 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] flex items-center justify-center mx-auto mb-2.5">
                   <HugeiconsIcon icon={Comment01Icon} size={18} strokeWidth={1.8} />
                 </div>
-                <p className="text-xs font-bold text-[#111915]">
+                <p className="text-sm font-bold text-[#111915]">
                   {busca ? 'Nenhum resultado' : 'Nenhuma conversa'}
                 </p>
                 <p className="text-[11px] text-[#687770] mt-0.5">
@@ -138,7 +138,7 @@ const Chat = () => {
                       <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-[#0E382C] rounded-r-full" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-bold truncate ${ativa ? 'text-[#0E382C]' : 'text-[#111915]'}`}>
+                      <p className={`text-sm font-bold truncate ${ativa ? 'text-[#0E382C]' : 'text-[#111915]'}`}>
                         {c.titulo || 'Conversa sem título'}
                       </p>
                       <p className="text-[10px] text-[#687770] font-medium mt-1">
@@ -169,7 +169,7 @@ const Chat = () => {
                 <h3 className="font-extrabold text-sm text-[#111915] truncate">
                   {conversaAtual?.titulo || 'Assistente IA do CRM'}
                 </h3>
-                <p className="text-xs text-[#687770] truncate">
+                <p className="text-sm text-[#687770] truncate">
                   Consulta de dados e automação do pipeline
                 </p>
               </div>
@@ -195,7 +195,7 @@ const Chat = () => {
                 <h3 className="text-base font-extrabold text-[#111915] mb-1.5">
                   O que vamos fazer no CRM hoje?
                 </h3>
-                <p className="text-xs text-[#687770] leading-relaxed mb-6">
+                <p className="text-sm text-[#687770] leading-relaxed mb-6">
                   Peça para consultar negócios no pipeline, cadastrar novos leads ou registrar contatos.
                   Ações que alteram dados sempre solicitarão sua confirmação prévia.
                 </p>
@@ -206,7 +206,7 @@ const Chat = () => {
                       key={s}
                       type="button"
                       onClick={() => enviar(s)}
-                      className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#DCF5E4] border border-[#E4ECE7] hover:border-[#15803D]/30 text-[#111915] hover:text-[#0E382C] rounded-full text-xs font-semibold shadow-2xs transition-all active:scale-95 cursor-pointer"
+                      className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#DCF5E4] border border-[#E4ECE7] hover:border-[#15803D]/30 text-[#111915] hover:text-[#0E382C] rounded-full text-sm font-semibold shadow-2xs transition-all active:scale-95 cursor-pointer"
                     >
                       <HugeiconsIcon icon={AiSparklesIcon} size={13} strokeWidth={2} className="text-emerald-600" />
                       <span>{s}</span>
@@ -263,7 +263,7 @@ const Chat = () => {
             className="p-3 sm:p-4 bg-white border-t border-[#E4ECE7] flex-shrink-0"
           >
             {erro && !indisponivel && (
-              <p className="text-red-500 text-xs mb-2 font-medium">{erro.mensagem}</p>
+              <p className="text-red-500 text-sm mb-2 font-medium">{erro.mensagem}</p>
             )}
             <div className="flex gap-2">
               <input
@@ -275,7 +275,7 @@ const Chat = () => {
                   : 'Pergunte sobre seus leads ou peça uma ação no CRM...'}
                 disabled={enviando}
                 aria-label="Mensagem para o assistente"
-                className="flex-1 bg-[#F7FAF8] hover:bg-white focus:bg-white text-xs sm:text-sm text-[#111915] placeholder-slate-400 px-4 py-3 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] transition-all"
+                className="flex-1 bg-[#F7FAF8] hover:bg-white focus:bg-white text-sm text-[#111915] placeholder-slate-400 px-4 py-3 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] transition-all"
               />
               <button
                 type="submit"

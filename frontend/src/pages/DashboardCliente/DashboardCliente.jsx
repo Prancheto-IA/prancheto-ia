@@ -48,14 +48,14 @@ const DashboardCliente = () => {
               {badgeCargo.label}
             </span>
           </div>
-          <p className="text-xs text-[#687770] mt-0.5 truncate">
+          <p className="text-sm text-[#687770] mt-0.5 truncate">
             Aqui está o resumo geral das operações, métricas e tarefas da sua equipe hoje.
           </p>
         </div>
 
         <button
           onClick={() => setModalAberto(true)}
-          className="flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#E4ECE7] text-[#0E382C] font-semibold text-xs rounded-xl shadow-xs hover:bg-[#F7FAF8] transition-all flex-shrink-0"
+          className="flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#E4ECE7] text-[#0E382C] font-semibold text-sm rounded-xl shadow-xs hover:bg-[#F7FAF8] transition-all flex-shrink-0"
         >
           <HugeiconsIcon icon={Edit02Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />
           <span>Personalizar Dashboard</span>
@@ -73,7 +73,7 @@ const DashboardCliente = () => {
             </div>
           </div>
           <div className="min-w-0 flex-1">
-            <span className="text-xs text-[#687770] font-semibold uppercase tracking-wider block truncate">Capacidade IA</span>
+            <span className="text-sm text-[#687770] font-semibold uppercase tracking-wider block truncate">Capacidade IA</span>
             <div className="text-xl font-bold text-[#111915] mt-0.5">1.920 / 2.500</div>
             <span className="text-[10px] text-[#15803D] bg-[#DCF5E4] px-2 py-0.5 rounded-full font-semibold inline-block mt-1">
               ↑ 14% este mês
@@ -84,32 +84,32 @@ const DashboardCliente = () => {
         {/* Card 2: Azul Claro Schedule (#D8E8F2) */}
         <div className="bg-brand-accent text-brand-primary rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wide opacity-80">Próxima Reunião</span>
+            <span className="text-sm font-semibold uppercase tracking-wide opacity-80">Próxima Reunião</span>
             <span className="text-[10px] bg-white/80 backdrop-blur-xs text-brand-primary px-2 py-0.5 rounded-full font-semibold">14:30</span>
           </div>
           <div className="text-sm font-bold truncate">Alinhamento Design System</div>
-          <p className="text-xs opacity-75 truncate mt-1">Com Equipe de Produto & IA</p>
+          <p className="text-sm opacity-75 truncate mt-1">Com Equipe de Produto & IA</p>
         </div>
 
         {/* Card 3: Roxo & Violeta Highlight (#7338F2 / #A36BF2) */}
         <div className="bg-brand-violet text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-white/90">Pipeline CRM</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-white/90">Pipeline CRM</span>
             <span className="text-[10px] bg-brand-purple text-white px-2 py-0.5 rounded-full font-semibold">8 Novos</span>
           </div>
           <div className="text-xl font-bold">R$ 48.500,00</div>
-          <p className="text-xs text-white/85 truncate mt-1">Leads qualificados em negociação</p>
+          <p className="text-sm text-white/85 truncate mt-1">Leads qualificados em negociação</p>
         </div>
 
         {/* Card 4: Azul Escuro Stats (#001769) */}
         <div className="bg-brand-primary text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-brand-accent">Projetos Ativos</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-brand-accent">Projetos Ativos</span>
             <span className="w-2.5 h-2.5 rounded-full bg-brand-violet animate-pulse"></span>
           </div>
           <div className="flex items-end justify-between">
             <div className="text-xl font-bold">12 Projetos</div>
-            <button onClick={() => navigate('/projetos')} className="text-xs text-brand-accent font-semibold hover:underline flex items-center gap-1">
+            <button onClick={() => navigate('/projetos')} className="text-sm text-brand-accent font-semibold hover:underline flex items-center gap-1">
               <span>Ver todos</span>
               <span>→</span>
             </button>
@@ -127,10 +127,10 @@ const DashboardCliente = () => {
         <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
           <HugeiconsIcon icon={DashboardSquare01Icon} size={40} strokeWidth={1.5} className="text-[#687770] mx-auto mb-2" />
           <p className="font-bold text-[#111915] text-sm mb-1">Nenhum widget visível</p>
-          <p className="text-xs text-[#687770] mb-3">Personalize o seu painel adicionando blocos à sua tela inicial.</p>
+          <p className="text-sm text-[#687770] mb-3">Personalize o seu painel adicionando blocos à sua tela inicial.</p>
           <button
             onClick={() => setModalAberto(true)}
-            className="bg-[#0E382C] hover:bg-[#07261E] text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-xs"
+            className="bg-[#0E382C] hover:bg-[#07261E] text-white px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all shadow-xs"
           >
             Personalizar Dashboard
           </button>

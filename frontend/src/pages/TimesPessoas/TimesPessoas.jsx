@@ -98,7 +98,7 @@ const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">
+            <label className="block text-sm font-semibold text-[#111915] mb-1">
               Nome do Time *
             </label>
             <input
@@ -106,13 +106,13 @@ const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
               value={form.nome}
               onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))}
               placeholder="Ex: Time de Design & UX"
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">
+            <label className="block text-sm font-semibold text-[#111915] mb-1">
               Descrição
             </label>
             <textarea
@@ -120,12 +120,12 @@ const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
               value={form.descricao}
               onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))}
               placeholder="Atribuições e responsabilidades do time"
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1.5">
+            <label className="block text-sm font-semibold text-[#111915] mb-1.5">
               Cor Temática
             </label>
             <div className="flex items-center gap-2.5">
@@ -153,7 +153,7 @@ const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
             </div>
           </div>
 
-          {erro && <p className="text-red-600 text-xs font-semibold">{erro}</p>}
+          {erro && <p className="text-red-600 text-sm font-semibold">{erro}</p>}
 
           <div className="flex justify-between items-center pt-3 border-t border-[#E4ECE7]">
             {timeEditando && onExcluir && (
@@ -164,7 +164,7 @@ const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
                     onExcluir(timeEditando.id);
                     onFechar();
                   }}
-                  className="text-xs font-semibold text-red-600 hover:underline"
+                  className="text-sm font-semibold text-red-600 hover:underline"
                 >
                   Excluir Time
                 </button>
@@ -174,14 +174,14 @@ const ModalTime = ({ aberto, onFechar, onSalvar, onExcluir, timeEditando }) => {
               <button
                 type="button"
                 onClick={onFechar}
-                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl hover:bg-slate-100 transition-colors"
+                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-sm font-semibold rounded-xl hover:bg-slate-100 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={salvando}
-                className="px-4 py-2 bg-[#0E382C] text-white text-xs font-semibold rounded-xl shadow-xs hover:bg-[#07261E] transition-all disabled:opacity-50"
+                className="px-4 py-2 bg-[#0E382C] text-white text-sm font-semibold rounded-xl shadow-xs hover:bg-[#07261E] transition-all disabled:opacity-50"
               >
                 {salvando ? 'Salvando...' : timeEditando ? 'Salvar' : 'Criar Time'}
               </button>
@@ -270,7 +270,7 @@ const ModalGerenciarTime = ({
             </div>
             <div>
               <h2 className="text-base font-extrabold text-[#111915]">{time.nome}</h2>
-              <p className="text-xs text-[#687770]">
+              <p className="text-sm text-[#687770]">
                 {time.descricao || 'Gerenciamento de integrantes da equipe'}
               </p>
             </div>
@@ -286,7 +286,7 @@ const ModalGerenciarTime = ({
         {/* Adicionar Membro */}
         <PermissaoGuarda permissao="times.gerenciar">
           <form onSubmit={handleAdd} className="space-y-2">
-            <label className="block text-xs font-semibold text-[#111915]">
+            <label className="block text-sm font-semibold text-[#111915]">
               Adicionar Colaborador ao Time
             </label>
             <div className="flex gap-2">
@@ -305,7 +305,7 @@ const ModalGerenciarTime = ({
               <button
                 type="submit"
                 disabled={!usuarioSelecionado || adicionando}
-                className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white text-xs font-semibold rounded-xl shadow-xs transition-all disabled:opacity-50"
+                className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white text-sm font-semibold rounded-xl shadow-xs transition-all disabled:opacity-50"
               >
                 {adicionando ? 'Adicionando...' : 'Adicionar'}
               </button>
@@ -313,11 +313,11 @@ const ModalGerenciarTime = ({
           </form>
         </PermissaoGuarda>
 
-        {erro && <p className="text-xs font-semibold text-red-600">{erro}</p>}
+        {erro && <p className="text-sm font-semibold text-red-600">{erro}</p>}
 
         {/* Membros Atuais */}
         <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[160px]">
-          <div className="flex items-center justify-between text-xs font-semibold text-[#687770] mb-2">
+          <div className="flex items-center justify-between text-sm font-semibold text-[#687770] mb-2">
             <span>Integrantes Atuais</span>
             <span className="text-[11px] bg-[#F7FAF8] px-2.5 py-0.5 rounded-full border border-[#E4ECE7]">
               {membros.length} membro(s)
@@ -325,7 +325,7 @@ const ModalGerenciarTime = ({
           </div>
 
           {membros.length === 0 ? (
-            <div className="text-center py-8 text-xs text-[#687770] bg-[#F7FAF8] rounded-xl border border-dashed border-[#E4ECE7]">
+            <div className="text-center py-8 text-sm text-[#687770] bg-[#F7FAF8] rounded-xl border border-dashed border-[#E4ECE7]">
               Nenhum colaborador adicionado a este time ainda.
             </div>
           ) : (
@@ -344,11 +344,11 @@ const ModalGerenciarTime = ({
                   className="flex items-center justify-between p-3 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7]"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center font-bold text-xs flex-shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center font-bold text-sm flex-shrink-0">
                       {iniciais}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-[#111915] truncate">{u.nome}</p>
+                      <p className="text-sm font-bold text-[#111915] truncate">{u.nome}</p>
                       <p className="text-[11px] text-[#687770] truncate">{u.email}</p>
                     </div>
                   </div>
@@ -383,7 +383,7 @@ const ModalGerenciarTime = ({
                 onFechar();
                 onEditarTime(time);
               }}
-              className="text-xs font-semibold text-[#0E382C] hover:underline flex items-center gap-1"
+              className="text-sm font-semibold text-[#0E382C] hover:underline flex items-center gap-1"
             >
               <HugeiconsIcon icon={PencilEdit01Icon} size={14} strokeWidth={1.8} />
               <span>Editar Informações do Time</span>
@@ -392,7 +392,7 @@ const ModalGerenciarTime = ({
           <button
             type="button"
             onClick={onFechar}
-            className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl hover:bg-slate-100 transition-colors ml-auto"
+            className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-sm font-semibold rounded-xl hover:bg-slate-100 transition-colors ml-auto"
           >
             Fechar
           </button>
@@ -431,7 +431,7 @@ const CardTime = ({
           <div className="min-w-0">
             <h3 className="font-bold text-sm text-[#111915] truncate">{time.nome}</h3>
             {time.descricao && (
-              <p className="text-xs text-[#687770] line-clamp-1">{time.descricao}</p>
+              <p className="text-sm text-[#687770] line-clamp-1">{time.descricao}</p>
             )}
           </div>
         </div>
@@ -457,7 +457,7 @@ const CardTime = ({
 
       {/* Conteúdo Central: Avatares da equipe */}
       <div>
-        <div className="flex justify-between text-xs text-[#687770] font-semibold mb-2">
+        <div className="flex justify-between text-sm text-[#687770] font-semibold mb-2">
           <span>Equipe</span>
           <span>{membros.length} integrante(s)</span>
         </div>
@@ -483,13 +483,13 @@ const CardTime = ({
                 </div>
               )}
             </div>
-            <span className="text-xs text-[#687770] truncate">
+            <span className="text-sm text-[#687770] truncate">
               {membros.slice(0, 2).map((m) => (m.usuario?.nome || m.nome)?.split(' ')[0]).join(', ')}
               {membros.length > 2 ? ` e +${membros.length - 2}` : ''}
             </span>
           </div>
         ) : (
-          <div className="py-1 text-xs text-slate-400 italic">
+          <div className="py-1 text-sm text-slate-400 italic">
             Nenhum colaborador alocado
           </div>
         )}
@@ -528,12 +528,12 @@ const CardMembro = ({ membro, timesDoMembro = [] }) => {
       {/* Header do Card */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-xs">
             {iniciais}
           </div>
           <div className="min-w-0">
             <h3 className="font-bold text-sm text-[#111915] truncate">{membro.nome}</h3>
-            <p className="text-xs text-[#687770] truncate">{membro.email}</p>
+            <p className="text-sm text-[#687770] truncate">{membro.email}</p>
           </div>
         </div>
         <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EBF0ED] text-[#0E382C] capitalize flex-shrink-0">
@@ -543,7 +543,7 @@ const CardMembro = ({ membro, timesDoMembro = [] }) => {
 
       {/* Conteúdo Central: Times vinculados */}
       <div>
-        <div className="flex justify-between text-xs text-[#687770] font-semibold mb-2">
+        <div className="flex justify-between text-sm text-[#687770] font-semibold mb-2">
           <span>Times Vinculados</span>
           <span>{timesDoMembro.length} time(s)</span>
         </div>
@@ -562,7 +562,7 @@ const CardMembro = ({ membro, timesDoMembro = [] }) => {
               </span>
             ))
           ) : (
-            <span className="text-xs text-slate-400 italic py-1">Nenhum time associado</span>
+            <span className="text-sm text-slate-400 italic py-1">Nenhum time associado</span>
           )}
         </div>
       </div>
@@ -708,7 +708,7 @@ const TimesPessoas = () => {
         <button
           type="button"
           onClick={() => setAbaPrincipal('times')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
             abaPrincipal === 'times'
               ? 'bg-[#0E382C] text-[#D4EC9D] border-[#0E382C] shadow-xs'
               : 'bg-white border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
@@ -728,7 +728,7 @@ const TimesPessoas = () => {
         <button
           type="button"
           onClick={() => setAbaPrincipal('usuarios')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
             abaPrincipal === 'usuarios'
               ? 'bg-[#0E382C] text-[#D4EC9D] border-[#0E382C] shadow-xs'
               : 'bg-white border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
@@ -741,7 +741,7 @@ const TimesPessoas = () => {
         <button
           type="button"
           onClick={() => setAbaPrincipal('cargos')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
             abaPrincipal === 'cargos'
               ? 'bg-[#0E382C] text-[#D4EC9D] border-[#0E382C] shadow-xs'
               : 'bg-white border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
@@ -764,7 +764,7 @@ const TimesPessoas = () => {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-xl font-extrabold text-[#111915]">Painel de Times e Equipes</h1>
-              <p className="text-xs text-[#687770]">
+              <p className="text-sm text-[#687770]">
                 {times.length} time(s) e {usuarios.length} colaborador(es) cadastrado(s)
               </p>
             </div>
@@ -774,7 +774,7 @@ const TimesPessoas = () => {
                   setTimeEditando(null);
                   setModalTime(true);
                 }}
-                className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-sm rounded-xl shadow-xs transition-all flex items-center gap-1.5"
               >
                 <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.2} />
                 <span>Novo Time</span>
@@ -787,7 +787,7 @@ const TimesPessoas = () => {
             <div className="flex gap-2 overflow-x-auto">
               <button
                 onClick={() => setAba('times')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
                   aba === 'times'
                     ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
                     : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
@@ -797,7 +797,7 @@ const TimesPessoas = () => {
               </button>
               <button
                 onClick={() => setAba('pessoas')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
                   aba === 'pessoas'
                     ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
                     : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
@@ -819,7 +819,7 @@ const TimesPessoas = () => {
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder={aba === 'times' ? 'Buscar time...' : 'Buscar pessoa...'}
-                className="w-full pl-9 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C]"
+                className="w-full pl-9 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-sm text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C]"
               />
             </div>
           </div>
@@ -828,7 +828,7 @@ const TimesPessoas = () => {
           {aba === 'times' ? (
             timesFiltrados.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
-                <p className="text-xs text-[#687770] mb-3">
+                <p className="text-sm text-[#687770] mb-3">
                   {busca
                     ? 'Nenhum time encontrado para a busca.'
                     : 'Nenhum time cadastrado no momento.'}
@@ -839,7 +839,7 @@ const TimesPessoas = () => {
                       setTimeEditando(null);
                       setModalTime(true);
                     }}
-                    className="text-xs font-bold text-[#0E382C] hover:underline"
+                    className="text-sm font-bold text-[#0E382C] hover:underline"
                   >
                     + Criar novo time agora
                   </button>
@@ -868,7 +868,7 @@ const TimesPessoas = () => {
             )
           ) : pessoasFiltradas.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
-              <p className="text-xs text-[#687770]">
+              <p className="text-sm text-[#687770]">
                 {busca
                   ? 'Nenhum colaborador encontrado para a busca.'
                   : 'Nenhum colaborador cadastrado.'}

@@ -10,20 +10,17 @@ export default {
   // as classes CSS utilizadas (tree-shaking de CSS)
   content: [
     './index.html',
-    './src/**/*.{js,jsx}',
+    './src/**/*.{js,jsx,ts,tsx}',
   ],
 
   theme: {
     extend: {
       // --- PALETA DE CORES DO PRANCHETO.IA ---
       colors: {
-        // Cor primária da marca.
-        // Os tons vêm de CSS variables (definidas em index.css) para que a
-        // organização possa substituí-los pela própria cor em tempo de
-        // execução — ver utils/identidadeVisual.js. O formato precisa ser
-        // rgb(<canais> / <alpha-value>) para que classes com opacidade,
-        // como bg-primary-500/15, continuem funcionando.
+        // Cor primária da marca + compatibilidade com shadcn/ui e ReUI (bg-primary)
         primary: {
+          DEFAULT: 'rgb(var(--brand-primary-rgb) / <alpha-value>)',
+          foreground: '#FFFFFF',
           50:  'rgb(var(--color-primary-50)  / <alpha-value>)',
           100: 'rgb(var(--color-primary-100) / <alpha-value>)',
           200: 'rgb(var(--color-primary-200) / <alpha-value>)',
@@ -36,6 +33,54 @@ export default {
           900: 'rgb(var(--color-primary-900) / <alpha-value>)',
           950: 'rgb(var(--color-primary-950) / <alpha-value>)',
         },
+        // --- TOKENS SEMÂNTICOS SHADCN/UI & REUI MAPEADOS AO DESIGN SYSTEM ---
+        background: 'var(--color-surface-card)',
+        foreground: 'var(--color-text-primary)',
+        card: {
+          DEFAULT: 'var(--color-surface-card)',
+          foreground: 'var(--color-text-primary)',
+        },
+        popover: {
+          DEFAULT: 'var(--color-surface-card)',
+          foreground: 'var(--color-text-primary)',
+        },
+        secondary: {
+          DEFAULT: 'rgb(var(--brand-secondary-rgb) / <alpha-value>)',
+          foreground: '#FFFFFF',
+        },
+        accent: {
+          DEFAULT: 'rgb(var(--brand-accent-rgb) / <alpha-value>)',
+          foreground: 'rgb(var(--brand-primary-rgb) / <alpha-value>)',
+        },
+        destructive: {
+          DEFAULT: '#EF4444',
+          foreground: '#FFFFFF',
+        },
+        info: {
+          DEFAULT: 'rgb(var(--brand-secondary-rgb) / <alpha-value>)',
+          foreground: 'rgb(var(--brand-primary-rgb) / <alpha-value>)',
+        },
+        success: {
+          DEFAULT: '#10B981',
+          foreground: '#065F46',
+        },
+        warning: {
+          DEFAULT: '#F59E0B',
+          foreground: '#92400E',
+        },
+        focus: {
+          DEFAULT: 'rgb(var(--brand-purple-rgb) / <alpha-value>)',
+          foreground: '#FFFFFF',
+        },
+        invert: {
+          DEFAULT: 'rgb(var(--brand-primary-rgb) / <alpha-value>)',
+          foreground: '#FFFFFF',
+        },
+        border: 'var(--color-surface-border)',
+        input: 'var(--color-surface-border)',
+        ring: 'rgb(var(--brand-secondary-rgb) / <alpha-value>)',
+        'muted-foreground': 'var(--color-text-secondary)',
+
         // --- TOKENS DE MARCA (DESIGN SYSTEM + WHITE-LABEL) ---
         brand: {
           primary:            'rgb(var(--brand-primary-rgb) / <alpha-value>)',
@@ -72,6 +117,9 @@ export default {
       fontFamily: {
         sans: ['var(--brand-fonte, Inter)', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
+      },
+      fontSize: {
+        xs: ['0.875rem', { lineHeight: '1.25rem' }], // 14px padronizado no projeto
       },
 
       // --- ANIMAÇÕES CUSTOMIZADAS ---

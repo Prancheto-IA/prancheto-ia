@@ -93,7 +93,7 @@ const LinhaLog = ({ log }) => {
         className="hover:bg-primary-900/20 transition-colors cursor-pointer"
       >
         {/* Data/hora */}
-        <td className="px-4 py-3 text-muted text-xs whitespace-nowrap">
+        <td className="px-4 py-3 text-muted text-sm whitespace-nowrap">
           {formatarDataHora(log.criado_em)}
         </td>
 
@@ -101,7 +101,7 @@ const LinhaLog = ({ log }) => {
         <td className="px-4 py-3">
           <span className="flex items-center gap-1.5 text-sm text-muted">
             <span>{emoji}</span>
-            <span className="font-mono text-xs">{log.acao}</span>
+            <span className="font-mono text-sm">{log.acao}</span>
           </span>
         </td>
 
@@ -109,7 +109,7 @@ const LinhaLog = ({ log }) => {
         <td className="px-4 py-3">
           <p className="text-sm truncate max-w-[180px]">{log.user_email || '—'}</p>
           {log.user_cargo && (
-            <p className="text-muted text-xs">{log.user_cargo}</p>
+            <p className="text-muted text-sm">{log.user_cargo}</p>
           )}
         </td>
 
@@ -127,13 +127,13 @@ const LinhaLog = ({ log }) => {
         </td>
 
         {/* IP */}
-        <td className="px-4 py-3 text-muted text-xs font-mono">
+        <td className="px-4 py-3 text-muted text-sm font-mono">
           {log.ip_address || '—'}
         </td>
 
         {/* Expandir */}
         <td className="px-4 py-3 text-right">
-          <span className="text-muted text-xs">{expandido ? '▲' : '▼'}</span>
+          <span className="text-muted text-sm">{expandido ? '▲' : '▼'}</span>
         </td>
       </tr>
 
@@ -141,7 +141,7 @@ const LinhaLog = ({ log }) => {
       {expandido && (
         <tr className="bg-primary-950/50">
           <td colSpan={7} className="px-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               {/* Descrição */}
               {log.descricao && (
                 <div className="md:col-span-2">
@@ -415,7 +415,7 @@ const LogsSeguranca = () => {
           )}
 
           {/* Nota de conformidade */}
-          <p className="text-center text-muted text-xs">
+          <p className="text-center text-muted text-sm">
             🔒 Logs de auditoria são imutáveis por design — nenhum registro pode ser editado ou excluído.
             Conformidade com LGPD Art. 37.
           </p>

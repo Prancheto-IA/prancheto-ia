@@ -53,11 +53,11 @@ export const ItemConversa = ({ conversa, ativa, onClick, onArquivar }) => (
 
     {/* Metadados: contagem de mensagens e tokens */}
     <div className="flex items-center gap-2 mt-1">
-      <span className="text-xs text-slate-500">{conversa.total_mensagens || 0} msgs</span>
+      <span className="text-sm text-slate-500">{conversa.total_mensagens || 0} msgs</span>
       {conversa.total_tokens > 0 && (
         <>
           <span className="text-slate-600">·</span>
-          <span className="text-xs text-slate-500">
+          <span className="text-sm text-slate-500">
             {conversa.total_tokens.toLocaleString()} tokens
           </span>
         </>
@@ -122,10 +122,10 @@ export const BolhaMensagem = ({ mensagem }) => {
           <div key={idx} className="my-3 rounded-lg overflow-hidden border border-slate-700">
             {/* Header do bloco: linguagem + botão copiar */}
             <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800 border-b border-slate-700">
-              <span className="text-xs text-slate-400 font-mono">{linguagem}</span>
+              <span className="text-sm text-slate-400 font-mono">{linguagem}</span>
               <button
                 onClick={() => copiarTexto(codigo)}
-                className="text-xs text-slate-400 hover:text-white transition-colors"
+                className="text-sm text-slate-400 hover:text-white transition-colors"
               >
                 Copiar
               </button>
@@ -188,12 +188,12 @@ export const BolhaMensagem = ({ mensagem }) => {
 
         {/* Rodapé: hora + botão copiar (apenas para respostas da IA) */}
         <div className={`flex items-center gap-2 mt-1 px-1 ${ehUsuario ? 'flex-row-reverse' : 'flex-row'}`}>
-          <span className="text-xs text-muted">{formatarHora(mensagem.criado_em)}</span>
+          <span className="text-sm text-muted">{formatarHora(mensagem.criado_em)}</span>
 
           {!ehUsuario && (
             <button
               onClick={() => copiarTexto(mensagem.conteudo)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-muted hover:text-white flex items-center gap-1"
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-sm text-muted hover:text-white flex items-center gap-1"
             >
               {copiado ? (
                 <span className="text-green-400 flex items-center gap-1">

@@ -148,7 +148,7 @@ const CardPlano = ({ plano, recursos, planoAtual, cicloAnual, onSelecionar }) =>
           <h3 className="text-xl font-bold text-[#111915]">
             {plano.nome}
           </h3>
-          <p className="text-xs text-[#687770] mt-1 line-clamp-2 leading-relaxed">
+          <p className="text-sm text-[#687770] mt-1 line-clamp-2 leading-relaxed">
             {plano.descricao}
           </p>
         </div>
@@ -167,7 +167,7 @@ const CardPlano = ({ plano, recursos, planoAtual, cicloAnual, onSelecionar }) =>
             {formatarPreco(precoExibido)}
           </span>
           {plano.preco_mensal > 0 && (
-            <span className="text-xs font-semibold text-[#687770]">/mês</span>
+            <span className="text-sm font-semibold text-[#687770]">/mês</span>
           )}
         </div>
 
@@ -185,7 +185,7 @@ const CardPlano = ({ plano, recursos, planoAtual, cicloAnual, onSelecionar }) =>
             <HugeiconsIcon icon={UserGroupIcon} size={14} strokeWidth={1.8} />
           </div>
           <div>
-            <p className="text-xs font-bold text-[#111915]">
+            <p className="text-sm font-bold text-[#111915]">
               {plano.limite_usuarios >= 100 ? '100+' : plano.limite_usuarios}
             </p>
             <p className="text-[10px] text-[#687770]">usuários</p>
@@ -197,7 +197,7 @@ const CardPlano = ({ plano, recursos, planoAtual, cicloAnual, onSelecionar }) =>
             <HugeiconsIcon icon={DatabaseIcon} size={14} strokeWidth={1.8} />
           </div>
           <div>
-            <p className="text-xs font-bold text-[#111915]">
+            <p className="text-sm font-bold text-[#111915]">
               {plano.limite_contatos >= 50000 ? 'Ilimitado' : (plano.limite_contatos / 1000) + 'k'}
             </p>
             <p className="text-[10px] text-[#687770]">contatos</p>
@@ -212,7 +212,7 @@ const CardPlano = ({ plano, recursos, planoAtual, cicloAnual, onSelecionar }) =>
         </p>
         {recursos.map((rec) => {
           return (
-            <div key={rec.slug} className="flex items-center gap-2.5 text-xs">
+            <div key={rec.slug} className="flex items-center gap-2.5 text-sm">
               <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
                 rec.habilitado
                   ? 'bg-[#DCF5E4] text-[#15803D]'
@@ -240,7 +240,7 @@ const CardPlano = ({ plano, recursos, planoAtual, cicloAnual, onSelecionar }) =>
           type="button"
           onClick={() => !ehAtual && onSelecionar(plano)}
           disabled={ehAtual}
-          className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`w-full py-3 px-4 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
             ehAtual
               ? 'bg-[#DCF5E4] text-[#15803D] border border-[#bbf0ca] cursor-default'
               : destaque
@@ -350,7 +350,7 @@ const SecaoPlano = () => {
       <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-[#E4ECE7] shadow-xs">
         <div className="text-center">
           <div className="w-9 h-9 border-3 border-[#E4ECE7] border-t-[#0E382C] rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs font-semibold text-[#687770]">Carregando planos e recursos...</p>
+          <p className="text-sm font-semibold text-[#687770]">Carregando planos e recursos...</p>
         </div>
       </div>
     );
@@ -371,7 +371,7 @@ const SecaoPlano = () => {
                 <HugeiconsIcon icon={CrownIcon} size={13} strokeWidth={2.5} />
                 Plano Ativo
               </span>
-              <span className="text-xs text-emerald-200/90 font-medium">
+              <span className="text-sm text-emerald-200/90 font-medium">
                 Renovação automática
               </span>
             </div>
@@ -380,7 +380,7 @@ const SecaoPlano = () => {
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
                 Plano {planoAtivoObj?.nome || 'Starter'}
               </h2>
-              <p className="text-xs sm:text-sm text-emerald-100/80 mt-1 max-w-lg leading-relaxed">
+              <p className="text-sm text-emerald-100/80 mt-1 max-w-lg leading-relaxed">
                 {planoAtivoObj?.descricao || 'Sua organização está operando com todos os benefícios ativos.'}
               </p>
             </div>
@@ -389,7 +389,7 @@ const SecaoPlano = () => {
               <button
                 type="button"
                 onClick={() => setModalUpgrade(planos.find(p => p.slug === 'pro') || planos[1])}
-                className="bg-[#D4EC9D] hover:bg-[#c2de85] text-[#0E382C] font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+                className="bg-[#D4EC9D] hover:bg-[#c2de85] text-[#0E382C] font-bold text-sm px-4 py-2.5 rounded-xl transition-all shadow-xs flex items-center gap-2 cursor-pointer"
               >
                 <HugeiconsIcon icon={Rocket01Icon} size={16} strokeWidth={2} />
                 <span>Mudar de Plano</span>
@@ -397,7 +397,7 @@ const SecaoPlano = () => {
 
               <a
                 href="mailto:suporte@prancheto.ia?subject=Faturamento%20e%20Notas"
-                className="bg-white/10 hover:bg-white/15 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl transition-all border border-white/10 flex items-center gap-2"
+                className="bg-white/10 hover:bg-white/15 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-all border border-white/10 flex items-center gap-2"
               >
                 <HugeiconsIcon icon={CreditCardIcon} size={16} strokeWidth={1.8} />
                 <span>Histórico de Faturas</span>
@@ -407,14 +407,14 @@ const SecaoPlano = () => {
 
           {/* Medidores de Quota / Consumo */}
           <div className="lg:col-span-5 bg-black/20 backdrop-blur-xs rounded-2xl p-5 border border-white/10 space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-200/90 flex items-center gap-1.5">
+            <h4 className="text-sm font-bold uppercase tracking-wider text-emerald-200/90 flex items-center gap-1.5">
               <HugeiconsIcon icon={Shield01Icon} size={14} strokeWidth={2} />
               Consumo de Recursos
             </h4>
 
             {/* Usuários */}
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-semibold">
+              <div className="flex items-center justify-between text-sm font-semibold">
                 <span className="flex items-center gap-1.5">
                   <HugeiconsIcon icon={UserGroupIcon} size={14} strokeWidth={1.8} />
                   Membros da Equipe
@@ -433,7 +433,7 @@ const SecaoPlano = () => {
 
             {/* Contatos */}
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-semibold">
+              <div className="flex items-center justify-between text-sm font-semibold">
                 <span className="flex items-center gap-1.5">
                   <HugeiconsIcon icon={DatabaseIcon} size={14} strokeWidth={1.8} />
                   Contatos Cadastrados
@@ -463,7 +463,7 @@ const SecaoPlano = () => {
           <h3 className="text-lg sm:text-xl font-bold text-[#111915]">
             Planos Comerciais Disponíveis
           </h3>
-          <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
+          <p className="text-sm text-[#687770] mt-0.5">
             Evolua sua assinatura conforme sua operação cresce. Sem multas ou fidelidade.
           </p>
         </div>
@@ -473,7 +473,7 @@ const SecaoPlano = () => {
           <button
             type="button"
             onClick={() => setCicloAnual(false)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
               !cicloAnual
                 ? 'bg-[#0E382C] text-[#D4EC9D] shadow-xs'
                 : 'text-[#687770] hover:text-[#111915]'
@@ -484,7 +484,7 @@ const SecaoPlano = () => {
           <button
             type="button"
             onClick={() => setCicloAnual(true)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               cicloAnual
                 ? 'bg-[#0E382C] text-[#D4EC9D] shadow-xs'
                 : 'text-[#687770] hover:text-[#111915]'
@@ -524,7 +524,7 @@ const SecaoPlano = () => {
             <h3 className="text-base sm:text-lg font-bold text-[#111915]">
               Dúvidas Frequentes sobre Assinaturas
             </h3>
-            <p className="text-xs text-[#687770]">
+            <p className="text-sm text-[#687770]">
               Tudo o que você precisa saber sobre faturamento e suporte.
             </p>
           </div>
@@ -536,10 +536,10 @@ const SecaoPlano = () => {
               key={faq.pergunta}
               className="p-4 rounded-2xl bg-[#F7FAF8] border border-[#E4ECE7]"
             >
-              <h4 className="text-xs sm:text-sm font-bold text-[#111915] mb-1.5">
+              <h4 className="text-sm font-bold text-[#111915] mb-1.5">
                 {faq.pergunta}
               </h4>
-              <p className="text-xs text-[#687770] leading-relaxed">
+              <p className="text-sm text-[#687770] leading-relaxed">
                 {faq.resposta}
               </p>
             </div>
@@ -574,28 +574,28 @@ const SecaoPlano = () => {
               <h3 className="text-xl font-bold text-[#111915]">
                 Upgrade para o {modalUpgrade.nome}
               </h3>
-              <p className="text-xs sm:text-sm text-[#687770] mt-1.5 leading-relaxed">
+              <p className="text-sm text-[#687770] mt-1.5 leading-relaxed">
                 Desbloqueie {modalUpgrade.limite_usuarios} membros, até {modalUpgrade.limite_contatos.toLocaleString('pt-BR')} contatos e recursos de Inteligência Artificial para alavancar seu CRM.
               </p>
             </div>
 
             {/* Card com Detalhes do Pagamento */}
             <div className="p-4 rounded-2xl bg-[#F7FAF8] border border-[#E4ECE7] mb-6 space-y-2">
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-sm">
                 <span className="text-[#687770]">Valor da assinatura:</span>
                 <span className="font-bold text-[#111915]">
                   {formatarPreco(cicloAnual && modalUpgrade.preco_anual > 0 ? modalUpgrade.preco_anual / 12 : modalUpgrade.preco_mensal)}/mês
                 </span>
               </div>
               {cicloAnual && modalUpgrade.preco_anual > 0 && (
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between text-sm">
                   <span className="text-[#687770]">Total anual:</span>
                   <span className="font-bold text-[#15803D]">
                     {formatarPreco(modalUpgrade.preco_anual)}/ano (-20%)
                   </span>
                 </div>
               )}
-              <div className="flex items-center justify-between text-xs pt-1 border-t border-[#E4ECE7]">
+              <div className="flex items-center justify-between text-sm pt-1 border-t border-[#E4ECE7]">
                 <span className="text-[#687770]">Status de ativação:</span>
                 <span className="font-semibold text-emerald-700">Imediata</span>
               </div>
@@ -605,7 +605,7 @@ const SecaoPlano = () => {
             <div className="space-y-2.5">
               <a
                 href={`mailto:suporte@prancheto.ia?subject=Upgrade%20para%20Plano%20${modalUpgrade.nome}&body=Olá!%20Gostaria%20de%20ativar%20o%20plano%20${modalUpgrade.nome}%20para%20a%20minha%20organização.`}
-                className="w-full py-3 px-4 rounded-xl bg-[#0E382C] hover:bg-[#154637] text-white font-bold text-xs sm:text-sm transition-all shadow-xs flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-xl bg-[#0E382C] hover:bg-[#154637] text-white font-bold text-sm transition-all shadow-xs flex items-center justify-center gap-2"
               >
                 <HugeiconsIcon icon={Mail01Icon} size={16} strokeWidth={2} />
                 <span>Solicitar Ativação com Suporte</span>
@@ -614,7 +614,7 @@ const SecaoPlano = () => {
               <button
                 type="button"
                 onClick={() => setModalUpgrade(null)}
-                className="w-full py-2.5 text-xs text-[#687770] hover:text-[#111915] font-semibold text-center"
+                className="w-full py-2.5 text-sm text-[#687770] hover:text-[#111915] font-semibold text-center"
               >
                 Voltar aos planos
               </button>

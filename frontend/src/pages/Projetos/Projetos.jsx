@@ -65,9 +65,9 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">Nome do Projeto *</label>
+            <label className="block text-sm font-semibold text-[#111915] mb-1">Nome do Projeto *</label>
             <input
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
               placeholder="Digite o nome do projeto"
               value={form.nome}
               onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
@@ -76,9 +76,9 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#111915] mb-1">Descrição</label>
+            <label className="block text-sm font-semibold text-[#111915] mb-1">Descrição</label>
             <textarea
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
               placeholder="Descreva os objetivos do projeto"
               rows={2}
               value={form.descricao}
@@ -88,7 +88,7 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#111915] mb-1">Status</label>
+              <label className="block text-sm font-semibold text-[#111915] mb-1">Status</label>
               <SelectField
                 value={form.status}
                 onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
@@ -97,7 +97,7 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
               </SelectField>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#111915] mb-1">Prioridade</label>
+              <label className="block text-sm font-semibold text-[#111915] mb-1">Prioridade</label>
               <SelectField
                 value={form.prioridade}
                 onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}
@@ -112,7 +112,7 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#111915] mb-1">Data Início</label>
+              <label className="block text-sm font-semibold text-[#111915] mb-1">Data Início</label>
               <DatePicker
                 value={form.data_inicio}
                 onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))}
@@ -120,7 +120,7 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#111915] mb-1">Data Fim</label>
+              <label className="block text-sm font-semibold text-[#111915] mb-1">Data Fim</label>
               <DatePicker
                 value={form.data_fim}
                 onChange={e => setForm(f => ({ ...f, data_fim: e.target.value }))}
@@ -134,7 +134,7 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
               <button
                 type="button"
                 onClick={() => { onExcluir(projetoEditando.id); onFechar(); }}
-                className="text-xs font-semibold text-red-600 hover:underline"
+                className="text-sm font-semibold text-red-600 hover:underline"
               >
                 Excluir Projeto
               </button>
@@ -143,13 +143,13 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
               <button
                 type="button"
                 onClick={onFechar}
-                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-xs font-semibold rounded-xl"
+                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] text-sm font-semibold rounded-xl"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-[#0E382C] text-white text-xs font-semibold rounded-xl shadow-xs hover:bg-[#07261E]"
+                className="px-4 py-2 bg-[#0E382C] text-white text-sm font-semibold rounded-xl shadow-xs hover:bg-[#07261E]"
               >
                 Salvar
               </button>
@@ -178,7 +178,7 @@ const CardProjeto = ({ projeto, onClick, onEditar }) => {
           </div>
           <div>
             <h3 className="font-bold text-sm text-[#111915]">{projeto.nome}</h3>
-            {projeto.descricao && <p className="text-xs text-[#687770] line-clamp-1">{projeto.descricao}</p>}
+            {projeto.descricao && <p className="text-sm text-[#687770] line-clamp-1">{projeto.descricao}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -196,7 +196,7 @@ const CardProjeto = ({ projeto, onClick, onEditar }) => {
 
       {/* Progress Bar */}
       <div>
-        <div className="flex justify-between text-xs text-[#687770] font-semibold mb-1">
+        <div className="flex justify-between text-sm text-[#687770] font-semibold mb-1">
           <span>Progresso</span>
           <span>{projeto.progresso}%</span>
         </div>
@@ -252,11 +252,11 @@ const Projetos = () => {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-xl font-extrabold text-[#111915]">Painel de Projetos</h1>
-          <p className="text-xs text-[#687770]">{projetos.length} projeto(s) cadastrado(s)</p>
+          <p className="text-sm text-[#687770]">{projetos.length} projeto(s) cadastrado(s)</p>
         </div>
         <button
           onClick={() => { setProjetoEditando(null); setModalAberto(true); }}
-          className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+          className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-sm rounded-xl shadow-xs transition-all flex items-center gap-1.5"
         >
           <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={1.8} />
           <span>Novo Projeto</span>
@@ -269,7 +269,7 @@ const Projetos = () => {
           <button
             key={f.slug}
             onClick={() => setFiltroStatus(f.slug)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
               filtroStatus === f.slug
                 ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
                 : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
@@ -283,10 +283,10 @@ const Projetos = () => {
       {/* Projects Grid */}
       {projetosFiltrados.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
-          <p className="text-xs text-[#687770] mb-3">Nenhum projeto encontrado nesta categoria.</p>
+          <p className="text-sm text-[#687770] mb-3">Nenhum projeto encontrado nesta categoria.</p>
           <button
             onClick={() => { setProjetoEditando(null); setModalAberto(true); }}
-            className="text-xs font-bold text-[#0E382C] hover:underline"
+            className="text-sm font-bold text-[#0E382C] hover:underline"
           >
             + Criar novo projeto agora
           </button>

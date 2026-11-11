@@ -23,7 +23,7 @@ export const PORTE_OPCOES = [
 ];
 
 const Rotulo = ({ children }) => (
-  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
+  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
     {children}
   </label>
 );
@@ -75,16 +75,16 @@ export const CampoWhatsapp = ({ form, set, inputStyle }) => (
 export const SecaoRecolhivel = ({ titulo, descricao, aberta, onToggle, children }) => (
   <div>
     <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-2 text-left group">
-      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
+      <span className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
         {titulo}
       </span>
-      <span className="text-xs font-medium text-primary-400 group-hover:text-primary-300 flex items-center gap-1 flex-shrink-0">
+      <span className="text-sm font-medium text-primary-400 group-hover:text-primary-300 flex items-center gap-1 flex-shrink-0">
         {aberta ? 'Ocultar' : 'Mostrar'}
         <span className="text-[10px]">{aberta ? '▲' : '▼'}</span>
       </span>
     </button>
     {!aberta && descricao && (
-      <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{descricao}</p>
+      <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>{descricao}</p>
     )}
     {aberta && <div className="space-y-3 mt-3">{children}</div>}
   </div>

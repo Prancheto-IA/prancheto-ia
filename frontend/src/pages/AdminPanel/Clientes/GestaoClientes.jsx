@@ -140,7 +140,7 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
               className={`input w-full ${erros.nome ? 'border-red-500' : ''}`}
               disabled={salvando}
             />
-            {erros.nome && <p className="text-red-400 text-xs mt-1">{erros.nome}</p>}
+            {erros.nome && <p className="text-red-400 text-sm mt-1">{erros.nome}</p>}
           </div>
 
           {/* Slug */}
@@ -156,8 +156,8 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
               className={`input w-full font-mono text-sm ${erros.slug ? 'border-red-500' : ''}`}
               disabled={salvando || editando}
             />
-            {editando && <p className="text-muted text-xs mt-1">Slug não pode ser alterado.</p>}
-            {erros.slug && <p className="text-red-400 text-xs mt-1">{erros.slug}</p>}
+            {editando && <p className="text-muted text-sm mt-1">Slug não pode ser alterado.</p>}
+            {erros.slug && <p className="text-red-400 text-sm mt-1">{erros.slug}</p>}
           </div>
 
           {/* E-mail de contato */}
@@ -171,7 +171,7 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
               className={`input w-full ${erros.email_contato ? 'border-red-500' : ''}`}
               disabled={salvando}
             />
-            {erros.email_contato && <p className="text-red-400 text-xs mt-1">{erros.email_contato}</p>}
+            {erros.email_contato && <p className="text-red-400 text-sm mt-1">{erros.email_contato}</p>}
           </div>
 
           {/* Plano + Limite de usuários (lado a lado) */}
@@ -199,7 +199,7 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
                 className={`input w-full ${erros.limite_usuarios ? 'border-red-500' : ''}`}
                 disabled={salvando}
               />
-              {erros.limite_usuarios && <p className="text-red-400 text-xs mt-1">{erros.limite_usuarios}</p>}
+              {erros.limite_usuarios && <p className="text-red-400 text-sm mt-1">{erros.limite_usuarios}</p>}
             </div>
           </div>
 
@@ -515,19 +515,19 @@ const GestaoClientes = () => {
                         {/* Empresa */}
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-primary-800 flex items-center justify-center text-primary-300 font-bold text-xs flex-shrink-0">
+                            <div className="w-8 h-8 rounded-lg bg-primary-800 flex items-center justify-center text-primary-300 font-bold text-sm flex-shrink-0">
                               {(c.nome || '?')[0].toUpperCase()}
                             </div>
                             <div className="min-w-0">
                               <p className="text-white font-medium truncate">{c.nome}</p>
-                              <p className="text-muted text-xs truncate">{c.email_contato}</p>
+                              <p className="text-muted text-sm truncate">{c.email_contato}</p>
                             </div>
                           </div>
                         </td>
 
                         {/* Slug */}
                         <td className="px-4 py-3">
-                          <span className="font-mono text-xs text-muted bg-primary-900/50 px-2 py-0.5 rounded">
+                          <span className="font-mono text-sm text-muted bg-primary-900/50 px-2 py-0.5 rounded">
                             {c.slug}
                           </span>
                         </td>
@@ -543,7 +543,7 @@ const GestaoClientes = () => {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1.5">
                             <span className="text-white font-medium">{c.qtd_usuarios ?? 0}</span>
-                            <span className="text-muted text-xs">/ {c.limite_usuarios}</span>
+                            <span className="text-muted text-sm">/ {c.limite_usuarios}</span>
                           </div>
                           {/* Barra de progresso */}
                           <div className="w-16 h-1 bg-primary-800 rounded-full mt-1 overflow-hidden">
@@ -566,7 +566,7 @@ const GestaoClientes = () => {
                         </td>
 
                         {/* Criado em */}
-                        <td className="px-4 py-3 text-muted text-xs">
+                        <td className="px-4 py-3 text-muted text-sm">
                           {c.criado_em
                             ? new Date(c.criado_em).toLocaleDateString('pt-BR')
                             : '—'}

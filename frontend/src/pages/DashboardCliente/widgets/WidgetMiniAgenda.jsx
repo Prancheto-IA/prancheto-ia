@@ -58,7 +58,7 @@ const WidgetMiniAgenda = () => {
       ) : eventos.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
           <HugeiconsIcon icon={Calendar03Icon} size={32} strokeWidth={1.5} className="text-[#687770]/50 mb-2" />
-          <p className="text-xs font-semibold text-[#687770]">Nenhum compromisso nos próximos 7 dias.</p>
+          <p className="text-sm font-semibold text-[#687770]">Nenhum compromisso nos próximos 7 dias.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -70,7 +70,7 @@ const WidgetMiniAgenda = () => {
             >
               <div className="w-1.5 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: e.cor || '#0E382C' }} />
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-[#111915] truncate">{e.titulo}</p>
+                <p className="text-sm font-semibold text-[#111915] truncate">{e.titulo}</p>
                 <p className="text-[11px] text-[#687770] capitalize">{formatarData(e.data_inicio)}</p>
               </div>
             </div>

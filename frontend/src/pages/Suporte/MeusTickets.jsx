@@ -22,7 +22,7 @@ const BadgeStatus = ({ status }) => {
   const s = STATUS_TICKET[status] || STATUS_TICKET.aberto;
   return (
     <span
-      className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
+      className="text-sm px-2 py-0.5 rounded-full whitespace-nowrap"
       style={{ backgroundColor: s.cor + '22', color: s.cor }}
     >
       {s.label}
@@ -47,19 +47,19 @@ const CardTicket = ({ ticket, onClick }) => {
           </div>
           <div className="min-w-0">
             <p className="text-white font-medium text-sm truncate">{ticket.assunto}</p>
-            <p className="text-muted text-xs">{categoria.label}</p>
+            <p className="text-muted text-sm">{categoria.label}</p>
           </div>
         </div>
         <BadgeStatus status={ticket.status} />
       </div>
 
       {ticket.descricao && (
-        <p className="text-muted text-xs mt-3 line-clamp-2">{ticket.descricao}</p>
+        <p className="text-muted text-sm mt-3 line-clamp-2">{ticket.descricao}</p>
       )}
 
       <div className="flex items-center gap-3 mt-3 flex-wrap">
-        <span className="text-xs" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
-        <span className="text-muted text-xs">📅 {formatarData(ticket.criado_em)}</span>
+        <span className="text-sm" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
+        <span className="text-muted text-sm">📅 {formatarData(ticket.criado_em)}</span>
       </div>
     </div>
   );
@@ -115,8 +115,8 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
             </div>
             <h3 className="font-semibold truncate">{ticket.assunto}</h3>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
-              <span className="text-xs" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
-              <span className="text-muted text-xs">📅 {formatarData(ticket.criado_em)}</span>
+              <span className="text-sm" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
+              <span className="text-muted text-sm">📅 {formatarData(ticket.criado_em)}</span>
             </div>
           </div>
           <button onClick={onFechar} className="text-muted hover:text-white text-lg flex-shrink-0">✕</button>
@@ -129,7 +129,7 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
           )}
 
           <div className="border-t border-surface-border/50 pt-4">
-            <p className="text-muted text-xs font-medium uppercase tracking-wider mb-3">Mensagens</p>
+            <p className="text-muted text-sm font-medium uppercase tracking-wider mb-3">Mensagens</p>
             {carregandoMsgs ? (
               <div className="flex justify-center py-6">
                 <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -141,7 +141,7 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
                 {mensagens.map((m) => (
                   <div key={m.id} className="bg-surface border border-surface-border rounded-lg p-3">
                     <p className="text-muted text-sm whitespace-pre-wrap">{m.conteudo}</p>
-                    <p className="text-muted text-xs mt-1">
+                    <p className="text-muted text-sm mt-1">
                       {new Date(m.criado_em).toLocaleString('pt-BR')}
                     </p>
                   </div>
@@ -270,7 +270,7 @@ const MeusTickets = () => {
           <button
             key={f.slug}
             onClick={() => setFiltroStatus(f.slug)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               filtroStatus === f.slug
                 ? 'bg-primary-600 text-white'
                 : 'bg-surface-card border border-surface-border text-muted hover:text-white'

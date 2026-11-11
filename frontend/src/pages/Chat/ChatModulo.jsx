@@ -94,7 +94,7 @@ const LISTA_ETIQUETAS = [
 const AvatarChat = ({
   nome = 'Usuário',
   tamanho = 'w-10 h-10',
-  tamanhoFonte = 'text-xs',
+  tamanhoFonte = 'text-sm',
   online = false,
   badge = null,
   foto = null,
@@ -190,7 +190,7 @@ const PlayerNotaVoz = ({
           ))}
         </div>
 
-        <span className="text-xs font-bold text-[#687770] shrink-0 font-mono">
+        <span className="text-sm font-bold text-[#687770] shrink-0 font-mono">
           {duracao}
         </span>
       </div>
@@ -229,7 +229,7 @@ const BolhaMensagem = ({ mensagem, ehMinha, autorNome }) => {
       <div className={`space-y-1 max-w-[85%] sm:max-w-[70%] flex flex-col ${ehMinha ? 'items-end' : 'items-start'}`}>
         {!ehMinha && (
           <div className="flex items-baseline gap-2 px-1">
-            <span className="text-xs font-bold text-[#111915]">{autorNome}</span>
+            <span className="text-sm font-bold text-[#111915]">{autorNome}</span>
             <span className="text-[10px] text-[#687770] font-medium">{horaStr}</span>
           </div>
         )}
@@ -241,7 +241,7 @@ const BolhaMensagem = ({ mensagem, ehMinha, autorNome }) => {
           /* Tipo: Imagem Anexada */
           <div className="bg-white border border-[#E4ECE7] rounded-2xl p-2.5 shadow-2xs space-y-2">
             {mensagem.conteudo && (
-              <p className="text-xs text-[#111915] font-medium leading-relaxed px-1">{mensagem.conteudo}</p>
+              <p className="text-sm text-[#111915] font-medium leading-relaxed px-1">{mensagem.conteudo}</p>
             )}
             <div className="relative rounded-xl overflow-hidden border border-[#E4ECE7] group/img">
               <img
@@ -269,7 +269,7 @@ const BolhaMensagem = ({ mensagem, ehMinha, autorNome }) => {
                 <HugeiconsIcon icon={File01Icon} size={16} strokeWidth={2} />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-[#111915] truncate">{mensagem.nome_arquivo || mensagem.conteudo}</p>
+                <p className="text-sm font-bold text-[#111915] truncate">{mensagem.nome_arquivo || mensagem.conteudo}</p>
                 <p className="text-[10px] text-[#687770] font-medium">{mensagem.tamanho || '2.4 MB'}</p>
               </div>
             </div>
@@ -285,7 +285,7 @@ const BolhaMensagem = ({ mensagem, ehMinha, autorNome }) => {
           /* Tipo: Mensagem de Texto Padrão */
           <div className="space-y-1">
             <div
-              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-[13px] leading-relaxed shadow-2xs ${
+              className={`px-4 py-2.5 rounded-2xl text-sm sm:text-[13px] leading-relaxed shadow-2xs ${
                 ehMinha
                   ? 'bg-[#0E382C] text-white rounded-tr-xs'
                   : 'bg-white text-[#111915] border border-[#E4ECE7] rounded-tl-xs'
@@ -381,7 +381,7 @@ const PainelInfoGrupo = ({ canal, membros, onFechar, onAbrirMembros }) => {
             <h2 className="text-base font-extrabold text-[#111915] leading-tight">
               {nomeExibicao}
             </h2>
-            <p className="text-xs text-[#687770] font-medium mt-0.5">
+            <p className="text-sm text-[#687770] font-medium mt-0.5">
               {canal?.descricao || (ehGrupo ? `${totalMembros} membros participantes` : (canal?.cargo ? `${canal.cargo} • Disponível` : 'Disponível online'))}
             </p>
           </div>
@@ -442,7 +442,7 @@ const PainelInfoGrupo = ({ canal, membros, onFechar, onAbrirMembros }) => {
         {/* Seção: Membros */}
         <div className="space-y-3 pt-2 border-t border-[#E4ECE7]">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-xs text-[#111915]">Membros</h4>
+            <h4 className="font-bold text-sm text-[#111915]">Membros</h4>
             <button
               type="button"
               onClick={onAbrirMembros}
@@ -460,7 +460,7 @@ const PainelInfoGrupo = ({ canal, membros, onFechar, onAbrirMembros }) => {
               <HugeiconsIcon icon={UserGroupIcon} size={16} strokeWidth={2} />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-xs font-bold text-[#111915] block truncate">
+              <span className="text-sm font-bold text-[#111915] block truncate">
                 {totalMembros} {totalMembros === 1 ? 'membro participante' : 'membros participantes'}
               </span>
               <span className="text-[10px] text-[#687770]">Gerenciar permissões e convites</span>
@@ -471,7 +471,7 @@ const PainelInfoGrupo = ({ canal, membros, onFechar, onAbrirMembros }) => {
         {/* Seção: Imagens */}
         <div className="space-y-3 pt-2 border-t border-[#E4ECE7]">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-xs text-[#111915]">Imagens & Mídias</h4>
+            <h4 className="font-bold text-sm text-[#111915]">Imagens & Mídias</h4>
             <button type="button" className="text-[11px] font-bold text-[#0E382C] hover:underline">
               Ver todos
             </button>
@@ -492,7 +492,7 @@ const PainelInfoGrupo = ({ canal, membros, onFechar, onAbrirMembros }) => {
         {/* Seção: Arquivos */}
         <div className="space-y-3 pt-2 border-t border-[#E4ECE7]">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-xs text-[#111915]">Arquivos Compartilhados</h4>
+            <h4 className="font-bold text-sm text-[#111915]">Arquivos Compartilhados</h4>
             <button type="button" className="text-[11px] font-bold text-[#0E382C] hover:underline">
               Ver todos
             </button>
@@ -509,7 +509,7 @@ const PainelInfoGrupo = ({ canal, membros, onFechar, onAbrirMembros }) => {
                     <HugeiconsIcon icon={File01Icon} size={15} strokeWidth={2} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#111915] truncate">{arq.nome}</p>
+                    <p className="text-sm font-bold text-[#111915] truncate">{arq.nome}</p>
                     <p className="text-[10px] text-[#687770] font-medium">{arq.tamanho}</p>
                   </div>
                 </div>
@@ -522,7 +522,7 @@ const PainelInfoGrupo = ({ canal, membros, onFechar, onAbrirMembros }) => {
         {/* Seção: Links */}
         <div className="space-y-3 pt-2 border-t border-[#E4ECE7]">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-xs text-[#111915]">Links Compartilhados</h4>
+            <h4 className="font-bold text-sm text-[#111915]">Links Compartilhados</h4>
             <button type="button" className="text-[11px] font-bold text-[#0E382C] hover:underline">
               Ver todos
             </button>
@@ -539,7 +539,7 @@ const PainelInfoGrupo = ({ canal, membros, onFechar, onAbrirMembros }) => {
                     <HugeiconsIcon icon={Link01Icon} size={15} strokeWidth={2} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#111915] truncate">{lnk.titulo}</p>
+                    <p className="text-sm font-bold text-[#111915] truncate">{lnk.titulo}</p>
                     <p className="text-[10px] text-[#687770] font-medium">{lnk.dominio}</p>
                   </div>
                 </div>
@@ -608,7 +608,7 @@ const ModalNovaMensagem = ({
         <div className="flex items-center justify-between border-b border-[#E4ECE7] pb-3.5">
           <div>
             <h2 className="font-extrabold text-[#111915] text-base">Nova Mensagem</h2>
-            <p className="text-xs text-[#687770]">Converse individualmente ou crie um novo grupo</p>
+            <p className="text-sm text-[#687770]">Converse individualmente ou crie um novo grupo</p>
           </div>
           <button onClick={onFechar} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
             <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} />
@@ -620,7 +620,7 @@ const ModalNovaMensagem = ({
           <button
             type="button"
             onClick={() => setAbaModal('direta')}
-            className={`py-1.5 text-xs font-bold rounded-lg transition-all ${
+            className={`py-1.5 text-sm font-bold rounded-lg transition-all ${
               abaModal === 'direta' ? 'bg-white text-[#111915] shadow-2xs' : 'text-[#687770] hover:text-[#111915]'
             }`}
           >
@@ -629,7 +629,7 @@ const ModalNovaMensagem = ({
           <button
             type="button"
             onClick={() => setAbaModal('grupo')}
-            className={`py-1.5 text-xs font-bold rounded-lg transition-all ${
+            className={`py-1.5 text-sm font-bold rounded-lg transition-all ${
               abaModal === 'grupo' ? 'bg-white text-[#111915] shadow-2xs' : 'text-[#687770] hover:text-[#111915]'
             }`}
           >
@@ -647,7 +647,7 @@ const ModalNovaMensagem = ({
                 placeholder="Pesquisar colega pelo nome..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white"
+                className="w-full pl-9 pr-3 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white"
                 autoFocus
               />
             </div>
@@ -661,7 +661,7 @@ const ModalNovaMensagem = ({
                     onIniciarChatDireto(u);
                     onFechar();
                   }}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl text-xs hover:bg-[#F7FAF8] transition-colors group"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl text-sm hover:bg-[#F7FAF8] transition-colors group"
                 >
                   <div className="flex items-center gap-2.5 truncate">
                     <AvatarChat nome={u.nome} tamanho="w-8 h-8" online={u.online} />
@@ -681,31 +681,31 @@ const ModalNovaMensagem = ({
           /* Formulário de Criação de Grupo */
           <form onSubmit={handleCriarGrupo} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1">Nome do Grupo *</label>
+              <label className="block text-sm font-bold text-[#111915] mb-1">Nome do Grupo *</label>
               <input
                 type="text"
                 placeholder="Ex: Equipe de Marketing, Campanhas..."
                 value={nomeGrupo}
                 onChange={(e) => setNomeGrupo(e.target.value)}
                 required
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white"
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white"
                 autoFocus
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1">Descrição</label>
+              <label className="block text-sm font-bold text-[#111915] mb-1">Descrição</label>
               <input
                 type="text"
                 placeholder="Objetivo e assuntos abordados no canal"
                 value={descricaoGrupo}
                 onChange={(e) => setDescricaoGrupo(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white"
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1 flex items-center justify-between">
+              <label className="block text-sm font-bold text-[#111915] mb-1 flex items-center justify-between">
                 <span>Selecionar Membros ({membrosSelecionados.length} selecionados)</span>
               </label>
               <div className="max-h-36 overflow-y-auto space-y-1 divide-y divide-[#F0F4F2]">
@@ -716,7 +716,7 @@ const ModalNovaMensagem = ({
                       key={u.id}
                       type="button"
                       onClick={() => toggleMembro(u.id)}
-                      className={`w-full flex items-center justify-between p-2 rounded-xl text-xs transition-colors ${
+                      className={`w-full flex items-center justify-between p-2 rounded-xl text-sm transition-colors ${
                         marcado ? 'bg-[#DCF5E4]/60 font-bold text-[#0E382C]' : 'hover:bg-[#F7FAF8] text-[#111915]'
                       }`}
                     >
@@ -724,7 +724,7 @@ const ModalNovaMensagem = ({
                         <AvatarChat nome={u.nome} tamanho="w-6 h-6" tamanhoFonte="text-[9px]" />
                         <span className="truncate">{u.nome}</span>
                       </div>
-                      {marcado && <span className="text-[#0E382C] font-extrabold text-xs">✓</span>}
+                      {marcado && <span className="text-[#0E382C] font-extrabold text-sm">✓</span>}
                     </button>
                   );
                 })}
@@ -735,14 +735,14 @@ const ModalNovaMensagem = ({
               <button
                 type="button"
                 onClick={onFechar}
-                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-xs font-semibold text-[#687770] rounded-xl hover:bg-white"
+                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-sm font-semibold text-[#687770] rounded-xl hover:bg-white"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={!nomeGrupo.trim() || salvando}
-                className="px-5 py-2 bg-[#0E382C] hover:bg-[#07261E] disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-xs transition-all"
+                className="px-5 py-2 bg-[#0E382C] hover:bg-[#07261E] disabled:opacity-50 text-white text-sm font-bold rounded-xl shadow-xs transition-all"
               >
                 {salvando ? 'Criando...' : 'Criar Grupo'}
               </button>
@@ -795,21 +795,21 @@ const ModalMembros = ({
         <div className="flex items-center justify-between border-b border-[#E4ECE7] pb-3">
           <div>
             <h2 className="font-extrabold text-[#111915] text-base">Membros do Grupo</h2>
-            <p className="text-xs text-[#687770]">{canal.nome}</p>
+            <p className="text-sm text-[#687770]">{canal.nome}</p>
           </div>
           <button onClick={onFechar} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
             <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} />
           </button>
         </div>
 
-        {erro && <p className="text-red-500 text-xs">{erro}</p>}
+        {erro && <p className="text-red-500 text-sm">{erro}</p>}
 
         <div className="space-y-2 max-h-60 overflow-y-auto">
           {membros.map((m) => (
             <div key={m.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7]">
               <AvatarChat nome={m.usuario?.nome} tamanho="w-8 h-8" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-[#111915] truncate">
+                <p className="text-sm font-bold text-[#111915] truncate">
                   {m.usuario?.nome || 'Usuário'}{m.user_id === usuarioAtualId ? ' (você)' : ''}
                 </p>
                 <span className="text-[10px] text-[#687770] font-semibold">
@@ -839,9 +839,9 @@ const ModalMembros = ({
 
         {souAdmin && (
           <div className="pt-3 border-t border-[#E4ECE7] space-y-2">
-            <p className="text-xs font-bold text-[#687770]">Adicionar Pessoa ao Grupo</p>
+            <p className="text-sm font-bold text-[#687770]">Adicionar Pessoa ao Grupo</p>
             <input
-              className="w-full px-3 py-2 rounded-xl text-xs border border-[#E4ECE7] bg-[#F7FAF8] focus:outline-none focus:border-[#0E382C]"
+              className="w-full px-3 py-2 rounded-xl text-sm border border-[#E4ECE7] bg-[#F7FAF8] focus:outline-none focus:border-[#0E382C]"
               placeholder="Buscar usuário..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
@@ -851,7 +851,7 @@ const ModalMembros = ({
                 <button
                   key={u.id}
                   onClick={() => executar(onAdicionar, u.id)}
-                  className="w-full flex items-center justify-between p-2 rounded-xl text-xs hover:bg-[#DCF5E4]/50 transition-colors"
+                  className="w-full flex items-center justify-between p-2 rounded-xl text-sm hover:bg-[#DCF5E4]/50 transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <AvatarChat nome={u.nome} tamanho="w-7 h-7" />
@@ -1304,7 +1304,7 @@ const ChatModulo = () => {
               placeholder="Pesquisar conversas..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full bg-[#F7FAF8] hover:bg-white text-xs text-[#111915] placeholder:text-[#8A9A92] pl-9 pr-8 py-2 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+              className="w-full bg-[#F7FAF8] hover:bg-white text-sm text-[#111915] placeholder:text-[#8A9A92] pl-9 pr-8 py-2 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
             />
             {busca && (
               <button
@@ -1323,7 +1323,7 @@ const ChatModulo = () => {
             <button
               type="button"
               onClick={() => setMenuEtiquetasAberto((prev) => !prev)}
-              className="w-full flex items-center justify-between px-3 py-2 bg-[#F7FAF8] hover:bg-[#F0F4F2] border border-[#E4ECE7] rounded-xl text-xs font-semibold text-[#111915] transition-all shadow-2xs cursor-pointer"
+              className="w-full flex items-center justify-between px-3 py-2 bg-[#F7FAF8] hover:bg-[#F0F4F2] border border-[#E4ECE7] rounded-xl text-sm font-semibold text-[#111915] transition-all shadow-2xs cursor-pointer"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-5 h-5 rounded-lg bg-white border border-[#E4ECE7] flex items-center justify-center text-[#0E382C] shrink-0">
@@ -1385,7 +1385,7 @@ const ChatModulo = () => {
                           setEtiquetaAtiva(et.id);
                           setMenuEtiquetasAberto(false);
                         }}
-                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                           selecionada
                             ? 'bg-[#DCF5E4] text-[#0E382C] font-bold'
                             : 'text-[#111915] hover:bg-[#F7FAF8]'
@@ -1421,7 +1421,7 @@ const ChatModulo = () => {
             <button
               type="button"
               onClick={() => setModalNovaMensagemAberto(true)}
-              className="w-full py-2.5 px-4 bg-[#0E382C] hover:bg-[#07261E] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+              className="w-full py-2.5 px-4 bg-[#0E382C] hover:bg-[#07261E] text-white text-sm font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
             >
               <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.5} />
               <span>Nova Mensagem</span>
@@ -1432,7 +1432,7 @@ const ChatModulo = () => {
           {etiquetaAtiva !== 'grupos' && conversasIndividuais.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <h3 className="font-extrabold text-xs text-[#111915] tracking-tight">
+                <h3 className="font-extrabold text-sm text-[#111915] tracking-tight">
                   Mensagens Diretas
                 </h3>
                 <span className="text-[10px] text-[#8A9A92] font-semibold">
@@ -1476,7 +1476,7 @@ const ChatModulo = () => {
                         <div className="flex-1 min-w-0 pr-1">
                           <div className="flex items-center justify-between gap-1 mb-0.5">
                             <div className="flex items-center gap-1.5 min-w-0">
-                              <p className={`text-xs font-extrabold truncate ${ativo ? 'text-[#0E382C]' : 'text-[#111915]'}`}>
+                              <p className={`text-sm font-extrabold truncate ${ativo ? 'text-[#0E382C]' : 'text-[#111915]'}`}>
                                 {c.nome}
                               </p>
                               {c.fixado && (
@@ -1517,7 +1517,7 @@ const ChatModulo = () => {
           {etiquetaAtiva !== 'diretas' && gruposExibicao.length > 0 && (
             <div className={`space-y-2 ${etiquetaAtiva !== 'grupos' && conversasIndividuais.length > 0 ? 'pt-2 border-t border-[#E4ECE7]' : ''}`}>
               <div className="flex items-center justify-between px-1">
-                <h3 className="font-extrabold text-xs text-[#111915] tracking-tight">
+                <h3 className="font-extrabold text-sm text-[#111915] tracking-tight">
                   Grupos & Canais
                 </h3>
                 <span className="text-[10px] text-[#8A9A92] font-semibold">
@@ -1554,7 +1554,7 @@ const ChatModulo = () => {
                       <div className="flex-1 min-w-0 pr-1">
                         <div className="flex items-center justify-between gap-1 mb-0.5">
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <p className={`text-xs font-extrabold truncate ${ativo ? 'text-[#0E382C]' : 'text-[#111915]'}`}>
+                            <p className={`text-sm font-extrabold truncate ${ativo ? 'text-[#0E382C]' : 'text-[#111915]'}`}>
                               {g.nome}
                             </p>
                             {g.fixado && (
@@ -1592,7 +1592,7 @@ const ChatModulo = () => {
                 <HugeiconsIcon icon={Tag01Icon} size={22} strokeWidth={2} />
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-extrabold text-[#111915]">Nenhuma conversa encontrada</p>
+                <p className="text-sm font-extrabold text-[#111915]">Nenhuma conversa encontrada</p>
                 <p className="text-[11px] text-[#8A9A92] max-w-xs mx-auto leading-relaxed">
                   Não encontramos mensagens ou canais com a etiqueta &ldquo;{etiquetaSelecionadaObj.nome}&rdquo;.
                 </p>
@@ -1603,7 +1603,7 @@ const ChatModulo = () => {
                   setEtiquetaAtiva('todas');
                   setBusca('');
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#DCF5E4] text-[#0E382C] text-xs font-bold hover:bg-[#CBDCD1] transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#DCF5E4] text-[#0E382C] text-sm font-bold hover:bg-[#CBDCD1] transition-all cursor-pointer"
               >
                 <span>Mostrar todas</span>
               </button>
@@ -1702,7 +1702,7 @@ const ChatModulo = () => {
                 <AvatarChat nome="Brooklyn Simmons" tamanho="w-8 h-8 sm:w-9 sm:h-9" />
                 <div className="space-y-1">
                   <div className="flex items-baseline gap-2 px-1">
-                    <span className="text-xs font-bold text-[#111915]">Brooklyn Simmons</span>
+                    <span className="text-sm font-bold text-[#111915]">Brooklyn Simmons</span>
                     <span className="text-[10px] text-[#687770]">Quinta-feira, 17:22</span>
                   </div>
                   <PlayerNotaVoz duracao="0:36" />
@@ -1714,10 +1714,10 @@ const ChatModulo = () => {
                 <AvatarChat nome="Jacob Jones" tamanho="w-8 h-8 sm:w-9 sm:h-9" />
                 <div className="space-y-1 max-w-[85%] sm:max-w-[70%]">
                   <div className="flex items-baseline gap-2 px-1">
-                    <span className="text-xs font-bold text-[#111915]">Jacob Jones</span>
+                    <span className="text-sm font-bold text-[#111915]">Jacob Jones</span>
                     <span className="text-[10px] text-[#687770]">Sexta-feira, 08:05</span>
                   </div>
-                  <div className="bg-white border border-[#E4ECE7] rounded-2xl rounded-tl-xs p-3 text-xs sm:text-[13px] text-[#111915] shadow-2xs leading-relaxed">
+                  <div className="bg-white border border-[#E4ECE7] rounded-2xl rounded-tl-xs p-3 text-sm sm:text-[13px] text-[#111915] shadow-2xs leading-relaxed">
                     O briefing criativo foi concluído com as metas, desafios e persona do público-alvo. O time de design já pode avançar com os primeiros layouts.
                   </div>
                 </div>
@@ -1726,7 +1726,7 @@ const ChatModulo = () => {
               {/* Mensagem demonstrativa enviada por mim */}
               <div className="flex items-start gap-2.5 sm:gap-3 justify-end">
                 <div className="space-y-1 max-w-[85%] sm:max-w-[70%] flex flex-col items-end">
-                  <div className="bg-[#0E382C] text-white rounded-2xl rounded-tr-xs px-4 py-2.5 text-xs sm:text-[13px] shadow-2xs leading-relaxed">
+                  <div className="bg-[#0E382C] text-white rounded-2xl rounded-tr-xs px-4 py-2.5 text-sm sm:text-[13px] shadow-2xs leading-relaxed">
                     Perfeito! Já estamos estruturando o repositório e disponibilizando os arquivos de apoio para a equipe.
                   </div>
                   <div className="flex items-center gap-1.5 px-1">
@@ -1775,7 +1775,7 @@ const ChatModulo = () => {
 
           {/* Pré-visualização de anexo pendente */}
           {anexoPendente && (
-            <div className="flex items-center justify-between p-2 px-3 bg-[#DCF5E4]/60 border border-[#CBDCD1] rounded-xl text-xs text-[#0E382C] animate-in fade-in duration-150">
+            <div className="flex items-center justify-between p-2 px-3 bg-[#DCF5E4]/60 border border-[#CBDCD1] rounded-xl text-sm text-[#0E382C] animate-in fade-in duration-150">
               <div className="flex items-center gap-2 truncate">
                 <HugeiconsIcon icon={anexoPendente.tipo === 'imagem' ? Image01Icon : File01Icon} size={15} />
                 <span className="font-bold truncate">{anexoPendente.nome}</span>
@@ -1798,8 +1798,8 @@ const ChatModulo = () => {
               <div className="flex items-center gap-3">
                 <span className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-red-700">Gravando áudio:</span>
-                  <span className="text-xs font-mono font-extrabold text-red-900">
+                  <span className="text-sm font-bold text-red-700">Gravando áudio:</span>
+                  <span className="text-sm font-mono font-extrabold text-red-900">
                     {Math.floor(tempoGravacao / 60)}:{String(tempoGravacao % 60).padStart(2, '0')}
                   </span>
                 </div>
@@ -1812,7 +1812,7 @@ const ChatModulo = () => {
                     setGravandoAudio(false);
                     setTempoGravacao(0);
                   }}
-                  className="px-3 py-1.5 bg-white border border-[#FECACA] hover:bg-red-50 text-red-600 rounded-xl text-xs font-bold transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 bg-white border border-[#FECACA] hover:bg-red-50 text-red-600 rounded-xl text-sm font-bold transition-colors flex items-center gap-1"
                 >
                   <HugeiconsIcon icon={Delete02Icon} size={13} />
                   <span>Cancelar</span>
@@ -1821,7 +1821,7 @@ const ChatModulo = () => {
                 <button
                   type="button"
                   onClick={handleEnviarAudioGravado}
-                  className="px-4 py-1.5 bg-[#0E382C] hover:bg-[#07261E] text-white rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+                  className="px-4 py-1.5 bg-[#0E382C] hover:bg-[#07261E] text-white rounded-xl text-sm font-bold shadow-xs transition-colors flex items-center gap-1.5"
                 >
                   <HugeiconsIcon icon={SentIcon} size={14} />
                   <span>Enviar Áudio</span>
@@ -1842,7 +1842,7 @@ const ChatModulo = () => {
                     <button
                       type="button"
                       onClick={() => setMenuEmojiAberto(false)}
-                      className="text-slate-400 hover:text-slate-600 text-xs"
+                      className="text-slate-400 hover:text-slate-600 text-sm"
                     >
                       ✕
                     </button>
@@ -1864,7 +1864,7 @@ const ChatModulo = () => {
 
               {/* Popover de Mais Ações */}
               {menuMaisAberto && (
-                <div className="absolute bottom-full mb-2 right-14 bg-white border border-[#E4ECE7] rounded-2xl p-2 shadow-2xl z-30 w-52 space-y-1 text-xs animate-in zoom-in-95 duration-150 divide-y divide-[#F0F4F2]">
+                <div className="absolute bottom-full mb-2 right-14 bg-white border border-[#E4ECE7] rounded-2xl p-2 shadow-2xl z-30 w-52 space-y-1 text-sm animate-in zoom-in-95 duration-150 divide-y divide-[#F0F4F2]">
                   <button
                     type="button"
                     onClick={() => {
@@ -1933,7 +1933,7 @@ const ChatModulo = () => {
                   onChange={(e) => setTexto(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Digite sua mensagem..."
-                  className="flex-1 bg-transparent border-none text-xs sm:text-sm text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:ring-0 p-0"
+                  className="flex-1 bg-transparent border-none text-sm text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:ring-0 p-0"
                 />
 
                 {/* Ações da direita do input: [Emoji] [•••] [Anexo] [Imagem] [Microfone] [Enviar] */}

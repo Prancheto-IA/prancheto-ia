@@ -40,6 +40,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        'cn': path.resolve(__dirname, './src/lib/utils.js'),
       },
     },
 

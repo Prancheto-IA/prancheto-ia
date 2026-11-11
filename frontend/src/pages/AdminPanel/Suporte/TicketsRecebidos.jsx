@@ -25,7 +25,7 @@ const BadgeStatus = ({ status }) => {
   const s = STATUS_TICKET[status] || STATUS_TICKET.aberto;
   return (
     <span
-      className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
+      className="text-sm px-2 py-0.5 rounded-full whitespace-nowrap"
       style={{ backgroundColor: s.cor + '22', color: s.cor }}
     >
       {s.label}
@@ -50,7 +50,7 @@ const CardTicket = ({ ticket, onClick }) => {
           </div>
           <div className="min-w-0">
             <p className="text-white font-medium text-sm truncate">{ticket.assunto}</p>
-            <p className="text-muted text-xs truncate">
+            <p className="text-muted text-sm truncate">
               🏢 {ticket.tenant?.nome || 'Tenant desconhecido'}
             </p>
           </div>
@@ -59,14 +59,14 @@ const CardTicket = ({ ticket, onClick }) => {
       </div>
 
       {ticket.descricao && (
-        <p className="text-muted text-xs mt-3 line-clamp-2">{ticket.descricao}</p>
+        <p className="text-muted text-sm mt-3 line-clamp-2">{ticket.descricao}</p>
       )}
 
       <div className="flex items-center gap-3 mt-3 flex-wrap">
-        <span className="text-xs" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
-        <span className="text-muted text-xs">📅 {formatarData(ticket.criado_em)}</span>
+        <span className="text-sm" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
+        <span className="text-muted text-sm">📅 {formatarData(ticket.criado_em)}</span>
         {ticket.criador?.nome && (
-          <span className="text-muted text-xs">👤 {ticket.criador.nome}</span>
+          <span className="text-muted text-sm">👤 {ticket.criador.nome}</span>
         )}
       </div>
     </div>
@@ -123,12 +123,12 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
               <BadgeStatus status={ticket.status} />
             </div>
             <h3 className="font-semibold truncate">{ticket.assunto}</h3>
-            <p className="text-muted text-xs mt-0.5">🏢 {ticket.tenant?.nome || 'Tenant desconhecido'}</p>
+            <p className="text-muted text-sm mt-0.5">🏢 {ticket.tenant?.nome || 'Tenant desconhecido'}</p>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
-              <span className="text-xs" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
-              <span className="text-muted text-xs">📅 {formatarData(ticket.criado_em)}</span>
+              <span className="text-sm" style={{ color: prioridade.cor }}>● {prioridade.label}</span>
+              <span className="text-muted text-sm">📅 {formatarData(ticket.criado_em)}</span>
               {ticket.criador?.email && (
-                <span className="text-muted text-xs">✉️ {ticket.criador.email}</span>
+                <span className="text-muted text-sm">✉️ {ticket.criador.email}</span>
               )}
             </div>
           </div>
@@ -142,7 +142,7 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
           )}
 
           <div className="border-t border-surface-border/50 pt-4">
-            <p className="text-muted text-xs font-medium uppercase tracking-wider mb-3">Mensagens</p>
+            <p className="text-muted text-sm font-medium uppercase tracking-wider mb-3">Mensagens</p>
             {carregandoMsgs ? (
               <div className="flex justify-center py-6">
                 <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -160,10 +160,10 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
                       : { backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-surface-border)' }}
                   >
                     {m.interno && (
-                      <p className="text-amber-400 text-xs font-medium mb-1">🔒 Nota interna (não visível ao cliente)</p>
+                      <p className="text-amber-400 text-sm font-medium mb-1">🔒 Nota interna (não visível ao cliente)</p>
                     )}
                     <p className="text-muted text-sm whitespace-pre-wrap">{m.conteudo}</p>
-                    <p className="text-muted text-xs mt-1">
+                    <p className="text-muted text-sm mt-1">
                       {m.autor?.nome ? `${m.autor.nome} · ` : ''}{formatarDataHora(m.criado_em)}
                     </p>
                   </div>
@@ -181,7 +181,7 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
                 key={slug}
                 onClick={() => onMudarStatus(ticket.id, slug)}
                 disabled={ticket.status === slug}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-default ${
+                className={`px-2.5 py-1 rounded-lg text-sm font-medium border transition-colors disabled:opacity-40 disabled:cursor-default ${
                   ticket.status === slug ? '' : 'hover:bg-white/5'
                 }`}
                 style={{ borderColor: 'var(--color-surface-border)', color: info.cor }}
@@ -201,7 +201,7 @@ const ModalTicket = ({ ticket, onFechar, onEnviarMensagem, onMudarStatus, carreg
                 className="w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50 resize-none"
               />
               <div className="flex items-center justify-between gap-2">
-                <label className="flex items-center gap-2 text-xs text-muted cursor-pointer select-none">
+                <label className="flex items-center gap-2 text-sm text-muted cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={notaInterna}
@@ -305,7 +305,7 @@ const TicketsRecebidos = () => {
           <button
             key={f.slug}
             onClick={() => setFiltroStatus(f.slug)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               filtroStatus === f.slug
                 ? 'bg-primary-600 text-white'
                 : 'bg-surface-card border border-surface-border text-muted hover:text-white'

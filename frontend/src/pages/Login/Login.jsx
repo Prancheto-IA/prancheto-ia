@@ -87,7 +87,7 @@ const PaginaLogin = () => {
               <h1 className="text-xl sm:text-2xl lg:text-[1.5rem] xl:text-[1.75rem] font-bold text-ink-primary tracking-tight mb-1.5" id="form-heading">
                 {modo === 'login' ? 'Boas-vindas ao Prancheto.IA' : 'Crie sua conta no Prancheto.IA'}
               </h1>
-              <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed" id="form-subheading">
+              <p className="text-sm text-ink-secondary leading-relaxed" id="form-subheading">
                 {modo === 'login'
                   ? 'Inicie sua experiência fazendo login ou criando sua conta gratuita na plataforma.'
                   : 'Junte-se à nossa comunidade e comece a criar com IA hoje mesmo.'}
@@ -130,7 +130,7 @@ const PaginaLogin = () => {
             <form onSubmit={handleSubmit} className="space-y-3.5 max-w-sm mx-auto" data-purpose="login-form">
               {/* Email Field */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-ink-primary tracking-wide" htmlFor="email">
+                <label className="block text-sm font-semibold text-ink-primary tracking-wide" htmlFor="email">
                   Endereço de E-mail <span className="text-brand-secondary">*</span>
                 </label>
                 <div className="input-field relative flex items-center border border-surface-border rounded-xl px-3.5 py-2.5 bg-surface-subtle focus-within:bg-surface-card focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-accent/60 transition-all">
@@ -150,7 +150,7 @@ const PaginaLogin = () => {
 
               {/* Password Field */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-ink-primary tracking-wide" htmlFor="password">
+                <label className="block text-sm font-semibold text-ink-primary tracking-wide" htmlFor="password">
                   Senha <span className="text-brand-secondary">*</span>
                 </label>
                 <div className="input-field relative flex items-center border border-surface-border rounded-xl px-3.5 py-2.5 bg-surface-subtle focus-within:bg-surface-card focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-accent/60 transition-all">
@@ -184,7 +184,7 @@ const PaginaLogin = () => {
 
               {/* Remember & Forgot Password Link */}
               <div className="flex items-center justify-between pt-1 pb-1">
-                <label className="flex items-center space-x-2 text-xs text-ink-secondary cursor-pointer select-none">
+                <label className="flex items-center space-x-2 text-sm text-ink-secondary cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={lembrar}
@@ -193,14 +193,14 @@ const PaginaLogin = () => {
                   />
                   <span>Lembrar de mim</span>
                 </label>
-                <a href="#" onClick={(e) => e.preventDefault()} className="text-xs font-semibold text-brand-secondary hover:text-brand-primary transition-colors">
+                <a href="#" onClick={(e) => e.preventDefault()} className="text-sm font-semibold text-brand-secondary hover:text-brand-primary transition-colors">
                   Esqueceu a senha?
                 </a>
               </div>
 
               {/* Mensagem de Erro do Auth */}
               {erroLogin && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-red-600 text-xs flex items-center gap-2">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-red-600 text-sm flex items-center gap-2">
                   <HugeiconsIcon icon={AlertCircleIcon} size={16} strokeWidth={1.8} className="flex-shrink-0" />
                   <span>{erroLogin}</span>
                 </div>
@@ -262,7 +262,7 @@ const PaginaLogin = () => {
                 {/* Background Card (Pipeline & Volume Comercial) */}
                 <article className="absolute -top-1 left-1 xl:left-4 w-52 xl:w-60 2xl:w-64 bg-white/95 text-ink-primary rounded-xl xl:rounded-2xl p-3 xl:p-4 shadow-xl border border-white/80 transform -rotate-1 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-surface-border">
-                    <span className="text-xs font-bold text-ink-primary tracking-tight">Funil de Vendas Ativo</span>
+                    <span className="text-sm font-bold text-ink-primary tracking-tight">Funil de Vendas Ativo</span>
                     <span className="text-[10px] bg-brand-accent text-brand-primary px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-brand-purple animate-pulse"></span>
                       IA Preditiva
@@ -292,7 +292,7 @@ const PaginaLogin = () => {
                 {/* Right Overlapping Card (Lead Scoring por IA) */}
                 <article className="absolute top-12 xl:top-14 2xl:top-16 right-0 xl:-right-2 w-48 xl:w-56 2xl:w-60 bg-white/95 text-ink-primary rounded-xl xl:rounded-2xl p-3 xl:p-3.5 shadow-xl border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-ink-primary">Lead Score por IA</span>
+                    <span className="text-sm font-bold text-ink-primary">Lead Score por IA</span>
                     <span className="text-[10px] font-bold text-brand-primary bg-brand-accent px-1.5 py-0.5 rounded-md flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary"></span>
                       98 / 100
@@ -300,7 +300,7 @@ const PaginaLogin = () => {
                   </div>
                   <p className="text-[11px] font-semibold text-ink-primary truncate">TechCorp Enterprise</p>
                   <div className="flex justify-between items-baseline my-1">
-                    <span className="text-xs font-bold text-ink-primary">R$ 48.000 <span className="text-[10px] font-normal text-ink-muted">/ ano</span></span>
+                    <span className="text-sm font-bold text-ink-primary">R$ 48.000 <span className="text-[10px] font-normal text-ink-muted">/ ano</span></span>
                     <span className="text-[9px] font-bold text-white bg-brand-purple px-1.5 py-0.5 rounded">Lead Quente</span>
                   </div>
                   <div className="w-full bg-surface h-1.5 xl:h-2 rounded-full overflow-hidden mt-1.5">
@@ -313,7 +313,7 @@ const PaginaLogin = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div>
                       <span className="text-[10px] uppercase tracking-wider text-ink-muted font-bold block">Insight Prancheto IA</span>
-                      <span className="text-xs xl:text-sm font-extrabold text-ink-primary">Oportunidade no Ponto</span>
+                      <span className="text-sm xl:text-sm font-extrabold text-ink-primary">Oportunidade no Ponto</span>
                     </div>
                     <span className="text-[10px] font-bold text-brand-primary bg-brand-accent px-2 py-0.5 rounded-full flex items-center gap-1">
                       <HugeiconsIcon icon={SparklesIcon} size={12} className="text-brand-purple" />
@@ -336,7 +336,7 @@ const PaginaLogin = () => {
                 {/* Background Card (Métricas do Agente IA) */}
                 <article className="absolute -top-1 left-1 xl:left-4 w-52 xl:w-60 2xl:w-64 bg-white/95 text-ink-primary rounded-xl xl:rounded-2xl p-3 xl:p-4 shadow-xl border border-white/80 transform -rotate-1 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-surface-border">
-                    <span className="text-xs font-bold text-ink-primary tracking-tight">Pranchetinho IA</span>
+                    <span className="text-sm font-bold text-ink-primary tracking-tight">Pranchetinho IA</span>
                     <span className="text-[10px] bg-brand-accent text-brand-primary px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-ping"></span>
                       Online 24/7
@@ -363,7 +363,7 @@ const PaginaLogin = () => {
                 {/* Right Overlapping Card (Lead Qualificado Automático) */}
                 <article className="absolute top-12 xl:top-14 2xl:top-16 right-0 xl:-right-2 w-48 xl:w-56 2xl:w-60 bg-white/95 text-ink-primary rounded-xl xl:rounded-2xl p-3 xl:p-3.5 shadow-xl border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-ink-primary">Lead Qualificado</span>
+                    <span className="text-sm font-bold text-ink-primary">Lead Qualificado</span>
                     <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} className="text-brand-secondary" />
                   </div>
                   <p className="text-[11px] font-semibold text-ink-primary">Mariana Souza</p>
@@ -406,7 +406,7 @@ const PaginaLogin = () => {
                 {/* Background Card (Metas Comerciais & Batimento) */}
                 <article className="absolute -top-1 left-1 xl:left-4 w-52 xl:w-60 2xl:w-64 bg-white/95 text-ink-primary rounded-xl xl:rounded-2xl p-3 xl:p-4 shadow-xl border border-white/80 transform -rotate-1 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-surface-border">
-                    <span className="text-xs font-bold text-ink-primary tracking-tight">Meta Comercial (Q4)</span>
+                    <span className="text-sm font-bold text-ink-primary tracking-tight">Meta Comercial (Q4)</span>
                     <span className="text-[10px] bg-brand-accent text-brand-primary px-2 py-0.5 rounded-full font-semibold">89% Atingida</span>
                   </div>
                   <div className="flex items-center gap-3 mb-2.5">
@@ -431,7 +431,7 @@ const PaginaLogin = () => {
                 {/* Right Overlapping Card (Health Score da Carteira) */}
                 <article className="absolute top-12 xl:top-14 2xl:top-16 right-0 xl:-right-2 w-48 xl:w-56 2xl:w-60 bg-white/95 text-ink-primary rounded-xl xl:rounded-2xl p-3 xl:p-3.5 shadow-xl border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-ink-primary">Saúde da Carteira</span>
+                    <span className="text-sm font-bold text-ink-primary">Saúde da Carteira</span>
                     <span className="w-2 h-2 rounded-full bg-brand-purple animate-pulse"></span>
                   </div>
                   <p className="text-[10px] text-ink-secondary">NPS Geral &amp; Retenção</p>
@@ -449,7 +449,7 @@ const PaginaLogin = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div>
                       <span className="text-[10px] uppercase tracking-wider text-ink-muted font-bold block">Follow-ups do Dia</span>
-                      <span className="text-xs xl:text-sm font-extrabold text-ink-primary">12 Atividades</span>
+                      <span className="text-sm xl:text-sm font-extrabold text-ink-primary">12 Atividades</span>
                     </div>
                     <span className="text-[10px] font-bold text-brand-primary bg-brand-accent px-2 py-0.5 rounded-full flex items-center">
                       ↑ 100% no prazo
@@ -494,7 +494,7 @@ const PaginaLogin = () => {
                 <h2 className="text-lg xl:text-xl 2xl:text-2xl font-bold text-white tracking-tight leading-snug mb-1.5">
                   Pipeline Comercial &amp; Previsão de Vendas com IA
                 </h2>
-                <p className="text-[11px] xl:text-xs 2xl:text-sm text-brand-accent/85 leading-relaxed font-normal max-w-sm xl:max-w-md mx-auto">
+                <p className="text-[11px] xl:text-sm 2xl:text-sm text-brand-accent/85 leading-relaxed font-normal max-w-sm xl:max-w-md mx-auto">
                   Monitore negociações em tempo real, priorize os leads mais quentes e impulsione conversões com recomendações preditivas automatizadas.
                 </p>
               </>
@@ -505,7 +505,7 @@ const PaginaLogin = () => {
                 <h2 className="text-lg xl:text-xl 2xl:text-2xl font-bold text-white tracking-tight leading-snug mb-1.5">
                   Atendimento Automatizado &amp; Qualificação 24/7
                 </h2>
-                <p className="text-[11px] xl:text-xs 2xl:text-sm text-brand-accent/85 leading-relaxed font-normal max-w-sm xl:max-w-md mx-auto">
+                <p className="text-[11px] xl:text-sm 2xl:text-sm text-brand-accent/85 leading-relaxed font-normal max-w-sm xl:max-w-md mx-auto">
                   O Pranchetinho IA engaja clientes instantaneamente, esclarece dúvidas, qualifica oportunidades e agenda reuniões diretamente na sua agenda.
                 </p>
               </>
@@ -516,7 +516,7 @@ const PaginaLogin = () => {
                 <h2 className="text-lg xl:text-xl 2xl:text-2xl font-bold text-white tracking-tight leading-snug mb-1.5">
                   Visão 360°, Metas &amp; Retenção de Clientes
                 </h2>
-                <p className="text-[11px] xl:text-xs 2xl:text-sm text-brand-accent/85 leading-relaxed font-normal max-w-sm xl:max-w-md mx-auto">
+                <p className="text-[11px] xl:text-sm 2xl:text-sm text-brand-accent/85 leading-relaxed font-normal max-w-sm xl:max-w-md mx-auto">
                   Acompanhe metas comerciais, saúde da carteira de clientes, automações de tarefas e follow-ups em um único ecossistema integrado.
                 </p>
               </>

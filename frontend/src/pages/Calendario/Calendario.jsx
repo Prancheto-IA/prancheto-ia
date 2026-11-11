@@ -354,7 +354,7 @@ const ModalEvento = ({
             <h2 className="text-base font-extrabold text-[#111915]">
               {eventoEditando ? 'Editar Compromisso' : 'Novo Compromisso'}
             </h2>
-            <p className="text-xs text-[#687770]">
+            <p className="text-sm text-[#687770]">
               {eventoEditando ? 'Atualize as informações do evento na agenda' : 'Preencha os detalhes para agendar'}
             </p>
           </div>
@@ -370,12 +370,12 @@ const ModalEvento = ({
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {/* Título do Compromisso */}
           <div>
-            <label className="block text-xs font-bold text-[#111915] mb-1.5">
+            <label className="block text-sm font-bold text-[#111915] mb-1.5">
               Título do compromisso *
             </label>
             <input
               type="text"
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
               placeholder="Ex: Reunião de Alinhamento de Produto"
               value={form.titulo}
               onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))}
@@ -385,7 +385,7 @@ const ModalEvento = ({
 
           {/* Campo Seletor de Negócio (com busca ou criação inline) */}
           <div className="relative" ref={negocioRef}>
-            <label className="block text-xs font-bold text-[#111915] mb-1.5 flex items-center justify-between">
+            <label className="block text-sm font-bold text-[#111915] mb-1.5 flex items-center justify-between">
               <span>Negócio associado</span>
               <span className="text-[11px] font-normal text-[#687770]">Opcional</span>
             </label>
@@ -393,7 +393,7 @@ const ModalEvento = ({
             {/* Trigger do Seletor */}
             <div
               onClick={() => setDropdownNegocioAberto(!dropdownNegocioAberto)}
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] hover:bg-white border border-[#E4ECE7] focus-within:border-[#0E382C] rounded-xl text-xs flex items-center justify-between cursor-pointer transition-all shadow-2xs"
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] hover:bg-white border border-[#E4ECE7] focus-within:border-[#0E382C] rounded-xl text-sm flex items-center justify-between cursor-pointer transition-all shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate flex-1 min-w-0">
                 <HugeiconsIcon icon={Briefcase01Icon} size={15} className="text-[#0E382C] flex-shrink-0" />
@@ -434,7 +434,7 @@ const ModalEvento = ({
 
             {/* Dropdown Flutuante */}
             {dropdownNegocioAberto && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#E4ECE7] rounded-xl shadow-2xl z-50 overflow-hidden text-xs">
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#E4ECE7] rounded-xl shadow-2xl z-50 overflow-hidden text-sm">
                 {!criandoNegocioInline ? (
                   <>
                     {/* Barra de Busca no Dropdown */}
@@ -450,7 +450,7 @@ const ModalEvento = ({
                           placeholder="Buscar negócio..."
                           value={buscaNegocio}
                           onChange={(e) => setBuscaNegocio(e.target.value)}
-                          className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-lg text-xs text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C]"
+                          className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-lg text-sm text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C]"
                           autoFocus
                         />
                       </div>
@@ -459,7 +459,7 @@ const ModalEvento = ({
                     {/* Lista de Negócios Filtrados */}
                     <div className="max-h-44 overflow-y-auto divide-y divide-[#F0F4F2]">
                       {negociosFiltrados.length === 0 ? (
-                        <div className="px-4 py-4 text-center text-xs text-[#687770]">
+                        <div className="px-4 py-4 text-center text-sm text-[#687770]">
                           {buscaNegocio ? 'Nenhum negócio encontrado.' : 'Nenhum negócio cadastrado.'}
                         </div>
                       ) : (
@@ -484,7 +484,7 @@ const ModalEvento = ({
                               }`}
                             >
                               <div className="truncate pr-2">
-                                <p className="font-semibold text-xs text-[#111915] truncate">
+                                <p className="font-semibold text-sm text-[#111915] truncate">
                                   {n.negocio_nome || n.nome}
                                 </p>
                                 {(n.empresa || n.valor_estimado) && (
@@ -503,7 +503,7 @@ const ModalEvento = ({
                                 )}
                               </div>
                               {selecionado && (
-                                <span className="text-[#0E382C] font-bold text-xs flex-shrink-0">✓</span>
+                                <span className="text-[#0E382C] font-bold text-sm flex-shrink-0">✓</span>
                               )}
                             </button>
                           );
@@ -519,7 +519,7 @@ const ModalEvento = ({
                           setCriandoNegocioInline(true);
                           setNovoNegocioNome(buscaNegocio);
                         }}
-                        className="w-full py-1.5 px-3 bg-white hover:bg-[#EDF2EE] border border-[#E4ECE7] text-[#0E382C] rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                        className="w-full py-1.5 px-3 bg-white hover:bg-[#EDF2EE] border border-[#E4ECE7] text-[#0E382C] rounded-lg text-sm font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
                       >
                         <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.5} />
                         <span>Adicionar um negócio</span>
@@ -530,7 +530,7 @@ const ModalEvento = ({
                   /* Form Inline de Criação de Negócio */
                   <div className="p-3.5 space-y-2.5 bg-white">
                     <div className="flex items-center justify-between pb-1 border-b border-[#E4ECE7]">
-                      <span className="font-extrabold text-xs text-[#111915]">Adicionar novo negócio</span>
+                      <span className="font-extrabold text-sm text-[#111915]">Adicionar novo negócio</span>
                       <button
                         type="button"
                         onClick={() => setCriandoNegocioInline(false)}
@@ -549,7 +549,7 @@ const ModalEvento = ({
                         placeholder="Ex: Consultoria Estratégica"
                         value={novoNegocioNome}
                         onChange={(e) => setNovoNegocioNome(e.target.value)}
-                        className="w-full px-3 py-1.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-lg text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                        className="w-full px-3 py-1.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-lg text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
                         autoFocus
                       />
                     </div>
@@ -563,7 +563,7 @@ const ModalEvento = ({
                         placeholder="Ex: 5000"
                         value={novoNegocioValor}
                         onChange={(e) => setNovoNegocioValor(e.target.value)}
-                        className="w-full px-3 py-1.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-lg text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                        className="w-full px-3 py-1.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-lg text-sm text-[#111915] focus:outline-none focus:border-[#0E382C]"
                       />
                     </div>
 
@@ -571,7 +571,7 @@ const ModalEvento = ({
                       <button
                         type="button"
                         onClick={() => setCriandoNegocioInline(false)}
-                        className="flex-1 py-1.5 bg-[#F7FAF8] hover:bg-[#EDF2EE] border border-[#E4ECE7] text-[#687770] rounded-lg text-xs font-semibold"
+                        className="flex-1 py-1.5 bg-[#F7FAF8] hover:bg-[#EDF2EE] border border-[#E4ECE7] text-[#687770] rounded-lg text-sm font-semibold"
                       >
                         Cancelar
                       </button>
@@ -579,7 +579,7 @@ const ModalEvento = ({
                         type="button"
                         onClick={handleCriarNegocioInline}
                         disabled={!novoNegocioNome.trim()}
-                        className="flex-1 py-1.5 bg-[#0E382C] hover:bg-[#07261E] disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-xs transition-colors"
+                        className="flex-1 py-1.5 bg-[#0E382C] hover:bg-[#07261E] disabled:opacity-50 text-white rounded-lg text-sm font-bold shadow-xs transition-colors"
                       >
                         Criar
                       </button>
@@ -592,7 +592,7 @@ const ModalEvento = ({
 
           {/* Tipo de Evento */}
           <div>
-            <label className="block text-xs font-bold text-[#111915] mb-1.5">
+            <label className="block text-sm font-bold text-[#111915] mb-1.5">
               Tipo de evento
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -601,7 +601,7 @@ const ModalEvento = ({
                   type="button"
                   key={chave}
                   onClick={() => setForm((f) => ({ ...f, tipo: chave }))}
-                  className={`px-2.5 py-2 rounded-xl text-xs font-semibold border flex flex-col items-center justify-center gap-1 transition-all ${
+                  className={`px-2.5 py-2 rounded-xl text-sm font-semibold border flex flex-col items-center justify-center gap-1 transition-all ${
                     form.tipo === chave
                       ? 'border-[#0E382C] bg-[#DCF5E4] text-[#0E382C] shadow-2xs'
                       : 'border-[#E4ECE7] bg-[#F7FAF8] text-[#687770] hover:bg-white'
@@ -617,7 +617,7 @@ const ModalEvento = ({
           {/* Data e Horário */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1.5">
+              <label className="block text-sm font-bold text-[#111915] mb-1.5">
                 Data do evento *
               </label>
               <DatePicker
@@ -628,12 +628,12 @@ const ModalEvento = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-[#111915] mb-1.5">
+              <label className="block text-sm font-bold text-[#111915] mb-1.5">
                 Horário de início *
               </label>
               <input
                 type="time"
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
                 value={form.hora}
                 onChange={(e) => setForm((f) => ({ ...f, hora: e.target.value }))}
                 required
@@ -643,7 +643,7 @@ const ModalEvento = ({
 
           {/* Local ou Link */}
           <div>
-            <label className="block text-xs font-bold text-[#111915] mb-1.5">
+            <label className="block text-sm font-bold text-[#111915] mb-1.5">
               Local ou link da reunião
             </label>
             <div className="relative">
@@ -655,7 +655,7 @@ const ModalEvento = ({
               />
               <input
                 type="text"
-                className="w-full pl-9 pr-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+                className="w-full pl-9 pr-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
                 placeholder="Google Meet, Zoom ou endereço físico"
                 value={form.local}
                 onChange={(e) => setForm((f) => ({ ...f, local: e.target.value }))}
@@ -665,11 +665,11 @@ const ModalEvento = ({
 
           {/* Descrição */}
           <div>
-            <label className="block text-xs font-bold text-[#111915] mb-1.5">
+            <label className="block text-sm font-bold text-[#111915] mb-1.5">
               Descrição ou pauta
             </label>
             <textarea
-              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all resize-none shadow-2xs"
+              className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-sm text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all resize-none shadow-2xs"
               placeholder="Objetivos do encontro, participantes e links de apoio..."
               rows={2}
               value={form.descricao}
@@ -686,7 +686,7 @@ const ModalEvento = ({
                   onExcluir(eventoEditando.id);
                   onFechar();
                 }}
-                className="px-3 py-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
+                className="px-3 py-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-xl text-sm font-bold transition-colors flex items-center gap-1.5"
               >
                 <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={2} />
                 <span>Excluir</span>
@@ -699,13 +699,13 @@ const ModalEvento = ({
               <button
                 type="button"
                 onClick={onFechar}
-                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] hover:text-[#111915] text-xs font-semibold rounded-xl hover:bg-white transition-all"
+                className="px-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] hover:text-[#111915] text-sm font-semibold rounded-xl hover:bg-white transition-all"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-[#0E382C] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-[#07261E] transition-all"
+                className="px-5 py-2 bg-[#0E382C] text-white text-sm font-bold rounded-xl shadow-xs hover:bg-[#07261E] transition-all"
               >
                 Salvar compromisso
               </button>
@@ -789,7 +789,7 @@ const CelulaDia = ({
       {/* Cabeçalho do dia */}
       <div className="flex items-center justify-between mb-1 flex-shrink-0">
         <div
-          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+          className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
             eHoje
               ? 'bg-[#111915] text-white shadow-xs'
               : atual
@@ -1128,7 +1128,7 @@ const Calendario = () => {
             <button
               type="button"
               onClick={() => setDropdownFiltro(!dropdownFiltro)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border transition-all shadow-2xs ${
+              className={`px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-2 border transition-all shadow-2xs ${
                 abaAtiva !== 'todos'
                   ? 'bg-[#DCF5E4] text-[#0E382C] border-[#0E382C]'
                   : 'bg-white border-[#E4ECE7] text-[#111915] hover:bg-[#F7FAF8]'
@@ -1162,7 +1162,7 @@ const Calendario = () => {
                           setAbaAtiva(aba.id);
                           setDropdownFiltro(false);
                         }}
-                        className={`w-full text-left px-3.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between hover:bg-[#F7FAF8] ${
+                        className={`w-full text-left px-3.5 py-2 text-sm font-semibold transition-colors flex items-center justify-between hover:bg-[#F7FAF8] ${
                           ativo ? 'bg-[#DCF5E4]/60 font-bold text-[#0E382C]' : 'text-[#111915]'
                         }`}
                       >
@@ -1178,7 +1178,7 @@ const Calendario = () => {
                           <span className="text-[10px] font-semibold text-[#687770] bg-[#F0F4F2] px-1.5 py-0.5 rounded-full">
                             {qtd}
                           </span>
-                          {ativo && <span className="text-[#0E382C] font-extrabold text-xs">✓</span>}
+                          {ativo && <span className="text-[#0E382C] font-extrabold text-sm">✓</span>}
                         </div>
                       </button>
                     );
@@ -1201,7 +1201,7 @@ const Calendario = () => {
             <button
               type="button"
               onClick={irHoje}
-              className="px-3 py-1.5 text-xs font-bold text-[#111915] hover:bg-[#F7FAF8] transition-colors border-r border-[#E4ECE7]"
+              className="px-3 py-1.5 text-sm font-bold text-[#111915] hover:bg-[#F7FAF8] transition-colors border-r border-[#E4ECE7]"
             >
               Hoje
             </button>
@@ -1220,7 +1220,7 @@ const Calendario = () => {
             <button
               type="button"
               onClick={() => setDropdownVisao(!dropdownVisao)}
-              className="px-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-xs font-semibold text-[#111915] hover:bg-[#F7FAF8] flex items-center gap-1.5 shadow-2xs transition-all"
+              className="px-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-sm font-semibold text-[#111915] hover:bg-[#F7FAF8] flex items-center gap-1.5 shadow-2xs transition-all"
             >
               <span>
                 {visaoModo === 'mes'
@@ -1240,7 +1240,7 @@ const Calendario = () => {
                     setVisaoModo('mes');
                     setDropdownVisao(false);
                   }}
-                  className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-2 text-sm font-semibold transition-colors flex items-center justify-between ${
                     visaoModo === 'mes'
                       ? 'bg-[#DCF5E4] text-[#0E382C]'
                       : 'text-[#111915] hover:bg-[#F7FAF8]'
@@ -1255,7 +1255,7 @@ const Calendario = () => {
                     setVisaoModo('semana');
                     setDropdownVisao(false);
                   }}
-                  className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-2 text-sm font-semibold transition-colors flex items-center justify-between ${
                     visaoModo === 'semana'
                       ? 'bg-[#DCF5E4] text-[#0E382C]'
                       : 'text-[#111915] hover:bg-[#F7FAF8]'
@@ -1270,7 +1270,7 @@ const Calendario = () => {
                     setVisaoModo('lista');
                     setDropdownVisao(false);
                   }}
-                  className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-2 text-sm font-semibold transition-colors flex items-center justify-between ${
                     visaoModo === 'lista'
                       ? 'bg-[#DCF5E4] text-[#0E382C]'
                       : 'text-[#111915] hover:bg-[#F7FAF8]'
@@ -1287,7 +1287,7 @@ const Calendario = () => {
           <button
             type="button"
             onClick={() => abrirNovoEvento(hoje.getDate(), hoje.getMonth(), hoje.getFullYear())}
-            className="px-3.5 py-1.5 bg-[#0E382C] text-white hover:bg-[#07261E] rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all flex-shrink-0"
+            className="px-3.5 py-1.5 bg-[#0E382C] text-white hover:bg-[#07261E] rounded-xl text-sm font-bold flex items-center gap-1.5 shadow-xs transition-all flex-shrink-0"
           >
             <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.5} />
             <span>Adicionar evento</span>
@@ -1307,7 +1307,7 @@ const Calendario = () => {
               placeholder="Pesquisar..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full pl-9 pr-10 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C] shadow-2xs transition-all"
+              className="w-full pl-9 pr-10 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-sm text-[#111915] placeholder:text-[#8A9A92] focus:outline-none focus:border-[#0E382C] shadow-2xs transition-all"
             />
             <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-semibold text-[#8A9A92] bg-[#F7FAF8] border border-[#E4ECE7] rounded-md px-1.5 py-0.5 pointer-events-none select-none">
               ⌘K
@@ -1327,7 +1327,7 @@ const Calendario = () => {
               {/* Linha dos Dias da Semana (Mon - Sun) */}
               <div className="grid grid-cols-7 border-b border-[#E4ECE7] bg-[#F7FAF8] divide-x divide-[#E4ECE7] flex-shrink-0">
                 {DIAS_SEMANA.map((d) => (
-                  <div key={d.curto} className="py-2.5 text-center text-xs font-semibold text-[#687770]">
+                  <div key={d.curto} className="py-2.5 text-center text-sm font-semibold text-[#687770]">
                     {d.curto}
                   </div>
                 ))}
@@ -1386,9 +1386,9 @@ const Calendario = () => {
                     className="bg-[#F7FAF8] rounded-2xl p-2.5 border border-[#E4ECE7] flex flex-col space-y-2 h-full"
                   >
                     <div className="flex items-center justify-between pb-2 border-b border-[#E4ECE7] flex-shrink-0">
-                      <span className="text-xs font-bold text-[#687770]">{diaInfo.curto}</span>
+                      <span className="text-sm font-bold text-[#687770]">{diaInfo.curto}</span>
                       <span
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
                           eHoje ? 'bg-[#111915] text-white' : 'text-[#111915]'
                         }`}
                       >
@@ -1429,7 +1429,7 @@ const Calendario = () => {
         {visaoModo === 'lista' && (
           <div className="flex-1 min-h-0 p-4 sm:p-5 overflow-y-auto">
             {eventosFiltrados.length === 0 ? (
-              <div className="text-center py-12 text-xs text-[#687770]">
+              <div className="text-center py-12 text-sm text-[#687770]">
                 Nenhum evento agendado para o período selecionado.
               </div>
             ) : (
@@ -1447,7 +1447,7 @@ const Calendario = () => {
                       <div className="flex items-center gap-3 min-w-0">
                         <span className={`w-2.5 h-2.5 rounded-full ${tipo.dot} flex-shrink-0`} />
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-[#111915] truncate">{ev.titulo}</p>
+                          <p className="text-sm font-bold text-[#111915] truncate">{ev.titulo}</p>
                           <p className="text-[11px] text-[#687770] flex items-center gap-2 mt-0.5 flex-wrap">
                             <span>{d.toLocaleDateString('pt-BR', { dateStyle: 'medium' })}</span>
                             <span>•</span>
@@ -1528,7 +1528,7 @@ const Calendario = () => {
             {/* Cabeçalho do Pop-up */}
             <div className="flex items-center justify-between pb-2 border-b border-[#E4ECE7]">
               <div>
-                <h4 className="text-xs font-extrabold text-[#111915] flex items-center gap-1.5">
+                <h4 className="text-sm font-extrabold text-[#111915] flex items-center gap-1.5">
                   <span className="w-5 h-5 rounded-full bg-[#111915] text-white text-[10px] flex items-center justify-center font-bold">
                     {popoverDia.dia}
                   </span>
@@ -1544,7 +1544,7 @@ const Calendario = () => {
               <button
                 type="button"
                 onClick={() => setPopoverDia(null)}
-                className="w-6 h-6 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-[#F7FAF8] flex items-center justify-center text-xs transition-colors"
+                className="w-6 h-6 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-[#F7FAF8] flex items-center justify-center text-sm transition-colors"
                 title="Fechar"
               >
                 ✕
@@ -1575,7 +1575,7 @@ const Calendario = () => {
                           {tipo.label}
                         </span>
                       </div>
-                      <p className="text-xs font-bold text-[#111915] truncate group-hover:text-[#0E382C]">
+                      <p className="text-sm font-bold text-[#111915] truncate group-hover:text-[#0E382C]">
                         {ev.titulo}
                       </p>
                       {nomeNegocio && (
@@ -1602,7 +1602,7 @@ const Calendario = () => {
                   setPopoverDia(null);
                   abrirNovoEvento(dia, mes, ano);
                 }}
-                className="w-full py-1.5 px-3 bg-[#0E382C] hover:bg-[#07261E] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-1.5 px-3 bg-[#0E382C] hover:bg-[#07261E] text-white text-sm font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
               >
                 <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.5} />
                 <span>Novo evento neste dia</span>

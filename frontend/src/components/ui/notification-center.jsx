@@ -178,7 +178,7 @@ export function NotificationCenter({
               <button
                 type="button"
                 onClick={markAllRead}
-                className="text-xs font-semibold text-brand-secondary transition-colors hover:text-brand-primary cursor-pointer"
+                className="text-sm font-semibold text-brand-secondary transition-colors hover:text-brand-primary cursor-pointer"
               >
                 Ler todas
               </button>
@@ -186,7 +186,7 @@ export function NotificationCenter({
             <button
               type="button"
               onClick={clearAll}
-              className="text-xs font-medium text-ink-secondary transition-colors hover:text-red-600 cursor-pointer"
+              className="text-sm font-medium text-ink-secondary transition-colors hover:text-red-600 cursor-pointer"
             >
               Limpar
             </button>
@@ -199,7 +199,7 @@ export function NotificationCenter({
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-accent text-brand-primary">
             <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} strokeWidth={1.8} />
           </div>
-          <p className="text-xs font-semibold text-ink-primary mt-1">Tudo em dia por aqui!</p>
+          <p className="text-sm font-semibold text-ink-primary mt-1">Tudo em dia por aqui!</p>
           <p className="text-[11px] text-ink-secondary">Você não possui notificações pendentes.</p>
         </div>
       ) : (
@@ -235,7 +235,7 @@ export function NotificationCenter({
                   <div className="flex items-baseline justify-between gap-2">
                     <p
                       className={cn(
-                        'min-w-0 truncate text-xs sm:text-sm',
+                        'min-w-0 truncate text-sm',
                         n.unread ? 'font-bold text-ink-primary' : 'font-semibold text-ink-primary'
                       )}
                     >
@@ -245,7 +245,7 @@ export function NotificationCenter({
                   </div>
                   <p
                     className={cn(
-                      'pt-0.5 text-xs text-ink-secondary leading-relaxed',
+                      'pt-0.5 text-sm text-ink-secondary leading-relaxed',
                       open ? '' : 'line-clamp-1'
                     )}
                   >

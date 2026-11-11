@@ -13,9 +13,14 @@
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
+    "cn": "@/lib/utils",
     "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
+  },
+  "registries": {
+    "@reui": "https://reui.io/r/radix-nova/{name}.json",
+    "@reui-base": "https://reui.io/r/base-nova/{name}.json"
   }
 }
 

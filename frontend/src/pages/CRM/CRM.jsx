@@ -47,17 +47,17 @@ const BadgeScore = ({ score }) => {
   if (score == null) return null;
   const s = Number(score);
   if (s >= 70) return (
-    <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#ef444422', color: '#ef4444' }} title={`Score: ${s}`}>
+    <span className="text-sm px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#ef444422', color: '#ef4444' }} title={`Score: ${s}`}>
       🔥 {s}
     </span>
   );
   if (s >= 30) return (
-    <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#f59e0b22', color: '#f59e0b' }} title={`Score: ${s}`}>
+    <span className="text-sm px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#f59e0b22', color: '#f59e0b' }} title={`Score: ${s}`}>
       🌡️ {s}
     </span>
   );
   return (
-    <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#94a3b822', color: '#94a3b8' }} title={`Score: ${s}`}>
+    <span className="text-sm px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#94a3b822', color: '#94a3b8' }} title={`Score: ${s}`}>
       ❄️ {s}
     </span>
   );
@@ -66,7 +66,7 @@ const BadgeScore = ({ score }) => {
 const BadgeFunil = ({ status }) => {
   const f = funilInfo(status);
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full border ${f.cor}`}>{f.label}</span>
+    <span className={`text-sm px-2 py-0.5 rounded-full border ${f.cor}`}>{f.label}</span>
   );
 };
 
@@ -137,13 +137,13 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome *</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Nome *</label>
               <input type="text" value={form.nome} onChange={set('nome')} placeholder="João Silva"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Empresa</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Empresa</label>
               <input type="text" value={form.empresa} onChange={set('empresa')} placeholder="Acme Corp"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
@@ -152,13 +152,13 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>E-mail</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>E-mail</label>
               <input type="email" value={form.email} onChange={set('email')} placeholder="joao@empresa.com"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Telefone</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Telefone</label>
               <input type="text" value={form.telefone} onChange={set('telefone')} placeholder="(11) 99999-9999"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
@@ -167,13 +167,13 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Cargo</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Cargo</label>
               <input type="text" value={form.cargo} onChange={set('cargo')} placeholder="CEO"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Valor estimado (R$)</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Valor estimado (R$)</label>
               <input type="number" value={form.valor_estimado} onChange={set('valor_estimado')} placeholder="0,00" min="0" step="0.01"
                 className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 style={inputStyle} />
@@ -182,13 +182,13 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Status no funil</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Status no funil</label>
               <SelectField value={form.status_funil} onChange={set('status_funil')}>
                 {FUNIL.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
               </SelectField>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Origem</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Origem</label>
               <SelectField value={form.origem} onChange={set('origem')}>
                 {ORIGENS.map(o => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
               </SelectField>
@@ -196,22 +196,21 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Observações</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Observações</label>
             <textarea value={form.observacoes} onChange={set('observacoes')} rows={2} placeholder="Notas sobre o contato..."
               className="w-full rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none"
               style={inputStyle} />
           </div>
 
-          {erro && <p className="text-red-400 text-xs">{erro}</p>}
+          {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onFechar}
-              className="flex-1 py-2 rounded-lg text-sm transition-colors"
-              style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-secondary)' }}>
+              className="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors bg-surface-subtle hover:bg-surface-hover border border-surface-border text-ink-secondary">
               Cancelar
             </button>
             <button type="submit" disabled={salvando}
-              className="flex-1 bg-primary-600 hover:bg-primary-500 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+              className="flex-1 bg-brand-primary hover:bg-brand-primary-hover text-white py-2 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 shadow-xs">
               {salvando ? 'Salvando...' : 'Salvar'}
             </button>
           </div>
@@ -332,10 +331,10 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
             </div>
             {contato.empresa && <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{contato.empresa}</p>}
             <div className="flex gap-3 mt-2 flex-wrap">
-              {contato.email    && <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>✉️ {contato.email}</span>}
-              {contato.telefone && <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>📞 {contato.telefone}</span>}
+              {contato.email    && <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>✉️ {contato.email}</span>}
+              {contato.telefone && <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>📞 {contato.telefone}</span>}
               {contato.valor_estimado && (
-                <span className="text-xs text-emerald-400">
+                <span className="text-sm text-emerald-400">
                   💰 R$ {Number(contato.valor_estimado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               )}
@@ -354,10 +353,10 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
         {/* Mudar status */}
         <div className="px-5 py-3 border-b flex items-center gap-2 flex-wrap flex-shrink-0"
           style={{ borderColor: 'var(--color-surface-border)' }}>
-          <span className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>Mover para:</span>
+          <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>Mover para:</span>
           {FUNIL.filter(f => f.key !== contato.status_funil).map(f => (
             <button key={f.key} onClick={() => onMudarStatus(contato.id, f.key)}
-              className={`text-xs px-2 py-0.5 rounded-full border transition-opacity hover:opacity-80 ${f.cor}`}>
+              className={`text-sm px-2 py-0.5 rounded-full border transition-opacity hover:opacity-80 ${f.cor}`}>
               {f.label}
             </button>
           ))}
@@ -367,17 +366,17 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
         {(carregandoCampos || camposComNamespace.length > 0) && (
           <div className="px-5 py-3 border-b flex-shrink-0"
             style={{ borderColor: 'var(--color-surface-border)' }}>
-            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2"
+            <h4 className="text-sm font-semibold uppercase tracking-wide mb-2"
               style={{ color: 'var(--color-text-secondary)' }}>
               Campos customizados
             </h4>
             {carregandoCampos ? (
-              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Carregando...</p>
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Carregando...</p>
             ) : (
               <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                 {camposComNamespace.map(v => (
                   <div key={v.id} className="min-w-0">
-                    <span className="text-xs block truncate"
+                    <span className="text-sm block truncate"
                       style={{ color: 'var(--color-text-secondary)' }}
                       title={v.labelExibido}>
                       {v.labelExibido}
@@ -405,7 +404,7 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
 
         {/* Histórico de interações */}
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
-          <h4 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+          <h4 className="text-sm font-semibold uppercase tracking-wide mb-3" style={{ color: 'var(--color-text-secondary)' }}>
             Histórico de interações
           </h4>
           {carregando && <p className="text-sm text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>Carregando...</p>}
@@ -422,8 +421,8 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.label}</span>
-                    <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.label}</span>
+                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                       {new Date(inter.criado_em).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}
                     </span>
                   </div>
@@ -440,7 +439,7 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
           <div className="flex gap-2 mb-2 flex-wrap">
             {TIPOS_INTERACAO.map(t => (
               <button key={t.key} type="button" onClick={() => setTipoInteracao(t.key)}
-                className={`text-xs px-2 py-1 rounded-lg border transition-colors ${
+                className={`text-sm px-2 py-1 rounded-lg border transition-colors ${
                   tipoInteracao === t.key
                     ? 'bg-primary-600 border-primary-500 text-white'
                     : ''
@@ -474,8 +473,8 @@ const KanbanView = ({ kanbanData, onAbrirContato }) => (
       return (
         <div key={col.key} className="flex-shrink-0 w-56">
           <div className="flex items-center gap-2 mb-3">
-            <span className={`text-xs px-2 py-0.5 rounded-full border ${col.cor}`}>{col.label}</span>
-            <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{cards.length}</span>
+            <span className={`text-sm px-2 py-0.5 rounded-full border ${col.cor}`}>{col.label}</span>
+            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{cards.length}</span>
           </div>
           <div className="space-y-2">
             {cards.map(c => (
@@ -486,9 +485,9 @@ const KanbanView = ({ kanbanData, onAbrirContato }) => (
                   <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{c.nome}</p>
                   <BadgeScore score={c.score} />
                 </div>
-                {c.empresa && <p className="text-xs truncate mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{c.empresa}</p>}
+                {c.empresa && <p className="text-sm truncate mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{c.empresa}</p>}
                 {c.valor_estimado && (
-                  <p className="text-xs text-emerald-400 mt-1">
+                  <p className="text-sm text-emerald-400 mt-1">
                     R$ {Number(c.valor_estimado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 )}
@@ -497,7 +496,7 @@ const KanbanView = ({ kanbanData, onAbrirContato }) => (
             {cards.length === 0 && (
               <div className="text-center py-4 rounded-xl border border-dashed"
                 style={{ borderColor: 'var(--color-surface-border)' }}>
-                <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Vazio</p>
+                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Vazio</p>
               </div>
             )}
           </div>
@@ -528,13 +527,13 @@ const CardContato = ({ contato, onAbrir, onEditar, onExcluir, excluindo }) => (
       </div>
       <div className="flex gap-3 mt-0.5 flex-wrap">
         {contato.empresa && (
-          <span className="text-xs truncate" style={{ color: 'var(--color-text-secondary)' }}>🏢 {contato.empresa}</span>
+          <span className="text-sm truncate" style={{ color: 'var(--color-text-secondary)' }}>🏢 {contato.empresa}</span>
         )}
         {contato.email && (
-          <span className="text-xs truncate" style={{ color: 'var(--color-text-secondary)' }}>✉️ {contato.email}</span>
+          <span className="text-sm truncate" style={{ color: 'var(--color-text-secondary)' }}>✉️ {contato.email}</span>
         )}
         {contato.telefone && (
-          <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>📞 {contato.telefone}</span>
+          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>📞 {contato.telefone}</span>
         )}
       </div>
     </div>
@@ -542,7 +541,7 @@ const CardContato = ({ contato, onAbrir, onEditar, onExcluir, excluindo }) => (
     {/* Valor + ações */}
     <div className="flex items-center gap-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
       {contato.valor_estimado && (
-        <span className="text-xs text-emerald-400 font-medium hidden sm:block">
+        <span className="text-sm text-emerald-400 font-medium hidden sm:block">
           R$ {Number(contato.valor_estimado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </span>
       )}
@@ -669,7 +668,7 @@ const PaginaCRM = () => {
           <span className="font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>
             {NOME_PRODUTO}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-300 border border-primary-500/30">CRM</span>
+          <span className="text-sm px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-300 border border-primary-500/30">CRM</span>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={alternarTema}
@@ -692,21 +691,21 @@ const PaginaCRM = () => {
         {/* Título + botão novo */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-              📋 CRM — Contatos & Leads
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink-primary">
+              CRM — Contatos & Leads
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="text-sm text-ink-secondary font-medium mt-0.5">
               {totalContatos} contato{totalContatos !== 1 ? 's' : ''}
               {valorTotal > 0 && (
-                <span className="ml-2 text-emerald-400">
+                <span className="ml-2 text-brand-secondary font-semibold">
                   · R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em pipeline
                 </span>
               )}
             </p>
           </div>
           <button onClick={abrirNovo}
-            className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-            <span>+</span> Novo contato
+            className="bg-brand-primary hover:bg-brand-primary-hover text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-xs flex items-center gap-1.5">
+            <span>+ Novo contato</span>
           </button>
         </div>
 
@@ -714,14 +713,13 @@ const PaginaCRM = () => {
         <div className="flex flex-col sm:flex-row gap-3 mb-5">
           {/* Busca */}
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">🔍</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted text-sm">🔍</span>
             <input
               type="text"
               value={busca}
               onChange={e => setBusca(e.target.value)}
               placeholder="Buscar por nome, e-mail ou empresa..."
-              className="w-full pl-9 pr-3 py-2 rounded-lg text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
+              className="w-full pl-9 pr-3 py-2 rounded-xl text-sm bg-surface-card border border-surface-border text-ink-primary placeholder-slate-400 focus:outline-none focus:border-brand-primary shadow-2xs"
             />
           </div>
 
@@ -736,24 +734,20 @@ const PaginaCRM = () => {
           </SelectField>
 
           {/* Abas lista/kanban */}
-          <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>
+          <div className="flex items-center bg-surface-card p-1 rounded-xl border border-surface-border shadow-2xs">
             <button
               onClick={() => setAba('lista')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                aba === 'lista' ? 'bg-primary-600 text-white' : ''
+              className={`px-3 py-1.5 text-sm font-semibold rounded-lg transition-all ${
+                aba === 'lista' ? 'bg-brand-primary text-white shadow-2xs' : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle'
               }`}
-              style={aba !== 'lista' ? { backgroundColor: 'var(--color-surface-card)', color: 'var(--color-text-secondary)' } : {}}
             >
               ☰ Lista
             </button>
             <button
               onClick={() => setAba('kanban')}
-              className={`px-4 py-2 text-sm font-medium transition-colors border-l ${
-                aba === 'kanban' ? 'bg-primary-600 text-white' : ''
+              className={`px-3 py-1.5 text-sm font-semibold rounded-lg transition-all ${
+                aba === 'kanban' ? 'bg-brand-primary text-white shadow-2xs' : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle'
               }`}
-              style={aba !== 'kanban'
-                ? { backgroundColor: 'var(--color-surface-card)', color: 'var(--color-text-secondary)', borderColor: 'var(--color-surface-border)' }
-                : { borderColor: 'var(--color-primary-500)' }}
             >
               ⬛ Kanban
             </button>
@@ -769,7 +763,7 @@ const PaginaCRM = () => {
               return (
                 <button key={f.key}
                   onClick={() => setFiltroStatus(filtroStatus === f.key ? '' : f.key)}
-                  className={`text-xs px-2.5 py-1 rounded-full border transition-all ${f.cor} ${
+                  className={`text-sm px-2.5 py-1 rounded-full border transition-all ${f.cor} ${
                     filtroStatus === f.key ? 'ring-2 ring-white/30' : 'opacity-70 hover:opacity-100'
                   }`}>
                   {f.label} ({qtd})
