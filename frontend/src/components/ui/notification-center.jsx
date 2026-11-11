@@ -1,5 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { Bell, Check, X } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Notification01Icon,
+  CheckmarkCircle02Icon,
+  Cancel01Icon,
+  FlashIcon,
+  BotIcon,
+  Calendar03Icon,
+  Alert02Icon,
+  Folder01Icon,
+} from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
 
 const TONE_BAR = {
@@ -11,11 +21,20 @@ const TONE_BAR = {
   purple: 'bg-brand-purple',
 };
 
+const ICONES_NOTIFICACAO = {
+  crm: FlashIcon,
+  ia: BotIcon,
+  calendario: Calendar03Icon,
+  alerta: Alert02Icon,
+  projeto: Folder01Icon,
+  padrao: Notification01Icon,
+};
+
 export const NOTIFICACOES_INICIAIS = [
   {
     id: 'n1',
     source: 'CRM • Pipeline',
-    emoji: '🔥',
+    icon: 'crm',
     title: 'Lead qualificado em negociação',
     body: 'TechCorp Enterprise avançou para a etapa de Proposta Comercial com valor estimado de R$ 48.000,00.',
     time: 'há 2 min',
@@ -25,7 +44,7 @@ export const NOTIFICACOES_INICIAIS = [
   {
     id: 'n2',
     source: 'Pranchetinho IA',
-    emoji: '🤖',
+    icon: 'ia',
     title: 'Triagem concluída automaticamente',
     body: 'Mariana Souza (FinTech Brasil) solicitou demonstração. Reunião pré-agendada para amanhã às 10h.',
     time: 'há 14 min',
@@ -35,7 +54,7 @@ export const NOTIFICACOES_INICIAIS = [
   {
     id: 'n3',
     source: 'Calendário',
-    emoji: '🗓️',
+    icon: 'calendario',
     title: 'Próxima reunião em 30 minutos',
     body: 'Alinhamento Design System com Equipe de Produto & IA às 14:30.',
     time: 'há 30 min',
@@ -45,7 +64,7 @@ export const NOTIFICACOES_INICIAIS = [
   {
     id: 'n4',
     source: 'Tarefas',
-    emoji: '⚠️',
+    icon: 'alerta',
     title: 'Prazo vencendo hoje',
     body: 'A tarefa "Revisar proposta comercial Q4" vence hoje às 18:00.',
     time: 'há 1h',
@@ -55,7 +74,7 @@ export const NOTIFICACOES_INICIAIS = [
   {
     id: 'n5',
     source: 'Projetos',
-    emoji: '🚀',
+    icon: 'projeto',
     title: 'Marco do projeto concluído',
     body: 'A entrega da Fase 1 do projeto Implantação Enterprise foi aprovada pelo cliente.',
     time: 'há 3h',
@@ -122,6 +141,12 @@ export function NotificationCenter({
     onMarkAllRead?.();
   };
 
+  const renderizarIcone = (item) => {
+    if (React.isValidElement(item.icon)) return item.icon;
+    const IconComp = ICONES_NOTIFICACAO[item.icon] || ICONES_NOTIFICACAO.padrao;
+    return <HugeiconsIcon icon={IconComp} size={18} strokeWidth={1.8} className="text-brand-secondary" />;
+  };
+
   return (
     <section
       className={cn(
@@ -172,7 +197,7 @@ export function NotificationCenter({
       {visible.length === 0 ? (
         <div className="flex flex-col items-center gap-2 px-6 py-10 text-ink-secondary">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-accent text-brand-primary">
-            <Check className="h-5 w-5" />
+            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} strokeWidth={1.8} />
           </div>
           <p className="text-xs font-semibold text-ink-primary mt-1">Tudo em dia por aqui!</p>
           <p className="text-[11px] text-ink-secondary">Você não possui notificações pendentes.</p>
@@ -198,8 +223,8 @@ export function NotificationCenter({
                     TONE_BAR[n.tone ?? 'default'] || TONE_BAR.default
                   )}
                 />
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-surface-border bg-surface-subtle text-base text-brand-primary shadow-2xs">
-                  {n.emoji ?? <Bell className="h-4 w-4 text-brand-secondary" />}
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-surface-border bg-surface-subtle text-brand-primary shadow-2xs">
+                  {renderizarIcone(n)}
                 </span>
                 <div className="min-w-0 flex-1">
                   {n.source && (
@@ -245,7 +270,7 @@ export function NotificationCenter({
                     }}
                     className="ml-1 rounded-md p-1 text-ink-secondary opacity-0 transition-opacity hover:bg-brand-accent hover:text-brand-primary focus-visible:opacity-100 group-hover:opacity-100 cursor-pointer"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={1.8} />
                   </button>
                 </span>
               </li>
