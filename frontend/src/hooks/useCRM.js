@@ -9,7 +9,7 @@
 //   - useInteracoes()    → histórico de interações de um contato
 // =============================================================
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase.js';
 import { useAuthStore } from '../store/authStore.js';
 
@@ -310,6 +310,10 @@ export const useInteracoes = (contatoId) => {
     finally { setCarregando(false); }
   }, [contatoId]);
 
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
   const adicionar = useCallback(async (tipo, conteudo, metadata = {}) => {
     const { data, error } = await supabase
       .from('crm_interacoes')
@@ -327,7 +331,16 @@ export const useInteracoes = (contatoId) => {
     return data;
   }, [contatoId, usuario]);
 
-  return { interacoes, carregando, carregar, adicionar };
+  const remover = useCallback(async (interacaoId) => {
+    const { error } = await supabase
+      .from('crm_interacoes')
+      .delete()
+      .eq('id', interacaoId);
+    if (error) throw error;
+    setInteracoes(prev => prev.filter(i => i.id !== interacaoId));
+  }, []);
+
+  return { interacoes, carregando, carregar, adicionar, remover };
 };
 
 // ─── Hook: Campos Customizados ─────────────────────────────────
