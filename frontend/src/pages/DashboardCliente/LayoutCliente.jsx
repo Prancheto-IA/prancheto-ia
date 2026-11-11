@@ -24,6 +24,7 @@ import { useTenantStore } from '../../store/tenantStore.js';
 import { useAuth, carregarPermissoesCargo } from '../../hooks/useAuth.js';
 import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
 import BolhaChatIA from '../../components/ChatIA/BolhaChatIA.jsx';
+import { NotificationCenter, NOTIFICACOES_INICIAIS } from '@/components/ui/notification-center';
 
 
 const BADGE_CARGO = {
@@ -425,7 +426,11 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 const LayoutCliente = ({ children }) => {
   const [sidebarAberta, setSidebarAberta] = useState(false);
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
+  const [notificacoesAbertas, setNotificacoesAbertas] = useState(false);
+  const [notificacoes, setNotificacoes] = useState(NOTIFICACOES_INICIAIS);
   const menuUsuarioRef = useRef(null);
+  const notificacoesRef = useRef(null);
+  const naoLidasCount = notificacoes.filter((n) => n.unread).length;
 
   const location = useLocation();
   const prefs = useSidebarPrefs();
@@ -448,18 +453,21 @@ const LayoutCliente = ({ children }) => {
     });
   }, [cargoId, atualizarUsuario]);
 
-  // Fechar dropdown de perfil ao clicar fora
+  // Fechar dropdown de perfil ou notificações ao clicar fora
   useEffect(() => {
     const handleClickFora = (e) => {
       if (menuUsuarioRef.current && !menuUsuarioRef.current.contains(e.target)) {
         setMenuUsuarioAberto(false);
       }
+      if (notificacoesRef.current && !notificacoesRef.current.contains(e.target)) {
+        setNotificacoesAbertas(false);
+      }
     };
-    if (menuUsuarioAberto) {
+    if (menuUsuarioAberto || notificacoesAbertas) {
       document.addEventListener('mousedown', handleClickFora);
     }
     return () => document.removeEventListener('mousedown', handleClickFora);
-  }, [menuUsuarioAberto]);
+  }, [menuUsuarioAberto, notificacoesAbertas]);
 
   return (
     <div className="h-screen bg-brand-primary flex items-stretch overflow-hidden font-sans">
@@ -517,14 +525,32 @@ const LayoutCliente = ({ children }) => {
 
           {/* Actions: Notificação, Configuração, Foto de Perfil */}
           <div className="flex items-center gap-2.5">
-            {/* 1. Botão de Notificação */}
-            <button
-              title="Notificações"
-              className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors relative shadow-xs"
-            >
-              <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
-              <span className="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2"></span>
-            </button>
+            {/* 1. Botão de Notificação + Central de Notificações */}
+            <div className="relative" ref={notificacoesRef}>
+              <button
+                onClick={() => {
+                  setNotificacoesAbertas((v) => !v);
+                  setMenuUsuarioAberto(false);
+                }}
+                title="Notificações"
+                className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
+              >
+                <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
+                {naoLidasCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-brand-purple absolute top-2 right-2"></span>
+                )}
+              </button>
+
+              {notificacoesAbertas && (
+                <div className="absolute right-0 mt-2 w-[340px] sm:w-[380px] z-50 animate-fade-in">
+                  <NotificationCenter
+                    items={notificacoes}
+                    onItemsChange={setNotificacoes}
+                    title="Notificações"
+                  />
+                </div>
+              )}
+            </div>
 
             {/* 2. Botão de Configuração */}
             <NavLink

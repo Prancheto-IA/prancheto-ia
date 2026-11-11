@@ -14,6 +14,8 @@ import {
   useInteracoes,
 } from '../../hooks/useCRM.js';
 import { ETAPAS_PIPELINE, DEALS_DEMO } from './Leads.jsx';
+import { SelectField } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -782,24 +784,24 @@ const LeadDetalhe = () => {
                 />
 
                 <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {criandoTipo !== 'nota' && (
-                      <input
-                        type="date"
+                      <DatePicker
                         value={novoPrazo}
                         onChange={(e) => setNovoPrazo(e.target.value)}
-                        className="text-xs border border-[#E4ECE7] rounded-lg px-2.5 py-1 text-[#687770]"
+                        placeholder="Prazo"
+                        className="h-8 w-44 text-xs"
                       />
                     )}
-                    <select
+                    <SelectField
                       value={novaPrioridade}
                       onChange={(e) => setNovaPrioridade(e.target.value)}
-                      className="text-xs border border-[#E4ECE7] rounded-lg px-2 py-1 text-[#687770]"
+                      className="h-8 w-44 text-xs"
                     >
                       <option value="Baixa">Prioridade: Baixa</option>
                       <option value="Média">Prioridade: Média</option>
                       <option value="Alta">Prioridade: Alta</option>
-                    </select>
+                    </SelectField>
                   </div>
 
                   <button

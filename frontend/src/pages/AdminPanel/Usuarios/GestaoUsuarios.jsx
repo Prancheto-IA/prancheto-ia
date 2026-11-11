@@ -17,6 +17,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
+import { SelectField } from '@/components/ui/select';
 
 // =============================================================
 // CONSTANTES
@@ -164,31 +165,30 @@ const ModalUsuario = ({ usuario, tenants, onSalvar, onFechar, salvando }) => {
 
           <div>
             <label className="block text-sm font-medium text-muted mb-1">Cargo</label>
-            <select
+            <SelectField
               value={form.cargo}
               onChange={(e) => atualizar('cargo', e.target.value)}
-              className="input w-full"
               disabled={salvando}
             >
               {CARGOS.map(c => (
                 <option key={c.value} value={c.value}>{c.label}</option>
               ))}
-            </select>
+            </SelectField>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-muted mb-1">Cliente (Tenant)</label>
-            <select
+            <SelectField
               value={form.tenantId}
               onChange={(e) => atualizar('tenantId', e.target.value)}
-              className={`input w-full ${erros.tenantId ? 'border-red-500' : ''}`}
+              className={erros.tenantId ? 'border-red-500' : ''}
               disabled={salvando || editando}
             >
               <option value="">Selecione um cliente...</option>
               {tenants.map(t => (
                 <option key={t.id} value={t.id}>{t.nome}</option>
               ))}
-            </select>
+            </SelectField>
             {editando && (
               <p className="text-muted text-xs mt-1">Tenant não pode ser alterado.</p>
             )}
@@ -475,26 +475,26 @@ const GestaoUsuarios = () => {
               />
             </div>
 
-            <select
+            <SelectField
               value={filtroStatus}
               onChange={(e) => { setFiltroStatus(e.target.value); setPagina(1); }}
-              className="input w-40"
+              className="w-44"
             >
               <option value="">Todos os status</option>
               <option value="ativo">Ativo</option>
               <option value="inativo">Inativo</option>
-            </select>
+            </SelectField>
 
-            <select
+            <SelectField
               value={filtroTenant}
               onChange={(e) => { setFiltroTenant(e.target.value); setPagina(1); }}
-              className="input w-52"
+              className="w-56"
             >
               <option value="">Todos os clientes</option>
               {tenants.map(t => (
                 <option key={t.id} value={t.id}>{t.nome}</option>
               ))}
-            </select>
+            </SelectField>
 
             <span className="text-muted text-sm whitespace-nowrap">
               {total} usuário{total !== 1 ? 's' : ''}

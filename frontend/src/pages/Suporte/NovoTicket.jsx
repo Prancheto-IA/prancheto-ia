@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSuporte, CATEGORIA_TICKET, PRIORIDADE_TICKET } from '../../hooks/useSuporte.js';
 import { useUIStore } from '../../store/uiStore.js';
+import { SelectField } from '@/components/ui/select';
 
 const FORM_VAZIO = {
   assunto: '',
@@ -81,19 +82,19 @@ const NovoTicket = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-muted text-xs font-medium mb-1">Categoria</label>
-            <select value={form.categoria} onChange={set('categoria')} className={inputBase}>
+            <SelectField value={form.categoria} onChange={set('categoria')}>
               {Object.entries(CATEGORIA_TICKET).map(([k, v]) => (
                 <option key={k} value={k}>{v.emoji} {v.label}</option>
               ))}
-            </select>
+            </SelectField>
           </div>
           <div>
             <label className="block text-muted text-xs font-medium mb-1">Prioridade</label>
-            <select value={form.prioridade} onChange={set('prioridade')} className={inputBase}>
+            <SelectField value={form.prioridade} onChange={set('prioridade')}>
               {Object.entries(PRIORIDADE_TICKET).map(([k, v]) => (
                 <option key={k} value={k}>{v.label}</option>
               ))}
-            </select>
+            </SelectField>
           </div>
         </div>
 

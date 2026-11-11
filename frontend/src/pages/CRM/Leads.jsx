@@ -9,6 +9,8 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLeads } from '../../hooks/useCRM.js';
 import { supabase } from '../../lib/supabase.js';
+import { SelectField } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
@@ -16,7 +18,6 @@ import {
   Add01Icon,
   ArrowDown01Icon,
   ArrowUp01Icon,
-  Calendar03Icon,
 } from '@hugeicons/core-free-icons';
 
 // ─── 5 ETAPAS DO PIPELINE EM PORTUGUÊS ─────────────────────────
@@ -1042,45 +1043,31 @@ const ModalLead = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-xs font-bold text-[#111915] mb-1.5">Etapa</label>
-              <div className="relative">
-                <select
-                  value={form.status_funil}
-                  onChange={set('status_funil')}
-                  className="w-full appearance-none rounded-xl px-3.5 py-2.5 pr-8 text-xs sm:text-sm border focus:outline-none focus:border-[#0E382C] text-[#111915] font-medium cursor-pointer"
-                  style={inputStyle}
-                >
-                  {(etapas || ETAPAS_PIPELINE).map(e => (
-                    <option key={e.key} value={e.key}>{e.titulo}</option>
-                  ))}
-                </select>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <HugeiconsIcon icon={ArrowDown01Icon} size={14} />
-                </span>
-              </div>
+              <SelectField
+                value={form.status_funil}
+                onChange={set('status_funil')}
+              >
+                {(etapas || ETAPAS_PIPELINE).map(e => (
+                  <option key={e.key} value={e.key}>{e.titulo}</option>
+                ))}
+              </SelectField>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-[#111915] mb-1.5">
                 Responsável pelo Negócio
               </label>
-              <div className="relative">
-                <select
-                  value={form.responsavel_nome}
-                  onChange={set('responsavel_nome')}
-                  className="w-full appearance-none rounded-xl px-3.5 py-2.5 pr-8 text-xs sm:text-sm border focus:outline-none focus:border-[#0E382C] text-[#111915] font-medium cursor-pointer"
-                  style={inputStyle}
-                >
-                  <option value="Lucas Bastos">Lucas Bastos</option>
-                  <option value="Carlos Silva">Carlos Silva</option>
-                  <option value="Marina Costa">Marina Costa</option>
-                  <option value="Diego Alves">Diego Alves</option>
-                  <option value="João Ferreira">João Ferreira</option>
-                  <option value="Ana Paula">Ana Paula</option>
-                </select>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <HugeiconsIcon icon={ArrowDown01Icon} size={14} />
-                </span>
-              </div>
+              <SelectField
+                value={form.responsavel_nome}
+                onChange={set('responsavel_nome')}
+              >
+                <option value="Lucas Bastos">Lucas Bastos</option>
+                <option value="Carlos Silva">Carlos Silva</option>
+                <option value="Marina Costa">Marina Costa</option>
+                <option value="Diego Alves">Diego Alves</option>
+                <option value="João Ferreira">João Ferreira</option>
+                <option value="Ana Paula">Ana Paula</option>
+              </SelectField>
             </div>
           </div>
 
@@ -1090,18 +1077,11 @@ const ModalLead = ({
               <label className="block text-xs font-bold text-[#111915] mb-1.5">
                 Data de fechamento prevista
               </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={form.previsao_fechamento}
-                  onChange={set('previsao_fechamento')}
-                  className="w-full rounded-xl px-3.5 py-2.5 pr-9 text-xs sm:text-sm border focus:outline-none focus:border-[#0E382C] text-[#111915] font-medium"
-                  style={inputStyle}
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <HugeiconsIcon icon={Calendar03Icon} size={16} />
-                </span>
-              </div>
+              <DatePicker
+                value={form.previsao_fechamento}
+                onChange={set('previsao_fechamento')}
+                placeholder="Selecionar data prevista"
+              />
             </div>
           </div>
 

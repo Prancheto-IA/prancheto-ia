@@ -11,6 +11,7 @@ import { useTema } from '../../hooks/useTema.js';
 import { supabase } from '../../lib/supabase.js';
 import { NOME_PRODUTO } from '../../lib/ambiente.js';
 import { useCamposCustom } from '../../hooks/useCRM.js';
+import { SelectField } from '@/components/ui/select';
 
 // ─── Constantes ────────────────────────────────────────────────
 const FUNIL = [
@@ -182,19 +183,15 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Status no funil</label>
-              <select value={form.status_funil} onChange={set('status_funil')}
-                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
-                style={inputStyle}>
+              <SelectField value={form.status_funil} onChange={set('status_funil')}>
                 {FUNIL.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
-              </select>
+              </SelectField>
             </div>
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Origem</label>
-              <select value={form.origem} onChange={set('origem')}
-                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
-                style={inputStyle}>
+              <SelectField value={form.origem} onChange={set('origem')}>
                 {ORIGENS.map(o => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
-              </select>
+              </SelectField>
             </div>
           </div>
 
@@ -729,15 +726,14 @@ const PaginaCRM = () => {
           </div>
 
           {/* Filtro de status */}
-          <select
+          <SelectField
             value={filtroStatus}
             onChange={e => setFiltroStatus(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
-            style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
+            className="w-48 bg-surface-card"
           >
             <option value="">Todos os status</option>
             {FUNIL.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
-          </select>
+          </SelectField>
 
           {/* Abas lista/kanban */}
           <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-surface-border)' }}>

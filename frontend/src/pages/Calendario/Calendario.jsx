@@ -11,6 +11,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { DndContext, PointerSensor, useSensor, useSensors, useDroppable, useDraggable } from '@dnd-kit/core';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
+import { DatePicker } from '@/components/ui/date-picker';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
@@ -619,12 +620,11 @@ const ModalEvento = ({
               <label className="block text-xs font-bold text-[#111915] mb-1.5">
                 Data do evento *
               </label>
-              <input
-                type="date"
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs"
+              <DatePicker
                 value={form.data_inicio}
                 onChange={(e) => setForm((f) => ({ ...f, data_inicio: e.target.value }))}
-                required
+                placeholder="Selecionar data do evento"
+                clearable={false}
               />
             </div>
             <div>

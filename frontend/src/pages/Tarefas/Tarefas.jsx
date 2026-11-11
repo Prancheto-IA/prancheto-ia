@@ -30,6 +30,8 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useTarefas } from '../../hooks/useTarefas';
 import { useAuthStore } from '../../store/authStore';
+import { SelectField } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   MoreVerticalIcon,
@@ -1533,31 +1535,31 @@ const Tarefas = () => {
             {/* Filtro por Prioridade */}
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-[#14221D]">Prioridade:</span>
-              <select
+              <SelectField
                 value={filtroPrioridade}
                 onChange={e => setFiltroPrioridade(e.target.value)}
-                className="bg-[#F7FAF8] border border-[#E4ECE7] rounded-lg px-2.5 py-1 text-xs text-[#111915] focus:outline-none"
+                className="h-8 w-36 text-xs"
               >
                 <option value="todas">Todas</option>
                 <option value="critica">Crítica</option>
                 <option value="alta">Alta</option>
                 <option value="media">Média</option>
                 <option value="baixa">Baixa</option>
-              </select>
+              </SelectField>
             </div>
 
             {/* Filtro por Prazo */}
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-[#14221D]">Prazo:</span>
-              <select
+              <SelectField
                 value={filtroPrazo}
                 onChange={e => setFiltroPrazo(e.target.value)}
-                className="bg-[#F7FAF8] border border-[#E4ECE7] rounded-lg px-2.5 py-1 text-xs text-[#111915] focus:outline-none"
+                className="h-8 w-40 text-xs"
               >
                 <option value="todos">Todos os prazos</option>
                 <option value="hoje">Vencem Hoje</option>
                 <option value="atrasadas">Atrasadas</option>
-              </select>
+              </SelectField>
             </div>
           </div>
 
@@ -1734,19 +1736,19 @@ const Tarefas = () => {
             />
           </div>
 
-          <div className="flex items-center bg-white rounded-xl border border-[#E4ECE7] px-2.5 py-1.5 shadow-2xs flex-shrink-0">
-            <HugeiconsIcon icon={Sorting01Icon} size={14} strokeWidth={1.8} className="text-[#687770] mr-1.5" />
-            <select
+          <div className="flex items-center bg-white rounded-xl border border-[#E4ECE7] pl-2.5 pr-1 py-0.5 shadow-2xs flex-shrink-0">
+            <HugeiconsIcon icon={Sorting01Icon} size={14} strokeWidth={1.8} className="text-[#687770] mr-1 flex-shrink-0" />
+            <SelectField
               value={ordenacao}
               onChange={e => setOrdenacao(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-[#111915] focus:outline-none cursor-pointer"
+              className="h-7 w-32 border-0 bg-transparent px-1.5 py-0 text-xs font-semibold shadow-none focus:ring-0"
             >
               <option value="padrao">Padrão</option>
               <option value="prazo">Prazo</option>
               <option value="prioridade">Prioridade</option>
               <option value="progresso">Progresso</option>
               <option value="titulo">Nome</option>
-            </select>
+            </SelectField>
           </div>
         </div>
       </div>
@@ -2135,41 +2137,38 @@ const Tarefas = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111915] mb-1">Coluna / Status</label>
-                  <select
+                  <SelectField
                     value={formTarefa.status}
                     onChange={e => setFormTarefa(f => ({ ...f, status: e.target.value }))}
-                    className="w-full px-3 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   >
                     <option value="pendente">A Fazer</option>
                     <option value="em_andamento">Em Progresso</option>
                     <option value="em_revisao">Em Revisão</option>
                     <option value="concluida">Concluído</option>
-                  </select>
+                  </SelectField>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-[#111915] mb-1">Prioridade</label>
-                  <select
+                  <SelectField
                     value={formTarefa.prioridade}
                     onChange={e => setFormTarefa(f => ({ ...f, prioridade: e.target.value }))}
-                    className="w-full px-3 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
                   >
                     <option value="baixa">Baixa</option>
                     <option value="media">Média</option>
                     <option value="alta">Alta</option>
                     <option value="critica">Crítica (Urgente)</option>
-                  </select>
+                  </SelectField>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111915] mb-1">Data de Vencimento</label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={formTarefa.data_vencimento}
                     onChange={e => setFormTarefa(f => ({ ...f, data_vencimento: e.target.value }))}
-                    className="w-full px-3 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    placeholder="Data de vencimento"
                   />
                 </div>
 

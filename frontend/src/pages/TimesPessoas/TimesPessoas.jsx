@@ -10,6 +10,7 @@ import { useOrg } from '../../hooks/useOrg';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import Cargos from '../DashboardCliente/Organizacao/Cargos.jsx';
 import Usuarios from '../DashboardCliente/Organizacao/Usuarios.jsx';
+import { SelectField } from '@/components/ui/select';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   UserGroupIcon,
@@ -289,10 +290,10 @@ const ModalGerenciarTime = ({
               Adicionar Colaborador ao Time
             </label>
             <div className="flex gap-2">
-              <select
+              <SelectField
                 value={usuarioSelecionado}
                 onChange={(e) => setUsuarioSelecionado(e.target.value)}
-                className="flex-1 px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                className="flex-1"
               >
                 <option value="">Selecione um colaborador...</option>
                 {usuariosDisponiveis.map((u) => (
@@ -300,7 +301,7 @@ const ModalGerenciarTime = ({
                     {u.nome} ({u.cargo || 'Membro'}) - {u.email}
                   </option>
                 ))}
-              </select>
+              </SelectField>
               <button
                 type="submit"
                 disabled={!usuarioSelecionado || adicionando}

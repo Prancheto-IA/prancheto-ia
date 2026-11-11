@@ -7,6 +7,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useBaseConhecimento } from '../../hooks/useBaseConhecimento.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { useUIStore } from '../../store/uiStore.js';
+import { SelectField } from '@/components/ui/select';
 
 const inputBase =
   'w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50';
@@ -127,16 +128,15 @@ const ModalArtigo = ({ aberto, artigoEditando, categorias, onFechar, onSalvar })
 
           <div>
             <label className="block text-muted text-xs font-medium mb-1">Categoria</label>
-            <select
+            <SelectField
               value={form.categoria_id}
               onChange={(e) => setForm((f) => ({ ...f, categoria_id: e.target.value }))}
-              className={inputBase}
             >
               <option value="">Sem categoria</option>
               {categorias.map((c) => (
                 <option key={c.id} value={c.id}>{c.icone} {c.nome}</option>
               ))}
-            </select>
+            </SelectField>
           </div>
 
           <div>

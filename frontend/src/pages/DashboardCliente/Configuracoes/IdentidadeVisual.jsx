@@ -14,6 +14,7 @@ import {
   normalizarIdentidade,
 } from '../../../utils/identidadeVisual.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
+import { SelectField } from '@/components/ui/select';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Image01Icon, Upload01Icon } from '@hugeicons/core-free-icons';
 
@@ -52,7 +53,7 @@ const IdentidadeVisual = () => {
   const definirTenant   = useTenantStore((s) => s.definir);
 
   const [identidade, setIdentidade]         = useState(IDENTIDADE_PADRAO);
-  const [paletaSelecionada, setPaletaSelecionada] = useState('verde-institucional');
+  const [paletaSelecionada, setPaletaSelecionada] = useState('azul-institucional');
   const [logoUrl, setLogoUrl]               = useState('');
   const [inputUrl, setInputUrl]             = useState('');
   const [nomeArquivo, setNomeArquivo]       = useState('');
@@ -117,7 +118,7 @@ const IdentidadeVisual = () => {
     try {
       const atualizado = await atualizarIdentidadeVisual({
         logo_url:          logoUrl.trim() || null,
-        identidade_visual: { ...identidade, aplicar: true, versao_ds: 2 },
+        identidade_visual: { ...identidade, aplicar: true, versao_ds: 3 },
       });
       definirTenant(atualizado);
       setSalvo(true);
@@ -134,7 +135,7 @@ const IdentidadeVisual = () => {
     setLogoUrl('');
     setInputUrl('');
     setNomeArquivo('');
-    setPaletaSelecionada('verde-institucional');
+    setPaletaSelecionada('azul-institucional');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -314,7 +315,7 @@ const IdentidadeVisual = () => {
                 </label>
                 <div className="flex items-center gap-3">
                   <div className="relative flex-1">
-                    <select
+                    <SelectField
                       id="seletor-paletas-predefinidas"
                       value={paletaSelecionada}
                       onChange={(e) => {
@@ -330,17 +331,13 @@ const IdentidadeVisual = () => {
                           }));
                         }
                       }}
-                      className="w-full bg-surface-subtle border border-surface-border text-ink-primary rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-brand-primary focus:bg-surface-card transition-all shadow-2xs cursor-pointer appearance-none pr-9 font-medium"
                     >
                       <option value="" disabled>Selecione uma paleta...</option>
                       {PALETAS_PREDEFINIDAS.map((p) => (
                         <option key={p.id} value={p.id}>{p.nome}</option>
                       ))}
                       <option value="customizado">Personalizada</option>
-                    </select>
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-ink-secondary text-[10px]">
-                      ▼
-                    </div>
+                    </SelectField>
                   </div>
 
                   {/* Amostra rápida das 3 cores da paleta ativa */}

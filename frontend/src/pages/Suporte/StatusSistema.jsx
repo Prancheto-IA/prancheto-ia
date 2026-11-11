@@ -11,6 +11,7 @@ import {
 } from '../../hooks/useStatusSistema.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { useUIStore } from '../../store/uiStore.js';
+import { SelectField } from '@/components/ui/select';
 
 const inputBase =
   'w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500/50';
@@ -116,11 +117,11 @@ const ModalComponente = ({ aberto, componenteEditando, onFechar, onSalvar }) => 
           </div>
           <div>
             <label className="block text-muted text-xs font-medium mb-1">Status</label>
-            <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} className={inputBase}>
+            <SelectField value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}>
               {Object.entries(STATUS_COMPONENTE).map(([k, v]) => (
                 <option key={k} value={k}>{v.emoji} {v.label}</option>
               ))}
-            </select>
+            </SelectField>
           </div>
           {erro && <p className="text-red-400 text-xs">{erro}</p>}
           <div className="flex gap-3 pt-1">
@@ -189,18 +190,18 @@ const ModalIncidente = ({ aberto, componentes, onFechar, onSalvar }) => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-muted text-xs font-medium mb-1">Impacto</label>
-              <select value={form.impacto} onChange={(e) => setForm((f) => ({ ...f, impacto: e.target.value }))} className={inputBase}>
+              <SelectField value={form.impacto} onChange={(e) => setForm((f) => ({ ...f, impacto: e.target.value }))}>
                 {Object.entries(IMPACTO_INCIDENTE).map(([k, v]) => (
                   <option key={k} value={k}>{v.label}</option>
                 ))}
-              </select>
+              </SelectField>
             </div>
             <div>
               <label className="block text-muted text-xs font-medium mb-1">Componente</label>
-              <select value={form.componente_id} onChange={(e) => setForm((f) => ({ ...f, componente_id: e.target.value }))} className={inputBase}>
+              <SelectField value={form.componente_id} onChange={(e) => setForm((f) => ({ ...f, componente_id: e.target.value }))}>
                 <option value="">Geral</option>
                 {componentes.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-              </select>
+              </SelectField>
             </div>
           </div>
           {erro && <p className="text-red-400 text-xs">{erro}</p>}
@@ -230,13 +231,13 @@ const LinhaComponente = ({ componente, podeEditar, onMudarStatus, onEditar, onEx
       </div>
       {podeEditar ? (
         <div className="flex items-center gap-2 flex-shrink-0">
-          <select
+          <SelectField
             value={componente.status}
             onChange={(e) => onMudarStatus(componente.id, e.target.value)}
-            className="bg-surface border border-surface-border rounded-lg px-2 py-1.5 text-muted text-xs focus:outline-none focus:border-primary-500/50"
+            className="h-8 w-40 text-xs"
           >
             {Object.entries(STATUS_COMPONENTE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-          </select>
+          </SelectField>
           <button onClick={() => onEditar(componente)} className="text-muted hover:text-primary-400 text-sm" title="Editar">✏️</button>
           <button onClick={() => onExcluir(componente.id)} className="text-muted hover:text-red-400 text-sm" title="Excluir">🗑️</button>
         </div>

@@ -36,14 +36,16 @@ export default {
           900: 'rgb(var(--color-primary-900) / <alpha-value>)',
           950: 'rgb(var(--color-primary-950) / <alpha-value>)',
         },
-        // --- TOKENS DE MARCA (EMITLY DESIGN SYSTEM + WHITE-LABEL) ---
+        // --- TOKENS DE MARCA (DESIGN SYSTEM + WHITE-LABEL) ---
         brand: {
-          primary:          'rgb(var(--brand-primary-rgb) / <alpha-value>)',
-          'primary-hover':  'rgb(var(--brand-primary-hover-rgb) / <alpha-value>)',
-          secondary:        'rgb(var(--brand-secondary-rgb) / <alpha-value>)',
+          primary:            'rgb(var(--brand-primary-rgb) / <alpha-value>)',
+          'primary-hover':    'rgb(var(--brand-primary-hover-rgb) / <alpha-value>)',
+          secondary:          'rgb(var(--brand-secondary-rgb) / <alpha-value>)',
           'secondary-border': 'rgb(var(--brand-secondary-border-rgb) / <alpha-value>)',
-          accent:           'rgb(var(--brand-accent-rgb) / <alpha-value>)',
-          'accent-hover':   'rgb(var(--brand-accent-hover-rgb) / <alpha-value>)',
+          accent:             'rgb(var(--brand-accent-rgb) / <alpha-value>)',
+          'accent-hover':     'rgb(var(--brand-accent-hover-rgb) / <alpha-value>)',
+          purple:             'rgb(var(--brand-purple-rgb) / <alpha-value>)',
+          violet:             'rgb(var(--brand-violet-rgb) / <alpha-value>)',
         },
 
         // --- SUPERFÍCIES E NEUTROS DO DESIGN SYSTEM ---

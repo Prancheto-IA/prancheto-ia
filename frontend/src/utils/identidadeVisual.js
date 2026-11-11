@@ -19,11 +19,13 @@
 // personalizou nada. Quem liga é o administrador, na própria tela.
 // =============================================================
 
-/** Espelha o default da coluna tenants.identidade_visual (Padrão Emitly). */
+/** Espelha o default da coluna tenants.identidade_visual (Padrão Azul & Violeta). */
 export const IDENTIDADE_PADRAO = {
-  cor_primaria:   '#0E382C',
-  cor_secundaria: '#134436',
-  cor_acento:     '#D4EC9D',
+  cor_primaria:   '#000D3D',
+  cor_secundaria: '#0455BF',
+  cor_acento:     '#D8E8F2',
+  cor_roxo:       '#7338F2',
+  cor_violeta:    '#A36BF2',
   fonte:          'Inter',
   aplicar:        false,
 };
@@ -31,18 +33,32 @@ export const IDENTIDADE_PADRAO = {
 /** Catálogo central de paletas pré-definidas do Design System. */
 export const PALETAS_PREDEFINIDAS = [
   {
+    id: 'azul-institucional',
+    nome: 'Prancheto Azul & Violeta (Padrão)',
+    cor_primaria: '#000D3D',
+    cor_secundaria: '#0455BF',
+    cor_acento: '#D8E8F2',
+  },
+  {
+    id: 'roxo-violeta',
+    nome: 'Roxo & Violeta',
+    cor_primaria: '#7338F2',
+    cor_secundaria: '#A36BF2',
+    cor_acento: '#D8E8F2',
+  },
+  {
+    id: 'azul-roxo',
+    nome: 'Azul Escuro & Violeta',
+    cor_primaria: '#001769',
+    cor_secundaria: '#7338F2',
+    cor_acento: '#A36BF2',
+  },
+  {
     id: 'verde-institucional',
-    nome: 'Emitly Verde (Padrão)',
+    nome: 'Verde Floresta & Lima',
     cor_primaria: '#0E382C',
     cor_secundaria: '#134436',
     cor_acento: '#D4EC9D',
-  },
-  {
-    id: 'azul-corporativo',
-    nome: 'Azul Corporativo',
-    cor_primaria: '#1E3A5F',
-    cor_secundaria: '#0F2338',
-    cor_acento: '#60A5FA',
   },
   {
     id: 'grafite-elegante',
@@ -52,25 +68,11 @@ export const PALETAS_PREDEFINIDAS = [
     cor_acento: '#F4F4F5',
   },
   {
-    id: 'roxo-moderno',
-    nome: 'Roxo Moderno',
-    cor_primaria: '#4C1D95',
-    cor_secundaria: '#2E1065',
-    cor_acento: '#C4B5FD',
-  },
-  {
     id: 'petroleo-menta',
     nome: 'Petróleo & Menta',
     cor_primaria: '#0F4C5C',
     cor_secundaria: '#092F38',
     cor_acento: '#5EEAD4',
-  },
-  {
-    id: 'terracota-cobre',
-    nome: 'Terracota & Cobre',
-    cor_primaria: '#7C2D12',
-    cor_secundaria: '#431407',
-    cor_acento: '#FDBA74',
   },
 ];
 
@@ -268,8 +270,8 @@ export const aplicarIdentidadeNoDOM = (identidade) => {
 
 /** Completa o que vier do banco com os padrões, para as telas não checarem campo a campo. */
 export const normalizarIdentidade = (identidadeSalva) => {
-  // Ignora configurações legadas salvas antes do novo Design System Emitly (versao_ds: 2)
-  if (!identidadeSalva || identidadeSalva.versao_ds !== 2) {
+  // Ignora configurações legadas salvas antes do novo Design System (versao_ds: 3)
+  if (!identidadeSalva || identidadeSalva.versao_ds !== 3) {
     return { ...IDENTIDADE_PADRAO };
   }
   return {

@@ -17,54 +17,64 @@
 /* --- CSS VARIABLES: TEMA CLARO (padrão base — sem classe) --- */
 /* O tema claro é o padrão. O tema escuro é aplicado via html.dark */
 :root {
-  /* --- SUPERFÍCIES E NEUTROS (EMITLY DESIGN SYSTEM) --- */
-  --color-surface:               #F2F5F3;
-  --color-surface-subtle:        #F7FAF8;
-  --color-surface-hover:         #EDF2EE;
-  --color-surface-muted:         #EBF0ED;
+  /* --- SUPERFÍCIES E NEUTROS (DESIGN SYSTEM AZUL & VIOLETA) --- */
+  --color-surface:               #F2F6FA;
+  --color-surface-subtle:        #F7FAFC;
+  --color-surface-hover:         #E8F0F7;
+  --color-surface-muted:         #D8E8F2;
   --color-surface-card:          #FFFFFF;
-  --color-surface-border:        #E4ECE7;
-  --color-surface-border-strong: #CBDCD1;
+  --color-surface-border:        #DCE6F0;
+  --color-surface-border-strong: #C2D4E6;
 
   /* --- TIPOGRAFIA --- */
-  --color-text-primary:          #111915;
-  --color-text-secondary:        #687770;
-  --color-text-muted:            #8A9A92;
+  --color-text-primary:          #0B132B;
+  --color-text-secondary:        #5A6A85;
+  --color-text-muted:            #8494A7;
 
-  /* --- IDENTIDADE DA MARCA (PADRÃO EMITLY + WHITE-LABEL) --- */
-  --brand-primary:               #0E382C;
-  --brand-primary-rgb:           14 56 44;
-  --brand-primary-hover:         #07261E;
-  --brand-primary-hover-rgb:     7 38 30;
+  /* --- IDENTIDADE DA MARCA (PALETA OFICIAL + WHITE-LABEL) ---
+     #000D3D - Azul Escuro Profundo (Sidebar & Header)
+     #0455BF - Azul
+     #D8E8F2 - Azul Claro
+     #7338F2 - Roxo
+     #A36BF2 - Violeta */
+  --brand-primary:               #000D3D;
+  --brand-primary-rgb:           0 13 61;
+  --brand-primary-hover:         #000826;
+  --brand-primary-hover-rgb:     0 8 38;
 
-  --brand-secondary:             #134436;
-  --brand-secondary-rgb:         19 68 54;
-  --brand-secondary-border:      #1F5C4A;
-  --brand-secondary-border-rgb:  31 92 74;
+  --brand-secondary:             #0455BF;
+  --brand-secondary-rgb:         4 85 191;
+  --brand-secondary-border:      #1E6AD1;
+  --brand-secondary-border-rgb:  30 106 209;
 
-  --brand-accent:                #D4EC9D;
-  --brand-accent-rgb:            212 236 157;
-  --brand-accent-hover:          #C5E485;
-  --brand-accent-hover-rgb:      197 228 133;
+  --brand-accent:                #D8E8F2;
+  --brand-accent-rgb:            216 232 242;
+  --brand-accent-hover:          #C2D9E8;
+  --brand-accent-hover-rgb:      194 217 232;
 
-  /* --- PALETA PRIMARY: rampa 50..950 derivada de #0E382C ---
+  --brand-purple:                #7338F2;
+  --brand-purple-rgb:            115 56 242;
+  --brand-violet:                #A36BF2;
+  --brand-violet-rgb:            163 107 242;
+
+  /* --- PALETA PRIMARY: rampa 50..950 derivada de #001769 / #0455BF ---
      É também o fallback quando o tenant não aplica identidade própria.
      Os valores são canais RGB, e não hex, porque o Tailwind injeta a
      opacidade das classes com barra (bg-primary-500/15) dentro de
      rgb(<canais> / <alpha-value>) — ver tailwind.config.js.
      utils/identidadeVisual.js sobrescreve estas variáveis no <html>
      quando a organização liga a própria identidade visual. */
-  --color-primary-50:  243 245 244;
-  --color-primary-100: 231 235 234;
-  --color-primary-200: 202 211 209;
-  --color-primary-300: 164 180 175;
-  --color-primary-400: 101 128 120;
-  --color-primary-500:  14  56  44;
-  --color-primary-600:  12  49  39;
-  --color-primary-700:  11  43  33;
-  --color-primary-800:   9  36  28;
-  --color-primary-900:   7  29  23;
-  --color-primary-950:   4  18  14;
+  --color-primary-50:  242 246 250;
+  --color-primary-100: 216 232 242;
+  --color-primary-200: 180 208 235;
+  --color-primary-300: 120 168 222;
+  --color-primary-400:  56 124 206;
+  --color-primary-500:   4  85 191;
+  --color-primary-600:   0  23 105;
+  --color-primary-700:   0  19  88;
+  --color-primary-800:   0  15  70;
+  --color-primary-900:   0  11  52;
+  --color-primary-950:   0   7  34;
 
   /* Fundo de estados de hover em superfícies do tema. */
   --color-hover-surface: rgb(15 23 42 / 0.06);
@@ -106,18 +116,18 @@
   --color-neutro-rgb: 100 116 139;
 }
 
-/* --- CSS VARIABLES: TEMA ESCURO (desativado no Design System Emitly para manter as cores originais) --- */
+/* --- CSS VARIABLES: TEMA ESCURO (mantém as superfícies do Modo Claro oficial) --- */
 html.dark {
-  --color-surface:               #F2F5F3;
-  --color-surface-subtle:        #F7FAF8;
-  --color-surface-hover:         #EDF2EE;
-  --color-surface-muted:         #EBF0ED;
+  --color-surface:               #F2F6FA;
+  --color-surface-subtle:        #F7FAFC;
+  --color-surface-hover:         #E8F0F7;
+  --color-surface-muted:         #D8E8F2;
   --color-surface-card:          #FFFFFF;
-  --color-surface-border:        #E4ECE7;
-  --color-surface-border-strong: #CBDCD1;
-  --color-text-primary:          #111915;
-  --color-text-secondary:        #687770;
-  --color-text-muted:            #8A9A92;
+  --color-surface-border:        #DCE6F0;
+  --color-surface-border-strong: #C2D4E6;
+  --color-text-primary:          #0B132B;
+  --color-text-secondary:        #5A6A85;
+  --color-text-muted:            #8494A7;
 
   --color-hover-surface:  rgb(15 23 42 / 0.06);
   --color-control-border: #94a3b8;
@@ -432,6 +442,53 @@ html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside 
 .border-surface-border-strong,
 .hover\:border-surface-border-strong:hover {
   border-color: var(--color-surface-border-strong);
+}
+
+/* --- Destaques Roxo (#7338F2) e Violeta (#A36BF2) e Badges --- */
+.bg-brand-purple {
+  background-color: var(--brand-purple) !important;
+}
+.text-brand-purple {
+  color: var(--brand-purple) !important;
+}
+.border-brand-purple {
+  border-color: var(--brand-purple) !important;
+}
+.bg-brand-violet {
+  background-color: var(--brand-violet) !important;
+}
+.text-brand-violet {
+  color: var(--brand-violet) !important;
+}
+.border-brand-violet {
+  border-color: var(--brand-violet) !important;
+}
+.bg-\[\#DCF5E4\] {
+  background-color: var(--brand-accent) !important;
+}
+.hover\:bg-\[\#DCF5E4\]:hover {
+  background-color: var(--brand-accent-hover) !important;
+}
+.text-\[\#15803D\] {
+  color: var(--brand-secondary) !important;
+}
+.donut-visual {
+  background: conic-gradient(var(--brand-primary) 0% 82%, var(--brand-accent) 82% 100%);
+}
+
+/* --- Suporte imediato para primitivos shadcn/ui (Radix Select & DayPicker) --- */
+[role="option"][data-highlighted] {
+  background-color: var(--brand-accent) !important;
+  color: var(--brand-primary) !important;
+}
+[role="option"][data-state="checked"] {
+  color: var(--brand-primary) !important;
+  font-weight: 600;
+}
+.rdp-day_selected,
+button[name="day"][aria-selected="true"] {
+  background-color: var(--brand-primary) !important;
+  color: #FFFFFF !important;
 }
 
 /* --- Tipografia --- */

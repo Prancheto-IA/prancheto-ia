@@ -6,6 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjetos } from '../../hooks/useProjetos';
+import { SelectField } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Folder01Icon, Edit02Icon, Add01Icon } from '@hugeicons/core-free-icons';
 
@@ -87,18 +89,16 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-[#111915] mb-1">Status</label>
-              <select
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              <SelectField
                 value={form.status}
                 onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
               >
                 {Object.entries(STATUS_BADGE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-              </select>
+              </SelectField>
             </div>
             <div>
               <label className="block text-xs font-semibold text-[#111915] mb-1">Prioridade</label>
-              <select
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+              <SelectField
                 value={form.prioridade}
                 onChange={e => setForm(f => ({ ...f, prioridade: e.target.value }))}
               >
@@ -106,27 +106,25 @@ const ModalProjeto = ({ aberto, onFechar, onSalvar, onExcluir, projetoEditando }
                 <option value="media">Média</option>
                 <option value="alta">Alta</option>
                 <option value="critica">Crítica</option>
-              </select>
+              </SelectField>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-[#111915] mb-1">Data Início</label>
-              <input
-                type="date"
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
+              <DatePicker
                 value={form.data_inicio}
                 onChange={e => setForm(f => ({ ...f, data_inicio: e.target.value }))}
+                placeholder="Data de início"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-[#111915] mb-1">Data Fim</label>
-              <input
-                type="date"
-                className="w-full px-3.5 py-2.5 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915]"
+              <DatePicker
                 value={form.data_fim}
                 onChange={e => setForm(f => ({ ...f, data_fim: e.target.value }))}
+                placeholder="Data de término"
               />
             </div>
           </div>

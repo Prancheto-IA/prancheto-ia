@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useCamposCustom, TIPOS_CAMPO } from '../../hooks/useCRM.js';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import { useOrg } from '../../hooks/useOrg.js';
+import { SelectField } from '@/components/ui/select';
 
 // ─── Componentes auxiliares ────────────────────────────────────
 const Spinner = () => (
@@ -155,11 +156,9 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
           {/* Tipo */}
           <div>
             <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Tipo</label>
-            <select value={form.tipo} onChange={set('tipo')}
-              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
-              style={inputStyle}>
+            <SelectField value={form.tipo} onChange={set('tipo')}>
               {TIPOS_CAMPO.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
-            </select>
+            </SelectField>
           </div>
 
           {/* Opções (para select/multiselect) */}
@@ -180,14 +179,12 @@ const ModalCampo = ({ aberto, onFechar, onSalvar, campoEditando, times }) => {
             <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
               Escopo (time)
             </label>
-            <select value={form.time_id} onChange={set('time_id')}
-              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
-              style={inputStyle}>
+            <SelectField value={form.time_id} onChange={set('time_id')}>
               <option value="">🌐 Global (todos os times)</option>
               {(times || []).map(t => (
                 <option key={t.id} value={t.id}>{t.icone} {t.nome}</option>
               ))}
-            </select>
+            </SelectField>
             <p className="text-xs mt-1 text-muted">
               Campos de times diferentes com o mesmo nome coexistem com namespace próprio.
             </p>
@@ -337,17 +334,16 @@ const PaginaCamposCustomizados = () => {
           className="flex-1 min-w-48 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}
         />
-        <select
+        <SelectField
           value={filtroTime}
           onChange={e => setFiltroTime(e.target.value)}
-          className="rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
-          style={{ backgroundColor: 'var(--color-surface-card)', border: '1px solid var(--color-surface-border)', color: 'var(--color-text-primary)' }}>
+          className="w-56 bg-surface-card">
           <option value="">Todos os escopos</option>
           <option value="__global">🌐 Global</option>
           {(times || []).map(t => (
             <option key={t.id} value={t.id}>{t.icone} {t.nome}</option>
           ))}
-        </select>
+        </SelectField>
       </div>
 
       {/* Erro */}

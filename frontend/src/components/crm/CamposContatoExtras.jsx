@@ -6,6 +6,8 @@
 // =============================================================
 
 import React from 'react';
+import { SelectField } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 
 export const ENDERECO_VAZIO = {
   cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '',
@@ -47,9 +49,11 @@ export const CamposNegocio = ({ form, set, inputStyle }) => (
     </div>
     <div>
       <Rotulo>Previsão de fechamento</Rotulo>
-      <input type="date" value={form.previsao_fechamento} onChange={set('previsao_fechamento')}
-        className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
-        style={inputStyle} />
+      <DatePicker
+        value={form.previsao_fechamento}
+        onChange={set('previsao_fechamento')}
+        placeholder="Selecionar previsão"
+      />
     </div>
   </>
 );
@@ -113,11 +117,9 @@ export const CamposEmpresa = ({ form, set, setEndereco, inputStyle }) => (
       </div>
       <div>
         <Rotulo>Porte</Rotulo>
-        <select value={form.porte} onChange={set('porte')}
-          className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
-          style={inputStyle}>
+        <SelectField value={form.porte} onChange={set('porte')}>
           {PORTE_OPCOES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        </SelectField>
       </div>
     </div>
 
