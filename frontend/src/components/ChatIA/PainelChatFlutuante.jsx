@@ -59,7 +59,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
 
   const abrirChatCompleto = () => {
     onFechar();
-    navigate('/dashboard/chat');
+    navigate('/dashboard/agente');
   };
 
   const indisponivel = erro && CODIGOS_INDISPONIVEL.includes(erro.codigo);

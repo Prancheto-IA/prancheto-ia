@@ -81,35 +81,35 @@ const DashboardCliente = () => {
           </div>
         </div>
 
-        {/* Card 2: Pastel Yellow Schedule */}
-        <div className="bg-[#FFF099] text-[#1E2922] rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
+        {/* Card 2: Azul Claro Schedule (#D8E8F2) */}
+        <div className="bg-brand-accent text-brand-primary rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-semibold uppercase tracking-wide opacity-80">Próxima Reunião</span>
-            <span className="text-[10px] bg-white/70 backdrop-blur-xs text-[#1E2922] px-2 py-0.5 rounded-full font-semibold">14:30</span>
+            <span className="text-[10px] bg-white/80 backdrop-blur-xs text-brand-primary px-2 py-0.5 rounded-full font-semibold">14:30</span>
           </div>
           <div className="text-sm font-bold truncate">Alinhamento Design System</div>
           <p className="text-xs opacity-75 truncate mt-1">Com Equipe de Produto & IA</p>
         </div>
 
-        {/* Card 3: Pastel Pink Highlight */}
-        <div className="bg-[#FCE4F6] text-[#1E2922] rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
+        {/* Card 3: Roxo & Violeta Highlight (#7338F2 / #A36BF2) */}
+        <div className="bg-brand-violet text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wide opacity-80">Pipeline CRM</span>
-            <span className="text-[10px] bg-[#0E382C] text-white px-2 py-0.5 rounded-full font-semibold">8 Novos</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-white/90">Pipeline CRM</span>
+            <span className="text-[10px] bg-brand-purple text-white px-2 py-0.5 rounded-full font-semibold">8 Novos</span>
           </div>
           <div className="text-xl font-bold">R$ 48.500,00</div>
-          <p className="text-xs opacity-75 truncate mt-1">Leads qualificados em negociação</p>
+          <p className="text-xs text-white/85 truncate mt-1">Leads qualificados em negociação</p>
         </div>
 
-        {/* Card 4: Deep Forest Green Stats */}
-        <div className="bg-[#0E382C] text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
+        {/* Card 4: Azul Escuro Stats (#001769) */}
+        <div className="bg-brand-primary text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-emerald-300">Projetos Ativos</span>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-brand-accent">Projetos Ativos</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-brand-violet animate-pulse"></span>
           </div>
           <div className="flex items-end justify-between">
             <div className="text-xl font-bold">12 Projetos</div>
-            <button onClick={() => navigate('/projetos')} className="text-xs text-[#D4EC9D] font-semibold hover:underline flex items-center gap-1">
+            <button onClick={() => navigate('/projetos')} className="text-xs text-brand-accent font-semibold hover:underline flex items-center gap-1">
               <span>Ver todos</span>
               <span>→</span>
             </button>

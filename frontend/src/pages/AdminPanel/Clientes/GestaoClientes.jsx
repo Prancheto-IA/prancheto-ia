@@ -18,6 +18,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase.js';
+import { SelectField } from '@/components/ui/select';
 
 // =============================================================
 // CONSTANTES
@@ -177,16 +178,15 @@ const ModalCliente = ({ cliente, onSalvar, onFechar, salvando }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-muted mb-1">Plano</label>
-              <select
+              <SelectField
                 value={form.plano}
                 onChange={(e) => atualizar('plano', e.target.value)}
-                className="input w-full"
                 disabled={salvando}
               >
                 {PLANOS.map(p => (
                   <option key={p.value} value={p.value}>{p.label}</option>
                 ))}
-              </select>
+              </SelectField>
             </div>
             <div>
               <label className="block text-sm font-medium text-muted mb-1">Limite de usuários</label>
@@ -449,27 +449,27 @@ const GestaoClientes = () => {
               />
             </div>
 
-            <select
+            <SelectField
               value={filtroStatus}
               onChange={(e) => { setFiltroStatus(e.target.value); setPagina(1); }}
-              className="input w-40"
+              className="w-44"
             >
               <option value="">Todos os status</option>
               <option value="active">Ativo</option>
               <option value="suspended">Suspenso</option>
               <option value="cancelled">Cancelado</option>
-            </select>
+            </SelectField>
 
-            <select
+            <SelectField
               value={filtroPlano}
               onChange={(e) => { setFiltroPlano(e.target.value); setPagina(1); }}
-              className="input w-40"
+              className="w-44"
             >
               <option value="">Todos os planos</option>
               {PLANOS.map(p => (
                 <option key={p.value} value={p.value}>{p.label}</option>
               ))}
-            </select>
+            </SelectField>
 
             <span className="text-muted text-sm whitespace-nowrap">
               {total} cliente{total !== 1 ? 's' : ''}

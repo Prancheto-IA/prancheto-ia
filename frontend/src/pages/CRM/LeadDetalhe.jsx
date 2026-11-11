@@ -14,6 +14,8 @@ import {
   useInteracoes,
 } from '../../hooks/useCRM.js';
 import { ETAPAS_PIPELINE, DEALS_DEMO } from './Leads.jsx';
+import { SelectField } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -57,6 +59,7 @@ const LeadDetalhe = () => {
   const [novoPrazo, setNovoPrazo] = useState('');
   const [novoLocal] = useState('Google Meet');
   const [novaPrioridade, setNovaPrioridade] = useState('Média');
+  const [salvandoAtividade, setSalvandoAtividade] = useState(false);
 
   // Atividades Locais com Accordion
   const [atividades, setAtividades] = useState([
@@ -177,36 +180,51 @@ const LeadDetalhe = () => {
   }, [id]);
 
   // Hook real de interações do Supabase para persistência
-  const { interacoes, adicionar: adicionarInteracaoDb } = useInteracoes(
+  const { interacoes, adicionar: adicionarInteracaoDb, remover: removerInteracaoDb } = useInteracoes(
     deal && !String(deal.id).startsWith('demo-') ? deal.id : null
   );
 
   // Sincroniza interações vindas do banco
   useEffect(() => {
-    if (interacoes && interacoes.length > 0) {
-      const mapeadas = interacoes.map(i => ({
-        id: i.id,
-        tipo: i.tipo === 'reuniao' ? 'reuniao' : i.tipo === 'tarefa' ? 'tarefa' : 'nota',
-        titulo: i.titulo || (i.tipo === 'reuniao' ? 'Reunião agendada' : i.tipo === 'tarefa' ? 'Tarefa pendente' : 'Nota registrada'),
-        descricao: i.conteudo || i.descricao || '',
-        local: i.local || 'Online',
-        prioridade: i.prioridade || 'Média',
-        responsavel: i.criado_por_user?.nome || usuario?.nome || 'Você',
-        autor: i.criado_por_user?.nome || usuario?.nome || 'Você',
-        prazo: i.data_limite || null,
-        criado_em: i.criado_em,
-        concluida: Boolean(i.concluida),
-        expandido: true,
-      }));
+    const ehReal = deal && !String(deal.id).startsWith('demo-') && !String(deal.id).startsWith('local-');
 
-      setAtividades(prev => {
-        // Mantém as mock se não houver repetição de ID
-        const idsExistentes = new Set(mapeadas.map(m => m.id));
-        const restantes = prev.filter(p => !idsExistentes.has(p.id));
-        return [...mapeadas, ...restantes];
+    if (ehReal) {
+      const mapeadas = (interacoes || []).map(i => {
+        const meta = i.metadata || {};
+        let titulo = meta.titulo || i.titulo;
+        let descricao = meta.descricao || i.conteudo || i.descricao || '';
+
+        // Se o título não veio no metadata (ex: registros antigos),
+        // extrai de "Título: Descrição" se formatado assim
+        if (!titulo && i.conteudo && i.conteudo.includes(': ')) {
+          const idx = i.conteudo.indexOf(': ');
+          titulo = i.conteudo.slice(0, idx).trim();
+          descricao = i.conteudo.slice(idx + 2).trim();
+        }
+
+        if (!titulo) {
+          titulo = i.tipo === 'reuniao' ? 'Reunião agendada' : i.tipo === 'tarefa' ? 'Tarefa pendente' : 'Nota registrada';
+        }
+
+        return {
+          id: i.id,
+          tipo: i.tipo === 'reuniao' ? 'reuniao' : i.tipo === 'tarefa' ? 'tarefa' : 'nota',
+          titulo,
+          descricao,
+          local: meta.local || i.local || 'Online',
+          prioridade: meta.prioridade || i.prioridade || 'Média',
+          responsavel: meta.responsavel || i.criado_por_user?.nome || usuario?.nome || 'Você',
+          autor: meta.autor || i.criado_por_user?.nome || usuario?.nome || 'Você',
+          prazo: meta.prazo || i.data_limite || null,
+          criado_em: i.criado_em,
+          concluida: Boolean(meta.concluida ?? i.concluida),
+          expandido: true,
+        };
       });
+
+      setAtividades(mapeadas);
     }
-  }, [interacoes, usuario]);
+  }, [interacoes, deal, usuario]);
 
   // Alterar etapa do pipeline (Stepper)
   const handleMudarEtapa = async (novaEtapa) => {
@@ -233,39 +251,61 @@ const LeadDetalhe = () => {
   };
 
   // Concluir/Alternar status de uma atividade
-  const toggleConcluida = (idAtividade) => {
+  const toggleConcluida = async (idAtividade) => {
+    let novoStatus = false;
     setAtividades(prev =>
-      prev.map(a => (a.id === idAtividade ? { ...a, concluida: !a.concluida } : a))
+      prev.map(a => {
+        if (a.id === idAtividade) {
+          novoStatus = !a.concluida;
+          return { ...a, concluida: novoStatus };
+        }
+        return a;
+      })
     );
+
+    const ehReal = deal && !String(deal.id).startsWith('demo-') && !String(deal.id).startsWith('local-');
+    if (ehReal && !String(idAtividade).startsWith('act-')) {
+      try {
+        const { data: atual } = await supabase.from('crm_interacoes').select('metadata').eq('id', idAtividade).single();
+        const metaAtual = atual?.metadata || {};
+        await supabase.from('crm_interacoes').update({
+          metadata: { ...metaAtual, concluida: novoStatus }
+        }).eq('id', idAtividade);
+      } catch (err) {
+        console.error('Erro ao atualizar status da interação:', err);
+      }
+    }
   };
 
   // Excluir atividade
-  const removerAtividade = (idAtividade) => {
+  const removerAtividade = async (idAtividade) => {
     if (!window.confirm('Deseja remover este registro?')) return;
     setAtividades(prev => prev.filter(a => a.id !== idAtividade));
+
+    const ehReal = deal && !String(deal.id).startsWith('demo-') && !String(deal.id).startsWith('local-');
+    if (ehReal && !String(idAtividade).startsWith('act-')) {
+      try {
+        await removerInteracaoDb(idAtividade);
+      } catch (err) {
+        console.error('Erro ao excluir interação:', err);
+      }
+    }
   };
 
   // Salvar nova atividade (Inline)
   const handleSalvarNovaAtividade = async (e) => {
     e.preventDefault();
-    if (!novoTitulo.trim()) return;
+    if (!novoTitulo.trim() || salvandoAtividade) return;
 
-    const nova = {
-      id: `act-${Date.now()}`,
-      tipo: criandoTipo || 'nota',
-      titulo: novoTitulo.trim(),
-      descricao: novoTexto.trim(),
-      local: novoLocal,
-      prioridade: novaPrioridade,
-      responsavel: deal?.responsavel?.nome || usuario?.nome || 'Você',
-      autor: usuario?.nome || 'Você',
-      prazo: novoPrazo || (criandoTipo === 'reuniao' || criandoTipo === 'tarefa' ? new Date(Date.now() + 2 * 86400000).toISOString() : null),
-      criado_em: new Date().toISOString(),
-      concluida: false,
-      expandido: true,
-    };
-
-    setAtividades(prev => [nova, ...prev]);
+    setSalvandoAtividade(true);
+    const tipo = criandoTipo || 'nota';
+    const titulo = novoTitulo.trim();
+    const descricao = novoTexto.trim();
+    const local = novoLocal;
+    const prioridade = novaPrioridade;
+    const prazo = novoPrazo || (tipo === 'reuniao' || tipo === 'tarefa' ? new Date(Date.now() + 2 * 86400000).toISOString() : null);
+    const responsavel = deal?.responsavel?.nome || usuario?.nome || 'Você';
+    const autor = usuario?.nome || 'Você';
 
     // Reseta form inline
     setNovoTitulo('');
@@ -273,13 +313,44 @@ const LeadDetalhe = () => {
     setNovoPrazo('');
     setCriandoTipo(null);
 
-    // Persiste no Supabase se não for demo
-    if (deal && !String(deal.id).startsWith('demo-')) {
-      try {
-        await adicionarInteracaoDb(nova.tipo, `${nova.titulo}: ${nova.descricao}`);
-      } catch (err) {
-        console.error('Erro ao persistir atividade:', err);
+    const ehReal = deal && !String(deal.id).startsWith('demo-') && !String(deal.id).startsWith('local-');
+
+    try {
+      if (ehReal) {
+        const metadata = {
+          titulo,
+          descricao,
+          local,
+          prioridade,
+          prazo,
+          responsavel,
+          autor,
+        };
+        // Persiste com metadata completo. O hook useInteracoes atualiza
+        // `interacoes` de forma reativa, sincronizando a lista sem duplicar!
+        await adicionarInteracaoDb(tipo, `${titulo}: ${descricao}`, metadata);
+      } else {
+        // Para demonstração ou modo offline, adiciona localmente
+        const nova = {
+          id: `act-${Date.now()}`,
+          tipo,
+          titulo,
+          descricao,
+          local,
+          prioridade,
+          responsavel,
+          autor,
+          prazo,
+          criado_em: new Date().toISOString(),
+          concluida: false,
+          expandido: true,
+        };
+        setAtividades(prev => [nova, ...prev]);
       }
+    } catch (err) {
+      console.error('Erro ao persistir atividade:', err);
+    } finally {
+      setSalvandoAtividade(false);
     }
   };
 
@@ -713,31 +784,32 @@ const LeadDetalhe = () => {
                 />
 
                 <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {criandoTipo !== 'nota' && (
-                      <input
-                        type="date"
+                      <DatePicker
                         value={novoPrazo}
                         onChange={(e) => setNovoPrazo(e.target.value)}
-                        className="text-xs border border-[#E4ECE7] rounded-lg px-2.5 py-1 text-[#687770]"
+                        placeholder="Prazo"
+                        className="h-8 w-44 text-xs"
                       />
                     )}
-                    <select
+                    <SelectField
                       value={novaPrioridade}
                       onChange={(e) => setNovaPrioridade(e.target.value)}
-                      className="text-xs border border-[#E4ECE7] rounded-lg px-2 py-1 text-[#687770]"
+                      className="h-8 w-44 text-xs"
                     >
                       <option value="Baixa">Prioridade: Baixa</option>
                       <option value="Média">Prioridade: Média</option>
                       <option value="Alta">Prioridade: Alta</option>
-                    </select>
+                    </SelectField>
                   </div>
 
                   <button
                     type="submit"
-                    className="px-4 py-1.5 rounded-xl bg-[#0E382C] text-white text-xs font-semibold hover:bg-[#07261E] shadow-sm"
+                    disabled={salvandoAtividade}
+                    className="px-4 py-1.5 rounded-xl bg-[#0E382C] text-white text-xs font-semibold hover:bg-[#07261E] shadow-sm disabled:opacity-50"
                   >
-                    Salvar Registro
+                    {salvandoAtividade ? 'Salvando...' : 'Salvar Registro'}
                   </button>
                 </div>
               </form>

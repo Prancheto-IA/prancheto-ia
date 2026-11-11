@@ -24,13 +24,14 @@ import { useTenantStore } from '../../store/tenantStore.js';
 import { useAuth, carregarPermissoesCargo } from '../../hooks/useAuth.js';
 import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
 import BolhaChatIA from '../../components/ChatIA/BolhaChatIA.jsx';
+import { NotificationCenter, NOTIFICACOES_INICIAIS } from '@/components/ui/notification-center';
 
 
 const BADGE_CARGO = {
-  admin:   { label: 'Admin',        bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
-  manager: { label: 'Gerente',      bg: 'bg-blue-100',   text: 'text-blue-800' },
-  member:  { label: 'Membro',       bg: 'bg-[#EBF0ED]', text: 'text-[#0E382C]' },
-  viewer:  { label: 'Visualizador', bg: 'bg-slate-100',  text: 'text-slate-600' },
+  admin: { label: 'Admin', bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
+  manager: { label: 'Gerente', bg: 'bg-blue-100', text: 'text-blue-800' },
+  member: { label: 'Membro', bg: 'bg-[#EBF0ED]', text: 'text-[#0E382C]' },
+  viewer: { label: 'Visualizador', bg: 'bg-slate-100', text: 'text-slate-600' },
 };
 
 // ----------------------------------------------------------
@@ -54,7 +55,7 @@ const MarcaLogo = () => {
   }
 
   return (
-    <div className="w-8 h-8 rounded-xl bg-[#0E382C] flex items-center justify-center text-[#D4EC9D] shadow-sm flex-shrink-0">
+    <div className="w-8 h-8 rounded-xl bg-brand-secondary border border-brand-secondary-border flex items-center justify-center text-brand-accent shadow-sm flex-shrink-0">
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
         <polygon points="12 2 2 7 12 12 22 7 12 2" />
         <polyline points="2 17 12 22 22 17" />
@@ -75,9 +76,7 @@ import {
   CustomerSupportIcon,
   Building01Icon,
   Settings02Icon,
-  SentIcon,
   Analytics01Icon,
-  UserMultiple02Icon,
   DragDropVerticalIcon,
   PencilEdit01Icon,
   ArrowLeft01Icon,
@@ -106,9 +105,8 @@ const ICONES_MAP = {
   suporte: CustomerSupportIcon,
   organizacao: Building01Icon,
   configuracoes: Settings02Icon,
-  outbound: SentIcon,
   relatorios: Analytics01Icon,
-  times_pessoas: UserMultiple02Icon,
+  times_pessoas: Building01Icon,
 };
 
 const getIconeItem = (slug) => {
@@ -133,13 +131,11 @@ const ItemNav = ({ item, colapsada, onClick }) => {
       title={item.label}
       className={({ isActive }) => {
         const ativo = isActive || ativoViaPrefixo;
-        return `h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 group relative overflow-hidden ${
-          colapsada ? 'w-10' : 'w-full'
-        } ${
-          ativo
-            ? 'bg-[#D4EC9D] text-[#132E22] font-semibold shadow-xs'
-            : 'text-[#687770] hover:bg-[#EDF2EE] hover:text-[#111915]'
-        }`;
+        return `h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 group relative overflow-hidden ${colapsada ? 'w-10' : 'w-full'
+          } ${ativo
+            ? 'bg-brand-accent text-brand-primary font-semibold shadow-xs'
+            : 'text-white hover:bg-white/10 hover:text-white'
+          }`;
       }}
     >
       {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
@@ -149,16 +145,15 @@ const ItemNav = ({ item, colapsada, onClick }) => {
 
       {/* Rótulo de texto: visível no estado expandido, clipe limpo no recolhido */}
       <span
-        className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${
-          colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
-        }`}
+        className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
+          }`}
       >
         {item.label}
       </span>
 
       {/* Tooltip flutuante quando colapsada */}
       {colapsada && (
-        <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-[#0E382C] text-[#D4EC9D] text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
+        <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
           {item.label}
         </span>
       )}
@@ -191,11 +186,10 @@ const ItemSortableModal = ({ item, onToggle }) => {
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${
-        item.visivel
-          ? 'bg-white border-[#E4ECE7] text-[#111915]'
-          : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
-      }`}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${item.visivel
+        ? 'bg-white border-[#E4ECE7] text-[#111915]'
+        : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
+        }`}
     >
       <button
         {...attributes}
@@ -216,11 +210,10 @@ const ItemSortableModal = ({ item, onToggle }) => {
       ) : (
         <button
           onClick={() => onToggle(item.slug)}
-          className={`text-xs px-2.5 py-1 rounded-lg font-semibold transition-colors ${
-            item.visivel
-              ? 'text-red-600 hover:bg-red-50'
-              : 'text-[#15803D] hover:bg-[#DCF5E4]'
-          }`}
+          className={`text-xs px-2.5 py-1 rounded-lg font-semibold transition-colors ${item.visivel
+            ? 'text-red-600 hover:bg-red-50'
+            : 'text-[#15803D] hover:bg-[#DCF5E4]'
+            }`}
         >
           {item.visivel ? 'Ocultar' : '+ Mostrar'}
         </button>
@@ -292,18 +285,16 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
           <div className="flex rounded-xl bg-[#F7FAF8] p-1 border border-[#E4ECE7]">
             <button
               onClick={() => definirChatIaModo('flutuante')}
-              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${
-                chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
-              }`}
+              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
+                }`}
             >
               <HugeiconsIcon icon={Comment01Icon} size={14} strokeWidth={1.8} />
               <span>Flutuante</span>
             </button>
             <button
               onClick={() => definirChatIaModo('fixo')}
-              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${
-                chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
-              }`}
+              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
+                }`}
             >
               <HugeiconsIcon icon={PinIcon} size={14} strokeWidth={1.8} />
               <span>Na Sidebar</span>
@@ -357,7 +348,7 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 
       <aside
         className={`
-          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-white border-r border-[#E4ECE7]
+          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-brand-primary
           transition-[width] duration-300 ease-in-out flex-shrink-0
           lg:static lg:z-auto lg:translate-x-0
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
@@ -366,18 +357,17 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
       >
         <div className="w-64 h-full flex flex-col flex-shrink-0">
           {/* Logo Header */}
-          <div className="h-16 flex items-center px-3 border-b border-[#E4ECE7] flex-shrink-0 overflow-hidden">
+          <div className="h-16 flex items-center px-3 flex-shrink-0 overflow-hidden">
             <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
               <MarcaLogo />
             </div>
             <span
-              className={`font-extrabold text-lg tracking-tight text-[#0E382C] truncate whitespace-nowrap ml-2 transition-opacity duration-150 ${
-                colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100'
-              }`}
+              className={`font-extrabold text-lg tracking-tight text-white truncate whitespace-nowrap ml-2 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                }`}
             >
-              Prancheto<span className="text-emerald-600">.IA</span>
+              Prancheto<span className="text-brand-accent">.IA</span>
             </span>
-            <button onClick={onFechar} className="ml-auto text-slate-400 hover:text-slate-600 lg:hidden p-1 rounded-lg" title="Fechar menu">
+            <button onClick={onFechar} className="ml-auto text-white/70 hover:text-white lg:hidden p-1 rounded-lg" title="Fechar menu">
               <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
             </button>
           </div>
@@ -395,26 +385,24 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
           </nav>
 
           {/* Base da Sidebar: Apenas o botão de editar sidebar */}
-          <div className="p-3 border-t border-[#E4ECE7] flex-shrink-0 overflow-hidden">
+          <div className="p-3 flex-shrink-0 overflow-hidden">
             <button
               onClick={() => setModalAberto(true)}
-              className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 text-[#687770] hover:bg-[#EDF2EE] hover:text-[#111915] group relative overflow-hidden ${
-                colapsada ? 'w-10' : 'w-full'
-              }`}
+              className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 text-white hover:bg-white/10 group relative overflow-hidden ${colapsada ? 'w-10' : 'w-full'
+                }`}
               title="Personalizar itens da sidebar"
             >
               <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
                 <HugeiconsIcon icon={PencilEdit01Icon} size={18} strokeWidth={1.8} />
               </span>
               <span
-                className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${
-                  colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
-                }`}
+                className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
+                  }`}
               >
                 Editar Menu
               </span>
               {colapsada && (
-                <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-[#0E382C] text-[#D4EC9D] text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
+                <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-xs font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
                   Editar Menu
                 </span>
               )}
@@ -438,21 +426,25 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 const LayoutCliente = ({ children }) => {
   const [sidebarAberta, setSidebarAberta] = useState(false);
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
+  const [notificacoesAbertas, setNotificacoesAbertas] = useState(false);
+  const [notificacoes, setNotificacoes] = useState(NOTIFICACOES_INICIAIS);
   const menuUsuarioRef = useRef(null);
+  const notificacoesRef = useRef(null);
+  const naoLidasCount = notificacoes.filter((n) => n.unread).length;
 
-  const location  = useLocation();
-  const prefs     = useSidebarPrefs();
+  const location = useLocation();
+  const prefs = useSidebarPrefs();
 
-  const usuario   = useAuthStore((s) => s.usuario);
+  const usuario = useAuthStore((s) => s.usuario);
   const { logout } = useAuth();
-  const badgeCargo  = BADGE_CARGO[usuario?.cargo] || BADGE_CARGO.member;
+  const badgeCargo = BADGE_CARGO[usuario?.cargo] || BADGE_CARGO.member;
   const primeiroNome = usuario?.nome?.split(' ')[0] || 'Usuário';
 
-  const tenantId        = usuario?.tenant_id;
-  const carregarTenant  = useTenantStore((s) => s.carregar);
+  const tenantId = usuario?.tenant_id;
+  const carregarTenant = useTenantStore((s) => s.carregar);
   useEffect(() => { carregarTenant(tenantId); }, [tenantId, carregarTenant]);
 
-  const cargoId          = usuario?.cargo_id;
+  const cargoId = usuario?.cargo_id;
   const atualizarUsuario = useAuthStore((s) => s.atualizarUsuario);
   useEffect(() => {
     if (!cargoId) return;
@@ -461,21 +453,24 @@ const LayoutCliente = ({ children }) => {
     });
   }, [cargoId, atualizarUsuario]);
 
-  // Fechar dropdown de perfil ao clicar fora
+  // Fechar dropdown de perfil ou notificações ao clicar fora
   useEffect(() => {
     const handleClickFora = (e) => {
       if (menuUsuarioRef.current && !menuUsuarioRef.current.contains(e.target)) {
         setMenuUsuarioAberto(false);
       }
+      if (notificacoesRef.current && !notificacoesRef.current.contains(e.target)) {
+        setNotificacoesAbertas(false);
+      }
     };
-    if (menuUsuarioAberto) {
+    if (menuUsuarioAberto || notificacoesAbertas) {
       document.addEventListener('mousedown', handleClickFora);
     }
     return () => document.removeEventListener('mousedown', handleClickFora);
-  }, [menuUsuarioAberto]);
+  }, [menuUsuarioAberto, notificacoesAbertas]);
 
   return (
-    <div className="h-screen bg-[#F2F5F3] flex items-stretch overflow-hidden font-sans">
+    <div className="h-screen bg-brand-primary flex items-stretch overflow-hidden font-sans">
       {/* Sidebar */}
       <Sidebar
         aberta={sidebarAberta}
@@ -487,7 +482,7 @@ const LayoutCliente = ({ children }) => {
       <button
         onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
         title={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
-        className="hidden lg:flex fixed top-4 z-50 items-center justify-center w-7 h-7 rounded-full bg-white border border-[#E4ECE7] shadow-sm text-slate-500 hover:text-[#0E382C] hover:border-[#0E382C] transition-[left] duration-300 ease-in-out cursor-pointer"
+        className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover transition-[left] duration-300 ease-in-out cursor-pointer"
         style={{
           left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
         }}
@@ -503,53 +498,70 @@ const LayoutCliente = ({ children }) => {
       {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-[#E4ECE7] px-6 flex items-center justify-between gap-4 flex-shrink-0">
+        <header className="h-16 bg-brand-primary px-6 flex items-center justify-between gap-4 flex-shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarAberta(true)}
-              className="lg:hidden p-2 text-slate-600 hover:text-[#0E382C] rounded-lg"
+              className="lg:hidden p-2 text-white/80 hover:text-white rounded-lg"
             >
               <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
             </button>
           </div>
 
           {/* Search Pill */}
-          <div className="flex-1 max-w-md hidden sm:block relative">
+          <div className="flex-1 max-w-xl hidden sm:block relative">
             <HugeiconsIcon
               icon={Search01Icon}
-              size={16}
+              size={18}
               strokeWidth={1.8}
-              className="text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              className="text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
             />
             <input
               type="text"
               placeholder="Pesquisar projetos, clientes ou tarefas..."
-              className="w-full pl-9 pr-4 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-full text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C] transition-all"
+              className="w-full h-10 pl-11 pr-4 bg-white rounded-full text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent shadow-xs transition-all"
             />
           </div>
 
           {/* Actions: Notificação, Configuração, Foto de Perfil */}
           <div className="flex items-center gap-2.5">
-            {/* 1. Botão de Notificação */}
-            <button
-              title="Notificações"
-              className="w-9 h-9 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] hover:text-[#0E382C] flex items-center justify-center transition-colors relative"
-            >
-              <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
-              <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-2 right-2"></span>
-            </button>
+            {/* 1. Botão de Notificação + Central de Notificações */}
+            <div className="relative" ref={notificacoesRef}>
+              <button
+                onClick={() => {
+                  setNotificacoesAbertas((v) => !v);
+                  setMenuUsuarioAberto(false);
+                }}
+                title="Notificações"
+                className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
+              >
+                <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
+                {naoLidasCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-brand-purple absolute top-2 right-2"></span>
+                )}
+              </button>
+
+              {notificacoesAbertas && (
+                <div className="absolute right-0 mt-2 w-[340px] sm:w-[380px] z-50 animate-fade-in">
+                  <NotificationCenter
+                    items={notificacoes}
+                    onItemsChange={setNotificacoes}
+                    title="Notificações"
+                  />
+                </div>
+              )}
+            </div>
 
             {/* 2. Botão de Configuração */}
             <NavLink
               to="/dashboard/configuracoes"
-              title="Configurações e Organização"
+              title="Configurações"
               className={({ isActive }) => {
-                const ativa = isActive || location.pathname.startsWith('/dashboard/organizacao');
-                return `w-9 h-9 rounded-xl border border-[#E4ECE7] flex items-center justify-center transition-colors ${
-                  ativa
-                    ? 'bg-[#0E382C] text-[#D4EC9D]'
-                    : 'bg-[#F7FAF8] text-[#687770] hover:text-[#0E382C]'
-                }`;
+                const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
+                return `w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow-xs ${ativa
+                  ? 'bg-brand-accent-hover text-brand-primary'
+                  : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover'
+                  }`;
               }}
             >
               <HugeiconsIcon icon={Settings02Icon} size={18} strokeWidth={1.8} />
@@ -559,7 +571,7 @@ const LayoutCliente = ({ children }) => {
             <div className="relative" ref={menuUsuarioRef}>
               <button
                 onClick={() => setMenuUsuarioAberto((v) => !v)}
-                className="w-9 h-9 rounded-xl bg-[#0E382C] text-[#D4EC9D] font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs hover:ring-2 hover:ring-[#0E382C]/20 transition-all cursor-pointer overflow-hidden border border-[#E4ECE7]"
+                className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent"
                 title={`Perfil: ${usuario?.nome || 'Usuário'}`}
               >
                 {usuario?.avatar_url || usuario?.foto_url ? (
@@ -574,11 +586,11 @@ const LayoutCliente = ({ children }) => {
               </button>
 
               {menuUsuarioAberto && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#E4ECE7] py-2 z-50 animate-fade-in text-xs">
+                <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-xs">
                   {/* Dados do usuário */}
-                  <div className="px-4 py-2.5 border-b border-[#E4ECE7]">
-                    <p className="font-bold text-[#111915] truncate">{usuario?.nome || 'Usuário'}</p>
-                    <p className="text-[11px] text-[#687770] truncate">{usuario?.email}</p>
+                  <div className="px-4 py-2.5 border-b border-surface-border">
+                    <p className="font-bold text-ink-primary truncate">{usuario?.nome || 'Usuário'}</p>
+                    <p className="text-[11px] text-ink-secondary truncate">{usuario?.email}</p>
                     <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold mt-1.5 ${badgeCargo.bg} ${badgeCargo.text}`}>
                       {badgeCargo.label}
                     </span>
@@ -589,31 +601,31 @@ const LayoutCliente = ({ children }) => {
                     <NavLink
                       to="/dashboard/configuracoes"
                       onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
+                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
                     >
-                      <HugeiconsIcon icon={UserIcon} size={16} strokeWidth={1.8} className="text-[#687770]" />
+                      <HugeiconsIcon icon={UserIcon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
                       <span>Meu Perfil</span>
                     </NavLink>
                     <NavLink
                       to="/dashboard/configuracoes"
                       onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
+                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
                     >
-                      <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.8} className="text-[#687770]" />
+                      <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
                       <span>Configurações</span>
                     </NavLink>
                     <NavLink
                       to="/suporte"
                       onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[#111915] hover:bg-[#F7FAF8] font-medium"
+                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
                     >
-                      <HugeiconsIcon icon={HelpCircleIcon} size={16} strokeWidth={1.8} className="text-[#687770]" />
+                      <HugeiconsIcon icon={HelpCircleIcon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
                       <span>Suporte</span>
                     </NavLink>
                   </div>
 
                   {/* Sair */}
-                  <div className="pt-1 border-t border-[#E4ECE7]">
+                  <div className="pt-1 border-t border-surface-border">
                     <button
                       onClick={() => {
                         setMenuUsuarioAberto(false);
@@ -631,8 +643,8 @@ const LayoutCliente = ({ children }) => {
           </div>
         </header>
 
-        {/* Page Content Stream */}
-        <main className="flex-1 overflow-auto px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0">
+        {/* Page Content Stream (Nível 1) */}
+        <main className="flex-1 overflow-auto bg-surface rounded-tl-3xl px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0 shadow-sm">
           {children}
         </main>
       </div>

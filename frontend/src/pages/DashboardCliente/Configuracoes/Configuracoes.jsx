@@ -16,33 +16,17 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore.js';
 import { useTema } from '../../../hooks/useTema.js';
 import { usePermission } from '../../../hooks/usePermission.js';
-import { useRotulosOutbound, STATUS_ORDEM, ROTULOS_PADRAO } from '../../../hooks/useRotulosOutbound.js';
 import { supabase } from '../../../lib/supabase.js';
-import AjustesTopNav from '../../../components/Ajustes/AjustesTopNav.jsx';
 import SecaoPlano from './SecaoPlano.jsx';
+import IdentidadeVisual from './IdentidadeVisual.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Sun01Icon, Moon02Icon, Key01Icon, Shield01Icon } from '@hugeicons/core-free-icons';
 
 const ABAS = [
   { slug: 'geral', label: 'Geral' },
+  { slug: 'identidade', label: 'Identidade Visual' },
   { slug: 'plano', label: 'Plano da Organização' },
 ];
-
-const DESCRICAO_STATUS = {
-  pendente:    'Pendente',
-  enviado:     'Enviado',
-  respondido:  'Respondido',
-  sem_retorno: 'Sem Retorno',
-  convertido:  'Convertido',
-};
-
-const SUBTITULO_STATUS = {
-  pendente:    'Ainda não contatado',
-  enviado:     'Primeiro contato feito',
-  respondido:  'A pessoa retornou',
-  sem_retorno: 'Não respondeu',
-  convertido:  'Fechou negócio',
-};
 
 const NOME_MAX     = 120;
 const TELEFONE_MAX = 32;
@@ -111,7 +95,6 @@ const Configuracoes = () => {
   const { usuario, atualizarUsuario } = useAuthStore();
   const { temaEscuro, setTemaEscuro, sincronizarComBanco } = useTema();
   const { pode } = usePermission();
-  const { rotulos: rotulosSalvos, salvar: salvarRotulosOutbound } = useRotulosOutbound(usuario?.id);
 
   const [parametros, setParametros] = useSearchParams();
   const abaAtiva = ABAS.some(a => a.slug === parametros.get('aba'))
@@ -122,7 +105,6 @@ const Configuracoes = () => {
   const [telefone, setTelefone]         = useState(usuario?.telefone || '');
   const [notifEmail, setNotifEmail]     = useState(true);
   const [notifSistema, setNotifSistema] = useState(true);
-  const [rotulosStatus, setRotulosStatus] = useState(ROTULOS_PADRAO);
   const [carregando, setCarregando]     = useState(true);
   const [salvando, setSalvando]         = useState(false);
   const [salvo, setSalvo]               = useState(false);
@@ -154,10 +136,6 @@ const Configuracoes = () => {
     };
     carregar();
   }, [usuario?.id, sincronizarComBanco]);
-
-  useEffect(() => {
-    setRotulosStatus(rotulosSalvos);
-  }, [rotulosSalvos]);
 
   const selecionarAba = (slug) => {
     setParametros(slug === 'geral' ? {} : { aba: slug }, { replace: true });
@@ -207,8 +185,6 @@ const Configuracoes = () => {
 
       if (erroPrefs) throw erroPrefs;
 
-      await salvarRotulosOutbound(rotulosStatus);
-
       setSalvo(true);
       setTimeout(() => setSalvo(false), 2500);
     } catch (err) {
@@ -230,28 +206,25 @@ const Configuracoes = () => {
 
   return (
     <div className="w-full flex-1 flex flex-col space-y-5">
-      {/* 1. Menu Horizontal no Topo */}
-      <AjustesTopNav />
-
-      {/* 2. Cabeçalho com Abas Internas */}
+      {/* 1. Cabeçalho com Abas Internas */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111915]">
             Configurações
           </h1>
           <p className="text-xs sm:text-sm text-[#687770] mt-0.5">
-            Personalize sua conta, preferências do sistema e acompanhe o plano da organização.
+            Personalize sua conta, identidade visual e acompanhe o plano da organização.
           </p>
         </div>
 
-        {/* Sub-abas: Geral e Plano */}
+        {/* Sub-abas: Geral, Identidade Visual e Plano */}
         <div className="flex items-center gap-1.5 bg-[#F7FAF8] p-1 rounded-xl border border-[#E4ECE7] self-start sm:self-auto">
           {ABAS.map((aba) => (
             <button
               key={aba.slug}
               type="button"
               onClick={() => selecionarAba(aba.slug)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 cursor-pointer ${
                 aba.slug === abaAtiva
                   ? 'bg-[#0E382C] text-[#D4EC9D] shadow-xs'
                   : 'text-[#687770] hover:text-[#111915]'
@@ -263,11 +236,9 @@ const Configuracoes = () => {
         </div>
       </div>
 
-      {/* 3. Conteúdo da Aba */}
-      {abaAtiva === 'plano' ? (
-        <SecaoPlano />
-      ) : (
-        /* Layout Reorganizado em Múltiplas Colunas */
+      {/* 2. Conteúdo da Aba Geral */}
+      <div className={`w-full flex-1 ${abaAtiva === 'geral' ? 'block' : 'hidden'}`}>
+        {/* Layout Reorganizado em Múltiplas Colunas */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* COLUNA ESQUERDA (lg:col-span-7) */}
           <div className="lg:col-span-7 flex flex-col space-y-5">
@@ -325,43 +296,6 @@ const Configuracoes = () => {
                   disabled
                   ajuda="Definido pelo administrador da organização."
                 />
-              </div>
-            </div>
-
-            {/* Card: Rótulos do Outbound */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-[#E4ECE7]">
-                <div>
-                  <h2 className="text-base font-bold text-[#111915]">
-                    Rótulos do Outbound
-                  </h2>
-                  <p className="text-xs text-[#687770] mt-0.5">
-                    Personalize como os status dos contatos são exibidos no seu funil de vendas.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setRotulosStatus(ROTULOS_PADRAO)}
-                  className="text-xs font-semibold text-[#0E382C] hover:underline self-start sm:self-auto cursor-pointer"
-                >
-                  Restaurar padrões
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-                {STATUS_ORDEM.map((status) => (
-                  <div key={status} className="flex flex-col">
-                    <CampoTexto
-                      label={`${DESCRICAO_STATUS[status]} (${SUBTITULO_STATUS[status]})`}
-                      valor={rotulosStatus[status] ?? ''}
-                      placeholder={ROTULOS_PADRAO[status]}
-                      maxLength={40}
-                      onChange={(e) =>
-                        setRotulosStatus((prev) => ({ ...prev, [status]: e.target.value }))
-                      }
-                    />
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -503,7 +437,17 @@ const Configuracoes = () => {
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* 3. Conteúdo da Aba Identidade Visual */}
+      <div className={`w-full flex-1 ${abaAtiva === 'identidade' ? 'block' : 'hidden'}`}>
+        <IdentidadeVisual />
+      </div>
+
+      {/* 4. Conteúdo da Aba Plano */}
+      <div className={`w-full flex-1 ${abaAtiva === 'plano' ? 'block' : 'hidden'}`}>
+        <SecaoPlano />
+      </div>
     </div>
   );
 };

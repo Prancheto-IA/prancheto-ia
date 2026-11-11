@@ -17,30 +17,64 @@
 /* --- CSS VARIABLES: TEMA CLARO (padrão base — sem classe) --- */
 /* O tema claro é o padrão. O tema escuro é aplicado via html.dark */
 :root {
-  --color-surface:        #f1f5f9;
-  --color-surface-card:   #ffffff;
-  --color-surface-border: #e2e8f0;
-  --color-text-primary:   #0f172a;
-  --color-text-secondary: #475569;
+  /* --- SUPERFÍCIES E NEUTROS (DESIGN SYSTEM AZUL & VIOLETA) --- */
+  --color-surface:               #F2F6FA;
+  --color-surface-subtle:        #F7FAFC;
+  --color-surface-hover:         #E8F0F7;
+  --color-surface-muted:         #D8E8F2;
+  --color-surface-card:          #FFFFFF;
+  --color-surface-border:        #DCE6F0;
+  --color-surface-border-strong: #C2D4E6;
 
-  /* --- PALETA PRIMARY: a marca do produto ---
+  /* --- TIPOGRAFIA --- */
+  --color-text-primary:          #0B132B;
+  --color-text-secondary:        #5A6A85;
+  --color-text-muted:            #8494A7;
+
+  /* --- IDENTIDADE DA MARCA (PALETA OFICIAL + WHITE-LABEL) ---
+     #000D3D - Azul Escuro Profundo (Sidebar & Header)
+     #0455BF - Azul
+     #D8E8F2 - Azul Claro
+     #7338F2 - Roxo
+     #A36BF2 - Violeta */
+  --brand-primary:               #000D3D;
+  --brand-primary-rgb:           0 13 61;
+  --brand-primary-hover:         #000826;
+  --brand-primary-hover-rgb:     0 8 38;
+
+  --brand-secondary:             #0455BF;
+  --brand-secondary-rgb:         4 85 191;
+  --brand-secondary-border:      #1E6AD1;
+  --brand-secondary-border-rgb:  30 106 209;
+
+  --brand-accent:                #D8E8F2;
+  --brand-accent-rgb:            216 232 242;
+  --brand-accent-hover:          #C2D9E8;
+  --brand-accent-hover-rgb:      194 217 232;
+
+  --brand-purple:                #7338F2;
+  --brand-purple-rgb:            115 56 242;
+  --brand-violet:                #A36BF2;
+  --brand-violet-rgb:            163 107 242;
+
+  /* --- PALETA PRIMARY: rampa 50..950 derivada de #001769 / #0455BF ---
      É também o fallback quando o tenant não aplica identidade própria.
      Os valores são canais RGB, e não hex, porque o Tailwind injeta a
      opacidade das classes com barra (bg-primary-500/15) dentro de
      rgb(<canais> / <alpha-value>) — ver tailwind.config.js.
      utils/identidadeVisual.js sobrescreve estas variáveis no <html>
      quando a organização liga a própria identidade visual. */
-  --color-primary-50:  240 244 255;
-  --color-primary-100: 224 233 255;
-  --color-primary-200: 199 214 254;
-  --color-primary-300: 165 184 252;
-  --color-primary-400: 129 145 248;
-  --color-primary-500:  99 102 241;
-  --color-primary-600:  79  70 229;
-  --color-primary-700:  67  56 202;
-  --color-primary-800:  55  48 163;
-  --color-primary-900:  49  46 129;
-  --color-primary-950:  30  27  75;
+  --color-primary-50:  242 246 250;
+  --color-primary-100: 216 232 242;
+  --color-primary-200: 180 208 235;
+  --color-primary-300: 120 168 222;
+  --color-primary-400:  56 124 206;
+  --color-primary-500:   4  85 191;
+  --color-primary-600:   0  23 105;
+  --color-primary-700:   0  19  88;
+  --color-primary-800:   0  15  70;
+  --color-primary-900:   0  11  52;
+  --color-primary-950:   0   7  34;
 
   /* Fundo de estados de hover em superfícies do tema. */
   --color-hover-surface: rgb(15 23 42 / 0.06);
@@ -82,20 +116,25 @@
   --color-neutro-rgb: 100 116 139;
 }
 
-/* --- CSS VARIABLES: TEMA ESCURO (override via classe html.dark) --- */
+/* --- CSS VARIABLES: TEMA ESCURO (mantém as superfícies do Modo Claro oficial) --- */
 html.dark {
-  --color-surface:        #0f172a;
-  --color-surface-card:   #1e293b;
-  --color-surface-border: #334155;
-  --color-text-primary:   #f8fafc;
-  --color-text-secondary: #94a3b8;
+  --color-surface:               #F2F6FA;
+  --color-surface-subtle:        #F7FAFC;
+  --color-surface-hover:         #E8F0F7;
+  --color-surface-muted:         #D8E8F2;
+  --color-surface-card:          #FFFFFF;
+  --color-surface-border:        #DCE6F0;
+  --color-surface-border-strong: #C2D4E6;
+  --color-text-primary:          #0B132B;
+  --color-text-secondary:        #5A6A85;
+  --color-text-muted:            #8494A7;
 
-  --color-hover-surface:  rgb(255 255 255 / 0.06);
-  --color-control-border: #475569;
+  --color-hover-surface:  rgb(15 23 42 / 0.06);
+  --color-control-border: #94a3b8;
 
-  --color-primaria-contraste: rgb(var(--color-primary-300));
-  --sidebar-primaria-ativa:   rgb(var(--color-primary-300));
-  --color-neutro-rgb: 148 163 184;
+  --color-primaria-contraste: rgb(var(--color-primary-700));
+  --sidebar-primaria-ativa:   rgb(var(--color-primary-700));
+  --color-neutro-rgb: 100 116 139;
 }
 
 /* --- ESTILOS BASE GLOBAIS --- */
@@ -275,9 +314,196 @@ html:not(.dark) .text-primary-400 {
   color: var(--color-primaria-contraste);
 }
 
-/* 'hover:text-white' é o pior caso: o item some justamente quando o
-   mouse chega nele. A exceção é quando o hover também pinta um fundo
-   escuro — aí o branco está correto e a regra se afasta. */
-html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-primary"]):hover {
+/* 'hover:text-white' em superfícies claras: a exceção é quando o elemento
+   está na sidebar/header escuros ou pinta fundo próprio no hover. */
+html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside *):not(header *):hover {
   color: var(--color-text-primary);
+}
+
+/* =============================================================
+   CENTRALIZAÇÃO DO DESIGN SYSTEM EMITLY & WHITE-LABEL
+   =============================================================
+   Conecta todas as classes utilitárias do Design System Emitly às
+   variáveis CSS globais (--brand-primary, --brand-secondary,
+   --brand-accent, --color-surface-* e --color-text-*).
+   Assim, tanto os tokens semânticos do Tailwind (bg-brand-primary,
+   text-brand-accent, bg-surface, border-surface-border, text-ink-*)
+   quanto as classes arbitrárias existentes nas telas respondem em
+   tempo real à paleta definida aqui e em Identidade Visual.
+   ============================================================= */
+
+/* --- Cor Primária da Marca (--brand-primary) --- */
+.bg-brand-primary,
+.bg-\[\#0E382C\] {
+  background-color: var(--brand-primary) !important;
+}
+.hover\:bg-brand-primary:hover,
+.hover\:bg-\[\#0E382C\]:hover {
+  background-color: var(--brand-primary) !important;
+}
+.bg-brand-primary-hover,
+.hover\:bg-brand-primary-hover:hover,
+.hover\:bg-\[\#07261E\]:hover {
+  background-color: var(--brand-primary-hover) !important;
+}
+.text-brand-primary,
+.text-\[\#0E382C\],
+.text-\[\#132E22\] {
+  color: var(--brand-primary) !important;
+}
+.hover\:text-brand-primary:hover,
+.hover\:text-\[\#0E382C\]:hover {
+  color: var(--brand-primary) !important;
+}
+.border-brand-primary,
+.border-\[\#0E382C\] {
+  border-color: var(--brand-primary) !important;
+}
+.hover\:border-brand-primary:hover,
+.focus\:border-brand-primary:focus,
+.hover\:border-\[\#0E382C\]:hover,
+.focus\:border-\[\#0E382C\]:focus {
+  border-color: var(--brand-primary) !important;
+}
+
+/* --- Cor Secundária da Marca (--brand-secondary) --- */
+.bg-brand-secondary,
+.bg-\[\#134436\] {
+  background-color: var(--brand-secondary) !important;
+}
+.hover\:bg-brand-secondary:hover,
+.hover\:bg-\[\#134436\]:hover {
+  background-color: var(--brand-secondary) !important;
+}
+.border-brand-secondary-border,
+.border-\[\#1F5C4A\] {
+  border-color: var(--brand-secondary-border) !important;
+}
+
+/* --- Cor de Acento da Marca (--brand-accent) --- */
+.bg-brand-accent,
+.bg-\[\#D4EC9D\] {
+  background-color: var(--brand-accent) !important;
+}
+.hover\:bg-brand-accent:hover,
+.hover\:bg-\[\#D4EC9D\]:hover {
+  background-color: var(--brand-accent) !important;
+}
+.bg-brand-accent-hover,
+.hover\:bg-brand-accent-hover:hover,
+.hover\:bg-\[\#c5e485\]:hover,
+.bg-\[\#c5e485\] {
+  background-color: var(--brand-accent-hover) !important;
+}
+.text-brand-accent,
+.text-\[\#D4EC9D\] {
+  color: var(--brand-accent) !important;
+}
+.border-brand-accent,
+.border-\[\#D4EC9D\] {
+  border-color: var(--brand-accent) !important;
+}
+.focus\:ring-brand-accent:focus,
+.focus\:ring-\[\#D4EC9D\]:focus {
+  --tw-ring-color: var(--brand-accent) !important;
+}
+
+/* --- Superfícies e Bordas Neutras --- */
+.bg-surface,
+.bg-\[\#F2F5F3\] {
+  background-color: var(--color-surface);
+}
+.bg-surface-card {
+  background-color: var(--color-surface-card);
+}
+.bg-surface-subtle,
+.bg-\[\#F7FAF8\] {
+  background-color: var(--color-surface-subtle);
+}
+.hover\:bg-surface-subtle:hover,
+.hover\:bg-\[\#F7FAF8\]:hover {
+  background-color: var(--color-surface-subtle);
+}
+.bg-surface-hover,
+.hover\:bg-surface-hover:hover,
+.bg-\[\#EDF2EE\],
+.hover\:bg-\[\#EDF2EE\]:hover {
+  background-color: var(--color-surface-hover);
+}
+.bg-surface-muted,
+.bg-\[\#EBF0ED\] {
+  background-color: var(--color-surface-muted);
+}
+.border-surface-border,
+.border-\[\#E4ECE7\],
+.divide-\[\#E4ECE7\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--color-surface-border);
+}
+.border-surface-border-strong,
+.hover\:border-surface-border-strong:hover {
+  border-color: var(--color-surface-border-strong);
+}
+
+/* --- Destaques Roxo (#7338F2) e Violeta (#A36BF2) e Badges --- */
+.bg-brand-purple {
+  background-color: var(--brand-purple) !important;
+}
+.text-brand-purple {
+  color: var(--brand-purple) !important;
+}
+.border-brand-purple {
+  border-color: var(--brand-purple) !important;
+}
+.bg-brand-violet {
+  background-color: var(--brand-violet) !important;
+}
+.text-brand-violet {
+  color: var(--brand-violet) !important;
+}
+.border-brand-violet {
+  border-color: var(--brand-violet) !important;
+}
+.bg-\[\#DCF5E4\] {
+  background-color: var(--brand-accent) !important;
+}
+.hover\:bg-\[\#DCF5E4\]:hover {
+  background-color: var(--brand-accent-hover) !important;
+}
+.text-\[\#15803D\] {
+  color: var(--brand-secondary) !important;
+}
+.donut-visual {
+  background: conic-gradient(var(--brand-primary) 0% 82%, var(--brand-accent) 82% 100%);
+}
+
+/* --- Suporte imediato para primitivos shadcn/ui (Radix Select & DayPicker) --- */
+[role="option"][data-highlighted] {
+  background-color: var(--brand-accent) !important;
+  color: var(--brand-primary) !important;
+}
+[role="option"][data-state="checked"] {
+  color: var(--brand-primary) !important;
+  font-weight: 600;
+}
+.rdp-day_selected,
+button[name="day"][aria-selected="true"] {
+  background-color: var(--brand-primary) !important;
+  color: #FFFFFF !important;
+}
+
+/* --- Tipografia --- */
+.text-ink-primary,
+.text-\[\#111915\] {
+  color: var(--color-text-primary);
+}
+.hover\:text-ink-primary:hover {
+  color: var(--color-text-primary);
+}
+.text-ink-secondary,
+.text-\[\#687770\] {
+  color: var(--color-text-secondary);
+}
+.text-ink-muted,
+.text-\[\#8A9A92\] {
+  color: var(--color-text-muted);
 }

@@ -9,6 +9,7 @@ import { useOrg } from '../../../hooks/useOrg.js';
 import { usePermission } from '../../../hooks/usePermission.js';
 import { useAuthStore } from '../../../store/authStore.js';
 import { supabase } from '../../../lib/supabase.js';
+import { SelectField } from '@/components/ui/select';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Add01Icon,
@@ -194,10 +195,9 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
 
             <div>
               <label className="block text-xs font-semibold text-[#687770] mb-1.5">Cargo Inicial</label>
-              <select
+              <SelectField
                 value={form.cargoId}
                 onChange={(e) => setForm((f) => ({ ...f, cargoId: e.target.value }))}
-                className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs cursor-pointer"
               >
                 <option value="">Sem cargo atribuído</option>
                 {cargosDisponiveis.map((c) => (
@@ -205,7 +205,7 @@ const ModalNovoUsuario = ({ aberto, onFechar, onCriado, cargos, meuNivel, souDon
                     {c.nome} (Nível {c.nivel ?? 0})
                   </option>
                 ))}
-              </select>
+              </SelectField>
             </div>
 
             <div className="flex items-center gap-3 pt-3 border-t border-[#E4ECE7]">
@@ -298,11 +298,11 @@ const CardUsuario = ({ usuario, souEu, podeGerenciar, cargosDisponiveis, ocupado
           </div>
 
           {podeGerenciar ? (
-            <select
+            <SelectField
               value={usuario.cargo_id || ''}
               disabled={estaOcupado || !usuario.ativo}
               onChange={(e) => onMudarCargo(usuario, e.target.value ? e.target.value : null)}
-              className="w-full bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all disabled:opacity-50 cursor-pointer"
+              className="h-9 text-xs"
             >
               <option value="">Sem cargo atribuído</option>
               {cargosDisponiveis.map((c) => (
@@ -310,7 +310,7 @@ const CardUsuario = ({ usuario, souEu, podeGerenciar, cargosDisponiveis, ocupado
                   {c.nome} (Nível {c.nivel ?? 0})
                 </option>
               ))}
-            </select>
+            </SelectField>
           ) : (
             <div className="px-3 py-2 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-xs font-semibold text-[#111915]">
               {usuario.cargo_org?.nome || 'Sem cargo atribuído'}
@@ -537,27 +537,27 @@ const Usuarios = () => {
         </div>
 
         <div className="flex items-center gap-2.5 w-full md:w-auto">
-          <select
+          <SelectField
             value={filtroCargo}
             onChange={(e) => setFiltroCargo(e.target.value)}
-            className="flex-1 md:flex-initial bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#0E382C] cursor-pointer shadow-2xs"
+            className="flex-1 md:w-44 text-xs font-semibold"
           >
             <option value="todos">Todos os cargos</option>
             <option value="sem_cargo">Sem cargo</option>
             {cargos.map((c) => (
               <option key={c.id} value={c.id}>{c.nome}</option>
             ))}
-          </select>
+          </SelectField>
 
-          <select
+          <SelectField
             value={filtroStatus}
             onChange={(e) => setFiltroStatus(e.target.value)}
-            className="flex-1 md:flex-initial bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#0E382C] cursor-pointer shadow-2xs"
+            className="flex-1 md:w-44 text-xs font-semibold"
           >
             <option value="todos">Todos os status</option>
             <option value="ativos">Somente Ativos</option>
             <option value="inativos">Somente Inativos</option>
-          </select>
+          </SelectField>
         </div>
       </div>
 

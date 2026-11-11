@@ -16,6 +16,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase.js';
+import { SelectField } from '@/components/ui/select';
 
 // =============================================================
 // CONSTANTES
@@ -307,10 +308,10 @@ const LogsSeguranca = () => {
             </div>
 
             {/* Filtro por ação */}
-            <select
+            <SelectField
               value={filtroAcao}
               onChange={(e) => { setFiltroAcao(e.target.value); setPagina(1); }}
-              className="input w-48"
+              className="w-52"
             >
               <option value="">Todas as ações</option>
               {acoes.map(a => (
@@ -318,19 +319,19 @@ const LogsSeguranca = () => {
                   {EMOJI_ACAO[a] || '📋'} {a}
                 </option>
               ))}
-            </select>
+            </SelectField>
 
             {/* Filtro por resultado */}
-            <select
+            <SelectField
               value={filtroResult}
               onChange={(e) => { setFiltroResult(e.target.value); setPagina(1); }}
-              className="input w-40"
+              className="w-48"
             >
               <option value="">Todos os resultados</option>
               <option value="success">✅ Sucesso</option>
               <option value="failure">❌ Falha</option>
               <option value="blocked">🛡️ Bloqueado</option>
-            </select>
+            </SelectField>
 
             {/* Contador */}
             <span className="text-muted text-sm whitespace-nowrap">

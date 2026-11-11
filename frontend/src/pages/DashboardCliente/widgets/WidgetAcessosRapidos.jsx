@@ -27,8 +27,8 @@ const ATALHOS = [
     icone: <HugeiconsIcon icon={Analytics01Icon} size={20} strokeWidth={1.8} className="text-[#0E382C]" />,
   },
   {
-    label: 'Agenda',
-    rota: '/dashboard/agenda',
+    label: 'Calendário',
+    rota: '/calendario',
     icone: <HugeiconsIcon icon={Calendar03Icon} size={20} strokeWidth={1.8} className="text-[#0E382C]" />,
   },
   {

@@ -21,13 +21,11 @@ export const CATALOGO_SIDEBAR = [
   { slug: 'chat',         label: 'Chat',          emoji: '💬', rota: '/chat',                        exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'calendario',   label: 'Calendário',    emoji: '🗓️', rota: '/calendario',                  exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'crm',          label: 'CRM',            emoji: '📋', rota: '/crm',                         exact: false, prefixoAtivo: '/crm',                  removivel: true  },
-  { slug: 'chat_ia',      label: 'Chat com IA',    emoji: '🤖', rota: '/dashboard/chat',              exact: false, prefixoAtivo: null,                    removivel: true  },
-  { slug: 'agenda',       label: 'Agenda',         emoji: '🗓️', rota: '/dashboard/agenda',            exact: false, prefixoAtivo: null,                    removivel: true  },
+  { slug: 'chat_ia',      label: 'Chat com IA',    emoji: '🤖', rota: '/dashboard/agente',            exact: false, prefixoAtivo: '/dashboard/agente',     removivel: true  },
   { slug: 'tarefas',      label: 'Tarefas',        emoji: '✅', rota: '/tarefas',                     exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'projetos',     label: 'Projetos',       emoji: '📁', rota: '/projetos',                    exact: false, prefixoAtivo: '/projetos',             removivel: true  },
-  { slug: 'times_pessoas',label: 'Times e Pessoas',emoji: '👥', rota: '/times-pessoas',               exact: false, prefixoAtivo: null,                    removivel: true  },
+  { slug: 'organizacao',  label: 'Organização',    emoji: '🏢', rota: '/times-pessoas',               exact: false, prefixoAtivo: '/times-pessoas',        removivel: true  },
   { slug: 'relatorios',   label: 'Relatórios',     emoji: '📊', rota: '/dashboard/relatorios',        exact: false, prefixoAtivo: null,                    removivel: true  },
-  { slug: 'outbound',     label: 'Outbound',       emoji: '📧', rota: '/dashboard/outbound',          exact: false, prefixoAtivo: null,                    removivel: true  },
 ];
 
 // 'planos' e 'modulos' saíram do catálogo: o plano da empresa passou a
@@ -37,6 +35,9 @@ export const CATALOGO_SIDEBAR = [
 // member/viewer sem nenhum link de sidebar pra essas telas). Preferências
 // já salvas com slugs antigos continuam válidas — itensVisiveis descarta
 // slugs que não estão mais no catálogo.
+
+// Migra slugs legados
+const migrarSlug = (slug) => (slug === 'times_pessoas' ? 'organizacao' : slug);
 
 // Gera a lista padrão de itens (todos visíveis, ordem do catálogo)
 const gerarItensDefault = () =>
@@ -49,15 +50,19 @@ const gerarItensDefault = () =>
 // Mescla preferências salvas com o catálogo atual
 // (garante que novos itens adicionados ao catálogo apareçam)
 const mesclarComCatalogo = (itensSalvos) => {
-  const slugsSalvos = itensSalvos.map(i => i.slug);
+  const itensMigrados = (itensSalvos || []).map(i => ({
+    ...i,
+    slug: migrarSlug(i.slug),
+  }));
+  const slugsSalvos = itensMigrados.map(i => i.slug);
   const novosItens = CATALOGO_SIDEBAR
     .filter(c => !slugsSalvos.includes(c.slug))
     .map((c, idx) => ({
       slug: c.slug,
       visivel: true,
-      ordem: itensSalvos.length + idx,
+      ordem: itensMigrados.length + idx,
     }));
-  return [...itensSalvos, ...novosItens];
+  return [...itensMigrados, ...novosItens];
 };
 
 // Cache local por usuário: evita o "flash" de itens default/fora de ordem
@@ -69,7 +74,15 @@ const lerCache = (userId) => {
   if (!userId) return null;
   try {
     const bruto = localStorage.getItem(chaveCache(userId));
-    return bruto ? JSON.parse(bruto) : null;
+    if (!bruto) return null;
+    const parsed = JSON.parse(bruto);
+    if (Array.isArray(parsed?.itens)) {
+      parsed.itens = parsed.itens.map(i => ({
+        ...i,
+        slug: migrarSlug(i.slug),
+      }));
+    }
+    return parsed;
   } catch {
     return null;
   }

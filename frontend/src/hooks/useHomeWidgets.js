@@ -18,7 +18,7 @@ import { useAuthStore } from '../store/authStore';
 export const CATALOGO_WIDGETS = [
   { slug: 'minhas_tarefas',  label: 'Minhas Tarefas de Hoje', emoji: '✅', descricao: 'Tarefas atribuídas a você com vencimento hoje.',       tamanho: 'padrao' },
   { slug: 'mini_agenda',     label: 'Mini Agenda',            emoji: '🗓️', descricao: 'Seus próximos compromissos da semana.',              tamanho: 'padrao' },
-  { slug: 'acessos_rapidos', label: 'Acessos Rápidos',        emoji: '⚡', descricao: 'Atalhos para CRM, Relatórios, Agenda e Configurações.', tamanho: 'padrao' },
+  { slug: 'acessos_rapidos', label: 'Acessos Rápidos',        emoji: '⚡', descricao: 'Atalhos para CRM, Relatórios, Calendário e Configurações.', tamanho: 'padrao' },
   { slug: 'mural_anuncios',  label: 'Mural de Anúncios',      emoji: '📣', descricao: 'Últimas publicações do Feed da empresa.',             tamanho: 'padrao' },
   { slug: 'leads_quentes',   label: 'Leads Quentes',          emoji: '🔥', descricao: 'Leads com score alto, prontos pra abordar.',          tamanho: 'padrao' },
 ];

@@ -5,11 +5,17 @@
 // =============================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useOrg } from '../../hooks/useOrg';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
+import Cargos from '../DashboardCliente/Organizacao/Cargos.jsx';
+import Usuarios from '../DashboardCliente/Organizacao/Usuarios.jsx';
+import { SelectField } from '@/components/ui/select';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   UserGroupIcon,
+  UserMultiple02Icon,
+  Shield01Icon,
   Delete02Icon,
   PencilEdit01Icon,
   ArrowRight01Icon,
@@ -284,10 +290,10 @@ const ModalGerenciarTime = ({
               Adicionar Colaborador ao Time
             </label>
             <div className="flex gap-2">
-              <select
+              <SelectField
                 value={usuarioSelecionado}
                 onChange={(e) => setUsuarioSelecionado(e.target.value)}
-                className="flex-1 px-3.5 py-2 bg-[#F7FAF8] border border-[#E4ECE7] rounded-xl text-xs text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                className="flex-1"
               >
                 <option value="">Selecione um colaborador...</option>
                 {usuariosDisponiveis.map((u) => (
@@ -295,7 +301,7 @@ const ModalGerenciarTime = ({
                     {u.nome} ({u.cargo || 'Membro'}) - {u.email}
                   </option>
                 ))}
-              </select>
+              </SelectField>
               <button
                 type="submit"
                 disabled={!usuarioSelecionado || adicionando}
@@ -583,6 +589,14 @@ const CardMembro = ({ membro, timesDoMembro = [] }) => {
 // COMPONENTE PRINCIPAL: TimesPessoas
 // ----------------------------------------------------------
 const TimesPessoas = () => {
+  const [parametros, setParametros] = useSearchParams();
+  const abaParam = parametros.get('aba');
+  const abaPrincipal = ['times', 'usuarios', 'cargos'].includes(abaParam) ? abaParam : 'times';
+
+  const setAbaPrincipal = (novaAba) => {
+    setParametros(novaAba === 'times' ? {} : { aba: novaAba }, { replace: true });
+  };
+
   const {
     listarTimes,
     listarUsuariosCompleto,
@@ -687,172 +701,234 @@ const TimesPessoas = () => {
     );
   });
 
-  if (carregando && times.length === 0 && usuarios.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-3 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="w-full flex-1 flex flex-col space-y-4 sm:space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-xl font-extrabold text-[#111915]">Painel de Times e Pessoas</h1>
-          <p className="text-xs text-[#687770]">
-            {times.length} time(s) e {usuarios.length} colaborador(es) cadastrado(s)
-          </p>
-        </div>
-        <PermissaoGuarda permissao="times.gerenciar">
-          <button
-            onClick={() => {
-              setTimeEditando(null);
-              setModalTime(true);
-            }}
-            className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
-          >
-            <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.2} />
-            <span>Novo Time</span>
-          </button>
-        </PermissaoGuarda>
-      </div>
-
-      {/* Filter Tabs & Search */}
-      <div className="flex items-center justify-between flex-wrap gap-3 border-b border-[#E4ECE7] pb-3">
-        <div className="flex gap-2 overflow-x-auto">
-          <button
-            onClick={() => setAba('times')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-              aba === 'times'
-                ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
-                : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
+      {/* Abas Principais: Times, Usuários e Cargos */}
+      <div className="flex items-center gap-2 border-b border-[#E4ECE7] pb-3 overflow-x-auto no-scrollbar">
+        <button
+          type="button"
+          onClick={() => setAbaPrincipal('times')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
+            abaPrincipal === 'times'
+              ? 'bg-[#0E382C] text-[#D4EC9D] border-[#0E382C] shadow-xs'
+              : 'bg-white border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+          }`}
+        >
+          <HugeiconsIcon icon={UserGroupIcon} size={16} strokeWidth={1.8} className="flex-shrink-0" />
+          <span>Times e Equipes</span>
+          <span
+            className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors duration-150 ${
+              abaPrincipal === 'times' ? 'bg-[#154637] text-[#D4EC9D]' : 'bg-[#EBF0ED] text-[#0E382C]'
             }`}
           >
-            Times ({times.length})
-          </button>
-          <button
-            onClick={() => setAba('pessoas')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-              aba === 'pessoas'
-                ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
-                : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
-            }`}
-          >
-            Pessoas ({usuarios.length})
-          </button>
-        </div>
+            {times.length}
+          </span>
+        </button>
 
-        <div className="relative w-full sm:w-64">
-          <HugeiconsIcon
-            icon={Search01Icon}
-            size={16}
-            strokeWidth={1.8}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-          />
-          <input
-            type="text"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder={aba === 'times' ? 'Buscar time...' : 'Buscar pessoa...'}
-            className="w-full pl-9 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C]"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={() => setAbaPrincipal('usuarios')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
+            abaPrincipal === 'usuarios'
+              ? 'bg-[#0E382C] text-[#D4EC9D] border-[#0E382C] shadow-xs'
+              : 'bg-white border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+          }`}
+        >
+          <HugeiconsIcon icon={UserMultiple02Icon} size={16} strokeWidth={1.8} className="flex-shrink-0" />
+          <span>Usuários</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAbaPrincipal('cargos')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 whitespace-nowrap cursor-pointer border ${
+            abaPrincipal === 'cargos'
+              ? 'bg-[#0E382C] text-[#D4EC9D] border-[#0E382C] shadow-xs'
+              : 'bg-white border-[#E4ECE7] text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+          }`}
+        >
+          <HugeiconsIcon icon={Shield01Icon} size={16} strokeWidth={1.8} className="flex-shrink-0" />
+          <span>Cargos e Permissões</span>
+        </button>
       </div>
 
-      {/* Grid Content */}
-      {aba === 'times' ? (
-        timesFiltrados.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
-            <p className="text-xs text-[#687770] mb-3">
-              {busca
-                ? 'Nenhum time encontrado para a busca.'
-                : 'Nenhum time cadastrado no momento.'}
-            </p>
+      {/* Conteúdo da Aba Times */}
+      <div className={`w-full flex-1 flex-col space-y-4 sm:space-y-5 ${abaPrincipal === 'times' ? 'flex' : 'hidden'}`}>
+        {carregando && times.length === 0 && usuarios.length === 0 ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="w-8 h-8 border-3 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <>
+            {/* Header */}
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-xl font-extrabold text-[#111915]">Painel de Times e Equipes</h1>
+              <p className="text-xs text-[#687770]">
+                {times.length} time(s) e {usuarios.length} colaborador(es) cadastrado(s)
+              </p>
+            </div>
             <PermissaoGuarda permissao="times.gerenciar">
               <button
                 onClick={() => {
                   setTimeEditando(null);
                   setModalTime(true);
                 }}
-                className="text-xs font-bold text-[#0E382C] hover:underline"
+                className="px-4 py-2 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
               >
-                + Criar novo time agora
+                <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.2} />
+                <span>Novo Time</span>
               </button>
             </PermissaoGuarda>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {timesFiltrados.map((time) => {
-              const membrosDoTime = (time.membros || [])
-                .map((m) => m.usuario || m)
-                .filter(Boolean);
-              return (
-                <CardTime
-                  key={time.id}
-                  time={time}
-                  membros={membrosDoTime}
-                  onGerenciarMembros={(t) => setTimeGerenciando(t)}
-                  onEditar={(t) => {
-                    setTimeEditando(t);
-                    setModalTime(true);
-                  }}
-                />
-              );
-            })}
-          </div>
-        )
-      ) : pessoasFiltradas.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
-          <p className="text-xs text-[#687770]">
-            {busca
-              ? 'Nenhum colaborador encontrado para a busca.'
-              : 'Nenhum colaborador cadastrado.'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {pessoasFiltradas.map((u) => {
-            const timesDoMembro = times.filter((t) =>
-              t.membros?.some((m) => (m.usuario?.id || m.user_id) === u.id)
-            );
-            return (
-              <CardMembro
-                key={u.id}
-                membro={u}
-                timesDoMembro={timesDoMembro}
+
+          {/* Filter Tabs & Search */}
+          <div className="flex items-center justify-between flex-wrap gap-3 border-b border-[#E4ECE7] pb-3">
+            <div className="flex gap-2 overflow-x-auto">
+              <button
+                onClick={() => setAba('times')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                  aba === 'times'
+                    ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
+                    : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
+                }`}
+              >
+                Times ({times.length})
+              </button>
+              <button
+                onClick={() => setAba('pessoas')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                  aba === 'pessoas'
+                    ? 'bg-[#D4EC9D] text-[#132E22] shadow-xs'
+                    : 'bg-white text-[#687770] border border-[#E4ECE7] hover:bg-[#F7FAF8]'
+                }`}
+              >
+                Visualizar Membros ({usuarios.length})
+              </button>
+            </div>
+
+            <div className="relative w-full sm:w-64">
+              <HugeiconsIcon
+                icon={Search01Icon}
+                size={16}
+                strokeWidth={1.8}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
               />
-            );
-          })}
-        </div>
+              <input
+                type="text"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder={aba === 'times' ? 'Buscar time...' : 'Buscar pessoa...'}
+                className="w-full pl-9 pr-3 py-1.5 bg-white border border-[#E4ECE7] rounded-xl text-xs text-[#111915] placeholder-slate-400 focus:outline-none focus:border-[#0E382C]"
+              />
+            </div>
+          </div>
+
+          {/* Grid Content */}
+          {aba === 'times' ? (
+            timesFiltrados.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
+                <p className="text-xs text-[#687770] mb-3">
+                  {busca
+                    ? 'Nenhum time encontrado para a busca.'
+                    : 'Nenhum time cadastrado no momento.'}
+                </p>
+                <PermissaoGuarda permissao="times.gerenciar">
+                  <button
+                    onClick={() => {
+                      setTimeEditando(null);
+                      setModalTime(true);
+                    }}
+                    className="text-xs font-bold text-[#0E382C] hover:underline"
+                  >
+                    + Criar novo time agora
+                  </button>
+                </PermissaoGuarda>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {timesFiltrados.map((time) => {
+                  const membrosDoTime = (time.membros || [])
+                    .map((m) => m.usuario || m)
+                    .filter(Boolean);
+                  return (
+                    <CardTime
+                      key={time.id}
+                      time={time}
+                      membros={membrosDoTime}
+                      onGerenciarMembros={(t) => setTimeGerenciando(t)}
+                      onEditar={(t) => {
+                        setTimeEditando(t);
+                        setModalTime(true);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )
+          ) : pessoasFiltradas.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#E4ECE7]">
+              <p className="text-xs text-[#687770]">
+                {busca
+                  ? 'Nenhum colaborador encontrado para a busca.'
+                  : 'Nenhum colaborador cadastrado.'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pessoasFiltradas.map((u) => {
+                const timesDoMembro = times.filter((t) =>
+                  t.membros?.some((m) => (m.usuario?.id || m.user_id) === u.id)
+                );
+                return (
+                  <CardMembro
+                    key={u.id}
+                    membro={u}
+                    timesDoMembro={timesDoMembro}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          {/* Modal Criar/Editar Time */}
+          <ModalTime
+            aberto={modalTime}
+            onFechar={() => {
+              setModalTime(false);
+              setTimeEditando(null);
+            }}
+            onSalvar={handleSalvarTime}
+            onExcluir={handleExcluirTime}
+            timeEditando={timeEditando}
+          />
+
+          {/* Modal Gerenciar Membros do Time */}
+          <ModalGerenciarTime
+            aberto={!!timeGerenciando}
+            onFechar={() => setTimeGerenciando(null)}
+            time={timeGerenciando}
+            todosUsuarios={usuarios}
+            onAdicionarMembro={handleAdicionarMembro}
+            onRemoverMembro={handleRemoverMembro}
+            onEditarTime={(t) => {
+              setTimeEditando(t);
+              setModalTime(true);
+            }}
+          />
+        </>
       )}
+      </div>
 
-      {/* Modal Criar/Editar Time */}
-      <ModalTime
-        aberto={modalTime}
-        onFechar={() => {
-          setModalTime(false);
-          setTimeEditando(null);
-        }}
-        onSalvar={handleSalvarTime}
-        onExcluir={handleExcluirTime}
-        timeEditando={timeEditando}
-      />
+      {/* Conteúdo da Aba Usuários */}
+      <div className={`w-full flex-1 ${abaPrincipal === 'usuarios' ? 'block' : 'hidden'}`}>
+        <Usuarios />
+      </div>
 
-      {/* Modal Gerenciar Membros do Time */}
-      <ModalGerenciarTime
-        aberto={!!timeGerenciando}
-        onFechar={() => setTimeGerenciando(null)}
-        time={timeGerenciando}
-        todosUsuarios={usuarios}
-        onAdicionarMembro={handleAdicionarMembro}
-        onRemoverMembro={handleRemoverMembro}
-        onEditarTime={(t) => {
-          setTimeEditando(t);
-          setModalTime(true);
-        }}
-      />
+      {/* Conteúdo da Aba Cargos */}
+      <div className={`w-full flex-1 ${abaPrincipal === 'cargos' ? 'block' : 'hidden'}`}>
+        <Cargos />
+      </div>
     </div>
   );
 };
