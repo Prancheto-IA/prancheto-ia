@@ -12,11 +12,11 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Folder01Icon, Edit02Icon, Add01Icon } from '@hugeicons/core-free-icons';
 
 const STATUS_BADGE = {
-  planejamento: { label: 'Planejamento', bg: 'bg-slate-100', text: 'text-slate-600' },
-  em_andamento: { label: 'Em andamento', bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
-  pausado:      { label: 'Pausado',      bg: 'bg-amber-100', text: 'text-amber-800' },
-  concluido:    { label: 'Concluído',    bg: 'bg-[#0E382C]', text: 'text-white' },
-  cancelado:    { label: 'Cancelado',    bg: 'bg-red-100',   text: 'text-red-700' },
+  planejamento: { label: 'Planejamento', bg: 'bg-slate-100 dark:bg-slate-700/50 border border-transparent dark:border-slate-500/40', text: 'text-slate-600 dark:text-slate-200' },
+  em_andamento: { label: 'Em andamento', bg: 'bg-brand-accent dark:bg-[#38BDF8]/20 border border-transparent dark:border-[#38BDF8]/35', text: 'text-brand-secondary dark:text-[#7DD3FC]' },
+  pausado:      { label: 'Pausado',      bg: 'bg-amber-100 dark:bg-[#FBBF24]/20 border border-transparent dark:border-[#FBBF24]/35', text: 'text-amber-800 dark:text-[#FCD34D]' },
+  concluido:    { label: 'Concluído',    bg: 'bg-brand-primary dark:bg-[#34D399]/20 border border-transparent dark:border-[#34D399]/35', text: 'text-white dark:text-[#6EE7B7]' },
+  cancelado:    { label: 'Cancelado',    bg: 'bg-red-100 dark:bg-rose-500/20 border border-transparent dark:border-rose-500/35',   text: 'text-red-700 dark:text-[#FDA4AF]' },
 };
 
 const FORM_VAZIO = {
@@ -200,9 +200,9 @@ const CardProjeto = ({ projeto, onClick, onEditar }) => {
           <span>Progresso</span>
           <span>{projeto.progresso}%</span>
         </div>
-        <div className="w-full bg-[#F7FAF8] h-2 rounded-full overflow-hidden border border-[#E4ECE7]">
+        <div className="w-full bg-surface-subtle h-2 rounded-full overflow-hidden border border-surface-border">
           <div
-            className="bg-gradient-to-r from-emerald-500 to-[#0E382C] h-full rounded-full transition-all"
+            className="bg-gradient-to-r from-brand-secondary to-brand-primary h-full rounded-full transition-all"
             style={{ width: `${projeto.progresso}%` }}
           />
         </div>

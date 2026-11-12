@@ -19,10 +19,10 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Edit02Icon, DashboardSquare01Icon } from '@hugeicons/core-free-icons';
 
 const BADGE_CARGO = {
-  admin:   { label: 'Administrador', bg: 'bg-[#0E382C]', text: 'text-white' },
-  manager: { label: 'Gerente',       bg: 'bg-blue-100',  text: 'text-blue-800' },
-  member:  { label: 'Membro',        bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
-  viewer:  { label: 'Visualizador',  bg: 'bg-slate-100', text: 'text-slate-600' },
+  admin:   { label: 'Administrador', bg: 'bg-brand-primary dark:bg-[#2563EB]', text: 'text-white' },
+  manager: { label: 'Gerente',       bg: 'bg-blue-100 dark:bg-[#38BDF8]/20 dark:border dark:border-[#38BDF8]/35',  text: 'text-blue-800 dark:text-[#7DD3FC]' },
+  member:  { label: 'Membro',        bg: 'bg-[#DCF5E4] dark:bg-[#34D399]/20 dark:border dark:border-[#34D399]/35', text: 'text-[#15803D] dark:text-[#6EE7B7]' },
+  viewer:  { label: 'Visualizador',  bg: 'bg-slate-100 dark:bg-slate-700/50 dark:border dark:border-slate-500/40', text: 'text-slate-600 dark:text-slate-200' },
 };
 
 const DashboardCliente = () => {
@@ -82,34 +82,34 @@ const DashboardCliente = () => {
         </div>
 
         {/* Card 2: Azul Claro Schedule (#D8E8F2) */}
-        <div className="bg-brand-accent text-brand-primary rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
+        <div className="bg-brand-accent dark:bg-[#161F33] dark:border dark:border-[#38BDF8]/30 text-brand-primary dark:text-[#F8FAFC] rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-semibold uppercase tracking-wide opacity-80">Próxima Reunião</span>
-            <span className="text-[10px] bg-white/80 backdrop-blur-xs text-brand-primary px-2 py-0.5 rounded-full font-semibold">14:30</span>
+            <span className="text-sm font-semibold uppercase tracking-wide opacity-80 dark:opacity-100 dark:text-[#7DD3FC]">Próxima Reunião</span>
+            <span className="text-[10px] bg-white/80 dark:bg-[#38BDF8]/20 dark:border dark:border-[#38BDF8]/40 backdrop-blur-xs text-brand-primary dark:text-[#7DD3FC] px-2.5 py-0.5 rounded-full font-bold">14:30</span>
           </div>
           <div className="text-sm font-bold truncate">Alinhamento Design System</div>
-          <p className="text-sm opacity-75 truncate mt-1">Com Equipe de Produto & IA</p>
+          <p className="text-sm opacity-75 dark:opacity-100 dark:text-ink-secondary truncate mt-1">Com Equipe de Produto & IA</p>
         </div>
 
         {/* Card 3: Roxo & Violeta Highlight (#7338F2 / #A36BF2) */}
-        <div className="bg-brand-violet text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
+        <div className="bg-brand-violet dark:bg-[#1E1B4B] dark:border dark:border-[#818CF8]/35 text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-semibold uppercase tracking-wide text-white/90">Pipeline CRM</span>
-            <span className="text-[10px] bg-brand-purple text-white px-2 py-0.5 rounded-full font-semibold">8 Novos</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-white/90 dark:text-[#C4B5FD]">Pipeline CRM</span>
+            <span className="text-[10px] bg-brand-purple dark:bg-[#818CF8]/25 dark:border dark:border-[#818CF8]/40 text-white dark:text-[#E0E7FF] px-2.5 py-0.5 rounded-full font-bold">8 Novos</span>
           </div>
           <div className="text-xl font-bold">R$ 48.500,00</div>
-          <p className="text-sm text-white/85 truncate mt-1">Leads qualificados em negociação</p>
+          <p className="text-sm text-white/85 dark:text-slate-300 truncate mt-1">Leads qualificados em negociação</p>
         </div>
 
         {/* Card 4: Azul Escuro Stats (#001769) */}
-        <div className="bg-brand-primary text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
+        <div className="bg-brand-primary dark:bg-[#172554] dark:border dark:border-[#3B82F6]/35 text-white rounded-2xl p-4 sm:p-4.5 flex flex-col justify-between shadow-xs min-h-[96px]">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-semibold uppercase tracking-wide text-brand-accent">Projetos Ativos</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-brand-accent dark:text-[#93C5FD]">Projetos Ativos</span>
             <span className="w-2.5 h-2.5 rounded-full bg-brand-violet animate-pulse"></span>
           </div>
           <div className="flex items-end justify-between">
             <div className="text-xl font-bold">12 Projetos</div>
-            <button onClick={() => navigate('/projetos')} className="text-sm text-brand-accent font-semibold hover:underline flex items-center gap-1">
+            <button onClick={() => navigate('/projetos')} className="text-sm text-brand-accent dark:text-[#7DD3FC] font-semibold hover:underline flex items-center gap-1">
               <span>Ver todos</span>
               <span>→</span>
             </button>

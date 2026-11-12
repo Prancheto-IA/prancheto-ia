@@ -57,79 +57,79 @@ export const CORES_PASTEL = [
   {
     id: 'azul',
     nome: 'Azul Pastel',
-    bg: 'bg-[#EAF3FF]',
-    borda: 'border-[#D1E4FA]',
-    hoverBorda: 'hover:border-[#B7D6F8]',
-    tagBg: 'bg-white/85 text-[#1D4ED8]',
-    progressoCor: 'bg-[#2563EB]',
-    checkCor: 'text-[#2563EB]',
-    badgeBg: 'bg-[#E0EEFF] text-[#1D4ED8]',
+    bg: 'bg-[#EAF3FF] dark:bg-[#161F33]',
+    borda: 'border-[#D1E4FA] dark:border-[#38BDF8]/30',
+    hoverBorda: 'hover:border-[#B7D6F8] dark:hover:border-[#38BDF8]/60',
+    tagBg: 'bg-white/85 text-[#1D4ED8] dark:bg-[#38BDF8]/20 dark:text-[#7DD3FC] dark:border dark:border-[#38BDF8]/35',
+    progressoCor: 'bg-[#2563EB] dark:bg-[#38BDF8]',
+    checkCor: 'text-[#2563EB] dark:text-[#38BDF8]',
+    badgeBg: 'bg-[#E0EEFF] text-[#1D4ED8] dark:bg-[#38BDF8]/20 dark:text-[#7DD3FC]',
   },
   {
     id: 'pessego',
     nome: 'Pêssego / Laranja',
-    bg: 'bg-[#FFF1E8]',
-    borda: 'border-[#FEDBC7]',
-    hoverBorda: 'hover:border-[#FCC2A3]',
-    tagBg: 'bg-white/85 text-[#C2410C]',
-    progressoCor: 'bg-[#EA580C]',
-    checkCor: 'text-[#EA580C]',
-    badgeBg: 'bg-[#FFE5D4] text-[#C2410C]',
+    bg: 'bg-[#FFF1E8] dark:bg-[#161F33]',
+    borda: 'border-[#FEDBC7] dark:border-[#FB923C]/30',
+    hoverBorda: 'hover:border-[#FCC2A3] dark:hover:border-[#FB923C]/60',
+    tagBg: 'bg-white/85 text-[#C2410C] dark:bg-[#FB923C]/20 dark:text-[#FDBA74] dark:border dark:border-[#FB923C]/35',
+    progressoCor: 'bg-[#EA580C] dark:bg-[#FB923C]',
+    checkCor: 'text-[#EA580C] dark:text-[#FB923C]',
+    badgeBg: 'bg-[#FFE5D4] text-[#C2410C] dark:bg-[#FB923C]/20 dark:text-[#FDBA74]',
   },
   {
     id: 'lavanda',
     nome: 'Lavanda / Roxo',
-    bg: 'bg-[#F4EEFF]',
-    borda: 'border-[#E6DAFA]',
-    hoverBorda: 'hover:border-[#D5C0F6]',
-    tagBg: 'bg-white/85 text-[#6D28D9]',
-    progressoCor: 'bg-[#7C3AED]',
-    checkCor: 'text-[#7C3AED]',
-    badgeBg: 'bg-[#ECE0FF] text-[#6D28D9]',
+    bg: 'bg-[#F4EEFF] dark:bg-[#161F33]',
+    borda: 'border-[#E6DAFA] dark:border-[#A78BFA]/30',
+    hoverBorda: 'hover:border-[#D5C0F6] dark:hover:border-[#A78BFA]/60',
+    tagBg: 'bg-white/85 text-[#6D28D9] dark:bg-[#A78BFA]/20 dark:text-[#C4B5FD] dark:border dark:border-[#A78BFA]/35',
+    progressoCor: 'bg-[#7C3AED] dark:bg-[#A78BFA]',
+    checkCor: 'text-[#7C3AED] dark:text-[#A78BFA]',
+    badgeBg: 'bg-[#ECE0FF] text-[#6D28D9] dark:bg-[#A78BFA]/20 dark:text-[#C4B5FD]',
   },
   {
     id: 'menta',
     nome: 'Menta / Verde',
-    bg: 'bg-[#E7F8F0]',
-    borda: 'border-[#C8EED9]',
-    hoverBorda: 'hover:border-[#A6E3C0]',
-    tagBg: 'bg-white/85 text-[#047857]',
-    progressoCor: 'bg-[#059669]',
-    checkCor: 'text-[#059669]',
-    badgeBg: 'bg-[#D6F4E4] text-[#047857]',
+    bg: 'bg-[#E7F8F0] dark:bg-[#161F33]',
+    borda: 'border-[#C8EED9] dark:border-[#34D399]/30',
+    hoverBorda: 'hover:border-[#A6E3C0] dark:hover:border-[#34D399]/60',
+    tagBg: 'bg-white/85 text-[#047857] dark:bg-[#34D399]/20 dark:text-[#6EE7B7] dark:border dark:border-[#34D399]/35',
+    progressoCor: 'bg-[#059669] dark:bg-[#34D399]',
+    checkCor: 'text-[#059669] dark:text-[#34D399]',
+    badgeBg: 'bg-[#D6F4E4] text-[#047857] dark:bg-[#34D399]/20 dark:text-[#6EE7B7]',
   },
   {
     id: 'rosa',
     nome: 'Rosa / Framboesa',
-    bg: 'bg-[#FFEBF0]',
-    borda: 'border-[#FDCDD8]',
-    hoverBorda: 'hover:border-[#FAAEC0]',
-    tagBg: 'bg-white/85 text-[#BE123C]',
-    progressoCor: 'bg-[#E11D48]',
-    checkCor: 'text-[#E11D48]',
-    badgeBg: 'bg-[#FDD8E3] text-[#BE123C]',
+    bg: 'bg-[#FFEBF0] dark:bg-[#161F33]',
+    borda: 'border-[#FDCDD8] dark:border-[#FB7185]/30',
+    hoverBorda: 'hover:border-[#FAAEC0] dark:hover:border-[#FB7185]/60',
+    tagBg: 'bg-white/85 text-[#BE123C] dark:bg-[#FB7185]/20 dark:text-[#FDA4AF] dark:border dark:border-[#FB7185]/35',
+    progressoCor: 'bg-[#E11D48] dark:bg-[#FB7185]',
+    checkCor: 'text-[#E11D48] dark:text-[#FB7185]',
+    badgeBg: 'bg-[#FDD8E3] text-[#BE123C] dark:bg-[#FB7185]/20 dark:text-[#FDA4AF]',
   },
   {
     id: 'aqua',
     nome: 'Aqua / Ciano',
-    bg: 'bg-[#E5F7F8]',
-    borda: 'border-[#C1EDF0]',
-    hoverBorda: 'hover:border-[#9EE1E6]',
-    tagBg: 'bg-white/85 text-[#0E7490]',
-    progressoCor: 'bg-[#0891B2]',
-    checkCor: 'text-[#0891B2]',
-    badgeBg: 'bg-[#D4F2F5] text-[#0E7490]',
+    bg: 'bg-[#E5F7F8] dark:bg-[#161F33]',
+    borda: 'border-[#C1EDF0] dark:border-[#22D3EE]/30',
+    hoverBorda: 'hover:border-[#9EE1E6] dark:hover:border-[#22D3EE]/60',
+    tagBg: 'bg-white/85 text-[#0E7490] dark:bg-[#22D3EE]/20 dark:text-[#67E8F9] dark:border dark:border-[#22D3EE]/35',
+    progressoCor: 'bg-[#0891B2] dark:bg-[#22D3EE]',
+    checkCor: 'text-[#0891B2] dark:text-[#22D3EE]',
+    badgeBg: 'bg-[#D4F2F5] text-[#0E7490] dark:bg-[#22D3EE]/20 dark:text-[#67E8F9]',
   },
   {
     id: 'creme',
     nome: 'Creme / Amarelo',
-    bg: 'bg-[#FEF8E7]',
-    borda: 'border-[#FCE8B3]',
-    hoverBorda: 'hover:border-[#FAD785]',
-    tagBg: 'bg-white/85 text-[#B45309]',
-    progressoCor: 'bg-[#D97706]',
-    checkCor: 'text-[#D97706]',
-    badgeBg: 'bg-[#FDF0CE] text-[#B45309]',
+    bg: 'bg-[#FEF8E7] dark:bg-[#161F33]',
+    borda: 'border-[#FCE8B3] dark:border-[#FBBF24]/30',
+    hoverBorda: 'hover:border-[#FAD785] dark:hover:border-[#FBBF24]/60',
+    tagBg: 'bg-white/85 text-[#B45309] dark:bg-[#FBBF24]/20 dark:text-[#FCD34D] dark:border dark:border-[#FBBF24]/35',
+    progressoCor: 'bg-[#D97706] dark:bg-[#FBBF24]',
+    checkCor: 'text-[#D97706] dark:text-[#FBBF24]',
+    badgeBg: 'bg-[#FDF0CE] text-[#B45309] dark:bg-[#FBBF24]/20 dark:text-[#FCD34D]',
   },
 ];
 
@@ -162,7 +162,7 @@ const BarraPontosProgresso = ({ progresso = 0, corAtiva = 'bg-blue-600' }) => {
         <span
           key={i}
           className={`w-2 h-2 rounded-full transition-all duration-300 ${
-            i < pontosAtivos ? corAtiva : 'bg-black/10'
+            i < pontosAtivos ? corAtiva : 'bg-black/10 dark:bg-white/15'
           }`}
         />
       ))}
@@ -521,7 +521,7 @@ const CardTarefaVisual = ({
               e.stopPropagation();
               setMenuOpcoesAberto(v => !v);
             }}
-            className="w-6 h-6 rounded-lg text-neutral-400 hover:text-neutral-800 hover:bg-black/5 flex items-center justify-center transition-colors flex-shrink-0"
+            className="w-6 h-6 rounded-lg text-ink-secondary hover:text-ink-primary hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center transition-colors flex-shrink-0"
             title="Opções da tarefa"
           >
             <HugeiconsIcon icon={MoreVerticalIcon} size={14} strokeWidth={2} />
@@ -529,7 +529,7 @@ const CardTarefaVisual = ({
 
           {menuOpcoesAberto && (
             <div
-              className="absolute right-0 top-full mt-1 w-44 bg-white rounded-2xl shadow-xl border border-[#E4ECE7] py-1.5 z-40 text-sm font-semibold animate-fade-in"
+              className="absolute right-0 top-full mt-1 w-44 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-1.5 z-40 text-sm font-semibold animate-fade-in"
               onClick={e => e.stopPropagation()}
             >
               <button
@@ -538,14 +538,14 @@ const CardTarefaVisual = ({
                   setMenuOpcoesAberto(false);
                   if (onEditar) onEditar(tarefa);
                 }}
-                className="w-full text-left px-3.5 py-1.5 hover:bg-neutral-50 flex items-center gap-2 text-neutral-700"
+                className="w-full text-left px-3.5 py-1.5 hover:bg-surface-hover flex items-center gap-2 text-ink-primary"
               >
                 <HugeiconsIcon icon={Edit02Icon} size={13} strokeWidth={1.8} />
                 <span>Editar tarefa</span>
               </button>
 
-              <div className="my-1 border-t border-neutral-100" />
-              <div className="px-3.5 py-1 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+              <div className="my-1 border-t border-surface-border" />
+              <div className="px-3.5 py-1 text-[10px] font-bold text-ink-muted uppercase tracking-wider">
                 Mover status
               </div>
               {COLUNAS_KANBAN.map(col => (
@@ -557,16 +557,16 @@ const CardTarefaVisual = ({
                     setMenuOpcoesAberto(false);
                     if (onMoverStatus) onMoverStatus(tarefa.id, col.slug);
                   }}
-                  className={`w-full text-left px-3.5 py-1 hover:bg-neutral-50 flex items-center justify-between text-sm ${
-                    tarefa.status === col.slug ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-700'
+                  className={`w-full text-left px-3.5 py-1 hover:bg-surface-hover flex items-center justify-between text-sm ${
+                    tarefa.status === col.slug ? 'text-ink-muted cursor-not-allowed' : 'text-ink-primary'
                   }`}
                 >
                   <span>{col.label}</span>
-                  {tarefa.status === col.slug && <span className="text-[10px] text-emerald-600">✓</span>}
+                  {tarefa.status === col.slug && <span className="text-[10px] text-emerald-500">✓</span>}
                 </button>
               ))}
 
-              <div className="my-1 border-t border-neutral-100" />
+              <div className="my-1 border-t border-surface-border" />
               <button
                 type="button"
                 onClick={() => {
@@ -584,7 +584,7 @@ const CardTarefaVisual = ({
       </div>
 
       {/* Título da Tarefa */}
-      <h4 className="text-sm sm:text-[13px] font-bold text-[#14221D] leading-snug tracking-tight">
+      <h4 className="text-sm sm:text-[13px] font-bold text-ink-primary leading-snug tracking-tight">
         {tarefa.titulo}
       </h4>
 
@@ -635,8 +635,8 @@ const CardTarefaVisual = ({
               <span
                 className={`flex-shrink-0 flex items-center justify-center w-3.5 h-3.5 rounded-full transition-all ${
                   item.concluido
-                    ? `${cor.checkCor} bg-white shadow-2xs`
-                    : 'border border-black/25 bg-transparent group-hover/check:border-black/50'
+                    ? `${cor.checkCor} bg-white dark:bg-[#0D121F] shadow-2xs`
+                    : 'border border-black/25 dark:border-white/30 bg-transparent group-hover/check:border-black/50 dark:group-hover/check:border-white/60'
                 }`}
               >
                 {item.concluido && (
@@ -655,7 +655,7 @@ const CardTarefaVisual = ({
               </span>
               <span
                 className={`font-medium ${
-                  item.concluido ? 'line-through text-neutral-400' : 'text-[#1F2937]/90'
+                  item.concluido ? 'line-through text-ink-muted' : 'text-ink-primary'
                 }`}
               >
                 {item.texto}
@@ -663,7 +663,7 @@ const CardTarefaVisual = ({
             </button>
           ))}
           {checklist.length > 5 && (
-            <span className="text-[10px] text-neutral-500 pl-5 font-semibold block">
+            <span className="text-[10px] text-ink-secondary pl-5 font-semibold block">
               +{checklist.length - 5} adicionais
             </span>
           )}
@@ -672,16 +672,16 @@ const CardTarefaVisual = ({
 
       {/* Nota / Instrução Sutil */}
       {(tarefa.nota || tarefa.descricao) && (
-        <p className="text-[11px] text-[#4A5D54] italic leading-tight">
+        <p className="text-[11px] text-ink-secondary italic leading-tight">
           {tarefa.nota ? `Note: ${tarefa.nota}` : tarefa.descricao}
         </p>
       )}
 
       {/* Barra de Progresso com Contas / Pontos (Dots) */}
       <div className="pt-1">
-        <div className="flex items-center justify-between text-[11px] font-semibold text-[#3E5248] mb-1">
+        <div className="flex items-center justify-between text-[11px] font-semibold text-ink-secondary mb-1">
           <span>Progress</span>
-          <span className="font-bold text-[#1F2937]">{progresso}%</span>
+          <span className="font-bold text-ink-primary">{progresso}%</span>
         </div>
         <BarraPontosProgresso progresso={progresso} corAtiva={cor.progressoCor} />
       </div>
@@ -696,8 +696,8 @@ const CardTarefaVisual = ({
               <div
                 key={idx}
                 title={m?.nome || 'Membro'}
-                className="w-6 h-6 rounded-full border-2 border-white ring-1 ring-black/5 flex items-center justify-center font-bold text-[9px] text-white overflow-hidden shadow-2xs flex-shrink-0"
-                style={{ backgroundColor: m?.bg || '#0E382C' }}
+                className="w-6 h-6 rounded-full border-2 border-white dark:border-[#161F33] ring-1 ring-black/5 flex items-center justify-center font-bold text-[9px] text-white overflow-hidden shadow-2xs flex-shrink-0"
+                style={{ backgroundColor: m?.bg || '#2563EB' }}
               >
                 {m?.avatar ? (
                   <img
@@ -828,28 +828,28 @@ const ColunaDroppable = ({
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col min-w-[270px] w-full bg-[#F7FAF8]/90 rounded-3xl p-3 sm:p-3.5 border transition-all ${
-        isOver ? 'border-[#0E382C] bg-[#EDF4F0]' : 'border-[#E4ECE7]'
+      className={`flex flex-col min-w-[270px] w-full bg-surface-subtle rounded-3xl p-3 sm:p-3.5 border transition-all ${
+        isOver ? 'border-brand-primary bg-surface-hover' : 'border-surface-border'
       }`}
     >
       {/* Cabeçalho da Coluna: ▸ Nome, + e ⋮ */}
       <div className="flex items-center justify-between mb-3 px-1.5 pt-0.5">
         <div className="flex items-center gap-1.5">
-          <span className="text-neutral-500 font-bold text-sm select-none">▸</span>
-          <span className="text-sm font-bold text-[#14221D]">
+          <span className="text-ink-muted font-bold text-sm select-none">▸</span>
+          <span className="text-sm font-bold text-ink-primary">
             {coluna.label}
           </span>
-          <span className="ml-1 text-[11px] font-semibold text-neutral-500 bg-white/90 px-2 py-0.2 rounded-full border border-black/5 shadow-2xs">
+          <span className="ml-1 text-[11px] font-semibold text-ink-secondary bg-surface-card px-2 py-0.2 rounded-full border border-surface-border shadow-2xs">
             {tarefas.length}
           </span>
         </div>
 
-        <div className="flex items-center gap-1 text-neutral-500">
+        <div className="flex items-center gap-1 text-ink-secondary">
           <button
             type="button"
             onClick={() => onNovaTarefa(coluna.slug)}
             title={`Adicionar tarefa em ${coluna.label}`}
-            className="w-6 h-6 rounded-lg hover:text-[#0E382C] hover:bg-black/5 flex items-center justify-center transition-colors font-bold text-sm"
+            className="w-6 h-6 rounded-lg hover:text-brand-primary hover:bg-surface-hover flex items-center justify-center transition-colors font-bold text-sm"
           >
             +
           </button>
@@ -860,9 +860,9 @@ const ColunaDroppable = ({
       <SortableContext items={tarefas.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="flex-1 space-y-3 min-h-[160px]">
           {tarefas.length === 0 ? (
-            <div className="h-32 rounded-2xl border border-dashed border-[#CCD9D2] flex flex-col items-center justify-center text-sm text-[#99A6A0] gap-1 bg-white/40">
+            <div className="h-32 rounded-2xl border border-dashed border-surface-border-strong flex flex-col items-center justify-center text-sm text-ink-secondary gap-1 bg-surface-card/40">
               <span className="font-semibold">Nenhuma tarefa aqui</span>
-              <span className="text-[10px] text-neutral-400">Arraste ou clique em +</span>
+              <span className="text-[10px] text-ink-muted">Arraste ou clique em +</span>
             </div>
           ) : (
             tarefas.map(tarefa => (
@@ -1488,7 +1488,7 @@ const Tarefas = () => {
           <button
             type="button"
             onClick={() => handleAbrirModal(null, 'pendente')}
-            className="px-4 py-2 bg-[#111915] hover:bg-black text-white text-sm font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            className="px-4 py-2 bg-brand-primary hover:bg-brand-primary-hover text-white text-sm font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
           >
             <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.5} />
             <span>Criar tarefa</span>
@@ -1706,11 +1706,11 @@ const Tarefas = () => {
               onClick={() => setFiltroPill('atrasadas')}
               className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 ${
                 filtroPill === 'atrasadas'
-                  ? 'bg-rose-700 text-white shadow-xs'
-                  : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+                  ? 'bg-rose-600 text-white shadow-xs'
+                  : 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-100 dark:hover:bg-rose-500/25'
               }`}
             >
-              <span className="px-1.5 py-0.2 rounded-md text-[10px] font-bold bg-white text-rose-700">
+              <span className="px-1.5 py-0.2 rounded-md text-[10px] font-bold bg-white dark:bg-rose-500/20 text-rose-700 dark:text-rose-300">
                 {contadores.atrasadas}
               </span>
               <span>Atrasadas</span>
@@ -2205,7 +2205,7 @@ const Tarefas = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#111915] hover:bg-black text-white text-sm font-bold rounded-xl shadow-xs"
+                    className="px-4 py-2 bg-brand-primary hover:bg-brand-primary-hover text-white text-sm font-bold rounded-xl shadow-xs"
                   >
                     Salvar Tarefa
                   </button>

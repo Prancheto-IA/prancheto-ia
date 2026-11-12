@@ -37,69 +37,69 @@ const ModalInsightsIA = ({ aberto, onFechar, dados }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs"
       onClick={onFechar}
     >
       <div
-        className="w-full max-w-lg bg-white rounded-2xl p-6 space-y-5 shadow-2xl border border-[#E4ECE7] max-h-[90vh] flex flex-col"
+        className="w-full max-w-lg bg-surface-card rounded-2xl p-6 space-y-5 shadow-2xl border border-surface-border max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between pb-3 border-b border-[#E4ECE7]">
+        <div className="flex items-start justify-between pb-3 border-b border-surface-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center flex-shrink-0 shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-brand-primary text-white flex items-center justify-center flex-shrink-0 shadow-xs">
               <HugeiconsIcon icon={AiSparklesIcon} size={20} strokeWidth={1.8} />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-[#111915]">Insights de Inteligência Artificial</h2>
-              <p className="text-sm text-[#687770]">Diagnóstico automatizado da sua operação em tempo real</p>
+              <h2 className="text-base font-extrabold text-ink-primary">Insights de Inteligência Artificial</h2>
+              <p className="text-sm text-ink-secondary">Diagnóstico automatizado da sua operação em tempo real</p>
             </div>
           </div>
-          <button onClick={onFechar} className="text-slate-400 hover:text-slate-600 p-1 text-sm font-bold">
+          <button onClick={onFechar} className="text-ink-muted hover:text-ink-primary p-1 text-sm font-bold">
             ✕
           </button>
         </div>
 
         <div className="space-y-3.5 overflow-y-auto pr-1">
-          <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] space-y-1.5">
-            <div className="flex items-center gap-2 text-sm font-bold text-[#15803D]">
-              <span className="w-2 h-2 rounded-full bg-[#15803D]" />
+          <div className="p-4 rounded-xl bg-surface-subtle border border-surface-border space-y-1.5">
+            <div className="flex items-center gap-2 text-sm font-bold text-brand-secondary dark:text-[#7DD3FC]">
+              <span className="w-2 h-2 rounded-full bg-brand-secondary" />
               Eficiência no Pipeline
             </div>
-            <p className="text-sm text-[#111915] leading-relaxed">
+            <p className="text-sm text-ink-primary leading-relaxed">
               Você possui <strong>{dados.totalLeads} leads ativos</strong> e uma taxa de conversão estimada em{' '}
               <strong>{dados.taxaConversao}%</strong>. O canal mais produtivo atualmente é{' '}
-              <span className="capitalize font-semibold text-[#0E382C]">{dados.topCanal || 'Direto'}</span>.
+              <span className="capitalize font-semibold text-brand-primary">{dados.topCanal || 'Direto'}</span>.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] space-y-1.5">
-            <div className="flex items-center gap-2 text-sm font-bold text-amber-700">
+          <div className="p-4 rounded-xl bg-surface-subtle border border-surface-border space-y-1.5">
+            <div className="flex items-center gap-2 text-sm font-bold text-amber-700 dark:text-[#FCD34D]">
               <span className="w-2 h-2 rounded-full bg-amber-500" />
               Oportunidade Imediata
             </div>
-            <p className="text-sm text-[#111915] leading-relaxed">
+            <p className="text-sm text-ink-primary leading-relaxed">
               Existem <strong>{dados.leadsQuentes} leads com alta pontuação (quentes)</strong> aguardando contato prioritário.
               Acelerar o envio de propostas para este grupo pode elevar a receita em até 22%.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] space-y-1.5">
-            <div className="flex items-center gap-2 text-sm font-bold text-[#0E382C]">
-              <span className="w-2 h-2 rounded-full bg-[#0E382C]" />
+          <div className="p-4 rounded-xl bg-surface-subtle border border-surface-border space-y-1.5">
+            <div className="flex items-center gap-2 text-sm font-bold text-brand-primary dark:text-[#A5B4FC]">
+              <span className="w-2 h-2 rounded-full bg-brand-primary" />
               Recomendação de Outbound
             </div>
-            <p className="text-sm text-[#111915] leading-relaxed">
+            <p className="text-sm text-ink-primary leading-relaxed">
               Com <strong>{dados.totalAcoes} ações de prospecção</strong> registradas, manter cadências ativas nos canais de maior conversão garantirá estabilidade no fluxo de novos negócios.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-[#E4ECE7]">
-          <span className="text-[11px] text-[#687770]">Atualizado com base nos dados consolidados</span>
+        <div className="flex items-center justify-between pt-3 border-t border-surface-border">
+          <span className="text-[11px] text-ink-secondary">Atualizado com base nos dados consolidados</span>
           <button
             type="button"
             onClick={onFechar}
-            className="px-4 py-2 bg-[#0E382C] text-white text-sm font-semibold rounded-xl hover:bg-[#07261E] transition-all shadow-xs"
+            className="px-4 py-2 bg-brand-primary text-white text-sm font-semibold rounded-xl hover:bg-brand-primary-hover transition-all shadow-xs"
           >
             Entendido
           </button>
@@ -573,7 +573,7 @@ const Relatorios = () => {
                       </span>
                     </div>
                     {/* Barra de Progresso */}
-                    <div className="w-full h-2 rounded-full bg-[#F0F4F2] overflow-hidden">
+                    <div className="w-full h-2 rounded-full bg-surface-muted overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${pct > 0 ? etapa.cor : 'bg-transparent'
                           }`}
@@ -634,21 +634,21 @@ const Relatorios = () => {
                       <th className="pb-2.5 text-right font-bold">% do total</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#F0F4F2]">
+                  <tbody className="divide-y divide-surface-border">
                     {(dados?.origensLista || []).map((item, idx) => (
-                      <tr key={idx} className="hover:bg-[#F7FAF8] transition-colors">
-                        <td className="py-2.5 font-semibold text-[#111915] flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-[#0E382C]" />
+                      <tr key={idx} className="hover:bg-surface-subtle transition-colors">
+                        <td className="py-2.5 font-semibold text-ink-primary flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-brand-primary" />
                           <span className="capitalize">{item.canal}</span>
                         </td>
-                        <td className="py-2.5 text-center font-bold text-[#111915]">
+                        <td className="py-2.5 text-center font-bold text-ink-primary">
                           {item.qtd}
                         </td>
-                        <td className="py-2.5 text-right font-bold text-[#0E382C]">
+                        <td className="py-2.5 text-right font-bold text-brand-primary">
                           <div className="flex items-center justify-end gap-2">
-                            <div className="w-16 h-1.5 rounded-full bg-[#E4ECE7] overflow-hidden hidden sm:block">
+                            <div className="w-16 h-1.5 rounded-full bg-surface-muted overflow-hidden hidden sm:block">
                               <div
-                                className="h-full bg-[#0E382C] rounded-full"
+                                className="h-full bg-brand-primary rounded-full"
                                 style={{ width: `${item.pct}%` }}
                               />
                             </div>
@@ -687,65 +687,65 @@ const Relatorios = () => {
             {/* 3 Blocos de Temperatura */}
             <div className="grid grid-cols-3 gap-2 sm:gap-2.5 pt-1">
               {/* Quentes */}
-              <div className="p-3 rounded-xl bg-[#FFF5F2] border border-[#FDE1D9] text-center space-y-1">
-                <p className="text-xl sm:text-2xl font-extrabold text-[#C84B31]">
+              <div className="p-3 rounded-xl bg-[#FFF5F2] dark:bg-rose-500/20 border border-[#FDE1D9] dark:border-rose-500/35 text-center space-y-1">
+                <p className="text-xl sm:text-2xl font-extrabold text-[#C84B31] dark:text-[#FDA4AF]">
                   {dados?.leadsQuentes ?? 0}
                 </p>
-                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-[#C84B31]">
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-[#C84B31] dark:text-[#FDA4AF]">
                   <HugeiconsIcon icon={FireIcon} size={13} strokeWidth={2} />
                   <span className="truncate">Quentes</span>
                 </div>
-                <p className="text-[10px] text-[#8A9A92] font-medium">≥70</p>
+                <p className="text-[10px] text-ink-secondary font-semibold">≥70</p>
               </div>
 
               {/* Mornos */}
-              <div className="p-3 rounded-xl bg-[#FEF9EC] border border-[#FBEEC8] text-center space-y-1">
-                <p className="text-xl sm:text-2xl font-extrabold text-amber-700">
+              <div className="p-3 rounded-xl bg-[#FEF9EC] dark:bg-amber-500/20 border border-[#FBEEC8] dark:border-amber-500/35 text-center space-y-1">
+                <p className="text-xl sm:text-2xl font-extrabold text-amber-700 dark:text-[#FCD34D]">
                   {dados?.leadsMornos ?? 0}
                 </p>
-                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-amber-700">
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-amber-700 dark:text-[#FCD34D]">
                   <HugeiconsIcon icon={ThermometerWarmIcon} size={13} strokeWidth={2} />
                   <span className="truncate">Mornos</span>
                 </div>
-                <p className="text-[10px] text-[#8A9A92] font-medium">30–69</p>
+                <p className="text-[10px] text-ink-secondary font-semibold">30–69</p>
               </div>
 
               {/* Frios */}
-              <div className="p-3 rounded-xl bg-[#F0F7FF] border border-[#D8EBFE] text-center space-y-1">
-                <p className="text-xl sm:text-2xl font-extrabold text-sky-700">
+              <div className="p-3 rounded-xl bg-[#F0F7FF] dark:bg-sky-500/20 border border-[#D8EBFE] dark:border-sky-500/35 text-center space-y-1">
+                <p className="text-xl sm:text-2xl font-extrabold text-sky-700 dark:text-[#7DD3FC]">
                   {dados?.leadsFrios ?? 0}
                 </p>
-                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-sky-700">
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-sky-700 dark:text-[#7DD3FC]">
                   <HugeiconsIcon icon={SnowflakeIcon} size={13} strokeWidth={2} />
                   <span className="truncate">Frios</span>
                 </div>
-                <p className="text-[10px] text-[#8A9A92] font-medium">&lt;30</p>
+                <p className="text-[10px] text-ink-secondary font-semibold">&lt;30</p>
               </div>
             </div>
 
             {/* Barra Proporcional de Temperatura */}
-            <div className="pt-2 border-t border-[#E4ECE7] space-y-2">
-              <div className="w-full h-2 rounded-full overflow-hidden flex bg-[#F0F4F2]">
+            <div className="pt-2 border-t border-surface-border space-y-2">
+              <div className="w-full h-2 rounded-full overflow-hidden flex bg-surface-muted">
                 <div
                   style={{ width: `${pctQuentes}%` }}
-                  className="h-full bg-[#C84B31] transition-all"
+                  className="h-full bg-[#C84B31] dark:bg-[#FB7185] transition-all"
                   title={`Quentes: ${pctQuentes}%`}
                 />
                 <div
                   style={{ width: `${pctMornos}%` }}
-                  className="h-full bg-amber-500 transition-all"
+                  className="h-full bg-amber-500 dark:bg-[#FBBF24] transition-all"
                   title={`Mornos: ${pctMornos}%`}
                 />
                 <div
                   style={{ width: `${pctFrios}%` }}
-                  className="h-full bg-sky-500 transition-all"
+                  className="h-full bg-sky-500 dark:bg-[#38BDF8] transition-all"
                   title={`Frios: ${pctFrios}%`}
                 />
               </div>
-              <div className="flex items-center justify-between text-[10px] font-bold text-[#687770]">
-                <span className="text-[#C84B31]">{pctQuentes}% Quentes</span>
-                <span className="text-amber-700">{pctMornos}% Mornos</span>
-                <span className="text-sky-700">{pctFrios}% Frios</span>
+              <div className="flex items-center justify-between text-[10px] font-bold text-ink-secondary">
+                <span className="text-[#C84B31] dark:text-[#FDA4AF]">{pctQuentes}% Quentes</span>
+                <span className="text-amber-700 dark:text-[#FCD34D]">{pctMornos}% Mornos</span>
+                <span className="text-sky-700 dark:text-[#7DD3FC]">{pctFrios}% Frios</span>
               </div>
             </div>
           </div>

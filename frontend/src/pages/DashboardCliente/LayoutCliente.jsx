@@ -261,16 +261,16 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
   return (
     <>
       <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50" onClick={onFechar} />
-      <div className="fixed inset-y-0 right-0 w-80 bg-white z-50 flex flex-col shadow-2xl border-l border-[#E4ECE7]">
+      <div className="fixed inset-y-0 right-0 w-80 bg-surface-card z-50 flex flex-col shadow-2xl border-l border-surface-border">
         {/* Header Modal */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E4ECE7]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-surface-border">
           <div>
-            <h2 className="text-base font-bold text-[#111915]">Personalizar Navegação</h2>
-            <p className="text-sm text-[#687770]">Arraste para organizar o seu menu</p>
+            <h2 className="text-base font-bold text-ink-primary">Personalizar Navegação</h2>
+            <p className="text-sm text-ink-secondary">Arraste para organizar o seu menu</p>
           </div>
           <button
             onClick={onFechar}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-ink-muted hover:text-ink-primary hover:bg-surface-hover transition-colors"
             title="Fechar"
           >
             <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.8} />
@@ -278,14 +278,14 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
         </div>
 
         {/* Chat IA Config */}
-        <div className="p-4 border-b border-[#E4ECE7]">
-          <p className="text-sm font-bold uppercase tracking-wider text-[#687770] mb-2">
+        <div className="p-4 border-b border-surface-border">
+          <p className="text-sm font-bold uppercase tracking-wider text-ink-secondary mb-2">
             Assistente Chat IA
           </p>
-          <div className="flex rounded-xl bg-[#F7FAF8] p-1 border border-[#E4ECE7]">
+          <div className="flex rounded-xl bg-surface-subtle p-1 border border-surface-border">
             <button
               onClick={() => definirChatIaModo('flutuante')}
-              className={`flex-1 flex items-center justify-center gap-1.5 text-sm py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'flutuante' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
+              className={`flex-1 flex items-center justify-center gap-1.5 text-sm py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'flutuante' ? 'bg-brand-primary text-white shadow-xs' : 'text-ink-secondary hover:text-ink-primary'
                 }`}
             >
               <HugeiconsIcon icon={Comment01Icon} size={14} strokeWidth={1.8} />
@@ -293,7 +293,7 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
             </button>
             <button
               onClick={() => definirChatIaModo('fixo')}
-              className={`flex-1 flex items-center justify-center gap-1.5 text-sm py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'fixo' ? 'bg-[#0E382C] text-white shadow-xs' : 'text-[#687770] hover:text-[#111915]'
+              className={`flex-1 flex items-center justify-center gap-1.5 text-sm py-1.5 rounded-lg font-semibold transition-all ${chatIaModo === 'fixo' ? 'bg-brand-primary text-white shadow-xs' : 'text-ink-secondary hover:text-ink-primary'
                 }`}
             >
               <HugeiconsIcon icon={PinIcon} size={14} strokeWidth={1.8} />
@@ -304,7 +304,7 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
 
         {/* Items List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <p className="text-sm font-bold uppercase tracking-wider text-[#687770] mb-1">
+          <p className="text-sm font-bold uppercase tracking-wider text-ink-secondary mb-1">
             Itens Visíveis ({slugsVisiveis.length})
           </p>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -317,14 +317,14 @@ const ModalPersonalizarSidebar = ({ aberto, onFechar, prefs }) => {
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-[#E4ECE7] space-y-2 bg-[#F7FAF8]">
+        <div className="p-4 border-t border-surface-border space-y-2 bg-surface-subtle">
           {salvando && (
-            <p className="text-sm text-center text-emerald-700 font-medium animate-pulse">Salvando alterações...</p>
+            <p className="text-sm text-center text-emerald-500 font-medium animate-pulse">Salvando alterações...</p>
           )}
-          <button onClick={resetar} className="w-full text-sm py-2 text-[#687770] hover:text-[#111915] font-semibold text-center">
+          <button onClick={resetar} className="w-full text-sm py-2 text-ink-secondary hover:text-ink-primary font-semibold text-center">
             Restaurar Padrão
           </button>
-          <button onClick={onFechar} className="w-full py-2.5 bg-[#0E382C] hover:bg-[#07261E] text-white font-semibold text-sm rounded-xl transition-all shadow-xs">
+          <button onClick={onFechar} className="w-full py-2.5 bg-brand-primary hover:bg-brand-primary-hover text-white font-semibold text-sm rounded-xl transition-all shadow-xs">
             Concluído
           </button>
         </div>

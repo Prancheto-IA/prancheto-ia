@@ -1458,7 +1458,7 @@ const ChatModulo = () => {
                         onClick={() => handleSelecionarColega(c)}
                         className={`relative flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all border ${
                           ativo
-                            ? 'bg-[#DCF5E4]/50 border-[#CBDCD1]'
+                            ? 'bg-brand-accent border-brand-secondary/30'
                             : 'bg-white border-transparent hover:bg-[#F7FAF8]'
                         }`}
                       >
@@ -1536,7 +1536,7 @@ const ChatModulo = () => {
                       onClick={() => handleSelecionarGrupo(g)}
                       className={`relative flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all border ${
                         ativo
-                          ? 'bg-[#DCF5E4]/50 border-[#CBDCD1]'
+                          ? 'bg-brand-accent border-brand-secondary/30'
                           : 'bg-white border-transparent hover:bg-[#F7FAF8]'
                       }`}
                     >
@@ -1680,7 +1680,7 @@ const ChatModulo = () => {
         </div>
 
         {/* Área de Mensagens / Thread */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-[#FAFCFB] custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-surface custom-scrollbar">
           {/* Separador de Data */}
           <div className="flex items-center justify-center my-2">
             <div className="h-px bg-[#E4ECE7] flex-1" />
@@ -1775,7 +1775,7 @@ const ChatModulo = () => {
 
           {/* Pré-visualização de anexo pendente */}
           {anexoPendente && (
-            <div className="flex items-center justify-between p-2 px-3 bg-[#DCF5E4]/60 border border-[#CBDCD1] rounded-xl text-sm text-[#0E382C] animate-in fade-in duration-150">
+            <div className="flex items-center justify-between p-2 px-3 bg-brand-accent border border-surface-border rounded-xl text-sm text-brand-primary animate-in fade-in duration-150">
               <div className="flex items-center gap-2 truncate">
                 <HugeiconsIcon icon={anexoPendente.tipo === 'imagem' ? Image01Icon : File01Icon} size={15} />
                 <span className="font-bold truncate">{anexoPendente.nome}</span>

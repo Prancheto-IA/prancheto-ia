@@ -26,9 +26,10 @@ export const ETAPAS_PIPELINE = [
     key: 'lead',
     titulo: 'Qualificação',
     rotuloPt: 'Qualificação',
-    corTotal: 'text-brand-secondary',
-    corBg: 'bg-surface',
-    corBorda: 'border-surface-border',
+    corDot: 'bg-brand-secondary dark:bg-[#38BDF8]',
+    corTotal: 'text-brand-secondary dark:text-[#38BDF8]',
+    corBg: 'bg-surface dark:bg-[#111827]',
+    corBorda: 'border-surface-border dark:border-[#23304D]',
     corBotaoAdd: 'border-brand-accent text-brand-secondary hover:border-brand-secondary/40 hover:bg-brand-accent/40',
     tagPadrao: 'Novo',
     probabilidadePadrao: 30,
@@ -37,9 +38,10 @@ export const ETAPAS_PIPELINE = [
     key: 'qualificado',
     titulo: 'Descoberta',
     rotuloPt: 'Descoberta',
-    corTotal: 'text-brand-purple',
-    corBg: 'bg-[#F5F2FC]',
-    corBorda: 'border-[#E4DBF7]',
+    corDot: 'bg-brand-purple dark:bg-[#818CF8]',
+    corTotal: 'text-brand-purple dark:text-[#818CF8]',
+    corBg: 'bg-[#F5F2FC] dark:bg-[#111827]',
+    corBorda: 'border-[#E4DBF7] dark:border-[#23304D]',
     corBotaoAdd: 'border-purple-200 text-brand-purple hover:border-purple-300 hover:bg-purple-50/60',
     tagPadrao: 'Enterprise',
     probabilidadePadrao: 50,
@@ -48,9 +50,10 @@ export const ETAPAS_PIPELINE = [
     key: 'proposta',
     titulo: 'Proposta',
     rotuloPt: 'Proposta',
-    corTotal: 'text-amber-700',
-    corBg: 'bg-[#FAF7EC]',
-    corBorda: 'border-[#EFE8D3]',
+    corDot: 'bg-amber-500 dark:bg-[#FBBF24]',
+    corTotal: 'text-amber-700 dark:text-[#FBBF24]',
+    corBg: 'bg-[#FAF7EC] dark:bg-[#111827]',
+    corBorda: 'border-[#EFE8D3] dark:border-[#23304D]',
     corBotaoAdd: 'border-amber-300 text-amber-700 hover:border-amber-400 hover:bg-amber-50/60',
     tagPadrao: 'Morno',
     probabilidadePadrao: 65,
@@ -59,9 +62,10 @@ export const ETAPAS_PIPELINE = [
     key: 'negociacao',
     titulo: 'Negociação',
     rotuloPt: 'Negociação',
-    corTotal: 'text-brand-violet',
-    corBg: 'bg-[#F7F3FD]',
-    corBorda: 'border-[#EAE0FA]',
+    corDot: 'bg-brand-violet dark:bg-[#A78BFA]',
+    corTotal: 'text-brand-violet dark:text-[#A78BFA]',
+    corBg: 'bg-[#F7F3FD] dark:bg-[#111827]',
+    corBorda: 'border-[#EAE0FA] dark:border-[#23304D]',
     corBotaoAdd: 'border-violet-200 text-brand-violet hover:border-violet-300 hover:bg-violet-50/60',
     tagPadrao: 'Ativo',
     probabilidadePadrao: 80,
@@ -70,9 +74,10 @@ export const ETAPAS_PIPELINE = [
     key: 'fechado',
     titulo: 'Fechamento',
     rotuloPt: 'Fechamento',
-    corTotal: 'text-brand-primary',
-    corBg: 'bg-[#EDF4FA]',
-    corBorda: 'border-[#D8E8F2]',
+    corDot: 'bg-brand-primary dark:bg-[#34D399]',
+    corTotal: 'text-brand-primary dark:text-[#34D399]',
+    corBg: 'bg-[#EDF4FA] dark:bg-[#111827]',
+    corBorda: 'border-[#D8E8F2] dark:border-[#23304D]',
     corBotaoAdd: 'border-brand-accent text-brand-primary hover:border-brand-secondary/40 hover:bg-brand-accent/50',
     tagPadrao: 'Renovação',
     probabilidadePadrao: 90,
@@ -299,24 +304,24 @@ const MAPA_TAGS_PT = {
 const obterEstiloTag = (tag) => {
   const t = (tag || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (t.includes('new') || t.includes('novo') || t.includes('inbound')) {
-    return 'bg-brand-accent/70 text-brand-primary border border-brand-secondary/20';
+    return 'bg-brand-accent/70 text-brand-primary border border-brand-secondary/20 dark:bg-[#38BDF8]/20 dark:text-[#7DD3FC] dark:border-[#38BDF8]/35';
   }
   if (t.includes('enterprise') || t.includes('corporativo') || t.includes('indicacao')) {
-    return 'bg-[#F5F2FC] text-brand-purple border border-brand-purple/20';
+    return 'bg-[#F5F2FC] text-brand-purple border border-brand-purple/20 dark:bg-[#818CF8]/20 dark:text-[#A5B4FC] dark:border-[#818CF8]/35';
   }
   if (t.includes('warm') || t.includes('morno') || t.includes('evento')) {
-    return 'bg-amber-50 text-amber-700 border border-amber-200/60';
+    return 'bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-[#FBBF24]/20 dark:text-[#FCD34D] dark:border-[#FBBF24]/35';
   }
   if (t.includes('active') || t.includes('ativo') || t.includes('negociacao')) {
-    return 'bg-[#F7F3FD] text-brand-violet border border-brand-violet/25';
+    return 'bg-[#F7F3FD] text-brand-violet border border-brand-violet/25 dark:bg-[#A78BFA]/20 dark:text-[#C4B5FD] dark:border-[#A78BFA]/35';
   }
   if (t.includes('renewal') || t.includes('renovacao') || t.includes('recorrente') || t.includes('saas')) {
-    return 'bg-brand-accent text-brand-secondary border border-brand-secondary/25';
+    return 'bg-brand-accent text-brand-secondary border border-brand-secondary/25 dark:bg-[#34D399]/20 dark:text-[#6EE7B7] dark:border-[#34D399]/35';
   }
   if (t.includes('review') || t.includes('revisao') || t.includes('proposta')) {
-    return 'bg-rose-50 text-rose-700 border border-rose-200/60';
+    return 'bg-rose-50 text-rose-700 border border-rose-200/60 dark:bg-rose-500/20 dark:text-[#FDA4AF] dark:border-rose-500/35';
   }
-  return 'bg-surface-subtle text-ink-secondary border border-surface-border';
+  return 'bg-surface-subtle text-ink-secondary border border-surface-border dark:bg-slate-700/40 dark:text-slate-200 dark:border-slate-600/50';
 };
 
 const formatarTagTexto = (lead, etapa) => {
@@ -507,8 +512,9 @@ const ColunaPipeline = ({
         ) : (
           /* Modo Padrão: Titulo [quantidade] valor_total à esquerda | Ações à direita */
           <div className="flex items-center justify-between w-full gap-2 min-w-0">
-            {/* Lado Esquerdo: Nome da coluna [2] R$ 242k */}
+            {/* Lado Esquerdo: Dot + Nome da coluna [2] R$ 242k */}
             <div className="flex items-center gap-2 min-w-0 flex-1 truncate">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${etapa.corDot || 'bg-brand-secondary'}`} />
               <h3 className="font-bold text-sm text-ink-primary truncate tracking-tight">
                 {etapa.titulo}
               </h3>
@@ -526,7 +532,7 @@ const ColunaPipeline = ({
               <button
                 type="button"
                 onClick={() => onConfigurarColuna(etapa)}
-                className="opacity-0 group-hover/coluna:opacity-100 transition-opacity p-1.5 text-ink-secondary hover:text-brand-primary hover:bg-white/80 rounded-lg"
+                className="opacity-0 group-hover/coluna:opacity-100 transition-opacity p-1.5 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg"
                 title="Configurações da coluna"
               >
                 <HugeiconsIcon icon={Settings02Icon} size={15} strokeWidth={1.8} />
@@ -536,7 +542,7 @@ const ColunaPipeline = ({
               <button
                 type="button"
                 onClick={() => onNovoDealEtapa(etapa.key)}
-                className={`p-1.5 ${etapa.corTotal} hover:bg-white/90 rounded-lg transition-all hover:shadow-2xs active:scale-95`}
+                className={`p-1.5 ${etapa.corTotal} hover:bg-white/90 dark:hover:bg-surface-hover rounded-lg transition-all hover:shadow-2xs active:scale-95`}
                 title="Adicionar negócio nesta coluna"
               >
                 <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.2} />
@@ -546,7 +552,7 @@ const ColunaPipeline = ({
               <button
                 type="button"
                 onClick={() => setModoBusca(true)}
-                className="p-1.5 text-ink-secondary hover:text-brand-primary hover:bg-white/80 rounded-lg transition-colors"
+                className="p-1.5 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg transition-colors"
                 title="Pesquisar negócios nesta coluna"
               >
                 <HugeiconsIcon icon={Search01Icon} size={15} strokeWidth={1.8} />
