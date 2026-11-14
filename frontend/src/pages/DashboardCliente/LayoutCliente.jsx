@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/tooltip';
 import logoCompletoPrancheto from '@/assets/logo/prancheto-logo.svg';
 import iconePrancheto from '@/assets/logo/prancheto-icone.svg';
+import { IconeCerebro } from '@/components/ui/IconeCerebro.jsx';
 
 
 const BADGE_CARGO = {
@@ -131,6 +132,9 @@ const ICONES_MAP = {
 };
 
 const getIconeItem = (slug) => {
+  if (slug === 'chat_ia') {
+    return <IconeCerebro size={19} className="flex-shrink-0" />;
+  }
   const IconComp = ICONES_MAP[slug] || ICONES_MAP.dashboard;
   return <HugeiconsIcon icon={IconComp} size={18} strokeWidth={1.8} />;
 };
