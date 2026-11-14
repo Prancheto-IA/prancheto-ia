@@ -401,7 +401,7 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 
       <aside
         className={`
-          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-brand-primary
+          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-brand-primary dark:bg-[#240046]
           transition-[width] duration-300 ease-in-out flex-shrink-0
           lg:static lg:z-auto lg:translate-x-0
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
@@ -541,7 +541,7 @@ const LayoutCliente = ({ children }) => {
   }, [menuUsuarioAberto, notificacoesAbertas]);
 
   return (
-    <div className="h-screen bg-brand-primary flex items-stretch overflow-hidden font-sans">
+    <div className="h-screen bg-brand-primary dark:bg-[#240046] flex items-stretch overflow-hidden font-sans">
       {/* Sidebar */}
       <Sidebar
         aberta={sidebarAberta}
@@ -578,7 +578,7 @@ const LayoutCliente = ({ children }) => {
       {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-16 bg-brand-primary px-6 flex items-center justify-between gap-4 flex-shrink-0">
+        <header className="h-16 bg-brand-primary dark:bg-[#240046] px-6 flex items-center justify-between gap-4 flex-shrink-0">
           <div className="flex items-center gap-3">
             <Tooltip>
               <TooltipTrigger

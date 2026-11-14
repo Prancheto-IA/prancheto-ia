@@ -119,7 +119,7 @@
 /* --- CSS VARIABLES: TEMA ESCURO (OBSIDIAN SLATE & COBALT) --- */
 html.dark {
   /* --- SUPERFÍCIES GRAFITE-SAFIRA (OBSIDIAN SLATE) --- */
-  --sidebar-bg:                  #090D16;
+  --sidebar-bg:                  #240046;
   --color-surface:               #0D121F;
   --color-surface-subtle:        #111827;
   --color-surface-card:          #161F33;
@@ -386,7 +386,7 @@ html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside 
 html.dark aside.bg-brand-primary,
 html.dark header.bg-brand-primary,
 html.dark .h-screen.bg-brand-primary {
-  background-color: var(--sidebar-bg, #090D16) !important;
+  background-color: var(--sidebar-bg, #240046) !important;
 }
 .hover\:bg-brand-primary:hover,
 .hover\:bg-\[\#0E382C\]:hover {
@@ -728,10 +728,17 @@ html.dark .text-neutral-600:not([class*="dark:text-"]),
 html.dark .text-neutral-700:not([class*="dark:text-"]) {
   color: #E2E8F0 !important;
 }
-html.dark main .bg-white,
-html.dark header .bg-white {
+html.dark main .bg-white {
   background-color: var(--color-surface-card) !important;
   color: var(--color-text-primary);
+}
+html.dark header .bg-white {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+}
+html.dark header input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* =============================================================
