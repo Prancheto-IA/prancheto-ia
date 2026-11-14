@@ -32,8 +32,8 @@ import {
   TooltipContent,
   TooltipProvider,
 } from '@/components/ui/tooltip';
-import logoCompletoPrancheto from '@/assets/logo/prancheto-logo.svg';
-import iconePrancheto from '@/assets/logo/prancheto-icone.svg';
+import logoCompletoPrancheto from '@/assets/logo/Logo-LH.svg';
+import iconePrancheto from '@/assets/logo/Logo-S.svg';
 import { IconeCerebro } from '@/components/ui/IconeCerebro.jsx';
 
 
@@ -67,16 +67,35 @@ const MarcaLogo = ({ colapsada = false }) => {
 
   // Logo Oficial do Prancheto.IA (mantém ambos no DOM para transição instantânea sem remount)
   return (
-    <div className="flex items-center">
+    <div
+      className={`relative isolate flex items-center justify-center group/logo ${
+        colapsada ? 'w-10 h-10' : 'px-2.5 py-1.5'
+      }`}
+    >
+      {/* Halo externo em gradiente blur para destacar o logo sobre o fundo escuro */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#38BDF8]/55 via-white/65 to-[#C084FC]/60 blur-md opacity-90 group-hover/logo:opacity-100 transition-opacity duration-150"
+      />
+      {/* Almofada luminosa suave com blur para contraste nítido das letras e ícone */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-white/85 via-[#F0F9FF]/95 to-[#F3E8FF]/90 blur-[2.5px] shadow-[0_0_14px_rgba(255,255,255,0.3)]"
+      />
+
       <img
         src={iconePrancheto}
         alt="Prancheto.IA"
-        className={`w-8 h-8 object-contain flex-shrink-0 select-none ${colapsada ? 'block' : 'hidden'}`}
+        className={`relative z-10 w-7 h-7 object-contain flex-shrink-0 select-none drop-shadow-[0_1px_2px_rgba(0,13,61,0.18)] ${
+          colapsada ? 'block' : 'hidden'
+        }`}
       />
       <img
         src={logoCompletoPrancheto}
         alt="Prancheto.IA"
-        className={`h-7 w-auto max-w-[175px] object-contain select-none ${colapsada ? 'hidden' : 'block'}`}
+        className={`relative z-10 h-7 w-auto max-w-[178px] object-contain select-none drop-shadow-[0_1px_2px_rgba(0,13,61,0.12)] ${
+          colapsada ? 'hidden' : 'block'
+        }`}
       />
     </div>
   );
