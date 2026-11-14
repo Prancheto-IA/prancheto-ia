@@ -30,7 +30,7 @@ export const IDENTIDADE_PADRAO = {
   aplicar:        false,
 };
 
-/** Catálogo central de paletas pré-definidas do Design System. */
+/** Catálogo central de paletas pré-definidas do Design System (5 cores harmônicas cada). */
 export const PALETAS_PREDEFINIDAS = [
   {
     id: 'azul-institucional',
@@ -38,27 +38,35 @@ export const PALETAS_PREDEFINIDAS = [
     cor_primaria: '#000D3D',
     cor_secundaria: '#0455BF',
     cor_acento: '#D8E8F2',
+    cor_roxo: '#7338F2',
+    cor_violeta: '#A36BF2',
   },
   {
     id: 'roxo-violeta',
     nome: 'Roxo & Violeta',
-    cor_primaria: '#7338F2',
-    cor_secundaria: '#A36BF2',
-    cor_acento: '#D8E8F2',
+    cor_primaria: '#4C1D95',
+    cor_secundaria: '#7338F2',
+    cor_acento: '#F3E8FF',
+    cor_roxo: '#A36BF2',
+    cor_violeta: '#C084FC',
   },
   {
     id: 'azul-roxo',
     nome: 'Azul Escuro & Violeta',
     cor_primaria: '#001769',
-    cor_secundaria: '#7338F2',
-    cor_acento: '#A36BF2',
+    cor_secundaria: '#1E40AF',
+    cor_acento: '#E0E7FF',
+    cor_roxo: '#7338F2',
+    cor_violeta: '#A36BF2',
   },
   {
     id: 'verde-institucional',
     nome: 'Verde Floresta & Lima',
-    cor_primaria: '#0E382C',
-    cor_secundaria: '#134436',
-    cor_acento: '#D4EC9D',
+    cor_primaria: '#064E3B',
+    cor_secundaria: '#0E382C',
+    cor_acento: '#ECFDF5',
+    cor_roxo: '#10B981',
+    cor_violeta: '#34D399',
   },
   {
     id: 'grafite-elegante',
@@ -66,13 +74,17 @@ export const PALETAS_PREDEFINIDAS = [
     cor_primaria: '#18181B',
     cor_secundaria: '#27272A',
     cor_acento: '#F4F4F5',
+    cor_roxo: '#52525B',
+    cor_violeta: '#71717A',
   },
   {
     id: 'petroleo-menta',
     nome: 'Petróleo & Menta',
-    cor_primaria: '#0F4C5C',
-    cor_secundaria: '#092F38',
-    cor_acento: '#5EEAD4',
+    cor_primaria: '#092F38',
+    cor_secundaria: '#0F4C5C',
+    cor_acento: '#CCFBF1',
+    cor_roxo: '#14B8A6',
+    cor_violeta: '#5EEAD4',
   },
 ];
 
@@ -141,6 +153,8 @@ export const gerarRampaPrimaria = (hex) => {
 // ----------------------------------------------------------
 const VAR_CONTRASTE  = '--brand-contraste';
 const VAR_SUPERFICIE = '--brand-superficie';
+const VAR_ROXO       = '--brand-roxo';
+const VAR_VIOLETA    = '--brand-violeta';
 const VAR_FONTE      = '--brand-fonte';
 const VAR_NAV_ATIVA  = '--sidebar-primaria-ativa';
 
@@ -164,6 +178,8 @@ const TODAS_AS_VARS = [
   ...VARS_MARCA,
   VAR_CONTRASTE,
   VAR_SUPERFICIE,
+  VAR_ROXO,
+  VAR_VIOLETA,
   VAR_FONTE,
   VAR_NAV_ATIVA,
 ];
@@ -259,6 +275,8 @@ export const aplicarIdentidadeNoDOM = (identidade) => {
 
   definirCor(VAR_CONTRASTE,  identidade.cor_acento);
   definirCor(VAR_SUPERFICIE, identidade.cor_secundaria);
+  definirCor(VAR_ROXO,       identidade.cor_roxo);
+  definirCor(VAR_VIOLETA,    identidade.cor_violeta);
 
   if (FONTES_DISPONIVEIS.some((f) => f.valor === identidade.fonte)) {
     carregarFonte(identidade.fonte);

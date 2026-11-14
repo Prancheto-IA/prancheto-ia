@@ -14,31 +14,170 @@ import {
   normalizarIdentidade,
 } from '../../../utils/identidadeVisual.js';
 import PermissaoGuarda from '../../../components/ui/PermissaoGuarda.jsx';
-import { SelectField } from '@/components/ui/select';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { CColorPicker2 } from '@/components/reui/c-color-picker-2.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Image01Icon, Upload01Icon } from '@hugeicons/core-free-icons';
+import { ChevronDown, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // ----------------------------------------------------------
-// COMPONENTE: Botão com Color Picker
+// COMPONENTE: Menu Dropdown de Paletas com 5 Amostras de Cores
 // ----------------------------------------------------------
-const BotaoColorPicker = ({ label, valor, onChange }) => (
-  <label className="flex-1 min-w-[120px] flex items-center justify-between p-3 rounded-xl border border-surface-border bg-surface-subtle hover:bg-surface-hover hover:border-surface-border-strong transition-all cursor-pointer group shadow-2xs relative">
-    <div className="flex flex-col min-w-0 pr-2">
-      <span className="text-[11px] font-semibold text-ink-secondary uppercase tracking-wider">{label}</span>
-      <span className="text-sm font-mono font-bold text-ink-primary truncate mt-0.5">{valor}</span>
-    </div>
-    <div
-      className="w-7 h-7 rounded-lg border-2 border-white shadow-xs flex-shrink-0 group-hover:scale-110 transition-transform"
-      style={{ backgroundColor: valor }}
-    />
-    <input
-      type="color"
-      value={valor}
-      onChange={(e) => onChange(e.target.value)}
-      className="sr-only"
-    />
-  </label>
-);
+const SeletorMenuPaletas = ({ paletaSelecionada, onSelecionarPaleta, identidade }) => {
+  const [aberto, setAberto] = useState(false);
+  const paletaAtiva = PALETAS_PREDEFINIDAS.find((p) => p.id === paletaSelecionada);
+
+  // As 5 cores a exibir no trigger (da paleta pré-definida ou do estado customizado atual)
+  const coresAtivas = paletaAtiva
+    ? [
+        paletaAtiva.cor_primaria,
+        paletaAtiva.cor_secundaria,
+        paletaAtiva.cor_acento,
+        paletaAtiva.cor_roxo,
+        paletaAtiva.cor_violeta,
+      ]
+    : [
+        identidade.cor_primaria,
+        identidade.cor_secundaria,
+        identidade.cor_acento,
+        identidade.cor_roxo,
+        identidade.cor_violeta,
+      ];
+
+  return (
+    <Popover open={aberto} onOpenChange={setAberto}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="flex items-center justify-between w-full h-11 px-3.5 py-2 rounded-xl border border-surface-border bg-surface-subtle hover:bg-surface-hover hover:border-surface-border-strong text-ink-primary shadow-2xs transition-all focus:outline-none focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-accent/50 cursor-pointer"
+        >
+          <div className="flex items-center gap-2 min-w-0 flex-1 mr-3">
+            <span className="text-sm font-semibold text-ink-primary truncate">
+              {paletaAtiva ? paletaAtiva.nome : 'Paleta Personalizada'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2.5 flex-shrink-0">
+            {/* 5 Amostras no Trigger */}
+            <div className="flex items-center gap-1.5 p-1 rounded-lg bg-surface-muted/60 border border-surface-border/50">
+              {coresAtivas.map((cor, idx) => (
+                <span
+                  key={idx}
+                  className="w-4 h-4 rounded-md border border-black/15 shadow-2xs"
+                  style={{ backgroundColor: cor }}
+                />
+              ))}
+            </div>
+            <ChevronDown className={cn('w-4 h-4 text-ink-secondary opacity-70 transition-transform duration-200', aberto && 'rotate-180')} />
+          </div>
+        </button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        align="start"
+        sideOffset={6}
+        className="w-[calc(100vw-2rem)] max-w-[460px] p-2 bg-surface-card border border-surface-border rounded-2xl shadow-xl z-[110]"
+      >
+        <div className="space-y-1">
+          <div className="px-2.5 py-1 text-[11px] font-bold text-ink-secondary uppercase tracking-wider">
+            Escolha uma paleta de 5 cores:
+          </div>
+
+          {PALETAS_PREDEFINIDAS.map((p) => {
+            const ativa = paletaSelecionada === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  onSelecionarPaleta(p.id);
+                  setAberto(false);
+                }}
+                className={cn(
+                  'flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all text-left cursor-pointer group',
+                  ativa
+                    ? 'bg-brand-accent/40 text-brand-primary font-bold border border-brand-primary/20 shadow-2xs'
+                    : 'hover:bg-surface-subtle text-ink-primary border border-transparent'
+                )}
+              >
+                <div className="flex items-center gap-2 min-w-0 pr-3">
+                  {ativa ? (
+                    <Check className="w-4 h-4 text-brand-primary flex-shrink-0" />
+                  ) : (
+                    <span className="w-4 h-4 flex-shrink-0" />
+                  )}
+                  <span className="truncate">{p.nome}</span>
+                </div>
+
+                {/* 5 Amostras de cores dentro de cada item do menu */}
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <span
+                    className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: p.cor_primaria }}
+                    title={`Primária: ${p.cor_primaria}`}
+                  />
+                  <span
+                    className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: p.cor_secundaria }}
+                    title={`Secundária: ${p.cor_secundaria}`}
+                  />
+                  <span
+                    className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: p.cor_acento }}
+                    title={`Acento: ${p.cor_acento}`}
+                  />
+                  <span
+                    className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: p.cor_roxo }}
+                    title={`Apoio 1: ${p.cor_roxo}`}
+                  />
+                  <span
+                    className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: p.cor_violeta }}
+                    title={`Apoio 2: ${p.cor_violeta}`}
+                  />
+                </div>
+              </button>
+            );
+          })}
+
+          {/* Opção Personalizada */}
+          <button
+            type="button"
+            onClick={() => {
+              onSelecionarPaleta('customizado');
+              setAberto(false);
+            }}
+            className={cn(
+              'flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all text-left cursor-pointer group border-t border-surface-border mt-1.5 pt-2',
+              paletaSelecionada === 'customizado'
+                ? 'bg-brand-accent/40 text-brand-primary font-bold border border-brand-primary/20 shadow-2xs'
+                : 'hover:bg-surface-subtle text-ink-primary border-transparent'
+            )}
+          >
+            <div className="flex items-center gap-2 min-w-0 pr-3">
+              {paletaSelecionada === 'customizado' ? (
+                <Check className="w-4 h-4 text-brand-primary flex-shrink-0" />
+              ) : (
+                <span className="w-4 h-4 flex-shrink-0" />
+              )}
+              <span className="truncate">Cores Customizadas (Manual)</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform" style={{ backgroundColor: identidade.cor_primaria }} />
+              <span className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform" style={{ backgroundColor: identidade.cor_secundaria }} />
+              <span className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform" style={{ backgroundColor: identidade.cor_acento }} />
+              <span className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform" style={{ backgroundColor: identidade.cor_roxo }} />
+              <span className="w-4 h-4 rounded-md border border-black/15 shadow-2xs group-hover:scale-110 transition-transform" style={{ backgroundColor: identidade.cor_violeta }} />
+            </div>
+          </button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 // ----------------------------------------------------------
 // COMPONENTE PRINCIPAL: IDENTIDADE VISUAL
@@ -76,7 +215,9 @@ const IdentidadeVisual = () => {
       (p) =>
         p.cor_primaria.toLowerCase() === normalizada.cor_primaria.toLowerCase() &&
         p.cor_secundaria.toLowerCase() === normalizada.cor_secundaria.toLowerCase() &&
-        p.cor_acento.toLowerCase() === normalizada.cor_acento.toLowerCase()
+        p.cor_acento.toLowerCase() === normalizada.cor_acento.toLowerCase() &&
+        p.cor_roxo.toLowerCase() === (normalizada.cor_roxo || '').toLowerCase() &&
+        p.cor_violeta.toLowerCase() === (normalizada.cor_violeta || '').toLowerCase()
     );
     setPaletaSelecionada(encontrada ? encontrada.id : 'customizado');
   }, [tenant]);
@@ -307,77 +448,84 @@ const IdentidadeVisual = () => {
             <div className="mt-5 space-y-6">
               {/* 1. Paletas Pré-definidas */}
               <div>
-                <label
-                  htmlFor="seletor-paletas-predefinidas"
-                  className="block text-sm font-semibold text-ink-primary mb-2"
-                >
+                <label className="block text-sm font-semibold text-ink-primary mb-2">
                   Paletas Pré-definidas
                 </label>
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-1">
-                    <SelectField
-                      id="seletor-paletas-predefinidas"
-                      value={paletaSelecionada}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        setPaletaSelecionada(id);
-                        const paleta = PALETAS_PREDEFINIDAS.find((p) => p.id === id);
-                        if (paleta) {
-                          setIdentidade((prev) => ({
-                            ...prev,
-                            cor_primaria: paleta.cor_primaria,
-                            cor_secundaria: paleta.cor_secundaria,
-                            cor_acento: paleta.cor_acento,
-                          }));
-                        }
-                      }}
-                    >
-                      <option value="" disabled>Selecione uma paleta...</option>
-                      {PALETAS_PREDEFINIDAS.map((p) => (
-                        <option key={p.id} value={p.id}>{p.nome}</option>
-                      ))}
-                      <option value="customizado">Personalizada</option>
-                    </SelectField>
-                  </div>
-
-                  {/* Amostra rápida das 3 cores da paleta ativa */}
-                  <div className="flex items-center p-2 rounded-xl bg-surface-subtle border border-surface-border gap-1.5 shadow-2xs flex-shrink-0" title="Amostra da paleta ativa">
-                    <span className="w-5 h-5 rounded-lg border border-black/10 shadow-2xs" style={{ backgroundColor: identidade.cor_primaria }} />
-                    <span className="w-5 h-5 rounded-lg border border-black/10 shadow-2xs" style={{ backgroundColor: identidade.cor_secundaria }} />
-                    <span className="w-5 h-5 rounded-lg border border-black/10 shadow-2xs" style={{ backgroundColor: identidade.cor_acento }} />
-                  </div>
-                </div>
+                <SeletorMenuPaletas
+                  paletaSelecionada={paletaSelecionada}
+                  identidade={identidade}
+                  onSelecionarPaleta={(id) => {
+                    setPaletaSelecionada(id);
+                    const paleta = PALETAS_PREDEFINIDAS.find((p) => p.id === id);
+                    if (paleta) {
+                      setIdentidade((prev) => ({
+                        ...prev,
+                        cor_primaria: paleta.cor_primaria,
+                        cor_secundaria: paleta.cor_secundaria,
+                        cor_acento: paleta.cor_acento,
+                        cor_roxo: paleta.cor_roxo,
+                        cor_violeta: paleta.cor_violeta,
+                      }));
+                    }
+                  }}
+                />
               </div>
 
-              {/* 2. Crie o seu estilo: */}
+              {/* 2. Crie o seu estilo: 5 Seletores ReUI c-color-picker-2 */}
               <div>
-                <p className="text-sm font-semibold text-ink-primary mb-2">
+                <p className="text-sm font-semibold text-ink-primary mb-2.5">
                   Crie o seu estilo:
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <BotaoColorPicker
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <CColorPicker2
+                    id="picker-cor-primaria"
                     label="Cor Primária"
-                    valor={identidade.cor_primaria}
+                    value={identidade.cor_primaria}
                     onChange={(v) => {
                       setPaletaSelecionada('customizado');
                       setIdentidade((prev) => ({ ...prev, cor_primaria: v }));
                     }}
+                    description="Botões e destaque principal"
                   />
-                  <BotaoColorPicker
+                  <CColorPicker2
+                    id="picker-cor-secundaria"
                     label="Cor Secundária"
-                    valor={identidade.cor_secundaria}
+                    value={identidade.cor_secundaria}
                     onChange={(v) => {
                       setPaletaSelecionada('customizado');
                       setIdentidade((prev) => ({ ...prev, cor_secundaria: v }));
                     }}
+                    description="Barra lateral e superfícies"
                   />
-                  <BotaoColorPicker
+                  <CColorPicker2
+                    id="picker-cor-acento"
                     label="Cor de Acento"
-                    valor={identidade.cor_acento}
+                    value={identidade.cor_acento}
                     onChange={(v) => {
                       setPaletaSelecionada('customizado');
                       setIdentidade((prev) => ({ ...prev, cor_acento: v }));
                     }}
+                    description="Realces, contraste e badges"
+                  />
+                  <CColorPicker2
+                    id="picker-cor-roxo"
+                    label="Cor de Apoio 1"
+                    value={identidade.cor_roxo}
+                    onChange={(v) => {
+                      setPaletaSelecionada('customizado');
+                      setIdentidade((prev) => ({ ...prev, cor_roxo: v }));
+                    }}
+                    description="Gradientes e gráficos"
+                  />
+                  <CColorPicker2
+                    id="picker-cor-violeta"
+                    label="Cor de Apoio 2"
+                    value={identidade.cor_violeta}
+                    onChange={(v) => {
+                      setPaletaSelecionada('customizado');
+                      setIdentidade((prev) => ({ ...prev, cor_violeta: v }));
+                    }}
+                    description="Gradientes e estados ativos"
                   />
                 </div>
               </div>
