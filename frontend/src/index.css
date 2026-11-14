@@ -389,6 +389,10 @@ html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside 
 /* Shell unificado (Sidebar + Header compartilhando o mesmo fundo contínuo) */
 .shell-app-bg {
   background-color: var(--brand-primary) !important;
+  background-image:
+    radial-gradient(ellipse 48% 26% at 76% 0%, rgb(var(--brand-secondary-rgb) / 0.45) 0%, rgb(var(--brand-secondary-rgb) / 0.20) 55%, transparent 100%),
+    radial-gradient(ellipse 22% 58% at 0% 42%, rgb(var(--brand-secondary-rgb) / 0.40) 0%, transparent 70%),
+    linear-gradient(90deg, var(--brand-primary) 0%, color-mix(in srgb, var(--brand-primary) 78%, var(--brand-secondary)) 55%, color-mix(in srgb, var(--brand-primary) 55%, var(--brand-secondary)) 85%, color-mix(in srgb, var(--brand-primary) 70%, var(--brand-secondary)) 100%) !important;
 }
 html.dark .shell-app-bg {
   background-color: #240B45 !important;
@@ -407,6 +411,96 @@ html.dark .shell-app-bg {
     background-color: #240B45 !important;
     background-image: linear-gradient(180deg, #240B45 0%, #32105F 50%, #240B45 100%) !important;
   }
+}
+
+/* --- Realces dos Botões da Sidebar e Header (Modo Claro e Modo Escuro) --- */
+.shell-nav-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+}
+.shell-nav-item:hover,
+.group:hover > .shell-nav-item,
+.group:hover .shell-nav-item {
+  background: linear-gradient(135deg, rgb(var(--brand-secondary-rgb) / 0.90) 0%, rgb(var(--brand-secondary-border-rgb) / 0.95) 100%) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 0 16px rgb(var(--brand-secondary-rgb) / 0.55) !important;
+}
+html.dark .shell-nav-item:hover,
+html.dark .group:hover > .shell-nav-item,
+html.dark .group:hover .shell-nav-item {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.90) 0%, rgba(117, 71, 216, 0.95) 100%) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.60) !important;
+}
+
+.shell-nav-item-ativo {
+  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-border) 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 4px 18px rgb(var(--brand-secondary-rgb) / 0.60), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+html.dark .shell-nav-item-ativo {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  box-shadow: 0 4px 18px rgba(139, 92, 246, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+.shell-header-btn {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.26) !important;
+}
+.shell-header-btn:hover {
+  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-border) 100%) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.50) !important;
+  box-shadow: 0 0 16px rgb(var(--brand-secondary-rgb) / 0.65) !important;
+  transform: translateY(-1px);
+}
+html.dark .shell-header-btn:hover {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.65) !important;
+  transform: translateY(-1px);
+}
+
+.shell-header-btn-ativo {
+  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-border) 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.50) !important;
+  box-shadow: 0 0 18px rgb(var(--brand-secondary-rgb) / 0.70) !important;
+}
+html.dark .shell-header-btn-ativo {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 0 18px rgba(139, 92, 246, 0.70) !important;
+}
+
+.shell-toggle-btn {
+  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-border) 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 2px 12px rgb(var(--brand-secondary-rgb) / 0.60) !important;
+}
+.shell-toggle-btn:hover {
+  box-shadow: 0 0 16px rgb(var(--brand-secondary-rgb) / 0.85) !important;
+  transform: scale(1.06);
+}
+html.dark .shell-toggle-btn {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.40) !important;
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.65) !important;
+}
+html.dark .shell-toggle-btn:hover {
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.85) !important;
+  transform: scale(1.06);
 }
 
 .hover\:bg-brand-primary:hover:not([class*="dark:hover:bg-"]),
