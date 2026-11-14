@@ -290,41 +290,6 @@ const IdentidadeVisual = () => {
 
   return (
     <div className="w-full flex-1 flex flex-col space-y-5">
-      {/* Cabeçalho da Seção */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-ink-primary">
-            Identidade Visual da Organização
-          </h2>
-          <p className="text-sm text-ink-secondary mt-0.5">
-            Personalize logotipo e paleta de cores para adequar a plataforma à sua marca.
-          </p>
-        </div>
-
-        <PermissaoGuarda permissao="configuracoes.editar">
-          <div className="flex items-center gap-2.5 self-start sm:self-auto">
-            {salvo && (
-              <span className="text-sm font-bold text-emerald-700 animate-fade-in flex items-center gap-1">
-                ✓ Salvo com sucesso!
-              </span>
-            )}
-            <button
-              onClick={restaurarPadrao}
-              className="px-4 py-2 rounded-xl text-sm font-bold border border-surface-border text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
-            >
-              Restaurar Padrão
-            </button>
-            <button
-              onClick={salvar}
-              disabled={salvando}
-              className="px-5 py-2 rounded-xl text-sm font-bold bg-brand-primary hover:bg-brand-primary-hover text-brand-accent transition-colors shadow-xs disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-            >
-              {salvando ? 'Salvando...' : 'Salvar Alterações'}
-            </button>
-          </div>
-        </PermissaoGuarda>
-      </div>
-
       {erro && (
         <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm flex items-center justify-between">
           <span>{erro}</span>
@@ -332,14 +297,19 @@ const IdentidadeVisual = () => {
         </div>
       )}
 
-      {/* Cards de Configuração: Logotipo à esquerda e Paleta de Cores à direita */}
+      {/* Cards de Configuração: Logotipo à esquerda (desativado) e Paleta de Cores à direita */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
-        {/* Card: Logotipo */}
-        <div className="bg-surface-card rounded-2xl border border-surface-border p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+        {/* Card: Logotipo (Com aspecto de desativado) */}
+        <div className="bg-surface-card rounded-2xl border border-surface-border p-5 sm:p-6 shadow-xs flex flex-col justify-between opacity-50 select-none pointer-events-none cursor-not-allowed relative">
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-surface-border">
               <div>
-                <h2 className="text-base font-bold text-ink-primary">Logotipo</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-bold text-ink-primary">Logotipo</h2>
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-surface-muted text-ink-muted border border-surface-border">
+                    Desativado
+                  </span>
+                </div>
                 <p className="text-sm text-ink-secondary mt-0.5">
                   Exibido na barra de navegação e em relatórios compartilhados.
                 </p>
@@ -354,22 +324,13 @@ const IdentidadeVisual = () => {
                     <img
                       src={logoUrl}
                       alt="Logo"
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain grayscale"
                       onError={(e) => { e.target.style.display = 'none'; }}
                     />
                   ) : (
-                    <HugeiconsIcon icon={Image01Icon} size={32} strokeWidth={1.8} className="text-brand-primary" />
+                    <HugeiconsIcon icon={Image01Icon} size={32} strokeWidth={1.8} className="text-ink-muted" />
                   )}
                 </div>
-                {logoUrl && (
-                  <button
-                    type="button"
-                    onClick={removerLogo}
-                    className="text-[11px] font-semibold text-red-600 hover:text-red-800 transition-colors cursor-pointer"
-                  >
-                    Remover
-                  </button>
-                )}
               </div>
 
               {/* Controles de URL e Upload */}
@@ -385,16 +346,15 @@ const IdentidadeVisual = () => {
                     <input
                       id="identidade-logo-url"
                       type="url"
+                      disabled
                       value={inputUrl}
-                      onChange={(e) => setInputUrl(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') aplicarUrl(); }}
                       placeholder="https://exemplo.com/logo.png"
-                      className="flex-1 min-w-0 bg-surface-subtle border border-surface-border text-ink-primary rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary focus:bg-surface-card transition-all shadow-2xs"
+                      className="flex-1 min-w-0 bg-surface-subtle border border-surface-border text-ink-muted rounded-xl px-3.5 py-2.5 text-sm cursor-not-allowed shadow-2xs"
                     />
                     <button
                       type="button"
-                      onClick={aplicarUrl}
-                      className="px-4 py-2.5 rounded-xl text-sm font-bold bg-brand-primary hover:bg-brand-primary-hover text-brand-accent transition-colors shadow-xs flex items-center justify-center cursor-pointer flex-shrink-0"
+                      disabled
+                      className="px-4 py-2.5 rounded-xl text-sm font-bold bg-surface-muted text-ink-muted cursor-not-allowed shadow-xs flex items-center justify-center flex-shrink-0"
                     >
                       Aplicar
                     </button>
@@ -403,26 +363,14 @@ const IdentidadeVisual = () => {
 
                 {/* Opção de anexar arquivo */}
                 <div className="pt-1 flex flex-wrap items-center gap-2.5">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/svg+xml,image/webp"
-                    onChange={handleArquivoUpload}
-                    className="hidden"
-                  />
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-3.5 py-2 rounded-xl text-sm font-bold border border-surface-border bg-surface-subtle hover:bg-surface-hover text-ink-primary transition-colors flex items-center gap-2 cursor-pointer shadow-2xs"
+                    disabled
+                    className="px-3.5 py-2 rounded-xl text-sm font-bold border border-surface-border bg-surface-subtle text-ink-muted cursor-not-allowed flex items-center gap-2 shadow-2xs"
                   >
-                    <HugeiconsIcon icon={Upload01Icon} size={16} strokeWidth={1.8} className="text-brand-primary" />
+                    <HugeiconsIcon icon={Upload01Icon} size={16} strokeWidth={1.8} className="text-ink-muted" />
                     <span>Anexar Arquivo</span>
                   </button>
-                  {nomeArquivo && (
-                    <span className="text-sm text-brand-primary font-medium bg-surface-muted px-2.5 py-1 rounded-lg truncate max-w-[180px]" title={nomeArquivo}>
-                      {nomeArquivo}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
@@ -533,6 +481,34 @@ const IdentidadeVisual = () => {
           </div>
         </div>
       </div>
+
+      {/* Botões de Ação: Restaurar Padrão e Salvar Alterações (Abaixo dos Cards) */}
+      <PermissaoGuarda permissao="configuracoes.editar">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+          <div>
+            {salvo && (
+              <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 animate-fade-in flex items-center gap-1">
+                ✓ Salvo com sucesso!
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+            <button
+              onClick={restaurarPadrao}
+              className="px-4 py-2 rounded-xl text-sm font-bold border border-surface-border text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
+            >
+              Restaurar Padrão
+            </button>
+            <button
+              onClick={salvar}
+              disabled={salvando}
+              className="px-5 py-2 rounded-xl text-sm font-bold bg-brand-primary hover:bg-brand-primary-hover text-brand-accent transition-colors shadow-xs disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+            >
+              {salvando ? 'Salvando...' : 'Salvar Alterações'}
+            </button>
+          </div>
+        </div>
+      </PermissaoGuarda>
     </div>
   );
 };
