@@ -766,8 +766,8 @@ html.dark header input::placeholder {
    PROTEÇÃO GLOBAL CONTRA HOVER BRANCO / CORES ESTRANHAS NO MODO ESCURO
    ============================================================= */
 
-/* 1. Intercepta qualquer utilitário de hover claro no Tailwind quando em html.dark */
-html.dark [class*="hover:bg-white"]:hover:not([class*="dark:hover:bg-"]),
+/* 1. Intercepta qualquer utilitário de hover claro sólido no Tailwind quando em html.dark (sem afetar hover:bg-white/10 na sidebar/header) */
+html.dark .hover\:bg-white:hover:not([class*="dark:hover:bg-"]):not(aside *):not(header *),
 html.dark [class*="hover:bg-[#F7FAF8]"]:hover:not([class*="dark:hover:bg-"]),
 html.dark [class*="hover:bg-[#F9FCFA]"]:hover:not([class*="dark:hover:bg-"]),
 html.dark [class*="hover:bg-[#FAFCFB]"]:hover:not([class*="dark:hover:bg-"]),

@@ -44,7 +44,7 @@ const TooltipContent = React.forwardRef(
         <TooltipPrimitive.Popup
           ref={ref}
           className={cn(
-            'z-50 select-none rounded-xl border border-surface-border bg-surface-card px-3 py-1.5 text-xs font-semibold text-ink-primary shadow-xl',
+            'z-50 select-none rounded-xl border border-surface-border bg-surface-card dark:bg-[#32105F] dark:border-[#8B5CF6]/50 px-3 py-1.5 text-xs font-semibold text-ink-primary dark:text-white shadow-xl dark:shadow-[0_8px_24px_rgba(0,0,0,0.55)]',
             'transition-all duration-150',
             'data-[starting-style]:scale-95 data-[starting-style]:opacity-0',
             'data-[ending-style]:scale-95 data-[ending-style]:opacity-0',

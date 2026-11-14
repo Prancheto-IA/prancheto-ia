@@ -215,9 +215,11 @@ export const useSidebarPrefs = () => {
   // Recolhe/expande a sidebar inteira — preferência isolada de "itens",
   // upsert parcial não mexe na coluna itens da linha existente.
   const alternarColapsada = useCallback(async (valor) => {
-    if (!userId || !tenantId) return;
     setColapsada(valor);
-    setSalvando(true);
+    if (userId) {
+      atualizarCacheParcial(userId, { colapsada: valor });
+    }
+    if (!userId || !tenantId) return;
     try {
       const { error } = await supabase
         .from('sidebar_preferencias')
@@ -226,11 +228,8 @@ export const useSidebarPrefs = () => {
           { onConflict: 'user_id' }
         );
       if (error) throw error;
-      atualizarCacheParcial(userId, { colapsada: valor });
     } catch (err) {
       console.error('useSidebarPrefs.alternarColapsada:', err);
-    } finally {
-      setSalvando(false);
     }
   }, [userId, tenantId]);
 

@@ -65,23 +65,20 @@ const MarcaLogo = ({ colapsada = false }) => {
     );
   }
 
-  // Logo Oficial do Prancheto.IA
-  if (colapsada) {
-    return (
+  // Logo Oficial do Prancheto.IA (mantém ambos no DOM para transição instantânea sem remount)
+  return (
+    <div className="flex items-center">
       <img
         src={iconePrancheto}
         alt="Prancheto.IA"
-        className="w-8 h-8 object-contain flex-shrink-0 select-none"
+        className={`w-8 h-8 object-contain flex-shrink-0 select-none ${colapsada ? 'block' : 'hidden'}`}
       />
-    );
-  }
-
-  return (
-    <img
-      src={logoCompletoPrancheto}
-      alt="Prancheto.IA"
-      className="h-7 w-auto max-w-[175px] object-contain select-none"
-    />
+      <img
+        src={logoCompletoPrancheto}
+        alt="Prancheto.IA"
+        className={`h-7 w-auto max-w-[175px] object-contain select-none ${colapsada ? 'hidden' : 'block'}`}
+      />
+    </div>
   );
 };
 
@@ -153,7 +150,7 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
   const labelExibicao = item.slug === 'chat_ia' ? 'Pranchetinho' : item.label;
 
   return (
-    <div className={`relative group ${colapsada ? 'w-10' : 'w-full'}`}>
+    <div className={`relative group transition-[width] duration-150 ease-out ${colapsada ? 'w-10' : 'w-full'}`}>
       <Tooltip disabled={!colapsada}>
         <TooltipTrigger
           render={
@@ -161,12 +158,10 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
               to={item.rota}
               end={item.exact}
               onClick={onClick}
-              className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color,box-shadow] duration-300 relative overflow-hidden ${
-                colapsada ? 'w-10' : 'w-full'
-              } ${
+              className={`h-10 w-full flex items-center rounded-xl font-medium text-sm transition-[background-color,color,box-shadow] duration-150 relative overflow-hidden ${
                 ativo
-                  ? 'bg-brand-accent text-brand-primary dark:bg-[#7547D8] dark:text-white font-semibold shadow-xs dark:shadow-[0_0_16px_rgba(117,71,216,0.55)] dark:border dark:border-white/20'
-                  : 'text-white/80 dark:text-white/80 hover:text-white dark:hover:text-white group-hover:bg-white/10 group-hover:text-white'
+                  ? 'bg-brand-accent text-brand-primary dark:bg-[#8B5CF6] dark:text-white font-semibold shadow-xs dark:shadow-[0_0_18px_rgba(139,92,246,0.65)] dark:border dark:border-white/30'
+                  : 'text-white/85 dark:text-white/85 hover:bg-white/15 group-hover:bg-white/15 dark:hover:bg-[#7C3AED]/85 dark:group-hover:bg-[#7C3AED]/85 hover:text-white dark:hover:text-white group-hover:text-white dark:group-hover:text-white dark:hover:shadow-[0_0_14px_rgba(124,58,237,0.5)]'
               }`}
             >
               {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
@@ -176,7 +171,7 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
 
               {/* Rótulo de texto: visível no estado expandido, clipe limpo no recolhido */}
               <span
-                className={`truncate whitespace-nowrap ${ehChatIa ? 'pr-9' : 'pr-2.5'} transition-opacity duration-150 ${
+                className={`truncate whitespace-nowrap ${ehChatIa ? 'pr-9' : 'pr-2.5'} transition-opacity duration-100 ${
                   colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
                 }`}
               >
@@ -406,36 +401,36 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
       <aside
         className={`
           fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden shell-sidebar lg:bg-transparent
-          transition-[width] duration-300 ease-in-out flex-shrink-0
+          transition-[width] duration-150 ease-out flex-shrink-0
           lg:static lg:z-auto lg:translate-x-0
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
           w-64 ${colapsada ? 'lg:w-16' : 'lg:w-64'}
         `}
       >
         <div className="w-64 h-full flex flex-col flex-shrink-0">
-          {/* Logo Header */}
-          <div className="h-16 flex items-center px-3 flex-shrink-0 overflow-hidden">
-            <Tooltip disabled={!colapsada}>
-              <TooltipTrigger
-                render={
-                  <NavLink
-                    to="/dashboard"
-                    className="flex items-center gap-2 min-w-0 transition-opacity hover:opacity-90 cursor-pointer"
-                  >
-                    <MarcaLogo colapsada={colapsada} />
-                  </NavLink>
-                }
-              />
-              <TooltipContent side="inline-end" sideOffset={10}>
-                <p className="text-xs font-semibold">Ir para o início</p>
-              </TooltipContent>
-            </Tooltip>
-            <button onClick={onFechar} className="ml-auto text-white/70 hover:text-white lg:hidden p-1 rounded-lg cursor-pointer" title="Fechar menu">
-              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
-            </button>
-          </div>
-
           <TooltipProvider delay={100}>
+            {/* Logo Header */}
+            <div className="h-16 flex items-center px-3 flex-shrink-0 overflow-hidden">
+              <Tooltip disabled={!colapsada}>
+                <TooltipTrigger
+                  render={
+                    <NavLink
+                      to="/dashboard"
+                      className="flex items-center gap-2 min-w-0 transition-opacity hover:opacity-90 cursor-pointer"
+                    >
+                      <MarcaLogo colapsada={colapsada} />
+                    </NavLink>
+                  }
+                />
+                <TooltipContent side="inline-end" sideOffset={10}>
+                  <p className="text-xs font-semibold">Ir para o início</p>
+                </TooltipContent>
+              </Tooltip>
+              <button onClick={onFechar} className="ml-auto text-white/70 hover:text-white lg:hidden p-1 rounded-lg cursor-pointer" title="Fechar menu">
+                <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
+              </button>
+            </div>
+
             {/* Nav Items */}
             <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1">
               {itensVisiveis.map((item) => (
@@ -461,14 +456,14 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
                     <button
                       type="button"
                       onClick={() => setModalAberto(true)}
-                      className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 text-white hover:bg-white/10 group relative overflow-hidden cursor-pointer ${colapsada ? 'w-10' : 'w-full'
+                      className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color,box-shadow] duration-150 ease-out text-white/85 hover:bg-white/15 dark:hover:bg-[#7C3AED]/85 hover:text-white dark:hover:text-white dark:hover:shadow-[0_0_14px_rgba(124,58,237,0.5)] group relative overflow-hidden cursor-pointer ${colapsada ? 'w-10' : 'w-full'
                         }`}
                     >
                       <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
                         <HugeiconsIcon icon={PencilEdit01Icon} size={18} strokeWidth={1.8} />
                       </span>
                       <span
-                        className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
+                        className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-100 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
                           }`}
                       >
                         Editar Menu
@@ -554,30 +549,32 @@ const LayoutCliente = ({ children }) => {
       />
 
       {/* Toggle Sidebar Desktop Button */}
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <button
-              onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
-              className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover dark:bg-[#1B3A5C] dark:text-[#38BDF8] dark:border dark:border-[#38BDF8]/30 dark:hover:bg-[#7547D8] dark:hover:text-white dark:hover:border-transparent focus:outline-none transition-[left,background-color,color] duration-300 ease-in-out cursor-pointer"
-              style={{
-                left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
-              }}
-              aria-label={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
-            >
-              <HugeiconsIcon
-                icon={prefs.colapsada ? ArrowRight01Icon : ArrowLeft01Icon}
-                size={14}
-                strokeWidth={2.2}
-                className="transition-transform duration-200"
-              />
-            </button>
-          }
-        />
-        <TooltipContent side="inline-end" sideOffset={10}>
-          <p className="text-xs font-semibold">{prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}</p>
-        </TooltipContent>
-      </Tooltip>
+      <TooltipProvider delay={100}>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <button
+                onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
+                className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover dark:bg-[#7C3AED] dark:text-white dark:border dark:border-white/35 dark:shadow-[0_2px_12px_rgba(124,58,237,0.65)] dark:hover:bg-[#8B5CF6] dark:hover:scale-105 focus:outline-none transition-[left,background-color,color,transform] duration-150 ease-out cursor-pointer"
+                style={{
+                  left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
+                }}
+                aria-label={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
+              >
+                <HugeiconsIcon
+                  icon={prefs.colapsada ? ArrowRight01Icon : ArrowLeft01Icon}
+                  size={14}
+                  strokeWidth={2.2}
+                  className="transition-transform duration-150"
+                />
+              </button>
+            }
+          />
+          <TooltipContent side="inline-end" sideOffset={10}>
+            <p className="text-xs font-semibold">{prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0 bg-transparent">
@@ -614,7 +611,7 @@ const LayoutCliente = ({ children }) => {
             <input
               type="text"
               placeholder="Pesquisar projetos, clientes ou tarefas..."
-              className="w-full h-10 pl-11 pr-4 bg-white dark:bg-white/[0.09] dark:text-white dark:placeholder-white/55 dark:border dark:border-white/20 rounded-full text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-[#7547D8] dark:focus:bg-white/[0.14] shadow-xs transition-all"
+              className="w-full h-10 pl-11 pr-4 bg-white dark:bg-white/[0.09] dark:text-white dark:placeholder-white/55 dark:border dark:border-white/20 rounded-full text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-[#8B5CF6] dark:focus:bg-white/[0.14] shadow-xs transition-all"
             />
           </div>
 
@@ -629,7 +626,7 @@ const LayoutCliente = ({ children }) => {
                       type="button"
                       onClick={() => alternarTema(usuario?.id)}
                       aria-label={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
-                      className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-[#7547D8]/50 dark:text-white dark:hover:bg-[#7547D8] dark:border dark:border-white/15 flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                      className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/15 dark:text-white dark:hover:bg-[#8B5CF6] dark:border dark:border-white/25 dark:hover:border-white/40 dark:hover:shadow-[0_0_14px_rgba(139,92,246,0.6)] flex items-center justify-center transition-all shadow-xs cursor-pointer"
                     >
                       <HugeiconsIcon
                         icon={temaEscuro ? Sun01Icon : Moon02Icon}
@@ -658,7 +655,7 @@ const LayoutCliente = ({ children }) => {
                           setMenuUsuarioAberto(false);
                         }}
                         aria-label="Notificações"
-                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-[#7547D8]/50 dark:text-white dark:hover:bg-[#7547D8] dark:border dark:border-white/15 flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
+                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/15 dark:text-white dark:hover:bg-[#8B5CF6] dark:border dark:border-white/25 dark:hover:border-white/40 dark:hover:shadow-[0_0_14px_rgba(139,92,246,0.6)] flex items-center justify-center transition-all relative shadow-xs cursor-pointer"
                       >
                         <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
                         {naoLidasCount > 0 && (
@@ -692,9 +689,9 @@ const LayoutCliente = ({ children }) => {
                       aria-label="Configurações"
                       className={({ isActive }) => {
                         const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
-                        return `w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow-xs ${ativa
-                          ? 'bg-brand-accent-hover text-brand-primary dark:bg-[#7547D8] dark:text-white dark:border dark:border-white/25 dark:shadow-[0_0_14px_rgba(117,71,216,0.55)]'
-                          : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-[#7547D8]/50 dark:text-white dark:hover:bg-[#7547D8] dark:border dark:border-white/15'
+                        return `w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-xs ${ativa
+                          ? 'bg-brand-accent-hover text-brand-primary dark:bg-[#8B5CF6] dark:text-white dark:border dark:border-white/40 dark:shadow-[0_0_16px_rgba(139,92,246,0.65)]'
+                          : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/15 dark:text-white dark:hover:bg-[#8B5CF6] dark:border dark:border-white/25 dark:hover:border-white/40 dark:hover:shadow-[0_0_14px_rgba(139,92,246,0.6)]'
                           }`;
                       }}
                     >
@@ -715,7 +712,7 @@ const LayoutCliente = ({ children }) => {
                       <button
                         type="button"
                         onClick={() => setMenuUsuarioAberto((v) => !v)}
-                        className="w-9 h-9 rounded-full bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent dark:bg-[#240B45] dark:text-white dark:border-white/20 dark:hover:bg-[#32105F]"
+                        className="w-9 h-9 rounded-full bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent dark:bg-[#240B45] dark:text-white dark:border-white/25 dark:hover:bg-[#8B5CF6] dark:hover:border-white/40 dark:hover:shadow-[0_0_14px_rgba(139,92,246,0.6)]"
                         aria-label={`Perfil: ${usuario?.nome || 'Usuário'}`}
                       >
                         {usuario?.avatar_url || usuario?.foto_url ? (
