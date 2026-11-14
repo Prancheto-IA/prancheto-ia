@@ -728,7 +728,7 @@ const LayoutCliente = ({ children }) => {
                       <button
                         type="button"
                         onClick={() => setMenuUsuarioAberto((v) => !v)}
-                        className={`w-9 h-9 rounded-full ${menuUsuarioAberto ? 'shell-header-btn-ativo' : 'shell-header-btn'} font-bold text-sm flex items-center justify-center flex-shrink-0 transition-all duration-150 cursor-pointer overflow-hidden`}
+                        className={`w-9 h-9 rounded-full ${menuUsuarioAberto ? 'shell-avatar-btn-ativo' : 'shell-avatar-btn'} font-bold text-sm flex items-center justify-center flex-shrink-0 transition-all duration-150 cursor-pointer overflow-hidden`}
                         aria-label={`Perfil: ${usuario?.nome || 'Usuário'}`}
                       >
                         {usuario?.avatar_url || usuario?.foto_url ? (

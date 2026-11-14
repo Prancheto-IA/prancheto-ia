@@ -386,13 +386,15 @@ html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside 
   background-color: var(--brand-primary) !important;
 }
 
-/* Shell unificado (Sidebar + Header compartilhando o mesmo fundo contínuo) */
+/* Shell unificado (Sidebar + Header compartilhando o mesmo fundo contínuo)
+   Modo Claro: Azul-marinho (#061B50), Azul royal (#0755C9) e Violeta (#7026D9) */
 .shell-app-bg {
-  background-color: var(--brand-primary) !important;
+  background-color: #061B50 !important;
   background-image:
-    radial-gradient(ellipse 48% 26% at 76% 0%, rgb(var(--brand-secondary-rgb) / 0.45) 0%, rgb(var(--brand-secondary-rgb) / 0.20) 55%, transparent 100%),
-    radial-gradient(ellipse 22% 58% at 0% 42%, rgb(var(--brand-secondary-rgb) / 0.40) 0%, transparent 70%),
-    linear-gradient(90deg, var(--brand-primary) 0%, color-mix(in srgb, var(--brand-primary) 78%, var(--brand-secondary)) 55%, color-mix(in srgb, var(--brand-primary) 55%, var(--brand-secondary)) 85%, color-mix(in srgb, var(--brand-primary) 70%, var(--brand-secondary)) 100%) !important;
+    radial-gradient(ellipse 30% 34% at 2% 2%, #0755C9 0%, rgba(7, 85, 201, 0.85) 38%, rgba(7, 85, 201, 0.32) 68%, transparent 100%),
+    radial-gradient(ellipse 24% 34% at 2% 98%, #7026D9 0%, rgba(112, 38, 217, 0.78) 38%, rgba(7, 85, 201, 0.35) 70%, transparent 100%),
+    radial-gradient(ellipse 46% 32% at 90% 0%, #7026D9 0%, rgba(112, 38, 217, 0.85) 45%, rgba(7, 85, 201, 0.40) 78%, transparent 100%),
+    linear-gradient(90deg, #061B50 0%, #061B50 52%, #0755C9 70%, #7026D9 88%, #7026D9 100%) !important;
 }
 html.dark .shell-app-bg {
   background-color: #240B45 !important;
@@ -405,7 +407,8 @@ html.dark .shell-app-bg {
 /* No mobile (< 1024px), a sidebar abre como gaveta sobreposta e precisa de fundo próprio */
 @media (max-width: 1023px) {
   .shell-sidebar {
-    background-color: var(--brand-primary) !important;
+    background-color: #061B50 !important;
+    background-image: linear-gradient(180deg, #0755C9 0%, #061B50 32%, #061B50 68%, #7026D9 100%) !important;
   }
   html.dark .shell-sidebar {
     background-color: #240B45 !important;
@@ -422,10 +425,10 @@ html.dark .shell-app-bg {
 .shell-nav-item:hover,
 .group:hover > .shell-nav-item,
 .group:hover .shell-nav-item {
-  background: linear-gradient(135deg, rgb(var(--brand-secondary-rgb) / 0.90) 0%, rgb(var(--brand-secondary-border-rgb) / 0.95) 100%) !important;
+  background: linear-gradient(135deg, rgba(7, 85, 201, 0.88) 0%, rgba(112, 38, 217, 0.82) 100%) !important;
   color: #FFFFFF !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 0 16px rgb(var(--brand-secondary-rgb) / 0.55) !important;
+  border-color: rgba(255, 255, 255, 0.38) !important;
+  box-shadow: 0 0 16px rgba(7, 85, 201, 0.55) !important;
 }
 html.dark .shell-nav-item:hover,
 html.dark .group:hover > .shell-nav-item,
@@ -437,10 +440,10 @@ html.dark .group:hover .shell-nav-item {
 }
 
 .shell-nav-item-ativo {
-  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-border) 100%) !important;
-  color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 4px 18px rgb(var(--brand-secondary-rgb) / 0.60), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  background: linear-gradient(135deg, #E2EEFB 0%, #C6DDF8 100%) !important;
+  color: #061B50 !important;
+  border: 1px solid rgba(255, 255, 255, 0.75) !important;
+  box-shadow: 0 4px 16px rgba(7, 85, 201, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
 }
 html.dark .shell-nav-item-ativo {
   background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
@@ -450,15 +453,22 @@ html.dark .shell-nav-item-ativo {
 }
 
 .shell-header-btn {
-  background-color: rgba(255, 255, 255, 0.14) !important;
+  background: linear-gradient(135deg, #E6EEFA 0%, #D5E4F7 100%) !important;
+  color: #061B50 !important;
+  border: 1px solid rgba(255, 255, 255, 0.70) !important;
+  box-shadow: 0 2px 10px rgba(6, 27, 80, 0.18) !important;
+}
+html.dark .shell-header-btn {
+  background: rgba(255, 255, 255, 0.14) !important;
   color: #FFFFFF !important;
   border: 1px solid rgba(255, 255, 255, 0.26) !important;
+  box-shadow: none !important;
 }
 .shell-header-btn:hover {
-  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-border) 100%) !important;
-  color: #FFFFFF !important;
-  border-color: rgba(255, 255, 255, 0.50) !important;
-  box-shadow: 0 0 16px rgb(var(--brand-secondary-rgb) / 0.65) !important;
+  background: #FFFFFF !important;
+  color: #0755C9 !important;
+  border-color: #FFFFFF !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.65), 0 4px 12px rgba(112, 38, 217, 0.35) !important;
   transform: translateY(-1px);
 }
 html.dark .shell-header-btn:hover {
@@ -470,10 +480,10 @@ html.dark .shell-header-btn:hover {
 }
 
 .shell-header-btn-ativo {
-  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-border) 100%) !important;
-  color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.50) !important;
-  box-shadow: 0 0 18px rgb(var(--brand-secondary-rgb) / 0.70) !important;
+  background: #FFFFFF !important;
+  color: #7026D9 !important;
+  border: 1px solid #FFFFFF !important;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.75), 0 4px 14px rgba(112, 38, 217, 0.45) !important;
 }
 html.dark .shell-header-btn-ativo {
   background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
@@ -482,14 +492,45 @@ html.dark .shell-header-btn-ativo {
   box-shadow: 0 0 18px rgba(139, 92, 246, 0.70) !important;
 }
 
-.shell-toggle-btn {
-  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-border) 100%) !important;
+.shell-avatar-btn {
+  background: linear-gradient(135deg, #7026D9 0%, #5818B8 100%) !important;
   color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 2px 12px rgb(var(--brand-secondary-rgb) / 0.60) !important;
+  border: 2px solid rgba(255, 255, 255, 0.90) !important;
+  box-shadow: 0 2px 10px rgba(6, 27, 80, 0.25) !important;
+}
+.shell-avatar-btn:hover,
+.shell-avatar-btn-ativo {
+  background: linear-gradient(135deg, #8236EC 0%, #7026D9 100%) !important;
+  color: #FFFFFF !important;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.75), 0 4px 14px rgba(112, 38, 217, 0.55) !important;
+  transform: translateY(-1px);
+}
+html.dark .shell-avatar-btn {
+  background: #240B45 !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.30) !important;
+}
+html.dark .shell-avatar-btn:hover,
+html.dark .shell-avatar-btn-ativo {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.70) !important;
+  transform: translateY(-1px);
+}
+
+.shell-toggle-btn {
+  background: linear-gradient(135deg, #E6EEFA 0%, #D5E4F7 100%) !important;
+  color: #061B50 !important;
+  border: 1px solid rgba(255, 255, 255, 0.80) !important;
+  box-shadow: 0 2px 12px rgba(6, 27, 80, 0.30) !important;
 }
 .shell-toggle-btn:hover {
-  box-shadow: 0 0 16px rgb(var(--brand-secondary-rgb) / 0.85) !important;
+  background: #FFFFFF !important;
+  color: #0755C9 !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.75), 0 4px 12px rgba(112, 38, 217, 0.45) !important;
   transform: scale(1.06);
 }
 html.dark .shell-toggle-btn {
