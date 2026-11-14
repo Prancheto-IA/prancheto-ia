@@ -743,9 +743,9 @@ const LeadDetalhe = () => {
 
           {/* Form Inline Expansível para Nova Atividade */}
           {criandoTipo && (
-            <div className="bg-white rounded-2xl border-2 border-[#0E382C] p-4 shadow-md transition-all">
+            <div className="bg-surface-card rounded-2xl border-2 border-brand-primary p-4 shadow-md transition-all">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-bold text-[#0E382C] uppercase tracking-wider">
+                <span className="text-sm font-bold text-brand-primary dark:text-[#7DD3FC] uppercase tracking-wider">
                   {criandoTipo === 'reuniao' && 'Nova Reunião'}
                   {criandoTipo === 'tarefa' && 'Nova Tarefa'}
                   {criandoTipo === 'nota' && 'Nova Nota Rápida'}
@@ -753,7 +753,7 @@ const LeadDetalhe = () => {
                 <button
                   type="button"
                   onClick={() => setCriandoTipo(null)}
-                  className="text-sm text-[#687770] hover:text-[#111915]"
+                  className="text-sm text-ink-secondary hover:text-ink-primary transition-colors cursor-pointer"
                 >
                   ✕ Cancelar
                 </button>
@@ -771,7 +771,7 @@ const LeadDetalhe = () => {
                   }
                   value={novoTitulo}
                   onChange={(e) => setNovoTitulo(e.target.value)}
-                  className="w-full text-sm font-semibold text-[#111915] border border-[#E4ECE7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0E382C]"
+                  className="w-full text-sm font-semibold text-ink-primary bg-surface-subtle dark:bg-[#0D121F] border border-surface-border rounded-xl px-3.5 py-2.5 placeholder:text-ink-muted focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
                   autoFocus
                 />
 
@@ -780,7 +780,7 @@ const LeadDetalhe = () => {
                   placeholder="Detalhes ou anotações adicionais..."
                   value={novoTexto}
                   onChange={(e) => setNovoTexto(e.target.value)}
-                  className="w-full text-sm text-[#111915] border border-[#E4ECE7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0E382C]"
+                  className="w-full text-sm text-ink-primary bg-surface-subtle dark:bg-[#0D121F] border border-surface-border rounded-xl px-3.5 py-2.5 placeholder:text-ink-muted focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all resize-y"
                 />
 
                 <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
@@ -807,7 +807,7 @@ const LeadDetalhe = () => {
                   <button
                     type="submit"
                     disabled={salvandoAtividade}
-                    className="px-4 py-1.5 rounded-xl bg-[#0E382C] text-white text-sm font-semibold hover:bg-[#07261E] shadow-sm disabled:opacity-50"
+                    className="px-4 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-white text-sm font-semibold shadow-sm disabled:opacity-50 transition-all cursor-pointer"
                   >
                     {salvandoAtividade ? 'Salvando...' : 'Salvar Registro'}
                   </button>
@@ -1102,74 +1102,74 @@ const LeadDetalhe = () => {
             <form onSubmit={handleSalvarEdicao} className="p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#687770] mb-1">Nome Completo</label>
+                  <label className="block text-[11px] font-semibold text-ink-secondary mb-1">Nome Completo</label>
                   <input
                     type="text"
                     value={formEdicao.nome || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, nome: e.target.value }))}
-                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm font-semibold border border-surface-border bg-surface-subtle dark:bg-[#0D121F] rounded-xl px-3 py-2 text-ink-primary focus:outline-none focus:border-brand-primary"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#687770] mb-1">Cargo</label>
+                  <label className="block text-[11px] font-semibold text-ink-secondary mb-1">Cargo</label>
                   <input
                     type="text"
                     value={formEdicao.cargo || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, cargo: e.target.value }))}
-                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-surface-border bg-surface-subtle dark:bg-[#0D121F] rounded-xl px-3 py-2 text-ink-primary focus:outline-none focus:border-brand-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#687770] mb-1">Empresa</label>
+                  <label className="block text-[11px] font-semibold text-ink-secondary mb-1">Empresa</label>
                   <input
                     type="text"
                     value={formEdicao.empresa || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, empresa: e.target.value }))}
-                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-surface-border bg-surface-subtle dark:bg-[#0D121F] rounded-xl px-3 py-2 text-ink-primary focus:outline-none focus:border-brand-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#687770] mb-1">Valor Estimado (R$)</label>
+                  <label className="block text-[11px] font-semibold text-ink-secondary mb-1">Valor Estimado (R$)</label>
                   <input
                     type="number"
                     value={formEdicao.valor_estimado || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, valor_estimado: e.target.value }))}
-                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-surface-border bg-surface-subtle dark:bg-[#0D121F] rounded-xl px-3 py-2 text-ink-primary focus:outline-none focus:border-brand-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#687770] mb-1">E-mail</label>
+                  <label className="block text-[11px] font-semibold text-ink-secondary mb-1">E-mail</label>
                   <input
                     type="email"
                     value={formEdicao.email || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-surface-border bg-surface-subtle dark:bg-[#0D121F] rounded-xl px-3 py-2 text-ink-primary focus:outline-none focus:border-brand-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#687770] mb-1">Telefone / WhatsApp</label>
+                  <label className="block text-[11px] font-semibold text-ink-secondary mb-1">Telefone / WhatsApp</label>
                   <input
                     type="text"
                     value={formEdicao.telefone || formEdicao.whatsapp || ''}
                     onChange={(e) => setFormEdicao(prev => ({ ...prev, telefone: e.target.value, whatsapp: e.target.value }))}
-                    className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                    className="w-full text-sm border border-surface-border bg-surface-subtle dark:bg-[#0D121F] rounded-xl px-3 py-2 text-ink-primary focus:outline-none focus:border-brand-primary"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-[#687770] mb-1">Observações</label>
+                <label className="block text-[11px] font-semibold text-ink-secondary mb-1">Observações</label>
                 <textarea
                   rows={3}
                   value={formEdicao.observacoes || ''}
                   onChange={(e) => setFormEdicao(prev => ({ ...prev, observacoes: e.target.value }))}
-                  className="w-full text-sm border border-[#E4ECE7] rounded-xl px-3 py-2 text-[#111915] focus:outline-none focus:border-[#0E382C]"
+                  className="w-full text-sm border border-surface-border bg-surface-subtle dark:bg-[#0D121F] rounded-xl px-3 py-2 text-ink-primary focus:outline-none focus:border-brand-primary"
                 />
               </div>
 

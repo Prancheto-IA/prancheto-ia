@@ -16,8 +16,8 @@ import { supabase } from '../lib/supabase.js';
 
 const FUNCAO = 'crm-assistente';
 
-/** Erros que descrevem a conta da OpenAI, e nao a conversa. */
-export const CODIGOS_INDISPONIVEL = ['sem_credito', 'sem_chave'];
+/** Erros que descrevem a conta ou credenciais da IA (Gemini / OpenAI), e nao a conversa. */
+export const CODIGOS_INDISPONIVEL = ['sem_credito', 'sem_chave', 'erro_gemini', 'erro_openai'];
 
 export const useAssistente = () => {
   const [conversas, setConversas]           = useState([]);

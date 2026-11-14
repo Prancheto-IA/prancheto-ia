@@ -56,19 +56,19 @@ const WidgetMinhasTarefas = () => {
   return (
     <WidgetShell
       titulo="Minhas Tarefas de Hoje"
-      icone={<HugeiconsIcon icon={Task01Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />}
+      icone={<HugeiconsIcon icon={Task01Icon} size={16} strokeWidth={1.8} className="text-brand-primary dark:text-[#7DD3FC]" />}
       acaoLabel="Ver todas"
       onAcao={() => navigate('/tarefas')}
     >
       {carregando ? (
         <div className="flex items-center justify-center py-6">
-          <div className="w-5 h-5 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : tarefas.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
-          <HugeiconsIcon icon={CheckmarkCircle02Icon} size={32} strokeWidth={1.5} className="text-[#15803D]/60 mb-2" />
-          <p className="text-sm font-bold text-[#15803D]">Todas as tarefas concluídas!</p>
-          <p className="text-[11px] text-[#687770] mt-0.5">Nenhuma pendência para a data de hoje.</p>
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-surface-subtle rounded-xl border border-surface-border">
+          <HugeiconsIcon icon={CheckmarkCircle02Icon} size={32} strokeWidth={1.5} className="text-emerald-500/80 mb-2" />
+          <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Todas as tarefas concluídas!</p>
+          <p className="text-[11px] text-ink-secondary mt-0.5">Nenhuma pendência para a data de hoje.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -76,11 +76,11 @@ const WidgetMinhasTarefas = () => {
             <div
               key={t.id}
               onClick={() => navigate('/tarefas')}
-              className="flex items-center gap-3 p-2.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-white hover:shadow-xs transition-all cursor-pointer"
+              className="flex items-center gap-3 p-2.5 rounded-xl border border-surface-border bg-surface-subtle hover:bg-surface-hover hover:shadow-xs transition-all cursor-pointer"
             >
               <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${COR_PRIORIDADE[t.prioridade] || 'bg-slate-400'}`} />
-              <p className="text-sm font-semibold text-[#111915] truncate flex-1">{t.titulo}</p>
-              <span className="text-[10px] text-[#687770] font-medium uppercase">{t.prioridade}</span>
+              <p className="text-sm font-semibold text-ink-primary truncate flex-1">{t.titulo}</p>
+              <span className="text-[10px] text-ink-secondary font-medium uppercase">{t.prioridade}</span>
             </div>
           ))}
         </div>

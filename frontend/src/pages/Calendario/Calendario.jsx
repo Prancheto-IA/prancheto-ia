@@ -814,11 +814,11 @@ const CelulaDia = ({
               e.stopPropagation();
               onVerMais(e, dia, mes, ano, eventos);
             }}
-            className="w-full py-0.5 px-2 text-[10px] font-bold text-[#0E382C] bg-[#EDF2EE] hover:bg-[#D4EC9D]/50 border border-[#CBDCD1] rounded-md transition-all flex items-center justify-between group shadow-2xs h-[20px]"
+            className="w-full py-0.5 px-2 text-[10px] font-bold text-brand-primary dark:text-[#7DD3FC] bg-surface-subtle hover:bg-surface-hover border border-surface-border rounded-md transition-all flex items-center justify-between group shadow-2xs h-[20px] cursor-pointer"
             title="Ver todos os eventos deste dia"
           >
             <span className="truncate">+{excedente} {excedente === 1 ? 'evento' : 'eventos'}</span>
-            <span className="text-[9px] text-[#687770] group-hover:text-[#0E382C] flex-shrink-0">ver todos →</span>
+            <span className="text-[9px] text-ink-secondary group-hover:text-brand-primary dark:group-hover:text-[#7DD3FC] flex-shrink-0">ver todos →</span>
           </button>
         )}
       </div>
@@ -1146,8 +1146,8 @@ const Calendario = () => {
             </button>
 
             {dropdownFiltro && (
-              <div className="absolute right-0 mt-1 w-56 bg-white border border-[#E4ECE7] rounded-xl shadow-xl py-1.5 z-30 divide-y divide-[#F0F4F2]">
-                <div className="px-3.5 py-1 text-[10px] font-bold text-[#8A9A92] uppercase tracking-wider">
+              <div className="absolute right-0 mt-1 w-56 bg-surface-card border border-surface-border rounded-xl shadow-xl py-1.5 z-30 divide-y divide-surface-border">
+                <div className="px-3.5 py-1 text-[10px] font-bold text-ink-secondary uppercase tracking-wider">
                   Filtrar por Categoria
                 </div>
                 <div className="py-1">
@@ -1162,23 +1162,23 @@ const Calendario = () => {
                           setAbaAtiva(aba.id);
                           setDropdownFiltro(false);
                         }}
-                        className={`w-full text-left px-3.5 py-2 text-sm font-semibold transition-colors flex items-center justify-between hover:bg-[#F7FAF8] ${
-                          ativo ? 'bg-[#DCF5E4]/60 font-bold text-[#0E382C]' : 'text-[#111915]'
+                        className={`w-full text-left px-3.5 py-2 text-sm font-semibold transition-colors flex items-center justify-between hover:bg-surface-hover cursor-pointer ${
+                          ativo ? 'bg-brand-accent/40 dark:bg-brand-primary/20 font-bold text-brand-primary dark:text-[#7DD3FC]' : 'text-ink-primary'
                         }`}
                       >
                         <div className="flex items-center gap-2 truncate">
                           {aba.dot ? (
                             <span className={`w-2 h-2 rounded-full ${aba.dot} flex-shrink-0`} />
                           ) : (
-                            <span className="w-2 h-2 rounded-full bg-[#111915]/30 flex-shrink-0" />
+                            <span className="w-2 h-2 rounded-full bg-ink-primary/30 flex-shrink-0" />
                           )}
                           <span className="truncate">{aba.label}</span>
                         </div>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <span className="text-[10px] font-semibold text-[#687770] bg-[#F0F4F2] px-1.5 py-0.5 rounded-full">
+                          <span className="text-[10px] font-semibold text-ink-secondary bg-surface-subtle px-1.5 py-0.5 rounded-full border border-surface-border">
                             {qtd}
                           </span>
-                          {ativo && <span className="text-[#0E382C] font-extrabold text-sm">✓</span>}
+                          {ativo && <span className="text-brand-primary dark:text-[#7DD3FC] font-extrabold text-sm">✓</span>}
                         </div>
                       </button>
                     );

@@ -1,3 +1,5 @@
+/// <reference path="../deno-ambient.d.ts" />
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 
@@ -14,7 +16,7 @@ Seu papel é ajudar o Super Admin a:
 4. Resolver problemas técnicos
 Seja direto, técnico e objetivo nas respostas.`;
 
-serve(async (req) => {
+serve(async (req: Request) => {
   // Tratar CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -67,16 +69,18 @@ serve(async (req) => {
 
     const msgUsuario = msgUsuarioArr[0]
 
-    // Busca histórico de mensagens
-    const { data: historico, error: erroHistorico } = await supabaseClient
+    // Busca histórico de mensagens (otimizado com janela deslizante de 12 mensagens)
+    const { data: ultimasMensagens, error: erroHistorico } = await supabaseClient
       .from('ai_messages')
       .select('remetente, conteudo')
       .eq('conversation_id', conversationId)
-      .order('criado_em', { ascending: true })
+      .order('criado_em', { ascending: false })
+      .limit(12);
 
-    if (erroHistorico) throw erroHistorico
+    if (erroHistorico) throw erroHistorico;
+    const historico = (ultimasMensagens || []).reverse();
 
-    // Prepara as mensagens para a OpenAI
+    // Prepara as mensagens para o modelo
     const mensagensOpenAI = [
       { role: 'system', content: SYSTEM_PROMPT },
       ...(historico || []).map((msg: any) => ({
@@ -85,35 +89,55 @@ serve(async (req) => {
       }))
     ]
 
-    // Chama a API da OpenAI
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
-    if (!openaiApiKey) {
-      throw new Error('OPENAI_API_KEY não configurada na Edge Function')
+    // Configura o provedor de IA (Google Gemini ou OpenAI)
+    const geminiKey = Deno.env.get('GEMINI_API_KEY') || Deno.env.get('GOOGLE_API_KEY')
+    const openaiKey = Deno.env.get('OPENAI_API_KEY')
+
+    let url: string
+    let apiKey: string
+    let modelo: string
+    let nomeProvedor: string
+
+    if (geminiKey) {
+      nomeProvedor = 'Google Gemini'
+      apiKey = geminiKey
+      const baseUrl = (Deno.env.get('GEMINI_BASE_URL') || 'https://generativelanguage.googleapis.com/v1beta/openai').replace(/\/+$/, '')
+      url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`
+      const modeloEnv = Deno.env.get('GEMINI_MODEL')
+      const modeloConversa = conversa.modelo && !conversa.modelo.startsWith('gpt-') ? conversa.modelo : null
+      modelo = modeloEnv || modeloConversa || 'gemini-2.5-flash'
+    } else if (openaiKey) {
+      nomeProvedor = 'OpenAI'
+      apiKey = openaiKey
+      const baseUrl = (Deno.env.get('OPENAI_BASE_URL') || Deno.env.get('OPENAI_ENDPOINT') || 'https://api.openai.com/v1').replace(/\/+$/, '')
+      url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`
+      const modeloEnv = Deno.env.get('OPENAI_MODEL')
+      const modeloConversa = conversa.modelo && !conversa.modelo.startsWith('gemini-') ? conversa.modelo : null
+      modelo = modeloEnv || modeloConversa || 'gpt-4o-mini'
+    } else {
+      throw new Error('Nenhuma chave de IA configurada. Configure GEMINI_API_KEY (ou OPENAI_API_KEY) nos secrets do Supabase.')
     }
 
-    const baseUrl = (Deno.env.get('OPENAI_BASE_URL') || Deno.env.get('OPENAI_ENDPOINT') || 'https://api.openai.com/v1').replace(/\/+$/, '')
-    const url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`
-
-    const openAiResponse = await fetch(url, {
+    const aiResponse = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openaiApiKey}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: conversa.modelo || Deno.env.get('OPENAI_MODEL') || 'gpt-4o-mini',
+        model: modelo,
         messages: mensagensOpenAI,
-        max_tokens: 2048,
+        max_tokens: 1024,
         temperature: 0.7
       })
     })
 
-    if (!openAiResponse.ok) {
-      const errorText = await openAiResponse.text()
-      throw new Error(`Erro OpenAI: ${openAiResponse.status} - ${errorText}`)
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text()
+      throw new Error(`Erro ${nomeProvedor}: ${aiResponse.status} - ${errorText}`)
     }
 
-    const openaiData = await openAiResponse.json()
+    const openaiData = await aiResponse.json()
     const conteudoResposta = openaiData.choices[0]?.message?.content || ''
     const tokensUsados = openaiData.usage?.completion_tokens || 0
     const tokensTotal = openaiData.usage?.total_tokens || 0

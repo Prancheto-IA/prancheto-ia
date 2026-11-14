@@ -1,10 +1,11 @@
 // =============================================================
 // PRANCHETO.IA - BOTÃO FLUTUANTE DO AGENTE DE IA (PRANCHETINHO)
 //
-// Botão circular com fundo branco fixo no canto inferior direito,
-// contendo a arte estática do Pranchetinho na base, camada SVG
-// absoluta com animação CSS (@keyframes) para o piscar das pálpebras
-// e botão X no canto superior direito para ocultar e fixar na sidebar.
+// Botão circular adaptável aos temas claro (fundo branco) e escuro
+// (Obsidian Slate), fixo no canto inferior direito, contendo a arte
+// estática do Pranchetinho na base, camada SVG absoluta com animação
+// CSS (@keyframes) para o piscar das pálpebras e botão X no canto
+// superior direito para ocultar e fixar na sidebar.
 // =============================================================
 
 import React from 'react';

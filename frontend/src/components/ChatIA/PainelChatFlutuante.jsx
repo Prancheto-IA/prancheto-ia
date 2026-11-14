@@ -6,12 +6,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssistente, CODIGOS_INDISPONIVEL } from '../../hooks/useAssistente.js';
+import { useVoz } from '../../hooks/useVoz.js';
 import {
   Bolha,
   LinhaAtividade,
   CartaoAcao,
   FaixaIndisponivel,
   SUGESTOES,
+  DicaVoz,
+  EntradaVozWaveform,
 } from '../../pages/DashboardCliente/Chat/ChatMensagens.jsx';
 import pranchetinho from '../../assets/mascote/pranchetinho-chat.png';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -21,6 +24,8 @@ import {
   SentIcon,
   ArrowUpRight01Icon,
   SparklesIcon,
+  Mic01Icon,
+  MicOff01Icon,
 } from '@hugeicons/core-free-icons';
 
 const PainelChatFlutuante = ({ onFechar, style }) => {
@@ -42,6 +47,19 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
   const [texto, setTexto] = useState('');
   const fimRef = useRef(null);
 
+  const {
+    ouvindo,
+    falando,
+    volume,
+    suportado: vozSuportada,
+    erro: erroVoz,
+    alternarEscuta,
+    pararEscuta,
+    abortarEscuta,
+  } = useVoz({
+    onResultado: (transcricao) => setTexto(transcricao),
+  });
+
   useEffect(() => {
     carregarConversas();
   }, [carregarConversas]);
@@ -53,8 +71,22 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
   const submeter = (e) => {
     e.preventDefault();
     if (!texto.trim() || enviando) return;
+    pararEscuta();
     enviar(texto);
     setTexto('');
+  };
+
+  const cancelarVoz = () => {
+    abortarEscuta();
+    setTexto('');
+  };
+
+  const enviarVoz = () => {
+    if (!texto.trim() || enviando) return;
+    pararEscuta();
+    const msg = texto;
+    setTexto('');
+    enviar(msg);
   };
 
   const abrirChatCompleto = () => {
@@ -173,6 +205,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
                   <span className="truncate flex-1">{sugestao}</span>
                 </button>
               ))}
+              <DicaVoz />
             </div>
           </div>
         )}
@@ -231,34 +264,61 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
         <div ref={fimRef} />
       </div>
 
-      {/* 3. Rodapé com Campo de Entrada */}
+      {/* 3. Rodapé com Campo de Entrada ou Waveform de Voz */}
       <form onSubmit={submeter} className="p-3 bg-surface-card border-t border-surface-border shrink-0">
-        {erro && !indisponivel && (
-          <p className="text-rose-500 dark:text-rose-400 text-sm mb-2 px-1 font-medium">{erro.mensagem}</p>
-        )}
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            placeholder={
-              acoesPendentes.length > 0
-                ? 'Confirme a ação pendente acima...'
-                : 'Pergunte ou comande o CRM...'
-            }
-            disabled={enviando}
-            aria-label="Mensagem para o assistente"
-            className="flex-1 bg-surface-subtle border border-surface-border text-ink-primary rounded-2xl px-4 py-2.5 text-sm placeholder:text-ink-muted focus:outline-none focus:border-brand-primary focus:bg-surface-card transition-all shadow-2xs disabled:opacity-50"
+        {(erro && !indisponivel) || erroVoz ? (
+          <p className="text-rose-500 dark:text-rose-400 text-sm mb-2 px-1 font-medium">
+            {erro?.mensagem || erroVoz}
+          </p>
+        ) : null}
+
+        {ouvindo ? (
+          <EntradaVozWaveform
+            texto={texto}
+            falando={falando}
+            volume={volume}
+            enviando={enviando}
+            onCancelar={cancelarVoz}
+            onEnviar={enviarVoz}
           />
-          <button
-            type="submit"
-            disabled={!texto.trim() || enviando}
-            className="w-10 h-10 rounded-2xl bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-40 text-white transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed"
-            aria-label="Enviar mensagem"
-          >
-            <HugeiconsIcon icon={SentIcon} size={18} strokeWidth={2} />
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              placeholder={
+                acoesPendentes.length > 0
+                  ? 'Confirme a ação pendente acima...'
+                  : 'Pergunte ou comande o CRM...'
+              }
+              disabled={enviando}
+              aria-label="Mensagem para o assistente"
+              className="flex-1 bg-surface-subtle border border-surface-border focus:border-brand-primary text-ink-primary rounded-2xl px-4 py-2.5 text-sm placeholder:text-ink-muted focus:outline-none focus:bg-surface-card transition-all shadow-2xs disabled:opacity-50"
+            />
+            {vozSuportada && (
+              <button
+                type="button"
+                onClick={alternarEscuta}
+                disabled={enviando}
+                title="Falar comando por voz"
+                aria-label="Falar comando por voz"
+                className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all cursor-pointer bg-surface-subtle border border-surface-border text-ink-secondary hover:text-brand-primary hover:border-brand-primary/40 shadow-2xs active:scale-95"
+              >
+                <HugeiconsIcon icon={Mic01Icon} size={18} strokeWidth={2} />
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={!texto.trim() || enviando}
+              className="w-10 h-10 rounded-2xl bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-40 text-white transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed active:scale-95"
+              aria-label="Enviar mensagem"
+              title="Enviar mensagem"
+            >
+              <HugeiconsIcon icon={SentIcon} size={18} strokeWidth={2} />
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

@@ -83,18 +83,18 @@ const WidgetMuralAnuncios = () => {
   return (
     <WidgetShell
       titulo="Mural de Anúncios"
-      icone={<HugeiconsIcon icon={Megaphone01Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />}
+      icone={<HugeiconsIcon icon={Megaphone01Icon} size={16} strokeWidth={1.8} className="text-brand-primary dark:text-[#7DD3FC]" />}
     >
       <div className="flex flex-col h-full">
         <div className="flex-1 min-h-0 flex flex-col space-y-3">
           {carregando ? (
             <div className="flex-1 flex items-center justify-center py-6">
-              <div className="w-5 h-5 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : postagens.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
-              <HugeiconsIcon icon={Megaphone01Icon} size={32} strokeWidth={1.5} className="text-[#687770]/50 mb-2" />
-              <p className="text-sm font-semibold text-[#687770]">
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-surface-subtle rounded-xl border border-surface-border">
+              <HugeiconsIcon icon={Megaphone01Icon} size={32} strokeWidth={1.5} className="text-ink-secondary/50 mb-2" />
+              <p className="text-sm font-semibold text-ink-secondary">
                 {pagina === 0 ? 'Nenhum anúncio publicado ainda.' : 'Não há anúncios mais antigos.'}
               </p>
             </div>
@@ -103,21 +103,21 @@ const WidgetMuralAnuncios = () => {
               const totalReacoes = p.feed_reacoes?.[0]?.count || 0;
               const totalComentarios = p.feed_comentarios?.[0]?.count || 0;
               return (
-                <div key={p.id} className="p-3 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7] space-y-1.5">
+                <div key={p.id} className="p-3 bg-surface-subtle rounded-xl border border-surface-border space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#111915]">{p.autor?.nome || 'Usuário'}</span>
-                    <span className="text-[10px] text-[#687770]">{formatarTempo(p.criado_em)}</span>
+                    <span className="text-sm font-semibold text-ink-primary">{p.autor?.nome || 'Usuário'}</span>
+                    <span className="text-[10px] text-ink-secondary">{formatarTempo(p.criado_em)}</span>
                   </div>
-                  <p className="text-sm text-[#687770] leading-relaxed line-clamp-2">{p.conteudo}</p>
-                  <div className="flex items-center gap-3 pt-1 border-t border-[#E4ECE7]/60">
+                  <p className="text-sm text-ink-secondary leading-relaxed line-clamp-2">{p.conteudo}</p>
+                  <div className="flex items-center gap-3 pt-1 border-t border-surface-border">
                     <button
                       onClick={() => reagir(p.id)}
-                      className="text-[10px] font-semibold text-[#0E382C] hover:bg-[#EBF0ED] px-2 py-0.5 rounded-md transition-colors flex items-center gap-1"
+                      className="text-[10px] font-semibold text-brand-secondary dark:text-brand-primary-text hover:bg-surface-hover px-2 py-0.5 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <HugeiconsIcon icon={ThumbsUpIcon} size={12} strokeWidth={1.8} />
                       <span>Curtir ({totalReacoes})</span>
                     </button>
-                    <span className="text-[10px] text-[#687770]">Comentários ({totalComentarios})</span>
+                    <span className="text-[10px] text-ink-secondary">Comentários ({totalComentarios})</span>
                   </div>
                 </div>
               );
@@ -125,18 +125,18 @@ const WidgetMuralAnuncios = () => {
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#E4ECE7] flex-shrink-0">
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-surface-border flex-shrink-0">
           <button
             onClick={() => carregar(pagina - 1)}
             disabled={pagina === 0 || carregando}
-            className="text-sm font-semibold text-[#0E382C] disabled:opacity-30 disabled:cursor-not-allowed hover:underline"
+            className="text-sm font-semibold text-brand-primary dark:text-brand-primary-text disabled:opacity-30 disabled:cursor-not-allowed hover:underline cursor-pointer"
           >
             ← Anúncios recentes
           </button>
           <button
             onClick={() => carregar(pagina + 1)}
             disabled={!temMais || carregando}
-            className="text-sm font-semibold text-[#0E382C] disabled:opacity-30 disabled:cursor-not-allowed hover:underline"
+            className="text-sm font-semibold text-brand-primary dark:text-brand-primary-text disabled:opacity-30 disabled:cursor-not-allowed hover:underline cursor-pointer"
           >
             Mais antigos →
           </button>

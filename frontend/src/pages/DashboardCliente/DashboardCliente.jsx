@@ -55,9 +55,9 @@ const DashboardCliente = () => {
 
         <button
           onClick={() => setModalAberto(true)}
-          className="flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#E4ECE7] text-[#0E382C] font-semibold text-sm rounded-xl shadow-xs hover:bg-[#F7FAF8] transition-all flex-shrink-0"
+          className="flex items-center gap-2 px-3.5 py-1.5 bg-surface-card border border-surface-border text-brand-primary dark:text-[#7DD3FC] font-semibold text-sm rounded-xl shadow-xs hover:bg-surface-hover transition-all flex-shrink-0 cursor-pointer"
         >
-          <HugeiconsIcon icon={Edit02Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />
+          <HugeiconsIcon icon={Edit02Icon} size={16} strokeWidth={1.8} className="text-brand-primary dark:text-[#7DD3FC]" />
           <span>Personalizar Dashboard</span>
         </button>
       </div>

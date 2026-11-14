@@ -47,18 +47,18 @@ const WidgetMiniAgenda = () => {
   return (
     <WidgetShell
       titulo="Próximos Compromissos"
-      icone={<HugeiconsIcon icon={Calendar03Icon} size={16} strokeWidth={1.8} className="text-[#0E382C]" />}
+      icone={<HugeiconsIcon icon={Calendar03Icon} size={16} strokeWidth={1.8} className="text-brand-primary dark:text-[#7DD3FC]" />}
       acaoLabel="Ver calendário"
       onAcao={() => navigate('/calendario')}
     >
       {carregando ? (
         <div className="flex items-center justify-center py-6">
-          <div className="w-5 h-5 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : eventos.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-[#F7FAF8] rounded-xl border border-[#E4ECE7]">
-          <HugeiconsIcon icon={Calendar03Icon} size={32} strokeWidth={1.5} className="text-[#687770]/50 mb-2" />
-          <p className="text-sm font-semibold text-[#687770]">Nenhum compromisso nos próximos 7 dias.</p>
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-surface-subtle rounded-xl border border-surface-border">
+          <HugeiconsIcon icon={Calendar03Icon} size={32} strokeWidth={1.5} className="text-ink-secondary/50 mb-2" />
+          <p className="text-sm font-semibold text-ink-secondary">Nenhum compromisso nos próximos 7 dias.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -66,12 +66,12 @@ const WidgetMiniAgenda = () => {
             <div
               key={e.id}
               onClick={() => navigate('/calendario')}
-              className="flex items-center gap-3 p-2.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:bg-white hover:shadow-xs transition-all cursor-pointer"
+              className="flex items-center gap-3 p-2.5 rounded-xl border border-surface-border bg-surface-subtle hover:bg-surface-hover hover:shadow-xs transition-all cursor-pointer"
             >
               <div className="w-1.5 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: e.cor || '#0E382C' }} />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-[#111915] truncate">{e.titulo}</p>
-                <p className="text-[11px] text-[#687770] capitalize">{formatarData(e.data_inicio)}</p>
+                <p className="text-sm font-semibold text-ink-primary truncate">{e.titulo}</p>
+                <p className="text-[11px] text-ink-secondary capitalize">{formatarData(e.data_inicio)}</p>
               </div>
             </div>
           ))}

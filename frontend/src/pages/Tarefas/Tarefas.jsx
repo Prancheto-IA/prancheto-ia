@@ -1441,10 +1441,10 @@ const Tarefas = () => {
                     setViewSelecionada(v);
                     setDropdownViews(false);
                   }}
-                  className={`w-full text-left px-4 py-2 hover:bg-[#F7FAF8] transition-colors ${
+                  className={`w-full text-left px-4 py-2 hover:bg-surface-hover transition-colors ${
                     viewSelecionada === v
-                      ? 'text-[#0E382C] bg-[#F7FAF8] font-bold'
-                      : 'text-[#687770]'
+                      ? 'text-brand-primary dark:text-[#7DD3FC] bg-surface-hover font-bold'
+                      : 'text-ink-secondary'
                   }`}
                 >
                   {v}
@@ -1502,8 +1502,8 @@ const Tarefas = () => {
               title="Visualização em Quadro Kanban"
               className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${
                 visao === 'kanban'
-                  ? 'bg-[#0E382C] text-white shadow-2xs'
-                  : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+                  ? 'bg-brand-primary text-white shadow-2xs'
+                  : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-hover'
               }`}
             >
               <HugeiconsIcon icon={DashboardSquare01Icon} size={14} strokeWidth={1.8} />
@@ -1515,8 +1515,8 @@ const Tarefas = () => {
               title="Visualização em Lista / Tabela"
               className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${
                 visao === 'lista'
-                  ? 'bg-[#0E382C] text-white shadow-2xs'
-                  : 'text-[#687770] hover:text-[#111915] hover:bg-[#F7FAF8]'
+                  ? 'bg-brand-primary text-white shadow-2xs'
+                  : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-hover'
               }`}
             >
               <HugeiconsIcon icon={Menu01Icon} size={14} strokeWidth={1.8} />
@@ -1844,7 +1844,7 @@ const Tarefas = () => {
                       <tr
                         key={tarefa.id}
                         onClick={() => handleAbrirModal(tarefa)}
-                        className="hover:bg-[#F7FAF8] transition-colors cursor-pointer group"
+                        className="hover:bg-surface-hover transition-colors cursor-pointer group"
                       >
                         {/* Checkbox de Conclusão */}
                         <td className="py-3.5 pl-5 pr-2" onClick={e => e.stopPropagation()}>
@@ -1852,7 +1852,7 @@ const Tarefas = () => {
                             type="checkbox"
                             checked={concluida}
                             onChange={() => toggleConcluida(tarefa.id)}
-                            className="w-4 h-4 rounded-md text-[#0E382C] focus:ring-[#0E382C] cursor-pointer"
+                            className="w-4 h-4 rounded-md text-brand-primary focus:ring-brand-primary cursor-pointer"
                           />
                         </td>
 
@@ -1861,7 +1861,7 @@ const Tarefas = () => {
                           <div className="flex items-center gap-2">
                             <span
                               className={`font-bold ${
-                                concluida ? 'line-through text-[#99A6A0]' : 'text-[#111915] group-hover:text-[#0E382C]'
+                                concluida ? 'line-through text-ink-muted' : 'text-ink-primary group-hover:text-brand-primary dark:group-hover:text-[#7DD3FC]'
                               }`}
                             >
                               {tarefa.titulo}
@@ -1870,7 +1870,7 @@ const Tarefas = () => {
                               {cor.nome}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[#687770] truncate mt-0.5">
+                          <p className="text-[11px] text-ink-secondary truncate mt-0.5">
                             {tarefa.projeto || tarefa.descricao || tarefa.nota || 'Sem notas'}
                           </p>
                         </td>

@@ -22,6 +22,8 @@
 // sem tocar em codigo.
 // =============================================================
 
+/// <reference path="../deno-ambient.d.ts" />
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import {
@@ -42,8 +44,40 @@ const corsHeaders = {
 // encadear ferramentas (buscar -> detalhar -> registrar); sem teto,
 // um loop de raciocinio vira conta aberta.
 const MAX_RODADAS = 5;
-const MAX_TOKENS = 1500;
-const MODELO_PADRAO = Deno.env.get('OPENAI_MODEL') || 'gpt-4o-mini';
+const MAX_TOKENS = 1000;
+
+interface ConfiguracaoProvedor {
+  provedor: 'gemini' | 'openai';
+  chave: string;
+  url: string;
+  modelo: string;
+}
+
+const obterConfiguracaoProvedor = (modeloConversa?: string | null): ConfiguracaoProvedor => {
+  const chaveGemini = Deno.env.get('GEMINI_API_KEY') || Deno.env.get('GOOGLE_API_KEY') || '';
+  const chaveOpenAI = Deno.env.get('OPENAI_API_KEY') || '';
+
+  // Se houver chave do Gemini configurada (ou prioritária), usa Google Gemini
+  if (chaveGemini) {
+    const baseUrl = (Deno.env.get('GEMINI_BASE_URL') || 'https://generativelanguage.googleapis.com/v1beta/openai').replace(/\/+$/, '');
+    const url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`;
+    // Modelo padrão ultra-rápido: gemini-2.5-flash
+    const modeloEnv = Deno.env.get('GEMINI_MODEL');
+    const modeloValidoConversa = modeloConversa && !modeloConversa.startsWith('gpt-') ? modeloConversa : null;
+    const modelo = modeloEnv || modeloValidoConversa || 'gemini-2.5-flash';
+
+    return { provedor: 'gemini', chave: chaveGemini, url, modelo };
+  }
+
+  // Fallback para OpenAI caso GEMINI_API_KEY não esteja configurada
+  const baseUrl = (Deno.env.get('OPENAI_BASE_URL') || Deno.env.get('OPENAI_ENDPOINT') || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`;
+  const modeloEnv = Deno.env.get('OPENAI_MODEL');
+  const modeloValidoConversa = modeloConversa && !modeloConversa.startsWith('gemini-') ? modeloConversa : null;
+  const modelo = modeloEnv || modeloValidoConversa || 'gpt-4o-mini';
+
+  return { provedor: 'openai', chave: chaveOpenAI, url, modelo };
+};
 
 const responder = (corpo: unknown, status = 200) =>
   new Response(JSON.stringify(corpo), {
@@ -79,7 +113,7 @@ LIMITES
   tente a mesma coisa de novo sem mudar nada.
 `.trim();
 
-/** Reconstroi a conversa no formato da OpenAI a partir de ai_messages. */
+/** Reconstroi a conversa no formato compativel a partir de ai_messages. */
 const montarMensagens = (historico: any[]) => {
   const mensagens: any[] = [];
   for (const msg of historico) {
@@ -103,13 +137,10 @@ const montarMensagens = (historico: any[]) => {
   return mensagens;
 };
 
-const chamarOpenAI = async (chave: string, corpo: unknown) => {
-  const baseUrl = (Deno.env.get('OPENAI_BASE_URL') || Deno.env.get('OPENAI_ENDPOINT') || 'https://api.openai.com/v1').replace(/\/+$/, '');
-  const url = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`;
-
-  const resposta = await fetch(url, {
+const chamarLLM = async (config: ConfiguracaoProvedor, corpo: unknown) => {
+  const resposta = await fetch(config.url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${chave}` },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.chave}` },
     body: JSON.stringify(corpo),
   });
 
@@ -119,15 +150,25 @@ const chamarOpenAI = async (chave: string, corpo: unknown) => {
   let detalhe: any = {};
   try { detalhe = JSON.parse(texto); } catch { /* corpo nao-JSON: fica o texto cru */ }
 
-  const codigoOpenAI = detalhe?.error?.code ?? '';
-  const semCredito = resposta.status === 429 || codigoOpenAI === 'insufficient_quota';
+  const status = resposta.status;
+  const codigoErro = detalhe?.error?.code ?? detalhe?.error?.status ?? '';
+  const mensagemErro = detalhe?.error?.message ?? texto;
 
+  // Deteccao de cota/saldo esgotado (OpenAI 429 / insufficient_quota ou Gemini 429 / RESOURCE_EXHAUSTED)
+  const semCredito =
+    status === 429 ||
+    codigoErro === 'insufficient_quota' ||
+    codigoErro === 'RESOURCE_EXHAUSTED' ||
+    mensagemErro.toLowerCase().includes('quota') ||
+    mensagemErro.toLowerCase().includes('exhausted');
+
+  const nomeProvedor = config.provedor === 'gemini' ? 'Google Gemini' : 'OpenAI';
   const erro: any = new Error(
     semCredito
-      ? 'A conta da OpenAI esta sem credito disponivel. O assistente volta a funcionar assim que houver saldo.'
-      : `Erro da OpenAI (${resposta.status}): ${detalhe?.error?.message ?? texto}`,
+      ? `A cota da API do ${nomeProvedor} está esgotada ou sem saldo disponível no momento.`
+      : `Erro no ${nomeProvedor} (${status}): ${mensagemErro}`,
   );
-  erro.codigo = semCredito ? 'sem_credito' : 'erro_openai';
+  erro.codigo = semCredito ? 'sem_credito' : `erro_${config.provedor}`;
   throw erro;
 };
 
@@ -151,7 +192,7 @@ const auditar = async (
   } catch (_) { /* auditoria e registro, nao pre-requisito */ }
 };
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
@@ -191,10 +232,16 @@ serve(async (req) => {
       permissoes,
     };
 
-    // --- Modo diagnostico: valida o caminho todo sem chamar a OpenAI ---
+    // --- Modo diagnostico: valida o caminho todo sem chamar a IA ---
     if (corpo.modo === 'diagnostico') {
+      const config = obterConfiguracaoProvedor(null);
+      const chaveGemini = Deno.env.get('GEMINI_API_KEY') || Deno.env.get('GOOGLE_API_KEY') || '';
       return responder({
         sucesso: true,
+        provedor: config.provedor,
+        modelo: config.modelo,
+        chave_configurada: config.chave.length > 0,
+        chave_gemini_configurada: chaveGemini.length > 0,
         chave_openai_configurada: chaveOpenAI.length > 0,
         usuario: { nome: perfil.nome, cargo: perfil.cargo, tem_cargo_organizacional: !!perfil.cargo_id },
         ferramentas: FERRAMENTAS.map((f) => ({
@@ -333,32 +380,36 @@ serve(async (req) => {
     let respostaFinal: any = null;
     let novasPendentes: any[] = [];
     let aviso: { mensagem: string; codigo: string } | null = null;
+    const configIA = obterConfiguracaoProvedor(conversa.modelo);
 
     try {
     // Dentro do try de proposito: a falta da chave e mais um motivo
     // de o assistente nao comentar o resultado, e nao motivo para
     // esconder a acao que ja foi gravada logo acima.
-    if (!chaveOpenAI) {
-      const semChave: any = new Error('OPENAI_API_KEY nao configurada na Edge Function.');
+    if (!configIA.chave) {
+      const semChave: any = new Error(
+        'Nenhuma chave de IA configurada. Configure GEMINI_API_KEY (ou OPENAI_API_KEY) nos secrets do Supabase.'
+      );
       semChave.codigo = 'sem_chave';
       throw semChave;
     }
 
     for (let rodada = 0; rodada < MAX_RODADAS; rodada++) {
-      const { data: historico } = await supabase
+      // Janela deslizante de contexto: busca as 12 mensagens mais recentes para acelerar a resposta do modelo
+      const { data: ultimasMensagens } = await supabase
         .from('ai_messages')
         .select('remetente, conteudo, metadata')
         .eq('conversation_id', conversa.id)
-        .order('criado_em', { ascending: true });
+        .order('criado_em', { ascending: false })
+        .limit(12);
 
-      const modeloEnv = Deno.env.get('OPENAI_MODEL');
-      const modeloFinal = modeloEnv || (conversa.modelo && conversa.modelo !== 'gpt-4o-mini' ? conversa.modelo : null) || MODELO_PADRAO;
+      const historico = (ultimasMensagens || []).reverse();
 
-      const resposta = await chamarOpenAI(chaveOpenAI, {
-        model: modeloFinal,
+      const resposta = await chamarLLM(configIA, {
+        model: configIA.modelo,
         messages: [
           { role: 'system', content: promptSistema(ctx.usuario, hoje) },
-          ...montarMensagens(historico ?? []),
+          ...montarMensagens(historico),
         ],
         tools: comoToolsOpenAI(disponiveis),
         tool_choice: 'auto',
@@ -423,7 +474,7 @@ serve(async (req) => {
       // a acao ja aconteceu: informar so a falha faria o usuario achar
       // que nada foi gravado, e repetir o pedido.
       if (!houveEfeito) throw falhaIA;
-      aviso = { mensagem: falhaIA.message, codigo: falhaIA.codigo ?? 'erro_openai' };
+      aviso = { mensagem: falhaIA.message, codigo: falhaIA.codigo ?? (configIA.provedor === 'gemini' ? 'erro_gemini' : 'erro_openai') };
     }
 
     if (tokensDoTurno > 0) {

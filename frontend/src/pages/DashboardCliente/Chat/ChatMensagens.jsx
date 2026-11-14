@@ -4,8 +4,9 @@
 // (components/ChatIA/PainelChatFlutuante.jsx).
 // =============================================================
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../store/authStore.js';
+import { LiveWaveform } from '../../../components/ui/live-waveform.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
@@ -19,6 +20,9 @@ import {
   Alert02Icon,
   BotIcon,
   Settings02Icon,
+  Mic01Icon,
+  Cancel01Icon,
+  SentIcon,
 } from '@hugeicons/core-free-icons';
 
 // Rótulo e ícone de cada ferramenta na linha de atividade
@@ -42,6 +46,90 @@ export const SUGESTOES = [
   'Quais negociações estão em aberto?',
   'Resuma as atividades mais recentes do CRM',
 ];
+
+export const DicaVoz = () => (
+  <div className="flex items-center justify-center gap-1.5 text-xs text-ink-muted pt-2 pb-1">
+    <span className="w-5 h-5 rounded-full bg-brand-accent/60 dark:bg-brand-primary/20 flex items-center justify-center text-brand-secondary">
+      <HugeiconsIcon icon={Mic01Icon} size={11} strokeWidth={2} />
+    </span>
+    <span>Dica: você pode clicar no microfone para enviar comandos por voz</span>
+  </div>
+);
+
+// ----------------------------------------------------------
+// WAVEFORM DE ENTRADA POR VOZ (Substitui campo de texto)
+// ----------------------------------------------------------
+export const EntradaVozWaveform = ({
+  texto = '',
+  falando = false,
+  volume = 0.08,
+  onCancelar,
+  onEnviar,
+  enviando = false,
+  barColor = '#F43F5E',
+}) => {
+  const [segundos, setSegundos] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSegundos((s) => s + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const minutos = Math.floor(segundos / 60).toString().padStart(2, '0');
+  const segs = (segundos % 60).toString().padStart(2, '0');
+  const tempoFormatado = `${minutos}:${segs}`;
+
+  return (
+    <div className="flex-1 flex items-center gap-2 bg-surface-subtle dark:bg-[#0D121F] border border-rose-500/40 dark:border-rose-500/30 rounded-2xl px-3 py-1.5 shadow-2xs min-h-[46px]">
+      {/* Indicador pulsante e contador de tempo */}
+      <div className="flex items-center gap-1.5 shrink-0 px-1">
+        <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+        <span className="text-xs font-semibold tabular-nums text-rose-500 dark:text-rose-400">
+          {tempoFormatado}
+        </span>
+      </div>
+
+      {/* Onda Sonora Viva Reativa */}
+      <div className="flex-1 h-8 flex items-center min-w-0 overflow-hidden">
+        <LiveWaveform
+          active={true}
+          falando={falando}
+          volume={volume}
+          height={32}
+          barWidth={3}
+          barGap={1.5}
+          barRadius={1.5}
+          barColor={barColor}
+        />
+      </div>
+
+      {/* Botão Cancelar */}
+      <button
+        type="button"
+        onClick={onCancelar}
+        title="Cancelar gravação de voz"
+        aria-label="Cancelar gravação de voz"
+        className="p-2 rounded-xl text-ink-muted hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer shrink-0"
+      >
+        <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2} />
+      </button>
+
+      {/* Botão Enviar */}
+      <button
+        type="button"
+        onClick={onEnviar}
+        disabled={enviando || !texto.trim()}
+        title={texto.trim() ? 'Enviar comando por voz' : 'Fale para enviar...'}
+        aria-label="Enviar comando por voz"
+        className="p-2 rounded-xl bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-40 text-white transition-all shadow-xs flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shrink-0"
+      >
+        <HugeiconsIcon icon={SentIcon} size={18} strokeWidth={2} />
+      </button>
+    </div>
+  );
+};
 
 // ----------------------------------------------------------
 // MENSAGEM (BOLHA)

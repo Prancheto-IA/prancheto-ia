@@ -486,7 +486,7 @@ html.dark .bg-brand-accent.text-brand-primary {
 .hover\:bg-surface-subtle:hover,
 .hover\:bg-\[\#F7FAF8\]:hover,
 .hover\:bg-\[\#F0F4F2\]:hover {
-  background-color: var(--color-surface-subtle);
+  background-color: var(--color-surface-hover) !important;
 }
 .bg-surface-hover,
 .hover\:bg-surface-hover:hover,
@@ -734,6 +734,75 @@ html.dark header .bg-white {
   color: var(--color-text-primary);
 }
 
+/* =============================================================
+   PROTEÇÃO GLOBAL CONTRA HOVER BRANCO / CORES ESTRANHAS NO MODO ESCURO
+   ============================================================= */
+
+/* 1. Intercepta qualquer utilitário de hover claro no Tailwind quando em html.dark */
+html.dark [class*="hover:bg-white"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#F7FAF8]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#F9FCFA]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#FAFCFB]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#F0F4F2]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#EDF2EE]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#EDF4F0]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#EBF0ED]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#E4ECE7]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#CBDCD1]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-slate-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-slate-100"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-gray-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-gray-100"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-neutral-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-neutral-100"]:hover:not([class*="dark:hover:bg-"]),
+html.dark .hover\:bg-surface-subtle:hover:not([class*="dark:hover:bg-"]),
+html.dark .hover\:bg-surface-hover:hover:not([class*="dark:hover:bg-"]) {
+  background-color: var(--color-surface-hover, #1D2842) !important;
+}
+
+/* 2. Hovers de tons claros/amarelados/oliva que no modo escuro ficavam turvos */
+html.dark [class*="hover:bg-[#D4EC9D]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#DCF5E4]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#EBF5EC]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#C0E2C7]"]:hover:not([class*="dark:hover:bg-"]) {
+  background-color: rgba(56, 189, 248, 0.16) !important;
+}
+
+/* 3. Fundos claros ativos/selecionados que usam classes com opacidade tipo bg-[#DCF5E4]/60 */
+html.dark [class*="bg-[#DCF5E4]"]:not([class*="dark:bg-"]),
+html.dark [class*="bg-[#EBF5EC]"]:not([class*="dark:bg-"]),
+html.dark [class*="bg-[#D2EBD7]"]:not([class*="dark:bg-"]) {
+  background-color: rgba(56, 189, 248, 0.16) !important;
+}
+
+/* 4. Texto em hover no modo escuro mantendo contraste total */
+html.dark [class*="hover:text-[#111915]"]:hover,
+html.dark [class*="hover:text-slate-700"]:hover,
+html.dark [class*="hover:text-slate-800"]:hover,
+html.dark [class*="hover:text-slate-900"]:hover {
+  color: var(--color-text-primary, #F8FAFC) !important;
+}
+
+html.dark [class*="group-hover:text-[#0E382C]"],
+html.dark .group:hover [class*="group-hover:text-[#0E382C]"],
+html.dark [class*="hover:text-[#0E382C]"]:hover {
+  color: var(--brand-primary-text, #7DD3FC) !important;
+}
+
+/* 5. Inputs, textareas e selects no modo escuro sem fundo branco padrão do navegador */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([class*="dark:bg-"]):not(.bg-white),
+html.dark textarea:not([class*="dark:bg-"]):not(.bg-white),
+html.dark select:not([class*="dark:bg-"]):not(.bg-white) {
+  background-color: var(--color-surface-subtle, #111827);
+  color: var(--color-text-primary, #F8FAFC);
+  border-color: var(--color-surface-border, #23304D);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--color-text-muted, #94A3B8);
+}
+
 /* --- Tipografia --- */
 .text-ink-primary,
 .text-\[\#111915\],
@@ -770,15 +839,15 @@ html.dark header .bg-white {
   height: 62px;
 }
 
-/* Container circular com overflow: hidden e fundo branco */
+/* Container circular com overflow: hidden */
 .botao-flutuante-ia {
   position: relative;
   width: 100%;
   height: 100%;
   padding: 0;
   border-radius: 50%;
-  background-color: #ffffff;
-  border: 1.5px solid rgba(220, 230, 240, 0.9);
+  background-color: var(--color-surface-card, #ffffff);
+  border: 1.5px solid var(--color-surface-border, rgba(220, 230, 240, 0.9));
   box-shadow:
     0 10px 25px -5px rgba(0, 13, 61, 0.22),
     0 4px 10px -2px rgba(115, 56, 242, 0.14);
@@ -792,7 +861,8 @@ html.dark header .bg-white {
   transition:
     transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    border-color 0.25s ease,
+    background-color 0.2s ease;
 }
 
 .botao-flutuante-ia-wrapper:hover .botao-flutuante-ia {
@@ -812,6 +882,28 @@ html.dark header .bg-white {
   box-shadow:
     0 0 0 3px rgba(4, 85, 191, 0.45),
     0 12px 28px -5px rgba(0, 13, 61, 0.25);
+}
+
+/* Suporte ao Modo Escuro (Obsidian Slate & Cobalt) */
+html.dark .botao-flutuante-ia {
+  background-color: var(--color-surface-card, #161F33);
+  border-color: var(--color-surface-border-strong, #31436B);
+  box-shadow:
+    0 12px 28px -5px rgba(0, 0, 0, 0.6),
+    0 4px 14px -2px rgba(37, 99, 235, 0.3);
+}
+
+html.dark .botao-flutuante-ia-wrapper:hover .botao-flutuante-ia {
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow:
+    0 18px 36px -6px rgba(0, 0, 0, 0.75),
+    0 6px 20px -2px rgba(56, 189, 248, 0.35);
+}
+
+html.dark .botao-flutuante-ia:focus-visible {
+  box-shadow:
+    0 0 0 3px rgba(56, 189, 248, 0.5),
+    0 12px 28px -5px rgba(0, 0, 0, 0.6);
 }
 
 /* Botão X no canto superior direito da bolha para ocultar e fixar na sidebar */
@@ -839,7 +931,15 @@ html.dark header .bg-white {
     opacity 0.18s ease,
     transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
     background-color 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+html.dark .botao-flutuante-ia-fechar {
+  background-color: var(--color-surface-card, #161F33);
+  color: var(--color-text-secondary, #94A3B8);
+  border-color: var(--color-surface-border-strong, #31436B);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
 }
 
 .botao-flutuante-ia-wrapper:hover .botao-flutuante-ia-fechar,
@@ -850,9 +950,9 @@ html.dark header .bg-white {
 }
 
 .botao-flutuante-ia-fechar:hover {
-  background-color: #ef4444;
-  border-color: #ef4444;
-  color: #ffffff;
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
   transform: scale(1.1);
 }
 

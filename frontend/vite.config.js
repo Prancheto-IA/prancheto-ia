@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => {
 
     // Configuração do servidor de desenvolvimento
     server: {
+      host: true, // Permite acesso via rede local (ex: http://192.168.0.12:5173)
       port: 5173,
       // Proxy: redireciona chamadas /api para o back-end durante o desenvolvimento,
       // evitando problemas de CORS na máquina local.

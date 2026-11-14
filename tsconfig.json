@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "isolatedModules": true
+  },
+  "include": [
+    "supabase/functions/**/*.ts",
+    "supabase/functions/**/*.d.ts"
+  ],
+  "exclude": [
+    "frontend",
+    "node_modules"
+  ]
+}
+

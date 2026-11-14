@@ -26,3 +26,6 @@ verify_jwt = true
 
 [functions.chat-ai]
 verify_jwt = true
+
+[functions.crm-assistente]
+verify_jwt = true

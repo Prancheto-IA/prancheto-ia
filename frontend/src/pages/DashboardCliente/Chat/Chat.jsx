@@ -5,8 +5,9 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useAssistente, CODIGOS_INDISPONIVEL } from '../../../hooks/useAssistente.js';
+import { useVoz } from '../../../hooks/useVoz.js';
 import {
-  Bolha, LinhaAtividade, CartaoAcao, FaixaIndisponivel, SUGESTOES,
+  Bolha, LinhaAtividade, CartaoAcao, FaixaIndisponivel, SUGESTOES, DicaVoz, EntradaVozWaveform,
 } from './ChatMensagens.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -17,6 +18,8 @@ import {
   AiSparklesIcon,
   SentIcon,
   Comment01Icon,
+  Mic01Icon,
+  MicOff01Icon,
 } from '@hugeicons/core-free-icons';
 
 const Chat = () => {
@@ -30,6 +33,19 @@ const Chat = () => {
   const [busca, setBusca] = useState('');
   const fimRef = useRef(null);
 
+  const {
+    ouvindo,
+    falando,
+    volume,
+    suportado: vozSuportada,
+    erro: erroVoz,
+    alternarEscuta,
+    pararEscuta,
+    abortarEscuta,
+  } = useVoz({
+    onResultado: (transcricao) => setTexto(transcricao),
+  });
+
   useEffect(() => { carregarConversas(); }, [carregarConversas]);
   useEffect(() => {
     fimRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,6 +54,20 @@ const Chat = () => {
   const submeter = (e) => {
     e.preventDefault();
     if (!texto.trim() || enviando) return;
+    pararEscuta();
+    const msg = texto;
+    setTexto('');
+    enviar(msg);
+  };
+
+  const cancelarVoz = () => {
+    abortarEscuta();
+    setTexto('');
+  };
+
+  const enviarVoz = () => {
+    if (!texto.trim() || enviando) return;
+    pararEscuta();
     const msg = texto;
     setTexto('');
     enviar(msg);
@@ -200,7 +230,7 @@ const Chat = () => {
                   Ações que alteram dados sempre solicitarão sua confirmação prévia.
                 </p>
 
-                <div className="flex flex-wrap gap-2 justify-center">
+                <div className="flex flex-wrap gap-2 justify-center mb-5">
                   {SUGESTOES.map((s) => (
                     <button
                       key={s}
@@ -212,6 +242,10 @@ const Chat = () => {
                       <span>{s}</span>
                     </button>
                   ))}
+                </div>
+
+                <div className="w-full max-w-sm">
+                  <DicaVoz />
                 </div>
               </div>
             )}
@@ -260,32 +294,61 @@ const Chat = () => {
           {/* Form de Envio */}
           <form
             onSubmit={submeter}
-            className="p-3 sm:p-4 bg-white border-t border-[#E4ECE7] flex-shrink-0"
+            className="p-3 sm:p-4 bg-surface-card border-t border-surface-border flex-shrink-0"
           >
-            {erro && !indisponivel && (
-              <p className="text-red-500 text-sm mb-2 font-medium">{erro.mensagem}</p>
-            )}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={texto}
-                onChange={(e) => setTexto(e.target.value)}
-                placeholder={acoesPendentes.length > 0
-                  ? 'Confirme ou descarte a ação acima...'
-                  : 'Pergunte sobre seus leads ou peça uma ação no CRM...'}
-                disabled={enviando}
-                aria-label="Mensagem para o assistente"
-                className="flex-1 bg-[#F7FAF8] hover:bg-white focus:bg-white text-sm text-[#111915] placeholder-slate-400 px-4 py-3 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] transition-all"
+            {(erro && !indisponivel) || erroVoz ? (
+              <p className="text-rose-500 text-sm mb-2 font-medium">
+                {erro?.mensagem || erroVoz}
+              </p>
+            ) : null}
+
+            {ouvindo ? (
+              <EntradaVozWaveform
+                texto={texto}
+                falando={falando}
+                volume={volume}
+                enviando={enviando}
+                onCancelar={cancelarVoz}
+                onEnviar={enviarVoz}
               />
-              <button
-                type="submit"
-                disabled={!texto.trim() || enviando}
-                className="px-4 py-3 bg-[#0E382C] hover:bg-[#07261E] disabled:opacity-40 disabled:hover:bg-[#0E382C] text-white rounded-xl transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer"
-                aria-label="Enviar"
-              >
-                <HugeiconsIcon icon={SentIcon} size={18} strokeWidth={2} />
-              </button>
-            </div>
+            ) : (
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={texto}
+                  onChange={(e) => setTexto(e.target.value)}
+                  placeholder={
+                    acoesPendentes.length > 0
+                      ? 'Confirme ou descarte a ação acima...'
+                      : 'Pergunte sobre seus leads ou comande o CRM...'
+                  }
+                  disabled={enviando}
+                  aria-label="Mensagem para o assistente"
+                  className="flex-1 bg-surface-subtle hover:bg-surface-card focus:bg-surface-card text-sm text-ink-primary placeholder:text-ink-muted px-4 py-3 rounded-xl border border-surface-border focus:outline-none focus:border-brand-primary transition-all shadow-2xs"
+                />
+                {vozSuportada && (
+                  <button
+                    type="button"
+                    onClick={alternarEscuta}
+                    disabled={enviando}
+                    title="Falar comando por voz"
+                    aria-label="Falar comando por voz"
+                    className="p-3 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer bg-surface-subtle border border-surface-border text-ink-secondary hover:text-brand-primary hover:border-brand-primary/40 shadow-2xs active:scale-95"
+                  >
+                    <HugeiconsIcon icon={Mic01Icon} size={18} strokeWidth={2} />
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={!texto.trim() || enviando}
+                  className="px-4 py-3 bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-40 text-white rounded-xl transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed active:scale-95"
+                  aria-label="Enviar"
+                  title="Enviar mensagem"
+                >
+                  <HugeiconsIcon icon={SentIcon} size={18} strokeWidth={2} />
+                </button>
+              </div>
+            )}
           </form>
         </section>
       </div>
