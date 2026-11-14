@@ -755,3 +755,152 @@ html.dark header .bg-white {
 .text-\[\#99A6A0\] {
   color: var(--color-text-muted);
 }
+
+/* =============================================================
+   BOTÃO FLUTUANTE DO AGENTE DE IA (PRANCHETINHO)
+   ============================================================= */
+
+/* 1. Wrapper fixo no canto inferior direito que agrupa a bolha e o botão X */
+.botao-flutuante-ia-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 70;
+  width: 62px;
+  height: 62px;
+}
+
+/* Container circular com overflow: hidden e fundo branco */
+.botao-flutuante-ia {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1.5px solid rgba(220, 230, 240, 0.9);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 13, 61, 0.22),
+    0 4px 10px -2px rgba(115, 56, 242, 0.14);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.botao-flutuante-ia-wrapper:hover .botao-flutuante-ia {
+  transform: translateY(-3px) scale(1.06);
+  border-color: rgba(115, 56, 242, 0.35);
+  box-shadow:
+    0 16px 32px -6px rgba(0, 13, 61, 0.28),
+    0 6px 16px -2px rgba(115, 56, 242, 0.24);
+}
+
+.botao-flutuante-ia:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.botao-flutuante-ia:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(4, 85, 191, 0.45),
+    0 12px 28px -5px rgba(0, 13, 61, 0.25);
+}
+
+/* Botão X no canto superior direito da bolha para ocultar e fixar na sidebar */
+.botao-flutuante-ia-fechar {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--color-surface-card, #ffffff);
+  color: var(--color-text-secondary, #5a6a85);
+  border: 1px solid var(--color-surface-border, #dce6f0);
+  box-shadow: 0 4px 10px rgba(0, 13, 61, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.75);
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.botao-flutuante-ia-wrapper:hover .botao-flutuante-ia-fechar,
+.botao-flutuante-ia-wrapper:focus-within .botao-flutuante-ia-fechar {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.botao-flutuante-ia-fechar:hover {
+  background-color: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+/* Palco interno com a proporção exata da arte original (1174 x 948)
+   para travar o alinhamento 1:1 entre o PNG base e o SVG das pálpebras */
+.botao-ia-mascote-palco {
+  position: relative;
+  width: 86%;
+  aspect-ratio: 1174 / 948;
+  display: block;
+  pointer-events: none;
+}
+
+/* 2. Imagem estática base do mascote */
+.botao-ia-imagem-base {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 3. Camada SVG das pálpebras sobreposta de forma absoluta */
+.botao-ia-palpebras-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* Grupo animado das pálpebras fechando de cima para baixo sobre os olhos */
+.botao-ia-palpebras-grupo {
+  transform-box: fill-box;
+  transform-origin: center top;
+  transform: scaleY(0);
+  will-change: transform;
+  animation: piscarPalpebrasPranchetinho 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes piscarPalpebrasPranchetinho {
+  0%, 88%, 94%, 100% {
+    transform: scaleY(0);
+  }
+  91% {
+    transform: scaleY(1);
+  }
+}
+

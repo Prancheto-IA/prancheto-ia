@@ -138,48 +138,78 @@ const getIconeItem = (slug) => {
 // ----------------------------------------------------------
 // COMPONENTE: ItemNav Emitly
 // ----------------------------------------------------------
-const ItemNav = ({ item, colapsada, onClick }) => {
+const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
   const location = useLocation();
+  const rotaExata = location.pathname === item.rota;
   const ativoViaPrefixo = item.prefixoAtivo
     ? location.pathname.startsWith(item.prefixoAtivo)
     : false;
+  const ativo = item.exact ? rotaExata : rotaExata || ativoViaPrefixo;
+  const ehChatIa = item.slug === 'chat_ia' && typeof onDesafixarChatIa === 'function';
 
   return (
-    <Tooltip disabled={!colapsada}>
-      <TooltipTrigger
-        render={
-          <NavLink
-            to={item.rota}
-            end={item.exact}
-            onClick={onClick}
-            className={({ isActive }) => {
-              const ativo = isActive || ativoViaPrefixo;
-              return `h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 group relative overflow-hidden ${colapsada ? 'w-10' : 'w-full'
-                } ${ativo
+    <div className={`relative group ${colapsada ? 'w-10' : 'w-full'}`}>
+      <Tooltip disabled={!colapsada}>
+        <TooltipTrigger
+          render={
+            <NavLink
+              to={item.rota}
+              end={item.exact}
+              onClick={onClick}
+              className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 relative overflow-hidden ${
+                colapsada ? 'w-10' : 'w-full'
+              } ${
+                ativo
                   ? 'bg-brand-accent text-brand-primary font-semibold shadow-xs'
-                  : 'text-white hover:bg-white/10 hover:text-white'
-                }`;
-            }}
-          >
-            {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
-            <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-              {getIconeItem(item.slug)}
-            </span>
-
-            {/* Rótulo de texto: visível no estado expandido, clipe limpo no recolhido */}
-            <span
-              className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
-                }`}
+                  : 'text-white group-hover:bg-white/10 group-hover:text-white'
+              }`}
             >
-              {item.label}
-            </span>
-          </NavLink>
-        }
-      />
-      <TooltipContent side="inline-end" sideOffset={10}>
-        <p className="text-xs font-semibold">{item.label}</p>
-      </TooltipContent>
-    </Tooltip>
+              {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
+              <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                {getIconeItem(item.slug)}
+              </span>
+
+              {/* Rótulo de texto: visível no estado expandido, clipe limpo no recolhido */}
+              <span
+                className={`truncate whitespace-nowrap ${ehChatIa ? 'pr-9' : 'pr-2.5'} transition-opacity duration-150 ${
+                  colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
+                }`}
+              >
+                {item.label}
+              </span>
+            </NavLink>
+          }
+        />
+        <TooltipContent side="inline-end" sideOffset={10}>
+          <p className="text-xs font-semibold">{item.label}</p>
+        </TooltipContent>
+      </Tooltip>
+
+      {/* Botão X exclusivo do item "Chat com IA" — aparece ao passar o mouse em qualquer parte do botão */}
+      {ehChatIa && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDesafixarChatIa();
+          }}
+          title="Ocultar da sidebar e voltar botão flutuante"
+          aria-label="Ocultar Chat com IA da sidebar e voltar botão flutuante"
+          className={
+            colapsada
+              ? 'absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-surface-card text-ink-primary border border-surface-border shadow-md flex items-center justify-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-all hover:bg-red-500 hover:border-red-500 hover:text-white cursor-pointer'
+              : `absolute right-2 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-lg flex items-center justify-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-all cursor-pointer ${
+                  ativo
+                    ? 'bg-brand-primary/10 text-brand-primary hover:bg-red-500 hover:text-white'
+                    : 'bg-white/15 text-white hover:bg-red-500 hover:text-white'
+                }`
+          }
+        >
+          <HugeiconsIcon icon={Cancel01Icon} size={colapsada ? 10 : 14} strokeWidth={2.2} />
+        </button>
+      )}
+    </div>
   );
 };
 
@@ -409,6 +439,11 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
                   item={item}
                   colapsada={colapsada}
                   onClick={onFechar}
+                  onDesafixarChatIa={
+                    item.slug === 'chat_ia'
+                      ? () => prefs.definirChatIaModo('flutuante')
+                      : undefined
+                  }
                 />
               ))}
             </nav>
@@ -544,12 +579,23 @@ const LayoutCliente = ({ children }) => {
         {/* Top Header */}
         <header className="h-16 bg-brand-primary px-6 flex items-center justify-between gap-4 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarAberta(true)}
-              className="lg:hidden p-2 text-white/80 hover:text-white rounded-lg"
-            >
-              <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
-            </button>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    onClick={() => setSidebarAberta(true)}
+                    className="lg:hidden p-2 text-white/80 hover:text-white rounded-lg cursor-pointer"
+                    aria-label="Abrir menu"
+                  >
+                    <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
+                  </button>
+                }
+              />
+              <TooltipContent side="bottom" sideOffset={8}>
+                <p className="text-xs font-semibold">Abrir menu</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
           {/* Search Pill */}
@@ -568,81 +614,121 @@ const LayoutCliente = ({ children }) => {
           </div>
 
           {/* Actions: Tema, Notificação, Configuração, Foto de Perfil */}
-          <div className="flex items-center gap-2.5">
-            {/* Botão de Alternar Tema (Claro / Escuro) */}
-            <button
-              type="button"
-              onClick={() => alternarTema(usuario?.id)}
-              title={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
-              aria-label={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
-              className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors shadow-xs cursor-pointer"
-            >
-              <HugeiconsIcon
-                icon={temaEscuro ? Sun01Icon : Moon02Icon}
-                size={18}
-                strokeWidth={1.8}
-              />
-            </button>
+          <TooltipProvider delay={100}>
+            <div className="flex items-center gap-2.5">
+              {/* Botão de Alternar Tema (Claro / Escuro) */}
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <button
+                      type="button"
+                      onClick={() => alternarTema(usuario?.id)}
+                      aria-label={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
+                      className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                    >
+                      <HugeiconsIcon
+                        icon={temaEscuro ? Sun01Icon : Moon02Icon}
+                        size={18}
+                        strokeWidth={1.8}
+                      />
+                    </button>
+                  }
+                />
+                <TooltipContent side="bottom" sideOffset={8}>
+                  <p className="text-xs font-semibold">
+                    {temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
 
-            {/* 1. Botão de Notificação + Central de Notificações */}
-            <div className="relative" ref={notificacoesRef}>
-              <button
-                onClick={() => {
-                  setNotificacoesAbertas((v) => !v);
-                  setMenuUsuarioAberto(false);
-                }}
-                title="Notificações"
-                className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
-                {naoLidasCount > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-brand-purple absolute top-2 right-2"></span>
-                )}
-              </button>
-
-              {notificacoesAbertas && (
-                <div className="absolute right-0 mt-2 w-[340px] sm:w-[380px] z-50 animate-fade-in">
-                  <NotificationCenter
-                    items={notificacoes}
-                    onItemsChange={setNotificacoes}
-                    title="Notificações"
+              {/* 1. Botão de Notificação + Central de Notificações */}
+              <div className="relative" ref={notificacoesRef}>
+                <Tooltip disabled={notificacoesAbertas}>
+                  <TooltipTrigger
+                    render={
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNotificacoesAbertas((v) => !v);
+                          setMenuUsuarioAberto(false);
+                        }}
+                        aria-label="Notificações"
+                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
+                      >
+                        <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
+                        {naoLidasCount > 0 && (
+                          <span className="w-2 h-2 rounded-full bg-brand-purple absolute top-2 right-2"></span>
+                        )}
+                      </button>
+                    }
                   />
-                </div>
-              )}
-            </div>
+                  <TooltipContent side="bottom" sideOffset={8}>
+                    <p className="text-xs font-semibold">Notificações</p>
+                  </TooltipContent>
+                </Tooltip>
 
-            {/* 2. Botão de Configuração */}
-            <NavLink
-              to="/dashboard/configuracoes"
-              title="Configurações"
-              className={({ isActive }) => {
-                const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
-                return `w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow-xs ${ativa
-                  ? 'bg-brand-accent-hover text-brand-primary'
-                  : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover'
-                  }`;
-              }}
-            >
-              <HugeiconsIcon icon={Settings02Icon} size={18} strokeWidth={1.8} />
-            </NavLink>
-
-            {/* 3. Foto de Perfil */}
-            <div className="relative" ref={menuUsuarioRef}>
-              <button
-                onClick={() => setMenuUsuarioAberto((v) => !v)}
-                className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent"
-                title={`Perfil: ${usuario?.nome || 'Usuário'}`}
-              >
-                {usuario?.avatar_url || usuario?.foto_url ? (
-                  <img
-                    src={usuario.avatar_url || usuario.foto_url}
-                    alt={primeiroNome}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{primeiroNome[0]?.toUpperCase()}</span>
+                {notificacoesAbertas && (
+                  <div className="absolute right-0 mt-2 w-[340px] sm:w-[380px] z-50 animate-fade-in">
+                    <NotificationCenter
+                      items={notificacoes}
+                      onItemsChange={setNotificacoes}
+                      title="Notificações"
+                    />
+                  </div>
                 )}
-              </button>
+              </div>
+
+              {/* 2. Botão de Configuração */}
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <NavLink
+                      to="/dashboard/configuracoes"
+                      aria-label="Configurações"
+                      className={({ isActive }) => {
+                        const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
+                        return `w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow-xs ${ativa
+                          ? 'bg-brand-accent-hover text-brand-primary'
+                          : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover'
+                          }`;
+                      }}
+                    >
+                      <HugeiconsIcon icon={Settings02Icon} size={18} strokeWidth={1.8} />
+                    </NavLink>
+                  }
+                />
+                <TooltipContent side="bottom" sideOffset={8}>
+                  <p className="text-xs font-semibold">Configurações</p>
+                </TooltipContent>
+              </Tooltip>
+
+              {/* 3. Foto de Perfil */}
+              <div className="relative" ref={menuUsuarioRef}>
+                <Tooltip disabled={menuUsuarioAberto}>
+                  <TooltipTrigger
+                    render={
+                      <button
+                        type="button"
+                        onClick={() => setMenuUsuarioAberto((v) => !v)}
+                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent"
+                        aria-label={`Perfil: ${usuario?.nome || 'Usuário'}`}
+                      >
+                        {usuario?.avatar_url || usuario?.foto_url ? (
+                          <img
+                            src={usuario.avatar_url || usuario.foto_url}
+                            alt={primeiroNome}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span>{primeiroNome[0]?.toUpperCase()}</span>
+                        )}
+                      </button>
+                    }
+                  />
+                  <TooltipContent side="bottom" sideOffset={8}>
+                    <p className="text-xs font-semibold">{`Perfil: ${usuario?.nome || 'Usuário'}`}</p>
+                  </TooltipContent>
+                </Tooltip>
 
               {menuUsuarioAberto && (
                 <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-sm">
@@ -700,7 +786,8 @@ const LayoutCliente = ({ children }) => {
               )}
             </div>
           </div>
-        </header>
+        </TooltipProvider>
+      </header>
 
         {/* Page Content Stream (Nível 1) */}
         <main className="flex-1 overflow-auto bg-surface rounded-tl-3xl px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0 shadow-sm">
@@ -709,7 +796,9 @@ const LayoutCliente = ({ children }) => {
       </div>
 
       {/* Floating Chat IA */}
-      {prefs.chatIaModo === 'flutuante' && !prefs.carregando && <BolhaChatIA />}
+      {prefs.chatIaModo === 'flutuante' && !prefs.carregando && (
+        <BolhaChatIA onFixarNaSidebar={() => prefs.definirChatIaModo('fixo')} />
+      )}
     </div>
   );
 };

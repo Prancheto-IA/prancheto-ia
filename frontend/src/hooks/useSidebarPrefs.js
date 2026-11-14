@@ -236,24 +236,39 @@ export const useSidebarPrefs = () => {
 
   // Chat IA: 'flutuante' (bolha, padrão) ou 'fixo' (item normal na sidebar)
   const definirChatIaModo = useCallback(async (modo) => {
-    if (!userId || !tenantId) return;
     setChatIaModo(modo);
+
+    // Se estiver fixando na sidebar, garante que o item 'chat_ia' esteja visível
+    let novosItens = itens;
+    const itemChatIa = itens.find((i) => i.slug === 'chat_ia');
+    if (modo === 'fixo' && itemChatIa && !itemChatIa.visivel) {
+      novosItens = itens.map((i) =>
+        i.slug === 'chat_ia' ? { ...i, visivel: true } : i
+      );
+      setItens(novosItens);
+    }
+
+    if (!userId || !tenantId) return;
     setSalvando(true);
     try {
+      const payload = { user_id: userId, tenant_id: tenantId, chat_ia_modo: modo };
+      if (novosItens !== itens) {
+        payload.itens = novosItens;
+      }
       const { error } = await supabase
         .from('sidebar_preferencias')
-        .upsert(
-          { user_id: userId, tenant_id: tenantId, chat_ia_modo: modo },
-          { onConflict: 'user_id' }
-        );
+        .upsert(payload, { onConflict: 'user_id' });
       if (error) throw error;
-      atualizarCacheParcial(userId, { chatIaModo: modo });
+      atualizarCacheParcial(userId, {
+        chatIaModo: modo,
+        ...(novosItens !== itens ? { itens: novosItens } : {}),
+      });
     } catch (err) {
       console.error('useSidebarPrefs.definirChatIaModo:', err);
     } finally {
       setSalvando(false);
     }
-  }, [userId, tenantId]);
+  }, [userId, tenantId, itens]);
 
   // Quando o Chat IA está em modo flutuante, ele vira bolha — some da
   // navegação e da lista de reordenação do modal de personalização.
