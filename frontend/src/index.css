@@ -119,14 +119,16 @@
 /* --- CSS VARIABLES: TEMA ESCURO (OBSIDIAN SLATE & COBALT) --- */
 html.dark {
   /* --- SUPERFÍCIES GRAFITE-SAFIRA (OBSIDIAN SLATE) --- */
-  --sidebar-bg:                  #240046;
-  --color-surface:               #0D121F;
-  --color-surface-subtle:        #111827;
-  --color-surface-card:          #161F33;
-  --color-surface-hover:         #1D2842;
-  --color-surface-muted:         #23304D;
-  --color-surface-border:        #23304D;
-  --color-surface-border-strong: #31436B;
+  --sidebar-bg:                  #32105F;
+  --header-bg-start:             #240B45;
+  --header-bg-end:               #5420A0;
+  --color-surface:               #0D1423;
+  --color-surface-subtle:        #11192C;
+  --color-surface-card:          #151E34;
+  --color-surface-hover:         #1A2540;
+  --color-surface-muted:         #1F2C4C;
+  --color-surface-border:        #1F2C4C;
+  --color-surface-border-strong: #2A3C66;
 
   /* --- TIPOGRAFIA --- */
   --color-text-primary:          #F8FAFC;
@@ -150,8 +152,8 @@ html.dark {
   --brand-accent-hover:          #274B8A;
   --brand-accent-hover-rgb:      39 75 138;
 
-  --brand-purple:                #818CF8;
-  --brand-purple-rgb:            129 140 248;
+  --brand-purple:                #7547D8;
+  --brand-purple-rgb:            117 71 216;
   --brand-violet:                #A78BFA;
   --brand-violet-rgb:            167 139 250;
 
@@ -172,7 +174,7 @@ html.dark {
   --color-control-border: #3B4F78;
 
   --color-primaria-contraste: #7DD3FC;
-  --sidebar-primaria-ativa:   #38BDF8;
+  --sidebar-primaria-ativa:   #7547D8;
   --color-neutro-rgb: 203 213 225;
 }
 
@@ -383,10 +385,14 @@ html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside 
 .bg-\[\#0E382C\]:not([class*="dark:bg-"]) {
   background-color: var(--brand-primary) !important;
 }
-html.dark aside.bg-brand-primary,
-html.dark header.bg-brand-primary,
+html.dark aside.bg-brand-primary {
+  background-color: var(--sidebar-bg, #32105F) !important;
+}
+html.dark header.bg-brand-primary {
+  background: linear-gradient(90deg, #240B45 0%, #5420A0 100%) !important;
+}
 html.dark .h-screen.bg-brand-primary {
-  background-color: var(--sidebar-bg, #240046) !important;
+  background-color: var(--sidebar-bg, #32105F) !important;
 }
 .hover\:bg-brand-primary:hover,
 .hover\:bg-\[\#0E382C\]:hover {

@@ -165,8 +165,8 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
                 colapsada ? 'w-10' : 'w-full'
               } ${
                 ativo
-                  ? 'bg-brand-accent text-brand-primary font-semibold shadow-xs'
-                  : 'text-white group-hover:bg-white/10 group-hover:text-white'
+                  ? 'bg-brand-accent text-brand-primary dark:bg-[#7547D8] dark:text-white font-semibold shadow-xs dark:shadow-md dark:shadow-[#7547D8]/30'
+                  : 'text-white/80 dark:text-white/80 hover:text-white dark:hover:text-white group-hover:bg-white/10 group-hover:text-white'
               }`}
             >
               {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
@@ -405,7 +405,7 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 
       <aside
         className={`
-          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-brand-primary dark:bg-[#240046]
+          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-brand-primary dark:bg-[#32105F]
           transition-[width] duration-300 ease-in-out flex-shrink-0
           lg:static lg:z-auto lg:translate-x-0
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
@@ -545,7 +545,7 @@ const LayoutCliente = ({ children }) => {
   }, [menuUsuarioAberto, notificacoesAbertas]);
 
   return (
-    <div className="h-screen bg-brand-primary dark:bg-[#240046] flex items-stretch overflow-hidden font-sans">
+    <div className="h-screen bg-brand-primary dark:bg-[#32105F] flex items-stretch overflow-hidden font-sans">
       {/* Sidebar */}
       <Sidebar
         aberta={sidebarAberta}
@@ -559,7 +559,7 @@ const LayoutCliente = ({ children }) => {
           render={
             <button
               onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
-              className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover transition-[left] duration-300 ease-in-out cursor-pointer"
+              className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover dark:bg-[#7547D8] dark:text-white dark:hover:bg-[#6335c7] dark:shadow-md dark:shadow-[#7547D8]/40 transition-[left] duration-300 ease-in-out cursor-pointer"
               style={{
                 left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
               }}
@@ -580,9 +580,9 @@ const LayoutCliente = ({ children }) => {
       </Tooltip>
 
       {/* Main App Canvas */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 dark:bg-[#240B45]">
         {/* Top Header */}
-        <header className="h-16 bg-brand-primary dark:bg-[#240046] px-6 flex items-center justify-between gap-4 flex-shrink-0">
+        <header className="h-16 bg-brand-primary dark:bg-gradient-to-r dark:from-[#240B45] dark:to-[#5420A0] px-6 flex items-center justify-between gap-4 flex-shrink-0">
           <div className="flex items-center gap-3">
             <Tooltip>
               <TooltipTrigger
@@ -609,12 +609,12 @@ const LayoutCliente = ({ children }) => {
               icon={Search01Icon}
               size={18}
               strokeWidth={1.8}
-              className="text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+              className="text-slate-400 dark:text-white/60 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
             />
             <input
               type="text"
               placeholder="Pesquisar projetos, clientes ou tarefas..."
-              className="w-full h-10 pl-11 pr-4 bg-white rounded-full text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent shadow-xs transition-all"
+              className="w-full h-10 pl-11 pr-4 bg-white dark:bg-white/10 dark:text-white dark:placeholder-white/50 dark:border dark:border-white/15 rounded-full text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-[#7547D8] dark:focus:bg-white/15 shadow-xs transition-all"
             />
           </div>
 
@@ -629,7 +629,7 @@ const LayoutCliente = ({ children }) => {
                       type="button"
                       onClick={() => alternarTema(usuario?.id)}
                       aria-label={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
-                      className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                      className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:border dark:border-white/10 flex items-center justify-center transition-colors shadow-xs cursor-pointer"
                     >
                       <HugeiconsIcon
                         icon={temaEscuro ? Sun01Icon : Moon02Icon}
@@ -658,7 +658,7 @@ const LayoutCliente = ({ children }) => {
                           setMenuUsuarioAberto(false);
                         }}
                         aria-label="Notificações"
-                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
+                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:border dark:border-white/10 flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
                       >
                         <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
                         {naoLidasCount > 0 && (
@@ -693,8 +693,8 @@ const LayoutCliente = ({ children }) => {
                       className={({ isActive }) => {
                         const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
                         return `w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow-xs ${ativa
-                          ? 'bg-brand-accent-hover text-brand-primary'
-                          : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover'
+                          ? 'bg-brand-accent-hover text-brand-primary dark:bg-[#7547D8] dark:text-white dark:shadow-md dark:shadow-[#7547D8]/40'
+                          : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:border dark:border-white/10'
                           }`;
                       }}
                     >
@@ -715,7 +715,7 @@ const LayoutCliente = ({ children }) => {
                       <button
                         type="button"
                         onClick={() => setMenuUsuarioAberto((v) => !v)}
-                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent"
+                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent dark:bg-white/15 dark:text-white dark:border-white/20 dark:hover:bg-white/25"
                         aria-label={`Perfil: ${usuario?.nome || 'Usuário'}`}
                       >
                         {usuario?.avatar_url || usuario?.foto_url ? (
