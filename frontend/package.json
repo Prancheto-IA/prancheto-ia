@@ -45,6 +45,9 @@
     "tailwindcss": "^3.4.4",
     "vite": "^5.3.1"
   },
+  "overrides": {
+    "date-fns": "$date-fns"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
