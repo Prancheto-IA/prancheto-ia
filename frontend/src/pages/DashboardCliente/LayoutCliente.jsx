@@ -109,7 +109,7 @@ import {
   LockKeyIcon,
   Cancel01Icon,
   PinIcon,
-  BotIcon,
+  Brain02Icon,
   Sun01Icon,
   Moon02Icon,
 } from '@hugeicons/core-free-icons';
@@ -122,7 +122,7 @@ const ICONES_MAP = {
   tarefas: Task01Icon,
   calendario: Calendar03Icon,
   chat: Comment01Icon,
-  chat_ia: BotIcon,
+  chat_ia: Brain02Icon,
   suporte: CustomerSupportIcon,
   organizacao: Building01Icon,
   configuracoes: Settings02Icon,
@@ -146,6 +146,7 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
     : false;
   const ativo = item.exact ? rotaExata : rotaExata || ativoViaPrefixo;
   const ehChatIa = item.slug === 'chat_ia' && typeof onDesafixarChatIa === 'function';
+  const labelExibicao = item.slug === 'chat_ia' ? 'Pranchetinho' : item.label;
 
   return (
     <div className={`relative group ${colapsada ? 'w-10' : 'w-full'}`}>
@@ -175,17 +176,17 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
                   colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
                 }`}
               >
-                {item.label}
+                {labelExibicao}
               </span>
             </NavLink>
           }
         />
         <TooltipContent side="inline-end" sideOffset={10}>
-          <p className="text-xs font-semibold">{item.label}</p>
+          <p className="text-xs font-semibold">{labelExibicao}</p>
         </TooltipContent>
       </Tooltip>
 
-      {/* Botão X exclusivo do item "Chat com IA" — aparece ao passar o mouse em qualquer parte do botão */}
+      {/* Botão X exclusivo do item "Pranchetinho" — aparece ao passar o mouse em qualquer parte do botão */}
       {ehChatIa && (
         <button
           type="button"
@@ -194,8 +195,8 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
             e.stopPropagation();
             onDesafixarChatIa();
           }}
-          title="Ocultar da sidebar e voltar botão flutuante"
-          aria-label="Ocultar Chat com IA da sidebar e voltar botão flutuante"
+          title="Ocultar Pranchetinho da sidebar e voltar botão flutuante"
+          aria-label="Ocultar Pranchetinho da sidebar e voltar botão flutuante"
           className={
             colapsada
               ? 'absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-surface-card text-ink-primary border border-surface-border shadow-md flex items-center justify-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-all hover:bg-red-500 hover:border-red-500 hover:text-white cursor-pointer'
