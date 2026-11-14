@@ -22,9 +22,18 @@ import { CSS } from '@dnd-kit/utilities';
 import { useAuthStore } from '../../store/authStore.js';
 import { useTenantStore } from '../../store/tenantStore.js';
 import { useAuth, carregarPermissoesCargo } from '../../hooks/useAuth.js';
+import { useTema } from '../../hooks/useTema.js';
 import { useSidebarPrefs, SLUGS_FIXOS } from '../../hooks/useSidebarPrefs.js';
 import BolhaChatIA from '../../components/ChatIA/BolhaChatIA.jsx';
 import { NotificationCenter, NOTIFICACOES_INICIAIS } from '@/components/ui/notification-center';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
+import logoCompletoPrancheto from '@/assets/logo/prancheto-logo.svg';
+import iconePrancheto from '@/assets/logo/prancheto-icone.svg';
 
 
 const BADGE_CARGO = {
@@ -37,31 +46,41 @@ const BADGE_CARGO = {
 // ----------------------------------------------------------
 // COMPONENTE: Logo da Marca
 // ----------------------------------------------------------
-const MarcaLogo = () => {
-  const logoUrl = useTenantStore((s) => s.tenant?.logo_url);
+const MarcaLogo = ({ colapsada = false }) => {
+  const logoTenantUrl = useTenantStore((s) => s.tenant?.logo_url);
   const [falhou, setFalhou] = useState(false);
 
-  useEffect(() => { setFalhou(false); }, [logoUrl]);
+  useEffect(() => { setFalhou(false); }, [logoTenantUrl]);
 
-  if (logoUrl && !falhou) {
+  // Se o tenant configurou um logo próprio na organização (white-label)
+  if (logoTenantUrl && !falhou) {
     return (
       <img
-        src={logoUrl}
+        src={logoTenantUrl}
         alt="Logo"
-        className="h-8 w-8 rounded-lg object-contain flex-shrink-0"
+        className="h-8 max-w-full object-contain flex-shrink-0"
         onError={() => setFalhou(true)}
       />
     );
   }
 
+  // Logo Oficial do Prancheto.IA
+  if (colapsada) {
+    return (
+      <img
+        src={iconePrancheto}
+        alt="Prancheto.IA"
+        className="w-8 h-8 object-contain flex-shrink-0 select-none"
+      />
+    );
+  }
+
   return (
-    <div className="w-8 h-8 rounded-xl bg-brand-secondary border border-brand-secondary-border flex items-center justify-center text-brand-accent shadow-sm flex-shrink-0">
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
-        <polygon points="12 2 2 7 12 12 22 7 12 2" />
-        <polyline points="2 17 12 22 22 17" />
-        <polyline points="2 12 12 17 22 12" />
-      </svg>
-    </div>
+    <img
+      src={logoCompletoPrancheto}
+      alt="Prancheto.IA"
+      className="h-7 w-auto max-w-[175px] object-contain select-none"
+    />
   );
 };
 
@@ -91,6 +110,8 @@ import {
   Cancel01Icon,
   PinIcon,
   BotIcon,
+  Sun01Icon,
+  Moon02Icon,
 } from '@hugeicons/core-free-icons';
 
 // Mapeamento de Hugeicons para a Sidebar
@@ -124,40 +145,41 @@ const ItemNav = ({ item, colapsada, onClick }) => {
     : false;
 
   return (
-    <NavLink
-      to={item.rota}
-      end={item.exact}
-      onClick={onClick}
-      title={item.label}
-      className={({ isActive }) => {
-        const ativo = isActive || ativoViaPrefixo;
-        return `h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 group relative overflow-hidden ${colapsada ? 'w-10' : 'w-full'
-          } ${ativo
-            ? 'bg-brand-accent text-brand-primary font-semibold shadow-xs'
-            : 'text-white hover:bg-white/10 hover:text-white'
-          }`;
-      }}
-    >
-      {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
-      <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-        {getIconeItem(item.slug)}
-      </span>
+    <Tooltip disabled={!colapsada}>
+      <TooltipTrigger
+        render={
+          <NavLink
+            to={item.rota}
+            end={item.exact}
+            onClick={onClick}
+            className={({ isActive }) => {
+              const ativo = isActive || ativoViaPrefixo;
+              return `h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 group relative overflow-hidden ${colapsada ? 'w-10' : 'w-full'
+                } ${ativo
+                  ? 'bg-brand-accent text-brand-primary font-semibold shadow-xs'
+                  : 'text-white hover:bg-white/10 hover:text-white'
+                }`;
+            }}
+          >
+            {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
+            <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+              {getIconeItem(item.slug)}
+            </span>
 
-      {/* Rótulo de texto: visível no estado expandido, clipe limpo no recolhido */}
-      <span
-        className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
-          }`}
-      >
-        {item.label}
-      </span>
-
-      {/* Tooltip flutuante quando colapsada */}
-      {colapsada && (
-        <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-sm font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
-          {item.label}
-        </span>
-      )}
-    </NavLink>
+            {/* Rótulo de texto: visível no estado expandido, clipe limpo no recolhido */}
+            <span
+              className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
+                }`}
+            >
+              {item.label}
+            </span>
+          </NavLink>
+        }
+      />
+      <TooltipContent side="inline-end" sideOffset={10}>
+        <p className="text-xs font-semibold">{item.label}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 
@@ -358,56 +380,68 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
         <div className="w-64 h-full flex flex-col flex-shrink-0">
           {/* Logo Header */}
           <div className="h-16 flex items-center px-3 flex-shrink-0 overflow-hidden">
-            <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-              <MarcaLogo />
-            </div>
-            <span
-              className={`font-extrabold text-lg tracking-tight text-white truncate whitespace-nowrap ml-2 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100'
-                }`}
-            >
-              Prancheto<span className="text-brand-accent">.IA</span>
-            </span>
-            <button onClick={onFechar} className="ml-auto text-white/70 hover:text-white lg:hidden p-1 rounded-lg" title="Fechar menu">
+            <Tooltip disabled={!colapsada}>
+              <TooltipTrigger
+                render={
+                  <NavLink
+                    to="/dashboard"
+                    className="flex items-center gap-2 min-w-0 transition-opacity hover:opacity-90 cursor-pointer"
+                  >
+                    <MarcaLogo colapsada={colapsada} />
+                  </NavLink>
+                }
+              />
+              <TooltipContent side="inline-end" sideOffset={10}>
+                <p className="text-xs font-semibold">Ir para o início</p>
+              </TooltipContent>
+            </Tooltip>
+            <button onClick={onFechar} className="ml-auto text-white/70 hover:text-white lg:hidden p-1 rounded-lg cursor-pointer" title="Fechar menu">
               <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
             </button>
           </div>
 
-          {/* Nav Items */}
-          <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1">
-            {itensVisiveis.map((item) => (
-              <ItemNav
-                key={item.slug}
-                item={item}
-                colapsada={colapsada}
-                onClick={onFechar}
-              />
-            ))}
-          </nav>
+          <TooltipProvider delay={100}>
+            {/* Nav Items */}
+            <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1">
+              {itensVisiveis.map((item) => (
+                <ItemNav
+                  key={item.slug}
+                  item={item}
+                  colapsada={colapsada}
+                  onClick={onFechar}
+                />
+              ))}
+            </nav>
 
-          {/* Base da Sidebar: Apenas o botão de editar sidebar */}
-          <div className="p-3 flex-shrink-0 overflow-hidden">
-            <button
-              onClick={() => setModalAberto(true)}
-              className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 text-white hover:bg-white/10 group relative overflow-hidden ${colapsada ? 'w-10' : 'w-full'
-                }`}
-              title="Personalizar itens da sidebar"
-            >
-              <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-                <HugeiconsIcon icon={PencilEdit01Icon} size={18} strokeWidth={1.8} />
-              </span>
-              <span
-                className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
-                  }`}
-              >
-                Editar Menu
-              </span>
-              {colapsada && (
-                <span className="hidden group-hover:block fixed left-[4.5rem] px-2.5 py-1 bg-brand-secondary border border-brand-secondary-border text-brand-accent text-sm font-semibold rounded-lg shadow-lg z-50 whitespace-nowrap pointer-events-none">
-                  Editar Menu
-                </span>
-              )}
-            </button>
-          </div>
+            {/* Base da Sidebar: Apenas o botão de editar sidebar */}
+            <div className="p-3 flex-shrink-0 overflow-hidden">
+              <Tooltip disabled={!colapsada}>
+                <TooltipTrigger
+                  render={
+                    <button
+                      type="button"
+                      onClick={() => setModalAberto(true)}
+                      className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 text-white hover:bg-white/10 group relative overflow-hidden cursor-pointer ${colapsada ? 'w-10' : 'w-full'
+                        }`}
+                    >
+                      <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                        <HugeiconsIcon icon={PencilEdit01Icon} size={18} strokeWidth={1.8} />
+                      </span>
+                      <span
+                        className={`truncate whitespace-nowrap pr-2.5 transition-opacity duration-150 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
+                          }`}
+                      >
+                        Editar Menu
+                      </span>
+                    </button>
+                  }
+                />
+                <TooltipContent side="inline-end" sideOffset={10}>
+                  <p className="text-xs font-semibold">Editar Menu</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
         </div>
       </aside>
 
@@ -434,6 +468,7 @@ const LayoutCliente = ({ children }) => {
 
   const location = useLocation();
   const prefs = useSidebarPrefs();
+  const { temaEscuro, alternarTema } = useTema();
 
   const usuario = useAuthStore((s) => s.usuario);
   const { logout } = useAuth();
@@ -479,21 +514,30 @@ const LayoutCliente = ({ children }) => {
       />
 
       {/* Toggle Sidebar Desktop Button */}
-      <button
-        onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
-        title={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
-        className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover transition-[left] duration-300 ease-in-out cursor-pointer"
-        style={{
-          left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
-        }}
-      >
-        <HugeiconsIcon
-          icon={prefs.colapsada ? ArrowRight01Icon : ArrowLeft01Icon}
-          size={14}
-          strokeWidth={2.2}
-          className="transition-transform duration-200"
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <button
+              onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
+              className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover transition-[left] duration-300 ease-in-out cursor-pointer"
+              style={{
+                left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
+              }}
+              aria-label={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
+            >
+              <HugeiconsIcon
+                icon={prefs.colapsada ? ArrowRight01Icon : ArrowLeft01Icon}
+                size={14}
+                strokeWidth={2.2}
+                className="transition-transform duration-200"
+              />
+            </button>
+          }
         />
-      </button>
+        <TooltipContent side="inline-end" sideOffset={10}>
+          <p className="text-xs font-semibold">{prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}</p>
+        </TooltipContent>
+      </Tooltip>
 
       {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -523,8 +567,23 @@ const LayoutCliente = ({ children }) => {
             />
           </div>
 
-          {/* Actions: Notificação, Configuração, Foto de Perfil */}
+          {/* Actions: Tema, Notificação, Configuração, Foto de Perfil */}
           <div className="flex items-center gap-2.5">
+            {/* Botão de Alternar Tema (Claro / Escuro) */}
+            <button
+              type="button"
+              onClick={() => alternarTema(usuario?.id)}
+              title={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
+              aria-label={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
+              className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+            >
+              <HugeiconsIcon
+                icon={temaEscuro ? Sun01Icon : Moon02Icon}
+                size={18}
+                strokeWidth={1.8}
+              />
+            </button>
+
             {/* 1. Botão de Notificação + Central de Notificações */}
             <div className="relative" ref={notificacoesRef}>
               <button

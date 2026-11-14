@@ -115,7 +115,7 @@ const BolhaChatIA = () => {
         onPointerUp={aoSoltar}
         title="Pranchetinho — Chat com IA"
         aria-label="Abrir chat com o Pranchetinho, assistente de IA"
-        className="fixed z-[70] w-[62px] h-[62px] flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0E382C]/60 focus-visible:ring-offset-2 rounded-full cursor-grab"
+        className="fixed z-[70] w-[62px] h-[62px] flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/60 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 rounded-full cursor-grab"
         style={{
           left: posicao.x,
           top: posicao.y,
@@ -127,7 +127,7 @@ const BolhaChatIA = () => {
             mascote — é o que faz ele parecer flutuando em 3D. */}
         <span
           aria-hidden="true"
-          className="absolute bottom-1 left-1/2 -translate-x-1/2 w-10 h-3 rounded-full bg-emerald-500/40 blur-[4px] animate-sombra-flutuante"
+          className="absolute bottom-1 left-1/2 -translate-x-1/2 w-10 h-3 rounded-full bg-emerald-500/40 dark:bg-sky-500/40 blur-[4px] animate-sombra-flutuante"
         />
 
         <span

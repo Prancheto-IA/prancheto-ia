@@ -67,13 +67,13 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
 
   return (
     <div
-      className="fixed z-[60] w-[380px] max-w-[calc(100vw-2rem)] h-[580px] max-h-[78vh] flex flex-col rounded-3xl border border-[#E4ECE7] bg-white shadow-2xl overflow-hidden animate-scale-in"
+      className="fixed z-[60] w-[380px] max-w-[calc(100vw-2rem)] h-[580px] max-h-[78vh] flex flex-col rounded-3xl border border-surface-border bg-surface-card shadow-2xl overflow-hidden animate-scale-in"
       style={style}
     >
       {/* 1. Header do Assistente */}
-      <div className="h-16 px-4 bg-white border-b border-[#E4ECE7] flex items-center gap-3 shrink-0">
+      <div className="h-16 px-4 bg-surface-card border-b border-surface-border flex items-center gap-3 shrink-0">
         <div className="relative">
-          <div className="w-10 h-10 rounded-2xl bg-[#DCF5E4] p-1 flex items-center justify-center shrink-0 border border-[#bbf0ca]">
+          <div className="w-10 h-10 rounded-2xl bg-brand-accent/30 dark:bg-brand-primary/10 p-1 flex items-center justify-center shrink-0 border border-brand-accent/50 dark:border-brand-primary/20">
             <img
               src={pranchetinho}
               alt="Pranchetinho"
@@ -81,19 +81,19 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
             />
           </div>
           {/* Indicador de status online */}
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 absolute -bottom-0.5 -right-0.5 ring-2 ring-white" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 absolute -bottom-0.5 -right-0.5 ring-2 ring-surface-card" />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h3 className="font-bold text-sm text-[#111915] truncate">
+            <h3 className="font-bold text-sm text-ink-primary truncate">
               {conversaAtual?.titulo || 'Assistente IA'}
             </h3>
-            <span className="bg-[#DCF5E4] text-[#15803D] text-[10px] font-bold px-1.5 py-0.2 rounded">
+            <span className="bg-brand-accent text-brand-secondary text-[10px] font-bold px-1.5 py-0.5 rounded border border-brand-accent/40">
               Beta
             </span>
           </div>
-          <p className="text-[11px] text-[#687770] truncate">
+          <p className="text-[11px] text-ink-secondary truncate">
             Pranchetinho • CRM Inteligente
           </p>
         </div>
@@ -104,7 +104,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
             type="button"
             onClick={novaConversa}
             title="Nova conversa"
-            className="p-1.5 rounded-xl text-[#687770] hover:text-[#0E382C] hover:bg-[#F2F5F3] transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
           >
             <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.8} />
           </button>
@@ -113,7 +113,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
             type="button"
             onClick={abrirChatCompleto}
             title="Abrir em tela cheia"
-            className="p-1.5 rounded-xl text-[#687770] hover:text-[#0E382C] hover:bg-[#F2F5F3] transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
           >
             <HugeiconsIcon icon={ArrowUpRight01Icon} size={18} strokeWidth={1.8} />
           </button>
@@ -122,7 +122,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
             type="button"
             onClick={onFechar}
             title="Fechar assistente"
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-ink-muted hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
           >
             <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
           </button>
@@ -133,33 +133,33 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
       {indisponivel && <FaixaIndisponivel erro={erro} />}
 
       {/* 2. Área de Mensagens */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#F7FAF8]/60">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-subtle/40 dark:bg-surface">
         {carregando && mensagens.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 gap-2 text-center">
-            <div className="w-7 h-7 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm font-semibold text-[#687770]">Carregando histórico...</p>
+            <div className="w-7 h-7 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-semibold text-ink-secondary">Carregando histórico...</p>
           </div>
         )}
 
         {/* Estado Vazio (Boas-vindas) */}
         {vazio && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4 py-6">
-            <div className="w-16 h-16 rounded-3xl bg-[#DCF5E4] p-2 flex items-center justify-center mb-3 shadow-xs border border-[#bbf0ca]">
+            <div className="w-16 h-16 rounded-3xl bg-brand-accent/30 dark:bg-brand-primary/10 p-2 flex items-center justify-center mb-3 shadow-xs border border-brand-accent/50 dark:border-brand-primary/20">
               <img
                 src={pranchetinho}
                 alt="Pranchetinho"
                 className="w-full h-full object-contain"
               />
             </div>
-            <h4 className="text-sm font-bold text-[#111915] mb-1">
+            <h4 className="text-sm font-bold text-ink-primary mb-1">
               Olá! Como posso te ajudar hoje?
             </h4>
-            <p className="text-sm text-[#687770] max-w-xs mb-5 leading-relaxed">
+            <p className="text-sm text-ink-secondary max-w-xs mb-5 leading-relaxed">
               Consulte seu funil de vendas, adicione novos leads ou registre tarefas usando linguagem natural.
             </p>
 
             <div className="w-full space-y-2">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#687770] text-left px-1">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-ink-muted text-left px-1">
                 Sugestões rápidas:
               </p>
               {SUGESTOES.slice(0, 3).map((sugestao) => (
@@ -167,9 +167,9 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
                   key={sugestao}
                   type="button"
                   onClick={() => enviar(sugestao)}
-                  className="w-full text-left bg-white hover:bg-[#F2F5F3] hover:border-[#0E382C]/30 text-sm font-semibold text-[#111915] px-3.5 py-2.5 rounded-2xl border border-[#E4ECE7] shadow-2xs transition-all flex items-center gap-2 group cursor-pointer"
+                  className="w-full text-left bg-surface-card hover:bg-surface-subtle hover:border-brand-primary/40 text-sm font-semibold text-ink-primary px-3.5 py-2.5 rounded-2xl border border-surface-border shadow-2xs transition-all flex items-center gap-2 group cursor-pointer"
                 >
-                  <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} className="text-[#15803D] shrink-0" />
+                  <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} className="text-brand-secondary shrink-0" />
                   <span className="truncate flex-1">{sugestao}</span>
                 </button>
               ))}
@@ -211,15 +211,15 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
         {/* Indicador de Digitação do Assistente */}
         {enviando && (
           <div className="flex gap-2.5 items-start">
-            <div className="w-8 h-8 rounded-xl bg-[#DCF5E4] text-[#15803D] flex items-center justify-center shrink-0 shadow-xs mt-0.5 border border-[#bbf0ca]">
+            <div className="w-8 h-8 rounded-xl bg-brand-accent text-brand-secondary flex items-center justify-center shrink-0 shadow-xs mt-0.5 border border-brand-accent/50 dark:border-brand-primary/20">
               <img src={pranchetinho} alt="Pranchetinho" className="w-5 h-5 object-contain" />
             </div>
-            <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-white border border-[#E4ECE7] shadow-2xs">
+            <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-surface-card border border-surface-border shadow-2xs">
               <div className="flex gap-1.5 items-center h-4">
                 {[0, 150, 300].map((atraso) => (
                   <span
                     key={atraso}
-                    className="w-2 h-2 rounded-full bg-[#0E382C] animate-bounce"
+                    className="w-2 h-2 rounded-full bg-brand-primary animate-bounce"
                     style={{ animationDelay: `${atraso}ms` }}
                   />
                 ))}
@@ -232,9 +232,9 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
       </div>
 
       {/* 3. Rodapé com Campo de Entrada */}
-      <form onSubmit={submeter} className="p-3 bg-white border-t border-[#E4ECE7] shrink-0">
+      <form onSubmit={submeter} className="p-3 bg-surface-card border-t border-surface-border shrink-0">
         {erro && !indisponivel && (
-          <p className="text-red-500 text-sm mb-2 px-1 font-medium">{erro.mensagem}</p>
+          <p className="text-rose-500 dark:text-rose-400 text-sm mb-2 px-1 font-medium">{erro.mensagem}</p>
         )}
         <div className="flex items-center gap-2">
           <input
@@ -248,12 +248,12 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
             }
             disabled={enviando}
             aria-label="Mensagem para o assistente"
-            className="flex-1 bg-[#F7FAF8] border border-[#E4ECE7] text-[#111915] rounded-2xl px-4 py-2.5 text-sm placeholder-[#687770]/60 focus:outline-none focus:border-[#0E382C] focus:bg-white transition-all shadow-2xs disabled:opacity-50"
+            className="flex-1 bg-surface-subtle border border-surface-border text-ink-primary rounded-2xl px-4 py-2.5 text-sm placeholder:text-ink-muted focus:outline-none focus:border-brand-primary focus:bg-surface-card transition-all shadow-2xs disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!texto.trim() || enviando}
-            className="w-10 h-10 rounded-2xl bg-[#0E382C] hover:bg-[#154637] disabled:opacity-40 text-[#D4EC9D] transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed"
+            className="w-10 h-10 rounded-2xl bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-40 text-white transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed"
             aria-label="Enviar mensagem"
           >
             <HugeiconsIcon icon={SentIcon} size={18} strokeWidth={2} />

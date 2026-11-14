@@ -117,8 +117,22 @@ export const useTema = () => {
     }
   }, [sincronizarComBanco]);
 
-  const alternarTema = useCallback(() => {
-    setTemaEscuro(!temaEscuro);
+  const alternarTema = useCallback((userId) => {
+    const novoTema = !temaEscuro;
+    setTemaEscuro(novoTema);
+    if (userId) {
+      supabase
+        .from('user_preferencias')
+        .upsert({
+          user_id: userId,
+          tema: novoTema ? 'escuro' : 'claro',
+          atualizado_em: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
+        .then(({ error }) => {
+          if (error) console.warn('[useTema] Erro ao persistir tema alternado:', error.message);
+        })
+        .catch((err) => console.warn('[useTema] Falha ao persistir tema alternado:', err));
+    }
   }, [temaEscuro, setTemaEscuro]);
 
   return {

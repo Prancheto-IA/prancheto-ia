@@ -14,13 +14,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore.js';
-import { useTema } from '../../../hooks/useTema.js';
 import { usePermission } from '../../../hooks/usePermission.js';
 import { supabase } from '../../../lib/supabase.js';
 import SecaoPlano from './SecaoPlano.jsx';
 import IdentidadeVisual from './IdentidadeVisual.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Sun01Icon, Moon02Icon, Key01Icon, Shield01Icon } from '@hugeicons/core-free-icons';
+import { Key01Icon, Shield01Icon } from '@hugeicons/core-free-icons';
 
 const ABAS = [
   { slug: 'geral', label: 'Geral' },
@@ -93,7 +92,6 @@ const ToggleSwitch = ({ label, descricao, ativo, onChange }) => (
 
 const Configuracoes = () => {
   const { usuario, atualizarUsuario } = useAuthStore();
-  const { temaEscuro, setTemaEscuro, sincronizarComBanco } = useTema();
   const { pode } = usePermission();
 
   const [parametros, setParametros] = useSearchParams();
@@ -125,7 +123,6 @@ const Configuracoes = () => {
         if (error && error.code !== 'PGRST116') throw error;
 
         const prefs = data || {};
-        sincronizarComBanco(prefs.tema || null);
         setNotifEmail(prefs.notif_email !== false);
         setNotifSistema(prefs.notif_sistema !== false);
       } catch (err) {
@@ -135,7 +132,7 @@ const Configuracoes = () => {
       }
     };
     carregar();
-  }, [usuario?.id, sincronizarComBanco]);
+  }, [usuario?.id]);
 
   const selecionarAba = (slug) => {
     setParametros(slug === 'geral' ? {} : { aba: slug }, { replace: true });
@@ -176,7 +173,6 @@ const Configuracoes = () => {
         .from('user_preferencias')
         .upsert({
           user_id:       usuario.id,
-          tema:          temaEscuro ? 'escuro' : 'claro',
           notif_email:   notifEmail,
           notif_sistema: notifSistema,
           idioma:        'pt-BR',
@@ -302,46 +298,6 @@ const Configuracoes = () => {
 
           {/* COLUNA DIREITA (lg:col-span-5) */}
           <div className="lg:col-span-5 flex flex-col space-y-5">
-            {/* Card: Aparência */}
-            <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
-              <h2 className="text-base font-bold text-[#111915]">Aparência</h2>
-              <p className="text-sm text-[#687770] mt-0.5 mb-4">
-                Escolha o tema visual da interface.
-              </p>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setTemaEscuro(false)}
-                  className={`flex flex-col items-center gap-2.5 p-3.5 rounded-xl border text-center transition-all cursor-pointer ${
-                    !temaEscuro
-                      ? 'border-[#0E382C] bg-[#F7FAF8] ring-2 ring-[#0E382C]/15 font-bold text-[#0E382C]'
-                      : 'border-[#E4ECE7] bg-white text-[#687770] hover:border-slate-300'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-white border border-[#E4ECE7] flex items-center justify-center text-slate-700 shadow-2xs">
-                    <HugeiconsIcon icon={Sun01Icon} size={18} strokeWidth={1.8} />
-                  </div>
-                  <span className="text-sm">Modo Claro</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setTemaEscuro(true)}
-                  className={`flex flex-col items-center gap-2.5 p-3.5 rounded-xl border text-center transition-all cursor-pointer ${
-                    temaEscuro
-                      ? 'border-[#0E382C] bg-[#F7FAF8] ring-2 ring-[#0E382C]/15 font-bold text-[#0E382C]'
-                      : 'border-[#E4ECE7] bg-white text-[#687770] hover:border-slate-300'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center shadow-2xs">
-                    <HugeiconsIcon icon={Moon02Icon} size={18} strokeWidth={1.8} />
-                  </div>
-                  <span className="text-sm">Modo Escuro</span>
-                </button>
-              </div>
-            </div>
-
             {/* Card: Notificações */}
             <div className="bg-white rounded-2xl border border-[#E4ECE7] p-5 sm:p-6 shadow-xs">
               <h2 className="text-base font-bold text-[#111915]">Notificações</h2>
