@@ -35,7 +35,35 @@ import {
 import logoCompletoPrancheto from '@/assets/logo/Logo-LH.svg';
 import iconePrancheto from '@/assets/logo/Logo-S.svg';
 import { IconeCerebro } from '@/components/ui/IconeCerebro.jsx';
-
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  DashboardSquare01Icon,
+  UserGroupIcon,
+  Folder01Icon,
+  Task01Icon,
+  Calendar03Icon,
+  Comment01Icon,
+  CustomerSupportIcon,
+  Building01Icon,
+  Settings02Icon,
+  Analytics01Icon,
+  DragDropVerticalIcon,
+  PencilEdit01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Menu01Icon,
+  Search01Icon,
+  Notification01Icon,
+  UserIcon,
+  HelpCircleIcon,
+  Logout01Icon,
+  LockKeyIcon,
+  Cancel01Icon,
+  PinIcon,
+  Brain02Icon,
+  Sun01Icon,
+  Moon02Icon,
+} from '@hugeicons/core-free-icons';
 
 const BADGE_CARGO = {
   admin: { label: 'Admin', bg: 'bg-[#DCF5E4]', text: 'text-[#15803D]' },
@@ -99,36 +127,6 @@ const MarcaLogo = ({ colapsada = false }) => {
     </div>
   );
 };
-
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  DashboardSquare01Icon,
-  UserGroupIcon,
-  Folder01Icon,
-  Task01Icon,
-  Calendar03Icon,
-  Comment01Icon,
-  CustomerSupportIcon,
-  Building01Icon,
-  Settings02Icon,
-  Analytics01Icon,
-  DragDropVerticalIcon,
-  PencilEdit01Icon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Menu01Icon,
-  Search01Icon,
-  Notification01Icon,
-  UserIcon,
-  HelpCircleIcon,
-  Logout01Icon,
-  LockKeyIcon,
-  Cancel01Icon,
-  PinIcon,
-  Brain02Icon,
-  Sun01Icon,
-  Moon02Icon,
-} from '@hugeicons/core-free-icons';
 
 // Mapeamento de Hugeicons para a Sidebar
 const ICONES_MAP = {

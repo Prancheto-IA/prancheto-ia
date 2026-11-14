@@ -195,7 +195,7 @@ const IdentidadeVisual = () => {
   const [paletaSelecionada, setPaletaSelecionada] = useState('azul-institucional');
   const [logoUrl, setLogoUrl]               = useState('');
   const [inputUrl, setInputUrl]             = useState('');
-  const [nomeArquivo, setNomeArquivo]       = useState('');
+  const [_nomeArquivo, setNomeArquivo]      = useState('');
   const fileInputRef                        = useRef(null);
   const [salvando, setSalvando]             = useState(false);
   const [salvo, setSalvo]                   = useState(false);
@@ -222,12 +222,12 @@ const IdentidadeVisual = () => {
     setPaletaSelecionada(encontrada ? encontrada.id : 'customizado');
   }, [tenant]);
 
-  const aplicarUrl = () => {
+  const _aplicarUrl = () => {
     setLogoUrl(inputUrl.trim());
     setNomeArquivo('');
   };
 
-  const handleArquivoUpload = (e) => {
+  const _handleArquivoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -246,7 +246,7 @@ const IdentidadeVisual = () => {
     reader.readAsDataURL(file);
   };
 
-  const removerLogo = () => {
+  const _removerLogo = () => {
     setLogoUrl('');
     setInputUrl('');
     setNomeArquivo('');

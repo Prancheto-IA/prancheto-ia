@@ -137,7 +137,9 @@ export const useVoz = ({ onResultado, onFinal } = {}) => {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.abort();
-        } catch (_) {}
+        } catch (_) {
+          /* noop */
+        }
       }
     };
   }, []);
@@ -148,7 +150,9 @@ export const useVoz = ({ onResultado, onFinal } = {}) => {
     if (ouvindo) {
       try {
         recognitionRef.current.stop();
-      } catch (_) {}
+      } catch (_) {
+        /* noop */
+      }
       setOuvindo(false);
       setFalando(false);
       setVolume(0.08);
@@ -161,11 +165,15 @@ export const useVoz = ({ onResultado, onFinal } = {}) => {
       } catch (e) {
         try {
           recognitionRef.current.abort();
-        } catch (_) {}
+        } catch (_) {
+          /* noop */
+        }
         setTimeout(() => {
           try {
             recognitionRef.current?.start();
-          } catch (_) {}
+          } catch (_) {
+            /* noop */
+          }
         }, 120);
       }
     }
@@ -175,7 +183,9 @@ export const useVoz = ({ onResultado, onFinal } = {}) => {
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
-      } catch (_) {}
+      } catch (_) {
+        /* noop */
+      }
       setOuvindo(false);
       setFalando(false);
       setVolume(0.08);
@@ -186,7 +196,9 @@ export const useVoz = ({ onResultado, onFinal } = {}) => {
     if (recognitionRef.current) {
       try {
         recognitionRef.current.abort();
-      } catch (_) {}
+      } catch (_) {
+        /* noop */
+      }
       setOuvindo(false);
       setFalando(false);
       setVolume(0.08);

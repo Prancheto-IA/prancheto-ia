@@ -25,7 +25,6 @@ import {
   ArrowUpRight01Icon,
   SparklesIcon,
   Mic01Icon,
-  MicOff01Icon,
 } from '@hugeicons/core-free-icons';
 
 const PainelChatFlutuante = ({ onFechar, style }) => {

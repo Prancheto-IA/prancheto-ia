@@ -19,7 +19,6 @@ import {
   SentIcon,
   Comment01Icon,
   Mic01Icon,
-  MicOff01Icon,
 } from '@hugeicons/core-free-icons';
 
 const Chat = () => {
