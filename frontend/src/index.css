@@ -385,22 +385,37 @@ html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside 
 .bg-\[\#0E382C\]:not([class*="dark:bg-"]) {
   background-color: var(--brand-primary) !important;
 }
-html.dark aside.bg-brand-primary {
-  background-color: var(--sidebar-bg, #32105F) !important;
-}
-html.dark header.bg-brand-primary {
-  background: linear-gradient(90deg, #240B45 0%, #5420A0 100%) !important;
-}
-html.dark .h-screen.bg-brand-primary {
-  background-color: var(--sidebar-bg, #32105F) !important;
-}
-.hover\:bg-brand-primary:hover,
-.hover\:bg-\[\#0E382C\]:hover {
+
+/* Shell unificado (Sidebar + Header compartilhando o mesmo fundo contínuo) */
+.shell-app-bg {
   background-color: var(--brand-primary) !important;
 }
-.bg-brand-primary-hover,
-.hover\:bg-brand-primary-hover:hover,
-.hover\:bg-\[\#07261E\]:hover {
+html.dark .shell-app-bg {
+  background-color: #240B45 !important;
+  background-image:
+    radial-gradient(ellipse 48% 26% at 76% 0%, rgba(117, 71, 216, 0.55) 0%, rgba(84, 32, 160, 0.32) 55%, transparent 100%),
+    radial-gradient(ellipse 22% 58% at 0% 42%, rgba(72, 26, 138, 0.75) 0%, rgba(50, 16, 95, 0.40) 55%, transparent 100%),
+    linear-gradient(90deg, #240B45 0%, #2D0E57 22%, #3D1675 52%, #5420A0 84%, #441885 100%) !important;
+}
+
+/* No mobile (< 1024px), a sidebar abre como gaveta sobreposta e precisa de fundo próprio */
+@media (max-width: 1023px) {
+  .shell-sidebar {
+    background-color: var(--brand-primary) !important;
+  }
+  html.dark .shell-sidebar {
+    background-color: #240B45 !important;
+    background-image: linear-gradient(180deg, #240B45 0%, #32105F 50%, #240B45 100%) !important;
+  }
+}
+
+.hover\:bg-brand-primary:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#0E382C\]:hover:not([class*="dark:hover:bg-"]) {
+  background-color: var(--brand-primary) !important;
+}
+.bg-brand-primary-hover:not([class*="dark:bg-"]),
+.hover\:bg-brand-primary-hover:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#07261E\]:hover:not([class*="dark:hover:bg-"]) {
   background-color: var(--brand-primary-hover) !important;
 }
 .text-brand-primary:not([class*="dark:text-"]),
@@ -408,12 +423,12 @@ html.dark .h-screen.bg-brand-primary {
 .text-\[\#132E22\]:not([class*="dark:text-"]) {
   color: var(--brand-primary-text, var(--brand-primary)) !important;
 }
-.hover\:text-brand-primary:hover,
-.hover\:text-\[\#0E382C\]:hover {
+.hover\:text-brand-primary:hover:not([class*="dark:hover:text-"]),
+.hover\:text-\[\#0E382C\]:hover:not([class*="dark:hover:text-"]) {
   color: var(--brand-primary-text, var(--brand-primary)) !important;
 }
-.border-brand-primary,
-.border-\[\#0E382C\] {
+.border-brand-primary:not([class*="dark:border-"]),
+.border-\[\#0E382C\]:not([class*="dark:border-"]) {
   border-color: var(--brand-primary) !important;
 }
 .hover\:border-brand-primary:hover,
@@ -428,12 +443,12 @@ html.dark .h-screen.bg-brand-primary {
 .bg-\[\#134436\]:not([class*="dark:bg-"]) {
   background-color: var(--brand-secondary) !important;
 }
-.hover\:bg-brand-secondary:hover,
-.hover\:bg-\[\#134436\]:hover {
+.hover\:bg-brand-secondary:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#134436\]:hover:not([class*="dark:hover:bg-"]) {
   background-color: var(--brand-secondary) !important;
 }
-.border-brand-secondary-border,
-.border-\[\#1F5C4A\] {
+.border-brand-secondary-border:not([class*="dark:border-"]),
+.border-\[\#1F5C4A\]:not([class*="dark:border-"]) {
   border-color: var(--brand-secondary-border) !important;
 }
 
@@ -442,14 +457,14 @@ html.dark .h-screen.bg-brand-primary {
 .bg-\[\#D4EC9D\]:not([class*="dark:bg-"]) {
   background-color: var(--brand-accent) !important;
 }
-.hover\:bg-brand-accent:hover,
-.hover\:bg-\[\#D4EC9D\]:hover {
+.hover\:bg-brand-accent:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#D4EC9D\]:hover:not([class*="dark:hover:bg-"]) {
   background-color: var(--brand-accent) !important;
 }
-.bg-brand-accent-hover,
-.hover\:bg-brand-accent-hover:hover,
-.hover\:bg-\[\#c5e485\]:hover,
-.bg-\[\#c5e485\] {
+.bg-brand-accent-hover:not([class*="dark:bg-"]),
+.hover\:bg-brand-accent-hover:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#c5e485\]:hover:not([class*="dark:hover:bg-"]),
+.bg-\[\#c5e485\]:not([class*="dark:bg-"]) {
   background-color: var(--brand-accent-hover) !important;
 }
 .text-brand-accent:not([class*="dark:text-"]),
@@ -460,17 +475,17 @@ html.dark .text-brand-accent:not([class*="dark:text-"]),
 html.dark .text-\[\#D4EC9D\]:not([class*="dark:text-"]) {
   color: #E0F2FE !important;
 }
-html.dark .bg-\[\#D4EC9D\].text-\[\#0E382C\],
-html.dark .bg-brand-accent.text-brand-primary {
+html.dark .bg-\[\#D4EC9D\].text-\[\#0E382C\]:not([class*="dark:bg-"]),
+html.dark .bg-brand-accent.text-brand-primary:not([class*="dark:bg-"]) {
   background-color: rgb(56 189 248 / 0.22) !important;
   color: #7DD3FC !important;
 }
-.border-brand-accent,
-.border-\[\#D4EC9D\] {
+.border-brand-accent:not([class*="dark:border-"]),
+.border-\[\#D4EC9D\]:not([class*="dark:border-"]) {
   border-color: var(--brand-accent) !important;
 }
-.focus\:ring-brand-accent:focus,
-.focus\:ring-\[\#D4EC9D\]:focus {
+.focus\:ring-brand-accent:focus:not([class*="dark:focus:ring-"]),
+.focus\:ring-\[\#D4EC9D\]:focus:not([class*="dark:focus:ring-"]) {
   --tw-ring-color: var(--brand-accent) !important;
 }
 

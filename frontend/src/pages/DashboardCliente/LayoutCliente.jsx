@@ -161,11 +161,11 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
               to={item.rota}
               end={item.exact}
               onClick={onClick}
-              className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color] duration-300 relative overflow-hidden ${
+              className={`h-10 flex items-center rounded-xl font-medium text-sm transition-[width,background-color,color,box-shadow] duration-300 relative overflow-hidden ${
                 colapsada ? 'w-10' : 'w-full'
               } ${
                 ativo
-                  ? 'bg-brand-accent text-brand-primary dark:bg-[#7547D8] dark:text-white font-semibold shadow-xs dark:shadow-md dark:shadow-[#7547D8]/30'
+                  ? 'bg-brand-accent text-brand-primary dark:bg-[#7547D8] dark:text-white font-semibold shadow-xs dark:shadow-[0_0_16px_rgba(117,71,216,0.55)] dark:border dark:border-white/20'
                   : 'text-white/80 dark:text-white/80 hover:text-white dark:hover:text-white group-hover:bg-white/10 group-hover:text-white'
               }`}
             >
@@ -405,7 +405,7 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
 
       <aside
         className={`
-          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-brand-primary dark:bg-[#32105F]
+          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden shell-sidebar lg:bg-transparent
           transition-[width] duration-300 ease-in-out flex-shrink-0
           lg:static lg:z-auto lg:translate-x-0
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
@@ -545,7 +545,7 @@ const LayoutCliente = ({ children }) => {
   }, [menuUsuarioAberto, notificacoesAbertas]);
 
   return (
-    <div className="h-screen bg-brand-primary dark:bg-[#32105F] flex items-stretch overflow-hidden font-sans">
+    <div className="h-screen shell-app-bg flex items-stretch overflow-hidden font-sans">
       {/* Sidebar */}
       <Sidebar
         aberta={sidebarAberta}
@@ -559,7 +559,7 @@ const LayoutCliente = ({ children }) => {
           render={
             <button
               onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
-              className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover dark:bg-[#7547D8] dark:text-white dark:hover:bg-[#6335c7] dark:shadow-md dark:shadow-[#7547D8]/40 transition-[left] duration-300 ease-in-out cursor-pointer"
+              className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-brand-primary shadow-sm hover:bg-brand-accent-hover dark:bg-[#1B3A5C] dark:text-[#38BDF8] dark:border dark:border-[#38BDF8]/30 dark:hover:bg-[#7547D8] dark:hover:text-white dark:hover:border-transparent focus:outline-none transition-[left,background-color,color] duration-300 ease-in-out cursor-pointer"
               style={{
                 left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
               }}
@@ -580,9 +580,9 @@ const LayoutCliente = ({ children }) => {
       </Tooltip>
 
       {/* Main App Canvas */}
-      <div className="flex-1 flex flex-col min-w-0 dark:bg-[#240B45]">
+      <div className="flex-1 flex flex-col min-w-0 bg-transparent">
         {/* Top Header */}
-        <header className="h-16 bg-brand-primary dark:bg-gradient-to-r dark:from-[#240B45] dark:to-[#5420A0] px-6 flex items-center justify-between gap-4 flex-shrink-0">
+        <header className="h-16 bg-transparent px-6 flex items-center justify-between gap-4 flex-shrink-0">
           <div className="flex items-center gap-3">
             <Tooltip>
               <TooltipTrigger
@@ -609,12 +609,12 @@ const LayoutCliente = ({ children }) => {
               icon={Search01Icon}
               size={18}
               strokeWidth={1.8}
-              className="text-slate-400 dark:text-white/60 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+              className="text-slate-400 dark:text-white/65 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
             />
             <input
               type="text"
               placeholder="Pesquisar projetos, clientes ou tarefas..."
-              className="w-full h-10 pl-11 pr-4 bg-white dark:bg-white/10 dark:text-white dark:placeholder-white/50 dark:border dark:border-white/15 rounded-full text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-[#7547D8] dark:focus:bg-white/15 shadow-xs transition-all"
+              className="w-full h-10 pl-11 pr-4 bg-white dark:bg-white/[0.09] dark:text-white dark:placeholder-white/55 dark:border dark:border-white/20 rounded-full text-sm text-ink-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-[#7547D8] dark:focus:bg-white/[0.14] shadow-xs transition-all"
             />
           </div>
 
@@ -629,7 +629,7 @@ const LayoutCliente = ({ children }) => {
                       type="button"
                       onClick={() => alternarTema(usuario?.id)}
                       aria-label={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
-                      className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:border dark:border-white/10 flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                      className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-[#7547D8]/50 dark:text-white dark:hover:bg-[#7547D8] dark:border dark:border-white/15 flex items-center justify-center transition-colors shadow-xs cursor-pointer"
                     >
                       <HugeiconsIcon
                         icon={temaEscuro ? Sun01Icon : Moon02Icon}
@@ -658,11 +658,11 @@ const LayoutCliente = ({ children }) => {
                           setMenuUsuarioAberto(false);
                         }}
                         aria-label="Notificações"
-                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:border dark:border-white/10 flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
+                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-[#7547D8]/50 dark:text-white dark:hover:bg-[#7547D8] dark:border dark:border-white/15 flex items-center justify-center transition-colors relative shadow-xs cursor-pointer"
                       >
                         <HugeiconsIcon icon={Notification01Icon} size={18} strokeWidth={1.8} />
                         {naoLidasCount > 0 && (
-                          <span className="w-2 h-2 rounded-full bg-brand-purple absolute top-2 right-2"></span>
+                          <span className="w-2 h-2 rounded-full bg-brand-purple dark:bg-[#38BDF8] absolute top-2 right-2"></span>
                         )}
                       </button>
                     }
@@ -693,8 +693,8 @@ const LayoutCliente = ({ children }) => {
                       className={({ isActive }) => {
                         const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
                         return `w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow-xs ${ativa
-                          ? 'bg-brand-accent-hover text-brand-primary dark:bg-[#7547D8] dark:text-white dark:shadow-md dark:shadow-[#7547D8]/40'
-                          : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:border dark:border-white/10'
+                          ? 'bg-brand-accent-hover text-brand-primary dark:bg-[#7547D8] dark:text-white dark:border dark:border-white/25 dark:shadow-[0_0_14px_rgba(117,71,216,0.55)]'
+                          : 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover dark:bg-[#7547D8]/50 dark:text-white dark:hover:bg-[#7547D8] dark:border dark:border-white/15'
                           }`;
                       }}
                     >
@@ -715,7 +715,7 @@ const LayoutCliente = ({ children }) => {
                       <button
                         type="button"
                         onClick={() => setMenuUsuarioAberto((v) => !v)}
-                        className="w-9 h-9 rounded-xl bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent dark:bg-white/15 dark:text-white dark:border-white/20 dark:hover:bg-white/25"
+                        className="w-9 h-9 rounded-full bg-brand-accent text-brand-primary font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs hover:bg-brand-accent-hover transition-all cursor-pointer overflow-hidden border border-brand-accent dark:bg-[#240B45] dark:text-white dark:border-white/20 dark:hover:bg-[#32105F]"
                         aria-label={`Perfil: ${usuario?.nome || 'Usuário'}`}
                       >
                         {usuario?.avatar_url || usuario?.foto_url ? (
@@ -795,7 +795,7 @@ const LayoutCliente = ({ children }) => {
       </header>
 
         {/* Page Content Stream (Nível 1) */}
-        <main className="flex-1 overflow-auto bg-surface rounded-tl-3xl px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0 shadow-sm">
+        <main className="flex-1 overflow-auto bg-surface rounded-tl-3xl dark:border-t dark:border-l dark:border-white/[0.07] px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0 shadow-sm">
           {children}
         </main>
       </div>
