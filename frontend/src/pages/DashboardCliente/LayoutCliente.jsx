@@ -72,15 +72,14 @@ const MarcaLogo = ({ colapsada = false }) => {
         colapsada ? 'w-10 h-10' : 'px-2.5 py-1.5'
       }`}
     >
-      {/* Halo externo em gradiente blur para destacar o logo sobre o fundo escuro */}
+      {/* Gradiente blur bem suave e difuso atrás do logo */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#38BDF8]/55 via-white/65 to-[#C084FC]/60 blur-md opacity-90 group-hover/logo:opacity-100 transition-opacity duration-150"
+        className="pointer-events-none absolute -inset-1.5 rounded-full bg-gradient-to-r from-[#38BDF8]/25 via-white/30 to-[#A855F7]/25 blur-lg opacity-75 group-hover/logo:opacity-95 transition-opacity duration-200"
       />
-      {/* Almofada luminosa suave com blur para contraste nítido das letras e ícone */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-white/85 via-[#F0F9FF]/95 to-[#F3E8FF]/90 blur-[2.5px] shadow-[0_0_14px_rgba(255,255,255,0.3)]"
+        className="pointer-events-none absolute inset-0 rounded-2xl bg-white/20 dark:bg-white/15 blur-md"
       />
 
       <img
