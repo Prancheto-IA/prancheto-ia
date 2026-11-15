@@ -44,6 +44,7 @@ const PaginaProjetoDetalhe   = lazy(() => import('./pages/Projetos/ProjetoDetalh
 const PaginaTarefas          = lazy(() => import('./pages/Tarefas/Tarefas.jsx'));
 const PaginaChatModulo       = lazy(() => import('./pages/Chat/ChatModulo.jsx'));
 const PaginaTimesPessoas     = lazy(() => import('./pages/TimesPessoas/TimesPessoas.jsx'));
+const PaginaAutomacoes       = lazy(() => import('./pages/Automacoes/Automacoes.jsx'));
 
 // =============================================================
 // HELPER: determina para onde redirecionar após login
@@ -214,6 +215,7 @@ const App = () => {
             <Route path="/dashboard/organizacao"            element={<Navigate to="/times-pessoas" replace />} />
             <Route path="/dashboard/organizacao/*"          element={<Navigate to="/times-pessoas" replace />} />
             <Route path="/organizacao"                      element={<Navigate to="/times-pessoas" replace />} />
+            <Route path="/dashboard/automacoes"             element={<Navigate to="/automacoes" replace />} />
 
             {/* Wildcard do dashboard (redireciona para /dashboard) */}
             <Route
@@ -238,6 +240,18 @@ const App = () => {
               element={
                 <ClienteComLayout>
                   <PaginaCRMHub />
+                </ClienteComLayout>
+              }
+            />
+
+            {/* ============================================================
+                AUTOMAÇÕES DE MENSAGENS (ESTILO N8N + WHATSAPP)
+            ============================================================ */}
+            <Route
+              path="/automacoes"
+              element={
+                <ClienteComLayout>
+                  <PaginaAutomacoes />
                 </ClienteComLayout>
               }
             />

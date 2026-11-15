@@ -245,3 +245,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 - [ ] Processador de agendamentos para o nó de Delay (via `pg_cron` no Supabase).
 - [ ] Tela de logs de execução com destaque visual dos nós percorridos.
 - [ ] Testes de ponta a ponta: mover lead no Kanban e receber mensagem automática formatada no WhatsApp.
+

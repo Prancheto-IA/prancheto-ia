@@ -21,6 +21,7 @@ export const CATALOGO_SIDEBAR = [
   { slug: 'chat',         label: 'Chat',          emoji: '💬', rota: '/chat',                        exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'calendario',   label: 'Calendário',    emoji: '🗓️', rota: '/calendario',                  exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'crm',          label: 'CRM',            emoji: '📋', rota: '/crm',                         exact: false, prefixoAtivo: '/crm',                  removivel: true  },
+  { slug: 'automacoes',   label: 'Automações',     emoji: '⚡', rota: '/automacoes',                  exact: false, prefixoAtivo: '/automacoes',           removivel: true  },
   { slug: 'chat_ia',      label: 'Pranchetinho',    emoji: '🧠', rota: '/dashboard/agente',            exact: false, prefixoAtivo: '/dashboard/agente',     removivel: true  },
   { slug: 'tarefas',      label: 'Tarefas',        emoji: '✅', rota: '/tarefas',                     exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'projetos',     label: 'Projetos',       emoji: '📁', rota: '/projetos',                    exact: false, prefixoAtivo: '/projetos',             removivel: true  },
@@ -77,10 +78,7 @@ const lerCache = (userId) => {
     if (!bruto) return null;
     const parsed = JSON.parse(bruto);
     if (Array.isArray(parsed?.itens)) {
-      parsed.itens = parsed.itens.map(i => ({
-        ...i,
-        slug: migrarSlug(i.slug),
-      }));
+      parsed.itens = mesclarComCatalogo(parsed.itens);
     }
     return parsed;
   } catch {

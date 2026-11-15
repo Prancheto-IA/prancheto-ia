@@ -63,6 +63,7 @@ import {
   Brain02Icon,
   Sun01Icon,
   Moon02Icon,
+  WorkflowSquare10Icon,
 } from '@hugeicons/core-free-icons';
 
 const BADGE_CARGO = {
@@ -132,6 +133,7 @@ const MarcaLogo = ({ colapsada = false }) => {
 const ICONES_MAP = {
   dashboard: DashboardSquare01Icon,
   crm: UserGroupIcon,
+  automacoes: WorkflowSquare10Icon,
   projetos: Folder01Icon,
   tarefas: Task01Icon,
   calendario: Calendar03Icon,
@@ -805,7 +807,13 @@ const LayoutCliente = ({ children }) => {
       </header>
 
         {/* Page Content Stream (Nível 1) */}
-        <main className="flex-1 overflow-auto bg-surface rounded-tl-3xl dark:border-t dark:border-l dark:border-white/[0.07] px-4 sm:px-6 py-5 sm:py-6 flex flex-col min-h-0 shadow-sm">
+        <main
+          className={`flex-1 bg-surface rounded-tl-3xl dark:border-t dark:border-l dark:border-white/[0.07] flex flex-col min-h-0 shadow-sm ${
+            location.pathname.startsWith('/automacoes')
+              ? 'overflow-hidden p-0'
+              : 'overflow-auto px-4 sm:px-6 py-5 sm:py-6'
+          }`}
+        >
           {children}
         </main>
       </div>
