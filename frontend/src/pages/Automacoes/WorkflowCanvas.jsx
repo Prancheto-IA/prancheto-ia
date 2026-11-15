@@ -590,7 +590,7 @@ const StudioAddNodeDrawer = ({
           </div>
         ) : (
           <p className="text-[11px] text-ink-muted">
-            Clique em qualquer bloco para adicionar ao workflow.
+            Clique em qualquer bloco para adicionar à automação.
           </p>
         )}
 
@@ -853,7 +853,7 @@ const StudioNodeInspector = ({
             <Field>
               <FieldLabel>Etapa de Destino (Quando mover para)</FieldLabel>
               <Select
-                value={cfg.etapaDestino || 'proposta'}
+                value={cfg.etapaDestino || 'chamei'}
                 onValueChange={(v) => updateField('etapaDestino', v)}
               >
                 <SelectTrigger>
@@ -922,7 +922,7 @@ const StudioNodeInspector = ({
             <Field>
               <FieldLabel>Etapa Monitorada</FieldLabel>
               <Select
-                value={cfg.etapaAlvo || 'negociacao'}
+                value={cfg.etapaAlvo || 'chamar_novamente'}
                 onValueChange={(v) => updateField('etapaAlvo', v)}
               >
                 <SelectTrigger>

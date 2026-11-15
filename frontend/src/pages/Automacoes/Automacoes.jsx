@@ -92,7 +92,7 @@ const criarNovoWorkflow = (contador) => ({
         phaseLabel: 'Gatilho Inicial',
         meshKey: 'brand',
         etapaOrigem: 'qualquer',
-        etapaDestino: 'proposta',
+        etapaDestino: 'nao_chamei',
         apenasHorarioComercial: true,
       },
     },
@@ -173,7 +173,7 @@ const Automacoes = () => {
   // Estado do Simulador de Lead CRM
   const [testeLeadNome, setTesteLeadNome] = useState(LEADS_DEMO[0].nome);
   const [testeLeadSelecionado, setTesteLeadSelecionado] = useState(LEADS_DEMO[0]);
-  const [testeEtapaDestino, setTesteEtapaDestino] = useState('proposta');
+  const [testeEtapaDestino, setTesteEtapaDestino] = useState('chamei');
   const [testeWorkflowId, setTesteWorkflowId] = useState(
     () => lerStorage(STORAGE_KEY_WORKFLOWS, tenantId, WORKFLOWS_INICIAIS)[0]?.id || ''
   );
@@ -228,7 +228,7 @@ const Automacoes = () => {
       const alvo = workflows.find((w) => w.id === id);
       adicionarNotificacao(
         'info',
-        `Fluxo "${alvo?.nome || 'Automação'}" ${novoAtivo ? 'ativado' : 'pausado'}.`
+        `Automação "${alvo?.nome || 'Automação'}" ${novoAtivo ? 'ativada' : 'pausada'}.`
       );
     },
     [atualizarWorkflow, workflows, adicionarNotificacao]
@@ -239,7 +239,7 @@ const Automacoes = () => {
     setWorkflows((prev) => [novo, ...prev]);
     setWorkflowSelecionadoId(novo.id);
     setModoVisao('studio');
-    adicionarNotificacao('success', `"${novo.nome}" criado no Studio!`);
+    adicionarNotificacao('success', `"${novo.nome}" criada no Studio!`);
   };
 
   const handleDuplicarWorkflow = (wf) => {
@@ -252,12 +252,12 @@ const Automacoes = () => {
       ultimaExecucao: 'Ainda não executado',
     };
     setWorkflows((prev) => [copia, ...prev]);
-    adicionarNotificacao('success', `Fluxo duplicado como "${copia.nome}".`);
+    adicionarNotificacao('success', `Automação duplicada como "${copia.nome}".`);
   };
 
   const handleExcluirWorkflow = (id) => {
     if (workflows.length <= 1) {
-      adicionarNotificacao('warning', 'Mantenha ao menos um fluxo cadastrado.');
+      adicionarNotificacao('warning', 'Mantenha ao menos uma automação cadastrada.');
       return;
     }
     const alvo = workflows.find((w) => w.id === id);
@@ -266,7 +266,7 @@ const Automacoes = () => {
     if (workflowSelecionadoId === id) {
       setWorkflowSelecionadoId(restantes[0]?.id || null);
     }
-    adicionarNotificacao('info', `Fluxo "${alvo?.nome || ''}" removido.`);
+    adicionarNotificacao('info', `Automação "${alvo?.nome || ''}" removida.`);
   };
 
   const atualizarConexao = useCallback((id, patch) => {
@@ -290,9 +290,9 @@ const Automacoes = () => {
       const etapaOrigem =
         triggerNo?.config?.etapaOrigem && triggerNo.config.etapaOrigem !== 'qualquer'
           ? triggerNo.config.etapaOrigem
-          : leadTeste.status_funil || 'lead';
+          : leadTeste.status_funil || 'nao_chamei';
       const etapaDestino =
-        etapaDestinoOverride || triggerNo?.config?.etapaDestino || 'proposta';
+        etapaDestinoOverride || triggerNo?.config?.etapaDestino || 'chamei';
 
       setWorkflowSelecionadoId(wf.id);
       setModoVisao('studio');
@@ -444,7 +444,7 @@ const Automacoes = () => {
                 </h1>
               </div>
               <p className="text-xs sm:text-sm text-ink-secondary">
-                Gerencie suas automações por etapa do funil, acompanhe execuções e crie novos workflows.
+                Gerencie suas automações por etapa do funil, acompanhe execuções e crie novas automações.
               </p>
             </div>
 
@@ -480,7 +480,7 @@ const Automacoes = () => {
                   className="inline-flex items-center gap-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-opacity cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Novo Workflow</span>
+                  <span>Nova Automação</span>
                 </button>
               </div>
             </div>
@@ -489,7 +489,7 @@ const Automacoes = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="rounded-2xl border border-surface-border bg-surface-card p-4 space-y-1">
                 <span className="text-[11px] font-semibold text-ink-secondary">
-                  Total de Workflows
+                  Total de Automações
                 </span>
                 <div className="flex items-baseline justify-between">
                   <span className="text-2xl font-extrabold text-ink-primary tabular-nums">
@@ -555,7 +555,7 @@ const Automacoes = () => {
                   type="text"
                   value={buscaFluxo}
                   onChange={(e) => setBuscaFluxo(e.target.value)}
-                  placeholder="Buscar workflow por nome, descrição ou categoria..."
+                  placeholder="Buscar automação por nome, descrição ou categoria..."
                   className="h-9 w-full rounded-xl border border-surface-border bg-surface-subtle pl-9 pr-8 text-xs font-medium text-ink-primary outline-none focus:border-brand-primary transition-colors"
                 />
                 {buscaFluxo && (
@@ -572,7 +572,7 @@ const Automacoes = () => {
 
               <div className="flex items-center justify-between sm:justify-end gap-3">
                 <span className="text-xs font-medium text-ink-muted tabular-nums whitespace-nowrap">
-                  {fluxosFiltrados.length} de {workflows.length} workflows
+                  {fluxosFiltrados.length} de {workflows.length} automações
                 </span>
                 <div className="w-44">
                   <Select value={filtroStatusFluxo} onValueChange={setFiltroStatusFluxo}>
@@ -580,7 +580,7 @@ const Automacoes = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Todos os workflows</SelectItem>
+                      <SelectItem value="todos">Todas as automações</SelectItem>
                       <SelectItem value="ativos">Apenas ativos</SelectItem>
                       <SelectItem value="pausados">Apenas pausados</SelectItem>
                     </SelectContent>
@@ -589,7 +589,7 @@ const Automacoes = () => {
               </div>
             </div>
 
-            {/* Lista de Workflows */}
+            {/* Lista de Automações */}
             {fluxosFiltrados.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-surface-border-strong bg-surface-card/70 px-6 py-12 text-center space-y-3">
                 <span className="mx-auto h-11 w-11 rounded-2xl bg-surface-subtle border border-surface-border flex items-center justify-center text-ink-secondary">
@@ -597,10 +597,10 @@ const Automacoes = () => {
                 </span>
                 <div className="space-y-1">
                   <h2 className="text-sm font-bold text-ink-primary">
-                    Nenhum workflow encontrado
+                    Nenhuma automação encontrada
                   </h2>
                   <p className="text-xs text-ink-secondary max-w-md mx-auto">
-                    Ajuste os filtros de busca ou crie um novo workflow do zero no Studio visual.
+                    Ajuste os filtros de busca ou crie uma nova automação do zero no Studio visual.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
@@ -622,7 +622,7 @@ const Automacoes = () => {
                     className="inline-flex items-center gap-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 px-4 py-2 text-xs font-semibold text-white cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    Criar Novo Workflow
+                    Criar Nova Automação
                   </button>
                 </div>
               </div>
@@ -651,7 +651,7 @@ const Automacoes = () => {
                             setModoVisao('studio');
                           }}
                           style={{ background: orbBg }}
-                          title="Abrir workflow no Studio"
+                          title="Abrir automação no Studio"
                           className="h-9 w-9 rounded-xl flex items-center justify-center text-white shadow-2xs shrink-0 hover:scale-105 transition-transform cursor-pointer"
                         >
                           <Zap className="w-4 h-4" />
@@ -725,7 +725,7 @@ const Automacoes = () => {
                           <button
                             type="button"
                             onClick={() => handleDuplicarWorkflow(wf)}
-                            title="Duplicar workflow"
+                            title="Duplicar automação"
                             className="rounded-lg p-1.5 text-ink-secondary hover:bg-surface-hover transition-colors cursor-pointer"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -733,7 +733,7 @@ const Automacoes = () => {
                           <button
                             type="button"
                             onClick={() => handleExcluirWorkflow(wf.id)}
-                            title="Excluir workflow"
+                            title="Excluir automação"
                             className="rounded-lg p-1.5 text-ink-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

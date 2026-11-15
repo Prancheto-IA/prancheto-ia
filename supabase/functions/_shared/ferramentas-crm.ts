@@ -26,7 +26,7 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 export const ETAPAS_FUNIL = [
-  'lead', 'qualificado', 'proposta', 'negociacao', 'fechado', 'perdido',
+  'nao_chamei', 'chamei', 'chamar_novamente', 'deu_bom', 'deu_ruim',
 ] as const;
 
 export const TIPOS_INTERACAO = [
@@ -265,7 +265,7 @@ export const FERRAMENTAS: Ferramenta[] = [
           valor_estimado: args.valor_estimado ?? null,
           observacoes: args.observacoes ?? null,
           tipo_registro: 'lead',
-          status_funil: 'lead',
+          status_funil: 'nao_chamei',
         })
         .select(COLUNAS_RESUMO)
         .single();

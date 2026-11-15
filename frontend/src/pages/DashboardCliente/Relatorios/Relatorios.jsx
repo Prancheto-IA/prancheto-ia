@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase.js';
 import { useAuthStore } from '../../../store/authStore.js';
+import { normalizarEtapaFunil } from '../../../hooks/useCRM.js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Target01Icon,
@@ -153,21 +154,22 @@ const Relatorios = () => {
       const totalClientes = soClientes.length;
 
       // Status do Funil
-      const leads = soLeads.filter((c) => c.status_funil === 'lead').length;
-      const qualificados = soLeads.filter((c) => c.status_funil === 'qualificado').length;
-      const propostas = soLeads.filter((c) => c.status_funil === 'proposta').length;
-      const negociacao = soLeads.filter((c) => c.status_funil === 'negociacao').length;
-      const fechados = contatos.filter((c) => c.status_funil === 'fechado').length;
-      const perdidos = soLeads.filter((c) => c.status_funil === 'perdido').length;
+      const naoChamei = soLeads.filter((c) => normalizarEtapaFunil(c.status_funil) === 'nao_chamei').length;
+      const chamei = soLeads.filter((c) => normalizarEtapaFunil(c.status_funil) === 'chamei').length;
+      const chamarNovamente = soLeads.filter((c) => normalizarEtapaFunil(c.status_funil) === 'chamar_novamente').length;
+      const deuBom = contatos.filter((c) => normalizarEtapaFunil(c.status_funil) === 'deu_bom').length;
+      const deuRuim = soLeads.filter((c) => normalizarEtapaFunil(c.status_funil) === 'deu_ruim').length;
+      const fechados = deuBom;
+      const perdidos = deuRuim;
 
       // Pipeline Ativo (todas as oportunidades em aberto)
       const valorPipeline = soLeads
-        .filter((c) => !['fechado', 'perdido'].includes(c.status_funil))
+        .filter((c) => !['deu_bom', 'deu_ruim'].includes(normalizarEtapaFunil(c.status_funil)))
         .reduce((acc, c) => acc + (Number(c.valor_estimado) || 0), 0);
 
       // Receita Fechada
       const valorFechado = contatos
-        .filter((c) => c.status_funil === 'fechado')
+        .filter((c) => normalizarEtapaFunil(c.status_funil) === 'deu_bom')
         .reduce((acc, c) => acc + (Number(c.valor_estimado) || 0), 0);
 
       // LTV Médio
@@ -213,10 +215,11 @@ const Relatorios = () => {
         totalContatos,
         totalLeads,
         totalClientes,
-        leads,
-        qualificados,
-        propostas,
-        negociacao,
+        naoChamei,
+        chamei,
+        chamarNovamente,
+        deuBom,
+        deuRuim,
         fechados,
         perdidos,
         valorPipeline,
@@ -292,20 +295,18 @@ const Relatorios = () => {
   }
 
   // Métricas do Funil
-  const totalFunil = (dados?.leads || 0) +
-    (dados?.qualificados || 0) +
-    (dados?.propostas || 0) +
-    (dados?.negociacao || 0) +
-    (dados?.fechados || 0) +
-    (dados?.perdidos || 0);
+  const totalFunil = (dados?.naoChamei || 0) +
+    (dados?.chamei || 0) +
+    (dados?.chamarNovamente || 0) +
+    (dados?.deuBom || 0) +
+    (dados?.deuRuim || 0);
 
   const etapasFunil = [
-    { key: 'lead', titulo: 'Lead', qtd: dados?.leads || 0, cor: 'bg-blue-600' },
-    { key: 'qualificado', titulo: 'Qualificado', qtd: dados?.qualificados || 0, cor: 'bg-purple-600' },
-    { key: 'proposta', titulo: 'Proposta', qtd: dados?.propostas || 0, cor: 'bg-[#0E382C]' },
-    { key: 'negociacao', titulo: 'Negociação', qtd: dados?.negociacao || 0, cor: 'bg-amber-600' },
-    { key: 'fechado', titulo: 'Fechado', qtd: dados?.fechados || 0, cor: 'bg-[#15803D]' },
-    { key: 'perdido', titulo: 'Perdido', qtd: dados?.perdidos || 0, cor: 'bg-rose-500' },
+    { key: 'nao_chamei', titulo: 'Não Chamei', qtd: dados?.naoChamei || 0, cor: 'bg-blue-600' },
+    { key: 'chamei', titulo: 'Chamei', qtd: dados?.chamei || 0, cor: 'bg-purple-600' },
+    { key: 'chamar_novamente', titulo: 'Chamar Novamente', qtd: dados?.chamarNovamente || 0, cor: 'bg-amber-600' },
+    { key: 'deu_bom', titulo: 'Deu Bom!', qtd: dados?.deuBom || 0, cor: 'bg-[#15803D]' },
+    { key: 'deu_ruim', titulo: 'Deu Ruim!', qtd: dados?.deuRuim || 0, cor: 'bg-rose-500' },
   ];
 
   // Cálculo proporcional de temperatura
@@ -557,7 +558,7 @@ const Relatorios = () => {
               </span>
             </div>
 
-            {/* Lista das 6 Etapas do Funil */}
+            {/* Lista das 5 Etapas do Funil */}
             <div className="space-y-3 pt-1">
               {etapasFunil.map((etapa) => {
                 const pct = totalFunil > 0 ? Math.round((etapa.qtd / totalFunil) * 100) : 0;

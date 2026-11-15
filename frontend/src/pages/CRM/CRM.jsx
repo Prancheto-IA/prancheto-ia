@@ -10,18 +10,11 @@ import { useAuth } from '../../hooks/useAuth.js';
 import { useTema } from '../../hooks/useTema.js';
 import { supabase } from '../../lib/supabase.js';
 import { NOME_PRODUTO } from '../../lib/ambiente.js';
-import { useCamposCustom } from '../../hooks/useCRM.js';
+import { useCamposCustom, FUNIL_LEAD, funilInfo, normalizarEtapaFunil } from '../../hooks/useCRM.js';
 import { SelectField } from '@/components/ui/select';
 
 // ─── Constantes ────────────────────────────────────────────────
-const FUNIL = [
-  { key: 'lead',        label: 'Lead',        cor: 'badge-neutro' },
-  { key: 'qualificado', label: 'Qualificado', cor: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-  { key: 'proposta',    label: 'Proposta',    cor: 'bg-violet-500/20 text-violet-300 border-violet-500/30' },
-  { key: 'negociacao',  label: 'Negociação',  cor: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
-  { key: 'fechado',     label: 'Fechado',     cor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
-  { key: 'perdido',     label: 'Perdido',     cor: 'bg-red-500/20 text-red-300 border-red-500/30' },
-];
+const FUNIL = FUNIL_LEAD;
 
 const TIPOS_INTERACAO = [
   { key: 'nota',     label: 'Nota',     emoji: '📝' },
@@ -36,10 +29,8 @@ const ORIGENS = ['manual','site','indicacao','linkedin','email','outro'];
 
 const FORM_VAZIO = {
   nome: '', email: '', telefone: '', empresa: '', cargo: '',
-  origem: 'manual', status_funil: 'lead', valor_estimado: '', observacoes: '',
+  origem: 'manual', status_funil: 'nao_chamei', valor_estimado: '', observacoes: '',
 };
-
-const funilInfo = (key) => FUNIL.find(f => f.key === key) || FUNIL[0];
 
 // ─── Badge de status ───────────────────────────────────────────
 // ─── Badge de temperatura (score) ─────────────────────────────
@@ -85,7 +76,7 @@ const ModalContato = ({ aberto, onFechar, onSalvar, contatoEditando }) => {
         empresa:        contatoEditando.empresa        || '',
         cargo:          contatoEditando.cargo          || '',
         origem:         contatoEditando.origem         || 'manual',
-        status_funil:   contatoEditando.status_funil   || 'lead',
+        status_funil:   normalizarEtapaFunil(contatoEditando.status_funil || 'nao_chamei'),
         valor_estimado: contatoEditando.valor_estimado || '',
         observacoes:    contatoEditando.observacoes    || '',
       });
@@ -354,7 +345,7 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
         <div className="px-5 py-3 border-b flex items-center gap-2 flex-wrap flex-shrink-0"
           style={{ borderColor: 'var(--color-surface-border)' }}>
           <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>Mover para:</span>
-          {FUNIL.filter(f => f.key !== contato.status_funil).map(f => (
+          {FUNIL.filter(f => f.key !== normalizarEtapaFunil(contato.status_funil)).map(f => (
             <button key={f.key} onClick={() => onMudarStatus(contato.id, f.key)}
               className={`text-sm px-2 py-0.5 rounded-full border transition-opacity hover:opacity-80 ${f.cor}`}>
               {f.label}
@@ -598,7 +589,7 @@ const PaginaCRM = () => {
       if (!erroKanban) {
         const kanbanGrouped = {};
         FUNIL.forEach(col => {
-           kanbanGrouped[col.key] = (todos || []).filter(c => c.status_funil === col.key);
+           kanbanGrouped[col.key] = (todos || []).filter(c => normalizarEtapaFunil(c.status_funil) === col.key);
         });
         setKanbanData(kanbanGrouped);
       }
@@ -758,7 +749,7 @@ const PaginaCRM = () => {
         {aba === 'lista' && (
           <div className="flex gap-2 flex-wrap mb-4">
             {FUNIL.map(f => {
-              const qtd = contatos.filter(c => c.status_funil === f.key).length;
+              const qtd = contatos.filter(c => normalizarEtapaFunil(c.status_funil) === f.key).length;
               if (qtd === 0) return null;
               return (
                 <button key={f.key}

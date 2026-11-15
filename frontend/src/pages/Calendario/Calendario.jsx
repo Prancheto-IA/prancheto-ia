@@ -278,7 +278,7 @@ const ModalEvento = ({
       negocio_nome: nomeFormatado,
       nome: nomeFormatado,
       valor_estimado: valorNumerico,
-      status_funil: 'lead',
+      status_funil: 'nao_chamei',
     };
 
     if (tenantId) {
@@ -290,7 +290,7 @@ const ModalEvento = ({
             negocio_nome: nomeFormatado,
             nome: nomeFormatado,
             valor_estimado: valorNumerico,
-            status_funil: 'lead',
+            status_funil: 'nao_chamei',
             origem: 'Agenda / Calendário',
           })
           .select()

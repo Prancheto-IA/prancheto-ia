@@ -7,7 +7,7 @@ import { FUNIL_LEAD, ORIGENS, funilInfo, formatarMoeda } from '../../hooks/useCR
 export const NODE_WIDTH = 276;
 export const NODE_HEIGHT = 68;
 
-export const STORAGE_KEY_WORKFLOWS = 'prancheto_automacoes_workflows_v2';
+export const STORAGE_KEY_WORKFLOWS = 'prancheto_automacoes_workflows_v3';
 export const STORAGE_KEY_CONEXOES  = 'prancheto_automacoes_conexoes_v1';
 export const STORAGE_KEY_LOGS      = 'prancheto_automacoes_logs_v1';
 
@@ -15,8 +15,8 @@ export const VARIAVEIS_DISPONIVEIS = [
   { token: '{{lead.nome}}',           label: 'Nome do Lead',          exemplo: 'Mariana Costa' },
   { token: '{{lead.empresa}}',        label: 'Empresa',               exemplo: 'Vértice Arquitetura' },
   { token: '{{lead.valor_estimado}}', label: 'Valor do Negócio',      exemplo: 'R$ 18.500,00' },
-  { token: '{{etapa.anterior}}',      label: 'Etapa Anterior',        exemplo: 'Qualificado' },
-  { token: '{{etapa.nova}}',          label: 'Nova Etapa',            exemplo: 'Proposta' },
+  { token: '{{etapa.anterior}}',      label: 'Etapa Anterior',        exemplo: 'Chamei' },
+  { token: '{{etapa.nova}}',          label: 'Nova Etapa',            exemplo: 'Chamar Novamente' },
   { token: '{{responsavel.nome}}',    label: 'Vendedor Responsável',  exemplo: 'Derek Almeida' },
   { token: '{{ia.mensagem_gerada}}',  label: 'Texto Pranchetinho IA', exemplo: 'Preparamos a proposta sob medida para a Vértice.' },
 ];
@@ -85,7 +85,7 @@ export const CATALOGO_NOS = [
       phaseLabel: 'Gatilho Inicial',
       meshKey: 'brand',
       etapaOrigem: 'qualquer',
-      etapaDestino: 'proposta',
+      etapaDestino: 'chamei',
       apenasHorarioComercial: true,
     },
   },
@@ -103,7 +103,7 @@ export const CATALOGO_NOS = [
       phaseLabel: 'Gatilho Inicial',
       meshKey: 'aurora',
       origem: 'qualquer',
-      etapaInicial: 'lead',
+      etapaInicial: 'nao_chamei',
     },
   },
   {
@@ -155,7 +155,7 @@ export const CATALOGO_NOS = [
       phaseLabel: 'Gatilho · SLA',
       meshKey: 'amber',
       horasSemResposta: 24,
-      etapaAlvo: 'negociacao',
+      etapaAlvo: 'chamar_novamente',
     },
   },
   {
@@ -345,7 +345,7 @@ export const resumirConfigNo = (node) => {
         cfg.etapaOrigem && cfg.etapaOrigem !== 'qualquer'
           ? funilInfo(cfg.etapaOrigem).label
           : 'Qualquer etapa';
-      const destino = funilInfo(cfg.etapaDestino || 'lead').label;
+      const destino = funilInfo(cfg.etapaDestino || 'nao_chamei').label;
       return `${origem} → ${destino}`;
     }
     case 'trigger_lead_created': {
@@ -353,11 +353,11 @@ export const resumirConfigNo = (node) => {
       return `Origem: ${origemObj ? origemObj.label : 'Todas as origens'}`;
     }
     case 'trigger_lead_won':
-      return `Lead Ganho · Negócio Fechado${cfg.valorMinimo ? ` (>= R$ ${cfg.valorMinimo})` : ''}`;
+      return `Deu Bom! · Negócio Fechado${cfg.valorMinimo ? ` (>= R$ ${cfg.valorMinimo})` : ''}`;
     case 'trigger_lead_lost':
-      return `Lead Perdido / Desqualificado (${cfg.motivoPerda === 'todos' ? 'Todos os motivos' : cfg.motivoPerda || 'Arquivado'})`;
+      return `Deu Ruim! / Desqualificado (${cfg.motivoPerda === 'todos' ? 'Todos os motivos' : cfg.motivoPerda || 'Arquivado'})`;
     case 'trigger_inactivity':
-      return `${cfg.horasSemResposta || 24}h parado em ${funilInfo(cfg.etapaAlvo || 'negociacao').label}`;
+      return `${cfg.horasSemResposta || 24}h parado em ${funilInfo(cfg.etapaAlvo || 'chamar_novamente').label}`;
     case 'trigger_no_contact':
       return `${cfg.diasSemContato || 3} dias sem interação com o lead`;
     case 'trigger_meeting_scheduled':
@@ -390,10 +390,10 @@ export const resumirConfigNo = (node) => {
 export const interpolarMensagemWhatsApp = (template, lead = {}, extra = {}) => {
   const origemLabel = lead.etapaAnterior
     ? funilInfo(lead.etapaAnterior).label
-    : extra.etapaAnterior || 'Qualificado';
+    : extra.etapaAnterior || 'Não Chamei';
   const novaLabel = lead.status_funil
     ? funilInfo(lead.status_funil).label
-    : extra.etapaNova || 'Proposta';
+    : extra.etapaNova || 'Chamei';
 
   const mapa = {
     '{{lead.nome}}': lead.nome || 'Mariana Costa',
@@ -590,11 +590,11 @@ export const WORKFLOWS_INICIAIS = [
         nodeRole: 'start',
         position: { x: 462, y: 42 },
         config: {
-          customTitle: 'Lead Movido para Proposta (.CRM)',
+          customTitle: 'Lead Movido para Chamar Novamente (.CRM)',
           phaseLabel: 'Gatilho Inicial',
           meshKey: 'brand',
-          etapaOrigem: 'qualificado',
-          etapaDestino: 'proposta',
+          etapaOrigem: 'chamei',
+          etapaDestino: 'chamar_novamente',
           apenasHorarioComercial: true,
         },
       },
@@ -763,11 +763,11 @@ export const WORKFLOWS_INICIAIS = [
   },
   {
     id: 'wf-qualificacao-boas-vindas',
-    nome: 'Boas-vindas Qualificação → WhatsApp',
+    nome: 'Boas-vindas Chamei → WhatsApp',
     descricao:
-      'Quando o lead avança para Qualificado, valida telefone e dispara boas-vindas personalizadas.',
+      'Quando o lead avança para Chamei, valida telefone e dispara boas-vindas personalizadas.',
     ativo: true,
-    categoria: 'Qualificação',
+    categoria: 'Primeiro Contato',
     execucoesTotal: 194,
     taxaEntrega: 99.1,
     tempoMedio: '0,9s',
@@ -779,11 +779,11 @@ export const WORKFLOWS_INICIAIS = [
         nodeRole: 'start',
         position: { x: 462, y: 46 },
         config: {
-          customTitle: 'Lead → Qualificado (CRM)',
+          customTitle: 'Não Chamei → Chamei (CRM)',
           phaseLabel: 'Gatilho Inicial',
           meshKey: 'brand',
-          etapaOrigem: 'lead',
-          etapaDestino: 'qualificado',
+          etapaOrigem: 'nao_chamei',
+          etapaDestino: 'chamei',
           apenasHorarioComercial: true,
         },
       },
@@ -839,9 +839,9 @@ export const WORKFLOWS_INICIAIS = [
   },
   {
     id: 'wf-fechado-onboarding',
-    nome: 'Fechamento Ganho → Onboarding Cliente',
+    nome: 'Deu Bom! → Onboarding Cliente',
     descricao:
-      'Dispara boas-vindas de implantação no WhatsApp e agenda Kickoff assim que o negócio é Fechado.',
+      'Dispara boas-vindas de implantação no WhatsApp e agenda Kickoff assim que o negócio é marcado como Deu Bom!.',
     ativo: true,
     categoria: 'Pós-Venda',
     execucoesTotal: 87,
@@ -855,11 +855,11 @@ export const WORKFLOWS_INICIAIS = [
         nodeRole: 'start',
         position: { x: 462, y: 46 },
         config: {
-          customTitle: 'Negócio Marcado como Fechado',
+          customTitle: 'Negócio Marcado como Deu Bom!',
           phaseLabel: 'Gatilho Inicial',
           meshKey: 'emerald',
-          etapaOrigem: 'negociacao',
-          etapaDestino: 'fechado',
+          etapaOrigem: 'chamar_novamente',
+          etapaDestino: 'deu_bom',
           apenasHorarioComercial: false,
         },
       },
@@ -906,7 +906,7 @@ export const LEADS_DEMO = [
     nome: 'Mariana Costa',
     empresa: 'Vértice Arquitetura',
     whatsapp: '+55 11 99421-8830',
-    status_funil: 'qualificado',
+    status_funil: 'chamei',
     valor_estimado: 18500,
     origem: 'anuncio',
     responsavel: { nome: 'Derek Almeida' },
@@ -916,7 +916,7 @@ export const LEADS_DEMO = [
     nome: 'Rafael Nogueira',
     empresa: 'Nogueira Logística',
     whatsapp: '+55 11 98210-4471',
-    status_funil: 'proposta',
+    status_funil: 'chamar_novamente',
     valor_estimado: 32000,
     origem: 'indicacao',
     responsavel: { nome: 'Camila Soares' },
@@ -926,7 +926,7 @@ export const LEADS_DEMO = [
     nome: 'Juliana Mendes',
     empresa: 'Clínica Lumina',
     whatsapp: '+55 21 99104-7721',
-    status_funil: 'negociacao',
+    status_funil: 'nao_chamei',
     valor_estimado: 12900,
     origem: 'site',
     responsavel: { nome: 'Derek Almeida' },
@@ -941,8 +941,8 @@ export const LOGS_INICIAIS = [
     leadNome: 'Mariana Costa',
     leadEmpresa: 'Vértice Arquitetura',
     leadTelefone: '+55 11 99421-8830',
-    etapaOrigem: 'qualificado',
-    etapaDestino: 'proposta',
+    etapaOrigem: 'chamei',
+    etapaDestino: 'chamar_novamente',
     conexaoNome: 'Comercial Principal · Evolution API',
     status: 'concluido',
     duracaoMs: 1180,
@@ -950,7 +950,7 @@ export const LOGS_INICIAIS = [
     mensagemEnviada:
       'Oi Mariana Costa! 📄 Acabamos de liberar a proposta da *Vértice Arquitetura* (R$ 18.500,00).\n\nPreparamos uma condição especial válida até sexta-feira para agilizar a implantação.',
     passos: [
-      { id: 's1', titulo: 'Lead Movido para Proposta (.CRM)', status: 'ok', tempoMs: 45, detalhe: 'Qualificado → Proposta' },
+      { id: 's1', titulo: 'Lead Movido para Chamar Novamente (.CRM)', status: 'ok', tempoMs: 45, detalhe: 'Chamei → Chamar Novamente' },
       { id: 's2', titulo: 'Definição Visual & Tom com IA', status: 'ok', tempoMs: 310, detalhe: 'Tom consultivo selecionado' },
       { id: 's4', titulo: 'Enviar Proposta no WhatsApp', status: 'ok', tempoMs: 620, detalhe: 'Entregue · ID wamid.HBgMNTUxMT...' },
       { id: 's6', titulo: 'Filtro de Ticket >= R$ 5.000', status: 'ok', tempoMs: 18, detalhe: 'R$ 18.500 >= R$ 5.000 (Verdadeiro)' },
@@ -959,20 +959,20 @@ export const LOGS_INICIAIS = [
   {
     id: 'log-103',
     workflowId: 'wf-qualificacao-boas-vindas',
-    workflowNome: 'Boas-vindas Qualificação → WhatsApp',
+    workflowNome: 'Boas-vindas Chamei → WhatsApp',
     leadNome: 'Rafael Nogueira',
     leadEmpresa: 'Nogueira Logística',
     leadTelefone: '+55 11 98210-4471',
-    etapaOrigem: 'lead',
-    etapaDestino: 'qualificado',
+    etapaOrigem: 'nao_chamei',
+    etapaDestino: 'chamei',
     conexaoNome: 'WhatsApp Cloud API (Oficial Meta)',
     status: 'concluido',
     duracaoMs: 920,
     criadoEm: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     mensagemEnviada:
-      'Olá Rafael Nogueira, tudo bem? 👋\n\nSou Camila Soares do time da Prancheto.IA! Vi que a Nogueira Logística avançou para *Qualificado*.',
+      'Olá Rafael Nogueira, tudo bem? 👋\n\nSou Camila Soares do time da Prancheto.IA! Vi que a Nogueira Logística avançou para *Chamei*.',
     passos: [
-      { id: 'q1', titulo: 'Lead → Qualificado (CRM)', status: 'ok', tempoMs: 38, detalhe: 'Lead → Qualificado' },
+      { id: 'q1', titulo: 'Não Chamei → Chamei (CRM)', status: 'ok', tempoMs: 38, detalhe: 'Não Chamei → Chamei' },
       { id: 'q2', titulo: 'Validar Telefone WhatsApp', status: 'ok', tempoMs: 14, detalhe: '+55 11 98210-4471 válido' },
       { id: 'q4', titulo: 'Enviar Boas-vindas WhatsApp', status: 'ok', tempoMs: 868, detalhe: 'Meta Graph 200 OK · Lida' },
     ],
@@ -980,12 +980,12 @@ export const LOGS_INICIAIS = [
   {
     id: 'log-102',
     workflowId: 'wf-qualificacao-boas-vindas',
-    workflowNome: 'Boas-vindas Qualificação → WhatsApp',
+    workflowNome: 'Boas-vindas Chamei → WhatsApp',
     leadNome: 'Carlos Eduardo',
     leadEmpresa: 'Grupo Horizon',
     leadTelefone: '+55 31 99700-1122',
-    etapaOrigem: 'lead',
-    etapaDestino: 'qualificado',
+    etapaOrigem: 'nao_chamei',
+    etapaDestino: 'chamei',
     conexaoNome: 'Comercial Principal · Evolution API',
     status: 'erro',
     duracaoMs: 540,
@@ -993,7 +993,7 @@ export const LOGS_INICIAIS = [
     mensagemEnviada:
       'Não enviada — sessão WhatsApp aguardando nova leitura de QR Code na Evolution API.',
     passos: [
-      { id: 'n1', titulo: 'Lead Movido de Etapa', status: 'ok', tempoMs: 32, detalhe: 'Lead → Qualificado' },
+      { id: 'n1', titulo: 'Lead Movido de Etapa', status: 'ok', tempoMs: 32, detalhe: 'Não Chamei → Chamei' },
       { id: 'n2', titulo: 'Condição IF / Filtro', status: 'ok', tempoMs: 18, detalhe: 'telefone != vazio (Verdadeiro)' },
       { id: 'n4', titulo: 'Enviar WhatsApp', status: 'erro', tempoMs: 490, detalhe: 'Erro 503: Sessão Evolution API temporariamente offline' },
     ],

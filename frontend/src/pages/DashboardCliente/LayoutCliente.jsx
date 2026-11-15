@@ -44,7 +44,7 @@ import {
   Calendar03Icon,
   Comment01Icon,
   CustomerSupportIcon,
-  Building01Icon,
+  Building06Icon,
   Settings02Icon,
   Analytics01Icon,
   DragDropVerticalIcon,
@@ -140,10 +140,10 @@ const ICONES_MAP = {
   chat: Comment01Icon,
   chat_ia: Brain02Icon,
   suporte: CustomerSupportIcon,
-  organizacao: Building01Icon,
+  organizacao: Building06Icon,
   configuracoes: Settings02Icon,
   relatorios: Analytics01Icon,
-  times_pessoas: Building01Icon,
+  times_pessoas: Building06Icon,
 };
 
 const getIconeItem = (slug) => {

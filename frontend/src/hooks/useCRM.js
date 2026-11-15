@@ -14,13 +14,26 @@ import { supabase } from '../lib/supabase.js';
 import { useAuthStore } from '../store/authStore.js';
 
 // ─── Constantes ────────────────────────────────────────────────
+export const MAPA_ETAPAS_LEGADO = {
+  lead: 'nao_chamei',
+  qualificado: 'chamei',
+  proposta: 'chamei',
+  negociacao: 'chamar_novamente',
+  fechado: 'deu_bom',
+  perdido: 'deu_ruim',
+};
+
+export function normalizarEtapaFunil(key) {
+  if (!key) return 'nao_chamei';
+  return MAPA_ETAPAS_LEGADO[key] || key;
+}
+
 export const FUNIL_LEAD = [
-  { key: 'lead',        label: 'Lead',        cor: 'badge-neutro',    emoji: '🎯' },
-  { key: 'qualificado', label: 'Qualificado', cor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',       emoji: '✅' },
-  { key: 'proposta',    label: 'Proposta',    cor: 'bg-violet-500/20 text-violet-300 border-violet-500/30', emoji: '📄' },
-  { key: 'negociacao',  label: 'Negociação',  cor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',    emoji: '🤝' },
-  { key: 'fechado',     label: 'Fechado',     cor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', emoji: '🏆' },
-  { key: 'perdido',     label: 'Perdido',     cor: 'bg-red-500/20 text-red-300 border-red-500/30',          emoji: '❌' },
+  { key: 'nao_chamei',       label: 'Não Chamei',       cor: 'badge-neutro',                                              emoji: '🎯' },
+  { key: 'chamei',           label: 'Chamei',           cor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',           emoji: '📞' },
+  { key: 'chamar_novamente', label: 'Chamar Novamente', cor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',        emoji: '🔄' },
+  { key: 'deu_bom',          label: 'Deu Bom!',         cor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',  emoji: '🏆' },
+  { key: 'deu_ruim',         label: 'Deu Ruim!',        cor: 'bg-red-500/20 text-red-300 border-red-500/30',             emoji: '❌' },
 ];
 
 export const TIPOS_INTERACAO = [
@@ -55,7 +68,10 @@ export const TIPOS_CAMPO = [
   { key: 'email',       label: 'E-mail'        },
 ];
 
-export const funilInfo  = (key) => FUNIL_LEAD.find(f => f.key === key) || FUNIL_LEAD[0];
+export const funilInfo = (key) => {
+  const norm = normalizarEtapaFunil(key);
+  return FUNIL_LEAD.find(f => f.key === norm) ?? FUNIL_LEAD[0];
+};
 export const tipoInfo   = (key) => TIPOS_INTERACAO.find(t => t.key === key) || TIPOS_INTERACAO[0];
 export const origemInfo = (key) => ORIGENS.find(o => o.key === key) || ORIGENS[0];
 

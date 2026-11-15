@@ -161,49 +161,49 @@ VALUES
   ('c8000000-0000-4000-8000-000000000001', 'd0000000-0000-4000-8000-000000000001',
    '70000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002',
    'Marina Castro', 'marina@nortelog.dev', '(11) 94001-2233', 'Norte Logistica', 'Diretora de Operacoes',
-   'lead', 'lead', 'site', 35, 18000.00, 0, '["inbound","logistica"]'::jsonb,
+   'lead', 'nao_chamei', 'site', 35, 18000.00, 0, '["inbound","logistica"]'::jsonb,
    'Baixou o material sobre roteirizacao. Ainda nao respondeu ao contato.'),
 
   ('c8000000-0000-4000-8000-000000000002', 'd0000000-0000-4000-8000-000000000001',
    '70000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002',
    'Rafael Pinheiro', 'rafael@vitrinedigital.dev', '(21) 98812-7744', 'Vitrine Digital', 'Socio',
-   'lead', 'qualificado', 'indicacao', 62, 45000.00, 0, '["indicacao","e-commerce"]'::jsonb,
+   'lead', 'chamei', 'indicacao', 62, 45000.00, 0, '["indicacao","e-commerce"]'::jsonb,
    'Indicado pela Acme Retail. Reuniao de descoberta ja realizada.'),
 
   ('c8000000-0000-4000-8000-000000000003', 'd0000000-0000-4000-8000-000000000001',
    '70000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001',
    'Juliana Prado', 'juliana@clinicasaude.dev', '(31) 99120-5566', 'Clinica Saude Viva', 'Gestora',
-   'lead', 'proposta', 'evento', 74, 72000.00, 0, '["saude","proposta-enviada"]'::jsonb,
+   'lead', 'chamei', 'evento', 74, 72000.00, 0, '["saude","proposta-enviada"]'::jsonb,
    'Proposta enviada. Aguardando retorno do comite ate o fim do mes.'),
 
   ('c8000000-0000-4000-8000-000000000004', 'd0000000-0000-4000-8000-000000000001',
    '70000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002',
    'Eduardo Lima', 'eduardo@construtorapl.dev', '(41) 98455-9911', 'Construtora PL', 'CFO',
-   'lead', 'negociacao', 'outbound', 88, 130000.00, 0, '["enterprise","negociacao"]'::jsonb,
+   'lead', 'chamar_novamente', 'outbound', 88, 130000.00, 0, '["enterprise","negociacao"]'::jsonb,
    'Discutindo prazo de pagamento. Pediu desconto de 8%.'),
 
   ('c8000000-0000-4000-8000-000000000005', 'd0000000-0000-4000-8000-000000000001',
    '70000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002',
    'Patricia Nunes', 'patricia@modaurbana.dev', '(11) 97733-1200', 'Moda Urbana', 'Head de Marketing',
-   'lead', 'perdido', 'site', 20, 15000.00, 0, '["perdido","orcamento"]'::jsonb,
+   'lead', 'deu_ruim', 'site', 20, 15000.00, 0, '["perdido","orcamento"]'::jsonb,
    'Optou por concorrente com preco menor. Retomar no proximo semestre.'),
 
   ('c8000000-0000-4000-8000-000000000006', 'd0000000-0000-4000-8000-000000000001',
    '70000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000001',
    'Sergio Bastos', 'sergio@acmeretail.dev', '(11) 96622-3344', 'Acme Retail', 'CEO',
-   'cliente', 'fechado', 'indicacao', 95, 96000.00, 96000, '["cliente","recorrente"]'::jsonb,
+   'cliente', 'deu_bom', 'indicacao', 95, 96000.00, 96000, '["cliente","recorrente"]'::jsonb,
    'Cliente desde o inicio do ano. Contrato anual, renovacao automatica.'),
 
   ('c8000000-0000-4000-8000-000000000007', 'd0000000-0000-4000-8000-000000000001',
    '70000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000003',
    'Fernanda Alves', 'fernanda@techstart.dev', '(48) 99008-4412', 'TechStart', 'COO',
-   'cliente', 'fechado', 'evento', 90, 54000.00, 54000, '["cliente","saas"]'::jsonb,
+   'cliente', 'deu_bom', 'evento', 90, 54000.00, 54000, '["cliente","saas"]'::jsonb,
    'Projeto de implantacao em andamento, entrega prevista para o trimestre.'),
 
   ('c8000000-0000-4000-8000-000000000008', 'd0000000-0000-4000-8000-000000000001',
    '70000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003',
    'Otavio Reis', 'otavio@agroverde.dev', '(62) 98177-2299', 'AgroVerde', 'Gerente de TI',
-   'lead', 'lead', 'manual', 18, 9000.00, 0, '["frio"]'::jsonb,
+   'lead', 'nao_chamei', 'manual', 18, 9000.00, 0, '["frio"]'::jsonb,
    'Cadastro manual apos feira do setor. Sem contato ainda.')
 ON CONFLICT (id) DO NOTHING;
 

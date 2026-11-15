@@ -11,7 +11,7 @@ import { supabase } from '../../lib/supabase.js';
 import { useAuthStore } from '../../store/authStore.js';
 import {
   formatarMoeda, formatarData, formatarDataHora,
-  useInteracoes,
+  useInteracoes, normalizarEtapaFunil,
 } from '../../hooks/useCRM.js';
 import { ETAPAS_PIPELINE, DEALS_DEMO } from './Leads.jsx';
 import { SelectField } from '@/components/ui/select';
@@ -127,7 +127,7 @@ const LeadDetalhe = () => {
           if (error) throw error;
           if (ativo && data) {
             setDeal(data);
-            setFormEdicao(data);
+            setFormEdicao({ ...data, status_funil: normalizarEtapaFunil(data.status_funil) });
             return;
           }
         }
@@ -137,7 +137,7 @@ const LeadDetalhe = () => {
         if (ativo) {
           if (demoEncontrado) {
             setDeal(demoEncontrado);
-            setFormEdicao(demoEncontrado);
+            setFormEdicao({ ...demoEncontrado, status_funil: normalizarEtapaFunil(demoEncontrado.status_funil) });
           } else {
             const mock = {
               id: id || 'demo-1',
@@ -146,7 +146,7 @@ const LeadDetalhe = () => {
               empresa: 'Widget.io',
               valor_estimado: 5600,
               score: 75,
-              status_funil: 'proposta',
+              status_funil: 'chamei',
               tags: ['Qualificado', 'Cliente', 'Alto ROI'],
               email: 'mohammadali@gmail.com',
               telefone: '(888) 456 789',
@@ -359,7 +359,13 @@ const LeadDetalhe = () => {
     e.preventDefault();
     setSalvando(true);
     try {
-      setDeal(prev => ({ ...prev, ...formEdicao, atualizado_em: new Date().toISOString() }));
+      const statusNormalizado = normalizarEtapaFunil(formEdicao.status_funil);
+      setDeal(prev => ({
+        ...prev,
+        ...formEdicao,
+        status_funil: statusNormalizado,
+        atualizado_em: new Date().toISOString(),
+      }));
 
       if (deal && !String(deal.id).startsWith('demo-') && !String(deal.id).startsWith('local-')) {
         await supabase
@@ -369,6 +375,7 @@ const LeadDetalhe = () => {
             cargo: formEdicao.cargo,
             empresa: formEdicao.empresa,
             valor_estimado: formEdicao.valor_estimado ? Number(formEdicao.valor_estimado) : null,
+            status_funil: statusNormalizado,
             email: formEdicao.email,
             telefone: formEdicao.telefone,
             whatsapp: formEdicao.whatsapp,
@@ -423,7 +430,8 @@ const LeadDetalhe = () => {
   if (!deal) return null;
 
   // Encontra a etapa atual com base no deal
-  const etapaAtualIndex = ETAPAS_PIPELINE.findIndex(e => e.key === deal.status_funil);
+  const statusAtualNormalizado = normalizarEtapaFunil(deal.status_funil);
+  const etapaAtualIndex = ETAPAS_PIPELINE.findIndex(e => e.key === statusAtualNormalizado);
   const etapaAtual = ETAPAS_PIPELINE[etapaAtualIndex >= 0 ? etapaAtualIndex : 0];
 
   // Filtro por abas
@@ -456,7 +464,10 @@ const LeadDetalhe = () => {
         </button>
 
         <button
-          onClick={() => setModalEditar(true)}
+          onClick={() => {
+            setFormEdicao({ ...deal, status_funil: statusAtualNormalizado });
+            setModalEditar(true);
+          }}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0E382C] bg-white border border-[#E4ECE7] hover:bg-[#F7FAF8] hover:border-[#CCD9D2] px-3.5 py-1.5 rounded-xl transition-all shadow-sm"
         >
           <HugeiconsIcon icon={Edit02Icon} size={14} strokeWidth={2} className="text-[#0E382C]" />
@@ -607,7 +618,7 @@ const LeadDetalhe = () => {
       <div className="flex items-stretch gap-1.5 overflow-x-auto no-scrollbar w-full mb-6 py-1">
         {ETAPAS_PIPELINE.map((etapa, idx) => {
           const isPassado = etapaAtualIndex > idx;
-          const isAtual = etapaAtualIndex === idx;
+          const isAtual = etapa.key === statusAtualNormalizado;
 
           // Formatação do chevron com corte e sombra nos contornos
           const clipStyle = {
@@ -627,7 +638,7 @@ const LeadDetalhe = () => {
               key={etapa.key}
               type="button"
               onClick={() => handleMudarEtapa(etapa.key)}
-              className={`flex-1 min-w-[130px] h-11 px-4 flex items-center justify-center transition-all duration-150 select-none text-sm font-semibold
+              className={`flex-1 min-w-[155px] h-11 px-4 flex items-center justify-center transition-all duration-150 select-none text-sm font-semibold
                 ${isAtual
                   ? 'bg-brand-primary text-white'
                   : isPassado
@@ -638,7 +649,7 @@ const LeadDetalhe = () => {
               style={clipStyle}
               title={`Mover para ${etapa.titulo}`}
             >
-              <div className="flex items-center gap-1.5 truncate">
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
                 {(isPassado || isAtual) && (
                   <HugeiconsIcon
                     icon={CheckmarkCircle02Icon}
@@ -647,7 +658,7 @@ const LeadDetalhe = () => {
                     className={`flex-shrink-0 ${isAtual ? 'text-brand-accent' : 'text-brand-secondary'}`}
                   />
                 )}
-                <span className="truncate">{etapa.titulo}</span>
+                <span className="whitespace-nowrap">{etapa.titulo}</span>
               </div>
             </button>
           );
@@ -1029,8 +1040,8 @@ const LeadDetalhe = () => {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-[#0E382C]">R$ 5.600</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">
-                  Proposta
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">
+                  Chamar Novamente
                 </span>
               </div>
               <p className="text-[11px] text-[#687770] mt-1">{deal.empresa || 'Widget.io'}</p>
@@ -1050,7 +1061,7 @@ const LeadDetalhe = () => {
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-[#0E382C]">R$ 1.200</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                  Fechamento
+                  Deu Bom!
                 </span>
               </div>
               <p className="text-[11px] text-[#687770] mt-1">{deal.empresa || 'Widget.io'}</p>
@@ -1161,6 +1172,18 @@ const LeadDetalhe = () => {
                     className="w-full text-sm border border-surface-border bg-surface-subtle dark:bg-[#0D121F] rounded-xl px-3 py-2 text-ink-primary focus:outline-none focus:border-brand-primary"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-ink-secondary mb-1">Etapa do Funil</label>
+                <SelectField
+                  value={normalizarEtapaFunil(formEdicao.status_funil)}
+                  onChange={(e) => setFormEdicao(prev => ({ ...prev, status_funil: e.target.value }))}
+                >
+                  {ETAPAS_PIPELINE.map((e) => (
+                    <option key={e.key} value={e.key}>{e.rotuloPt}</option>
+                  ))}
+                </SelectField>
               </div>
 
               <div>

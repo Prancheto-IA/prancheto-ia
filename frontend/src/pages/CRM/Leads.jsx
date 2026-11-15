@@ -1,13 +1,13 @@
 // =============================================================
 // PRANCHETO.IA - PIPELINE DE NEGÓCIOS (CRM KANBAN - EMITLY DESIGN SYSTEM)
-// Pipeline visual com 5 etapas (Qualificação, Descoberta, Proposta,
-// Negociação, Fechamento), drag & drop, filtros e cards enriquecidos.
+// Pipeline visual com 5 etapas (Não Chamei, Chamei, Chamar Novamente,
+// Deu Bom!, Deu Ruim!), drag & drop, filtros e cards enriquecidos.
 // Baseado fielmente na especificação visual de Deals Pipeline.
 // =============================================================
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLeads } from '../../hooks/useCRM.js';
+import { useLeads, normalizarEtapaFunil } from '../../hooks/useCRM.js';
 import { supabase } from '../../lib/supabase.js';
 import { SelectField } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -23,21 +23,21 @@ import {
 // ─── 5 ETAPAS DO PIPELINE EM PORTUGUÊS ─────────────────────────
 export const ETAPAS_PIPELINE = [
   {
-    key: 'lead',
-    titulo: 'Qualificação',
-    rotuloPt: 'Qualificação',
+    key: 'nao_chamei',
+    titulo: 'Não Chamei',
+    rotuloPt: 'Não Chamei',
     corDot: 'bg-brand-secondary dark:bg-[#38BDF8]',
     corTotal: 'text-brand-secondary dark:text-[#38BDF8]',
     corBg: 'bg-surface dark:bg-[#111827]',
     corBorda: 'border-surface-border dark:border-[#23304D]',
     corBotaoAdd: 'border-brand-accent text-brand-secondary hover:border-brand-secondary/40 hover:bg-brand-accent/40',
     tagPadrao: 'Novo',
-    probabilidadePadrao: 30,
+    probabilidadePadrao: 25,
   },
   {
-    key: 'qualificado',
-    titulo: 'Descoberta',
-    rotuloPt: 'Descoberta',
+    key: 'chamei',
+    titulo: 'Chamei',
+    rotuloPt: 'Chamei',
     corDot: 'bg-brand-purple dark:bg-[#818CF8]',
     corTotal: 'text-brand-purple dark:text-[#818CF8]',
     corBg: 'bg-[#F5F2FC] dark:bg-[#111827]',
@@ -47,9 +47,9 @@ export const ETAPAS_PIPELINE = [
     probabilidadePadrao: 50,
   },
   {
-    key: 'proposta',
-    titulo: 'Proposta',
-    rotuloPt: 'Proposta',
+    key: 'chamar_novamente',
+    titulo: 'Chamar Novamente',
+    rotuloPt: 'Chamar Novamente',
     corDot: 'bg-amber-500 dark:bg-[#FBBF24]',
     corTotal: 'text-amber-700 dark:text-[#FBBF24]',
     corBg: 'bg-[#FAF7EC] dark:bg-[#111827]',
@@ -59,28 +59,28 @@ export const ETAPAS_PIPELINE = [
     probabilidadePadrao: 65,
   },
   {
-    key: 'negociacao',
-    titulo: 'Negociação',
-    rotuloPt: 'Negociação',
-    corDot: 'bg-brand-violet dark:bg-[#A78BFA]',
-    corTotal: 'text-brand-violet dark:text-[#A78BFA]',
-    corBg: 'bg-[#F7F3FD] dark:bg-[#111827]',
-    corBorda: 'border-[#EAE0FA] dark:border-[#23304D]',
-    corBotaoAdd: 'border-violet-200 text-brand-violet hover:border-violet-300 hover:bg-violet-50/60',
+    key: 'deu_bom',
+    titulo: 'Deu Bom!',
+    rotuloPt: 'Deu Bom!',
+    corDot: 'bg-emerald-500 dark:bg-[#34D399]',
+    corTotal: 'text-emerald-700 dark:text-[#34D399]',
+    corBg: 'bg-[#EDF9F2] dark:bg-[#111827]',
+    corBorda: 'border-[#D1EFE0] dark:border-[#23304D]',
+    corBotaoAdd: 'border-emerald-200 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50/60',
     tagPadrao: 'Ativo',
-    probabilidadePadrao: 80,
+    probabilidadePadrao: 100,
   },
   {
-    key: 'fechado',
-    titulo: 'Fechamento',
-    rotuloPt: 'Fechamento',
-    corDot: 'bg-brand-primary dark:bg-[#34D399]',
-    corTotal: 'text-brand-primary dark:text-[#34D399]',
-    corBg: 'bg-[#EDF4FA] dark:bg-[#111827]',
-    corBorda: 'border-[#D8E8F2] dark:border-[#23304D]',
-    corBotaoAdd: 'border-brand-accent text-brand-primary hover:border-brand-secondary/40 hover:bg-brand-accent/50',
-    tagPadrao: 'Renovação',
-    probabilidadePadrao: 90,
+    key: 'deu_ruim',
+    titulo: 'Deu Ruim!',
+    rotuloPt: 'Deu Ruim!',
+    corDot: 'bg-rose-500 dark:bg-[#F87171]',
+    corTotal: 'text-rose-600 dark:text-[#F87171]',
+    corBg: 'bg-[#FDF2F2] dark:bg-[#111827]',
+    corBorda: 'border-[#FAD8D8] dark:border-[#23304D]',
+    corBotaoAdd: 'border-rose-200 text-rose-600 hover:border-rose-300 hover:bg-rose-50/60',
+    tagPadrao: 'Revisão',
+    probabilidadePadrao: 0,
   },
 ];
 
@@ -91,7 +91,7 @@ export const DEALS_DEMO = [
     nome: 'Módulo de compliance',
     negocio_nome: 'Módulo de compliance',
     empresa: 'Grupo Verado',
-    status_funil: 'lead',
+    status_funil: 'nao_chamei',
     valor_estimado: 118000,
     score: 30,
     tags: ['Novo'],
@@ -104,7 +104,7 @@ export const DEALS_DEMO = [
     nome: 'Piloto: otimizador de rotas',
     negocio_nome: 'Piloto: otimizador de rotas',
     empresa: 'Transportadora Norte',
-    status_funil: 'lead',
+    status_funil: 'nao_chamei',
     valor_estimado: 42000,
     score: 35,
     tags: ['Novo'],
@@ -117,9 +117,9 @@ export const DEALS_DEMO = [
     nome: 'Plano de espaço Studio',
     negocio_nome: 'Plano de espaço Studio',
     empresa: 'Estúdio Cadenza',
-    status_funil: 'lead',
+    status_funil: 'chamei',
     valor_estimado: 19000,
-    score: 25,
+    score: 45,
     tags: ['Novo'],
     responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 48 * 86400000).toISOString(),
@@ -130,9 +130,9 @@ export const DEALS_DEMO = [
     nome: 'Plataforma de dados clínicos',
     negocio_nome: 'Plataforma de dados clínicos',
     empresa: 'Saúde Meridional',
-    status_funil: 'qualificado',
+    status_funil: 'chamei',
     valor_estimado: 262000,
-    score: 45,
+    score: 50,
     tags: ['Enterprise'],
     responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 26 * 86400000).toISOString(),
@@ -143,7 +143,7 @@ export const DEALS_DEMO = [
     nome: 'Sensores de chão de fábrica',
     negocio_nome: 'Sensores de chão de fábrica',
     empresa: 'Sistemas Quartzline',
-    status_funil: 'qualificado',
+    status_funil: 'chamar_novamente',
     valor_estimado: 76000,
     score: 55,
     tags: ['Morno'],
@@ -156,7 +156,7 @@ export const DEALS_DEMO = [
     nome: 'Telemetria de frota',
     negocio_nome: 'Telemetria de frota',
     empresa: 'Transportadora Norte',
-    status_funil: 'proposta',
+    status_funil: 'chamar_novamente',
     valor_estimado: 148000,
     score: 65,
     tags: ['Novo'],
@@ -169,9 +169,9 @@ export const DEALS_DEMO = [
     nome: 'Migração regional de CRM',
     negocio_nome: 'Migração regional de CRM',
     empresa: 'Halden Marítima',
-    status_funil: 'proposta',
+    status_funil: 'deu_bom',
     valor_estimado: 204000,
-    score: 40,
+    score: 95,
     tags: ['Enterprise'],
     responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 22 * 86400000).toISOString(),
@@ -182,10 +182,10 @@ export const DEALS_DEMO = [
     nome: 'Módulo de residência de dados',
     negocio_nome: 'Módulo de residência de dados',
     empresa: 'Saúde Meridional',
-    status_funil: 'proposta',
+    status_funil: 'deu_ruim',
     valor_estimado: 67000,
-    score: 50,
-    tags: ['Morno'],
+    score: 10,
+    tags: ['Revisão'],
     responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 15 * 86400000).toISOString(),
     atualizado_em: new Date(Date.now() - 15 * 86400000).toISOString(),
@@ -195,9 +195,9 @@ export const DEALS_DEMO = [
     nome: 'Automação de armazém',
     negocio_nome: 'Automação de armazém',
     empresa: 'Varejo Brightpath',
-    status_funil: 'negociacao',
+    status_funil: 'nao_chamei',
     valor_estimado: 91000,
-    score: 80,
+    score: 30,
     tags: ['Novo'],
     responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 5 * 86400000).toISOString(),
@@ -208,9 +208,9 @@ export const DEALS_DEMO = [
     nome: 'Consolidação de fornecedores',
     negocio_nome: 'Consolidação de fornecedores',
     empresa: 'Varejo Brightpath',
-    status_funil: 'negociacao',
+    status_funil: 'chamei',
     valor_estimado: 158000,
-    score: 35,
+    score: 50,
     tags: ['Novo'],
     responsavel: { nome: 'Carlos Silva' },
     criado_em: new Date(Date.now() - 9 * 86400000).toISOString(),
@@ -221,7 +221,7 @@ export const DEALS_DEMO = [
     nome: 'Migração para nuvem',
     negocio_nome: 'Migração para nuvem',
     empresa: 'Tecnologia Summit',
-    status_funil: 'negociacao',
+    status_funil: 'chamar_novamente',
     valor_estimado: 230000,
     score: 62,
     tags: ['Ativo'],
@@ -234,7 +234,7 @@ export const DEALS_DEMO = [
     nome: 'Redesenho de plataforma',
     negocio_nome: 'Redesenho de plataforma',
     empresa: 'Saúde Meridional',
-    status_funil: 'negociacao',
+    status_funil: 'deu_ruim',
     valor_estimado: 89000,
     score: 18,
     tags: ['Revisão'],
@@ -247,7 +247,7 @@ export const DEALS_DEMO = [
     nome: 'Expansão de licenças de análise',
     negocio_nome: 'Expansão de licenças de análise',
     empresa: 'Laboratórios Latchkey',
-    status_funil: 'fechado',
+    status_funil: 'deu_bom',
     valor_estimado: 34000,
     score: 90,
     tags: ['Renovação'],
@@ -260,7 +260,7 @@ export const DEALS_DEMO = [
     nome: 'Upgrade de suporte',
     negocio_nome: 'Upgrade de suporte',
     empresa: 'Orbit Analytics',
-    status_funil: 'fechado',
+    status_funil: 'deu_bom',
     valor_estimado: 28000,
     score: 85,
     tags: ['Renovação'],
@@ -473,7 +473,7 @@ const ColunaPipeline = ({
       onDragOver={(e) => onDragOver(e, etapa.key)}
       onDragLeave={(e) => onDragLeave(e, etapa.key)}
       onDrop={(e) => onDrop(e, etapa.key)}
-      className={`w-72 sm:w-80 flex-shrink-0 h-full max-h-full flex flex-col rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 transition-all duration-200 ${etapa.corBg} border ${
+      className={`w-80 sm:w-[340px] flex-shrink-0 h-full max-h-full flex flex-col rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 transition-all duration-200 ${etapa.corBg} border ${
         isDragOver ? 'ring-2 ring-brand-secondary border-brand-secondary scale-[1.01]' : etapa.corBorda
       } group/coluna relative`}
     >
@@ -511,28 +511,28 @@ const ColunaPipeline = ({
           </div>
         ) : (
           /* Modo Padrão: Titulo [quantidade] valor_total à esquerda | Ações à direita */
-          <div className="flex items-center justify-between w-full gap-2 min-w-0">
+          <div className="flex items-center justify-between w-full gap-1.5 min-w-0">
             {/* Lado Esquerdo: Dot + Nome da coluna [2] R$ 242k */}
-            <div className="flex items-center gap-2 min-w-0 flex-1 truncate">
+            <div className="flex items-center gap-1.5 min-w-0 flex-1">
               <span className={`w-2 h-2 rounded-full shrink-0 ${etapa.corDot || 'bg-brand-secondary'}`} />
-              <h3 className="font-bold text-sm text-ink-primary truncate tracking-tight">
+              <h3 className="font-bold text-sm text-ink-primary whitespace-nowrap tracking-tight">
                 {etapa.titulo}
               </h3>
               <span className="w-5 h-5 min-w-[20px] rounded-md bg-surface-card border border-surface-border text-ink-primary flex items-center justify-center text-[11px] font-semibold shadow-2xs shrink-0">
                 {deals.length}
               </span>
-              <span className={`text-sm font-bold shrink-0 ${etapa.corTotal}`}>
+              <span className={`text-xs font-bold shrink-0 whitespace-nowrap ${etapa.corTotal}`}>
                 {totalFormatado}
               </span>
             </div>
 
             {/* Lado Direito: Engrenagem (hover), + (adicionar negócio), Lupa (pesquisar) */}
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-0.5 shrink-0">
               {/* 1. Botão de Engrenagem (visível apenas ao posicionar o mouse na coluna) */}
               <button
                 type="button"
                 onClick={() => onConfigurarColuna(etapa)}
-                className="opacity-0 group-hover/coluna:opacity-100 transition-opacity p-1.5 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg"
+                className="hidden group-hover/coluna:inline-flex items-center justify-center transition-opacity p-1 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg"
                 title="Configurações da coluna"
               >
                 <HugeiconsIcon icon={Settings02Icon} size={15} strokeWidth={1.8} />
@@ -542,7 +542,7 @@ const ColunaPipeline = ({
               <button
                 type="button"
                 onClick={() => onNovoDealEtapa(etapa.key)}
-                className={`p-1.5 ${etapa.corTotal} hover:bg-white/90 dark:hover:bg-surface-hover rounded-lg transition-all hover:shadow-2xs active:scale-95`}
+                className={`p-1 ${etapa.corTotal} hover:bg-white/90 dark:hover:bg-surface-hover rounded-lg transition-all hover:shadow-2xs active:scale-95`}
                 title="Adicionar negócio nesta coluna"
               >
                 <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.2} />
@@ -552,7 +552,7 @@ const ColunaPipeline = ({
               <button
                 type="button"
                 onClick={() => setModoBusca(true)}
-                className="p-1.5 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg transition-colors"
+                className="p-1 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg transition-colors"
                 title="Pesquisar negócios nesta coluna"
               >
                 <HugeiconsIcon icon={Search01Icon} size={15} strokeWidth={1.8} />
@@ -712,7 +712,7 @@ const EMPRESAS_SUGERIDAS_PADRAO = [
 const FORM_VAZIO = {
   negocio_nome: '',
   valor_formatado: '',
-  status_funil: 'lead',
+  status_funil: 'nao_chamei',
   responsavel_nome: 'Lucas Bastos',
   previsao_fechamento: '',
   observacoes: '',
@@ -730,7 +730,7 @@ const ModalLead = ({
   onFechar,
   onSalvar,
   leadEditando,
-  statusInicial = 'lead',
+  statusInicial = 'nao_chamei',
   etapas,
   dealsExistentes = [],
 }) => {
@@ -820,7 +820,7 @@ const ModalLead = ({
       setForm({
         negocio_nome:        leadEditando.negocio_nome || leadEditando.nome || '',
         valor_formatado:     leadEditando.valor_estimado != null ? formatarMoedaBRL(Number(leadEditando.valor_estimado)) : '',
-        status_funil:        leadEditando.status_funil || statusInicial,
+        status_funil:        normalizarEtapaFunil(leadEditando.status_funil || statusInicial || 'nao_chamei'),
         responsavel_nome:    leadEditando.responsavel?.nome || 'Lucas Bastos',
         previsao_fechamento: leadEditando.previsao_fechamento ? leadEditando.previsao_fechamento.slice(0, 10) : '',
         observacoes:         leadEditando.observacoes || '',
@@ -834,7 +834,7 @@ const ModalLead = ({
     } else {
       setForm({
         ...FORM_VAZIO,
-        status_funil: statusInicial || 'lead',
+        status_funil: normalizarEtapaFunil(statusInicial || 'nao_chamei'),
       });
     }
 
@@ -1237,7 +1237,7 @@ const PaginaLeads = () => {
   const [etapas, setEtapas]                   = useState(ETAPAS_PIPELINE);
   const [colunaConfigurando, setColunaConfigurando] = useState(null);
   const [modalAberto, setModalAberto]         = useState(false);
-  const [etapaPreSelecionada, setEtapaPre]    = useState('lead');
+  const [etapaPreSelecionada, setEtapaPre]    = useState('nao_chamei');
   const [leadEditando, setLeadEditando]       = useState(null);
   const [busca, setBusca]                     = useState('');
   const [ownerSelecionado, setOwnerSelecionado] = useState(null);
@@ -1315,9 +1315,11 @@ const PaginaLeads = () => {
     const acc = {};
     etapas.forEach(e => { acc[e.key] = []; });
     dealsFiltrados.forEach((deal) => {
-      const st = deal.status_funil || etapas[0]?.key || 'lead';
+      const st = normalizarEtapaFunil(deal.status_funil || etapas[0]?.key || 'nao_chamei');
       if (acc[st]) {
         acc[st].push(deal);
+      } else if (acc.nao_chamei) {
+        acc.nao_chamei.push(deal);
       } else if (acc[etapas[0]?.key]) {
         acc[etapas[0]?.key].push(deal);
       }
@@ -1327,7 +1329,7 @@ const PaginaLeads = () => {
 
   // Cálculo das métricas gerais do topo (ex: R$ 1.2M ponderados em 14 negócios em aberto)
   const { totalValorGeral, totalDealsAbertos } = useMemo(() => {
-    const dealsAbertos = dealsFiltrados.filter(d => d.status_funil !== 'perdido');
+    const dealsAbertos = dealsFiltrados.filter(d => normalizarEtapaFunil(d.status_funil) !== 'deu_ruim');
     const soma = dealsAbertos.reduce((s, d) => s + (Number(d.valor_estimado) || 0), 0);
     return {
       totalValorGeral: soma,
@@ -1525,7 +1527,7 @@ const PaginaLeads = () => {
           {/* Botão + Novo negócio */}
           <button
             type="button"
-            onClick={() => handleNovoDealEtapa(etapas[0]?.key || 'lead')}
+            onClick={() => handleNovoDealEtapa(etapas[0]?.key || 'nao_chamei')}
             className="flex items-center gap-1.5 px-4 py-2 bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl text-sm font-semibold shadow-xs transition-all active:scale-95 shrink-0"
           >
             <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={1.8} />
