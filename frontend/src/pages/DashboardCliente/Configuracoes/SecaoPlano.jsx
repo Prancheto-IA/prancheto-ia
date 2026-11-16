@@ -109,7 +109,7 @@ const FAQS = [
   },
   {
     pergunta: 'Como funciona o Assistente de IA?',
-    resposta: 'Nosso assistente nativo permite consultar dados, criar leads, redigir mensagens e consultar insights do CRM diretamente em linguagem natural.',
+    resposta: 'Nosso assistente nativo permite consultar dados, criar clientes, redigir mensagens e consultar insights do CRM diretamente em linguagem natural.',
   },
 ];
 

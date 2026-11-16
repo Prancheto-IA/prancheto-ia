@@ -32,6 +32,7 @@ import { useTarefas } from '../../hooks/useTarefas';
 import { useAuthStore } from '../../store/authStore';
 import { SelectField } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   MoreVerticalIcon,
@@ -1496,32 +1497,37 @@ const Tarefas = () => {
 
           {/* Alternador Quadro / Lista */}
           <div className="flex items-center bg-white p-1 rounded-xl border border-[#E4ECE7] shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setVisao('kanban')}
-              title="Visualização em Quadro Kanban"
-              className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                visao === 'kanban'
-                  ? 'bg-brand-primary text-white shadow-2xs'
-                  : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-hover'
-              }`}
-            >
-              <HugeiconsIcon icon={DashboardSquare01Icon} size={14} strokeWidth={1.8} />
-              <span className="hidden sm:inline">Quadro</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setVisao('lista')}
-              title="Visualização em Lista / Tabela"
-              className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                visao === 'lista'
-                  ? 'bg-brand-primary text-white shadow-2xs'
-                  : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-hover'
-              }`}
-            >
-              <HugeiconsIcon icon={Menu01Icon} size={14} strokeWidth={1.8} />
-              <span className="hidden sm:inline">Lista</span>
-            </button>
+            <SimpleTooltip content="Visualização em Quadro Kanban" side="bottom">
+              <button
+                type="button"
+                onClick={() => setVisao('kanban')}
+                aria-label="Visualização em Quadro Kanban"
+                className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  visao === 'kanban'
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-hover'
+                }`}
+              >
+                <HugeiconsIcon icon={DashboardSquare01Icon} size={14} strokeWidth={1.8} />
+                <span className="hidden sm:inline">Quadro</span>
+              </button>
+            </SimpleTooltip>
+
+            <SimpleTooltip content="Visualização em Lista / Tabela" side="bottom">
+              <button
+                type="button"
+                onClick={() => setVisao('lista')}
+                aria-label="Visualização em Lista / Tabela"
+                className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  visao === 'lista'
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-hover'
+                }`}
+              >
+                <HugeiconsIcon icon={Menu01Icon} size={14} strokeWidth={1.8} />
+                <span className="hidden sm:inline">Lista</span>
+              </button>
+            </SimpleTooltip>
           </div>
         </div>
       </div>

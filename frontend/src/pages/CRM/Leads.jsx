@@ -12,13 +12,130 @@ import { supabase } from '../../lib/supabase.js';
 import { SelectField } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { AutocompleteReUI9 } from '@/components/reui/c-autocomplete-9';
+import { SimpleTooltip } from '@/components/reui/tooltip';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/reui/tabs';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
   Settings02Icon,
   Add01Icon,
   ArrowDown01Icon,
+  Briefcase02Icon,
+  UserIcon,
+  Building02Icon,
+  AlertCircleIcon,
+  InformationCircleIcon,
+  Cancel01Icon,
+  Globe02Icon,
+  Location01Icon,
+  Mail01Icon,
+  Call02Icon,
+  Delete02Icon,
 } from '@hugeicons/core-free-icons';
+
+// ─── PALETA DE CORES DAS COLUNAS / ETAPAS ───────────────────────
+export const CORES_COLUNA_PRESETS = [
+  {
+    id: 'azul',
+    nome: 'Azul',
+    hex: '#0284C7',
+    corDot: 'bg-brand-secondary dark:bg-[#38BDF8]',
+    corTotal: 'text-brand-secondary dark:text-[#38BDF8]',
+    corBg: 'bg-surface dark:bg-[#111827]',
+    corBorda: 'border-surface-border dark:border-[#23304D]',
+    corBotaoAdd: 'border-brand-accent text-brand-secondary hover:border-brand-secondary/40 hover:bg-brand-accent/40',
+  },
+  {
+    id: 'roxo',
+    nome: 'Roxo',
+    hex: '#7C3AED',
+    corDot: 'bg-brand-purple dark:bg-[#818CF8]',
+    corTotal: 'text-brand-purple dark:text-[#818CF8]',
+    corBg: 'bg-[#F5F2FC] dark:bg-[#111827]',
+    corBorda: 'border-[#E4DBF7] dark:border-[#23304D]',
+    corBotaoAdd: 'border-purple-200 text-brand-purple hover:border-purple-300 hover:bg-purple-50/60',
+  },
+  {
+    id: 'ambar',
+    nome: 'Âmbar',
+    hex: '#F59E0B',
+    corDot: 'bg-amber-500 dark:bg-[#FBBF24]',
+    corTotal: 'text-amber-700 dark:text-[#FBBF24]',
+    corBg: 'bg-[#FAF7EC] dark:bg-[#111827]',
+    corBorda: 'border-[#EFE8D3] dark:border-[#23304D]',
+    corBotaoAdd: 'border-amber-300 text-amber-700 hover:border-amber-400 hover:bg-amber-50/60',
+  },
+  {
+    id: 'verde',
+    nome: 'Verde',
+    hex: '#10B981',
+    corDot: 'bg-emerald-500 dark:bg-[#34D399]',
+    corTotal: 'text-emerald-700 dark:text-[#34D399]',
+    corBg: 'bg-[#EDF9F2] dark:bg-[#111827]',
+    corBorda: 'border-[#D1EFE0] dark:border-[#23304D]',
+    corBotaoAdd: 'border-emerald-200 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50/60',
+  },
+  {
+    id: 'vermelho',
+    nome: 'Vermelho',
+    hex: '#F43F5E',
+    corDot: 'bg-rose-500 dark:bg-[#F87171]',
+    corTotal: 'text-rose-600 dark:text-[#F87171]',
+    corBg: 'bg-[#FDF2F2] dark:bg-[#111827]',
+    corBorda: 'border-[#FAD8D8] dark:border-[#23304D]',
+    corBotaoAdd: 'border-rose-200 text-rose-600 hover:border-rose-300 hover:bg-rose-50/60',
+  },
+  {
+    id: 'laranja',
+    nome: 'Laranja',
+    hex: '#F97316',
+    corDot: 'bg-orange-500 dark:bg-[#FB923C]',
+    corTotal: 'text-orange-700 dark:text-[#FB923C]',
+    corBg: 'bg-[#FFF7ED] dark:bg-[#111827]',
+    corBorda: 'border-[#FED7AA] dark:border-[#23304D]',
+    corBotaoAdd: 'border-orange-200 text-orange-700 hover:border-orange-300 hover:bg-orange-50/60',
+  },
+  {
+    id: 'teal',
+    nome: 'Teal',
+    hex: '#0D9488',
+    corDot: 'bg-teal-500 dark:bg-[#2DD4BF]',
+    corTotal: 'text-teal-700 dark:text-[#2DD4BF]',
+    corBg: 'bg-[#F0FDFA] dark:bg-[#111827]',
+    corBorda: 'border-[#CCFBF1] dark:border-[#23304D]',
+    corBotaoAdd: 'border-teal-200 text-teal-700 hover:border-teal-300 hover:bg-teal-50/60',
+  },
+  {
+    id: 'indigo',
+    nome: 'Índigo',
+    hex: '#4F46E5',
+    corDot: 'bg-indigo-500 dark:bg-[#818CF8]',
+    corTotal: 'text-indigo-700 dark:text-[#818CF8]',
+    corBg: 'bg-[#EEF2FF] dark:bg-[#111827]',
+    corBorda: 'border-[#E0E7FF] dark:border-[#23304D]',
+    corBotaoAdd: 'border-indigo-200 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50/60',
+  },
+  {
+    id: 'pink',
+    nome: 'Pink',
+    hex: '#EC4899',
+    corDot: 'bg-pink-500 dark:bg-[#F472B6]',
+    corTotal: 'text-pink-700 dark:text-[#F472B6]',
+    corBg: 'bg-[#FDF2F8] dark:bg-[#111827]',
+    corBorda: 'border-[#FCE7F3] dark:border-[#23304D]',
+    corBotaoAdd: 'border-pink-200 text-pink-700 hover:border-pink-300 hover:bg-pink-50/60',
+  },
+  {
+    id: 'slate',
+    nome: 'Cinza',
+    hex: '#64748B',
+    corDot: 'bg-slate-500 dark:bg-[#94A3B8]',
+    corTotal: 'text-slate-700 dark:text-[#94A3B8]',
+    corBg: 'bg-[#F8FAFC] dark:bg-[#111827]',
+    corBorda: 'border-[#E2E8F0] dark:border-[#23304D]',
+    corBotaoAdd: 'border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/60',
+  },
+];
 
 // ─── 5 ETAPAS DO PIPELINE EM PORTUGUÊS ─────────────────────────
 export const ETAPAS_PIPELINE = [
@@ -26,6 +143,8 @@ export const ETAPAS_PIPELINE = [
     key: 'nao_chamei',
     titulo: 'Não Chamei',
     rotuloPt: 'Não Chamei',
+    corId: 'azul',
+    corHex: '#0284C7',
     corDot: 'bg-brand-secondary dark:bg-[#38BDF8]',
     corTotal: 'text-brand-secondary dark:text-[#38BDF8]',
     corBg: 'bg-surface dark:bg-[#111827]',
@@ -38,6 +157,8 @@ export const ETAPAS_PIPELINE = [
     key: 'chamei',
     titulo: 'Chamei',
     rotuloPt: 'Chamei',
+    corId: 'roxo',
+    corHex: '#7C3AED',
     corDot: 'bg-brand-purple dark:bg-[#818CF8]',
     corTotal: 'text-brand-purple dark:text-[#818CF8]',
     corBg: 'bg-[#F5F2FC] dark:bg-[#111827]',
@@ -50,6 +171,8 @@ export const ETAPAS_PIPELINE = [
     key: 'chamar_novamente',
     titulo: 'Chamar Novamente',
     rotuloPt: 'Chamar Novamente',
+    corId: 'ambar',
+    corHex: '#F59E0B',
     corDot: 'bg-amber-500 dark:bg-[#FBBF24]',
     corTotal: 'text-amber-700 dark:text-[#FBBF24]',
     corBg: 'bg-[#FAF7EC] dark:bg-[#111827]',
@@ -62,6 +185,8 @@ export const ETAPAS_PIPELINE = [
     key: 'deu_bom',
     titulo: 'Deu Bom!',
     rotuloPt: 'Deu Bom!',
+    corId: 'verde',
+    corHex: '#10B981',
     corDot: 'bg-emerald-500 dark:bg-[#34D399]',
     corTotal: 'text-emerald-700 dark:text-[#34D399]',
     corBg: 'bg-[#EDF9F2] dark:bg-[#111827]',
@@ -74,6 +199,8 @@ export const ETAPAS_PIPELINE = [
     key: 'deu_ruim',
     titulo: 'Deu Ruim!',
     rotuloPt: 'Deu Ruim!',
+    corId: 'vermelho',
+    corHex: '#F43F5E',
     corDot: 'bg-rose-500 dark:bg-[#F87171]',
     corTotal: 'text-rose-600 dark:text-[#F87171]',
     corBg: 'bg-[#FDF2F2] dark:bg-[#111827]',
@@ -415,12 +542,13 @@ const CardDeal = ({ deal, etapa, onAbrir, onDragStart, onDragEnd }) => {
 
       {/* Rodapé: Avatar e Tempo na Etapa */}
       <div className="flex items-center justify-between pt-1">
-        <div
-          className="w-6 h-6 rounded-full bg-brand-accent text-brand-primary border border-brand-secondary/15 font-bold text-[10px] flex items-center justify-center shrink-0 shadow-2xs"
-          title={deal.responsavel?.nome || deal.nome}
-        >
-          {iniciais}
-        </div>
+        <SimpleTooltip content={deal.responsavel?.nome || deal.nome}>
+          <div
+            className="w-6 h-6 rounded-full bg-brand-accent text-brand-primary border border-brand-secondary/15 font-bold text-[10px] flex items-center justify-center shrink-0 shadow-2xs select-none cursor-default"
+          >
+            {iniciais}
+          </div>
+        </SimpleTooltip>
         <span className="text-[11px] text-ink-secondary font-medium">
           {tempoEtapa}
         </span>
@@ -497,17 +625,18 @@ const ColunaPipeline = ({
               placeholder={`Pesquisar em ${etapa.titulo}...`}
               className="w-full bg-transparent text-sm text-ink-primary placeholder-slate-400 focus:outline-none"
             />
-            <button
-              type="button"
-              onClick={() => {
-                setBuscaColuna('');
-                setModoBusca(false);
-              }}
-              className="text-ink-muted hover:text-ink-primary text-sm p-0.5 rounded-md shrink-0"
-              title="Fechar pesquisa"
-            >
-              ✕
-            </button>
+            <SimpleTooltip content="Fechar pesquisa">
+              <button
+                type="button"
+                onClick={() => {
+                  setBuscaColuna('');
+                  setModoBusca(false);
+                }}
+                className="text-ink-muted hover:text-ink-primary text-sm p-0.5 rounded-md shrink-0 cursor-pointer"
+              >
+                ✕
+              </button>
+            </SimpleTooltip>
           </div>
         ) : (
           /* Modo Padrão: Titulo [quantidade] valor_total à esquerda | Ações à direita */
@@ -529,34 +658,40 @@ const ColunaPipeline = ({
             {/* Lado Direito: Engrenagem (hover), + (adicionar negócio), Lupa (pesquisar) */}
             <div className="flex items-center gap-0.5 shrink-0">
               {/* 1. Botão de Engrenagem (visível apenas ao posicionar o mouse na coluna) */}
-              <button
-                type="button"
-                onClick={() => onConfigurarColuna(etapa)}
-                className="hidden group-hover/coluna:inline-flex items-center justify-center transition-opacity p-1 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg"
-                title="Configurações da coluna"
-              >
-                <HugeiconsIcon icon={Settings02Icon} size={15} strokeWidth={1.8} />
-              </button>
+              <SimpleTooltip content="Configurações da coluna" side="top">
+                <button
+                  type="button"
+                  onClick={() => onConfigurarColuna(etapa)}
+                  className="hidden group-hover/coluna:inline-flex items-center justify-center transition-opacity p-1 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg cursor-pointer"
+                  aria-label="Configurações da coluna"
+                >
+                  <HugeiconsIcon icon={Settings02Icon} size={15} strokeWidth={1.8} />
+                </button>
+              </SimpleTooltip>
 
               {/* 2. Botão de + para adicionar novo negócio na coluna */}
-              <button
-                type="button"
-                onClick={() => onNovoDealEtapa(etapa.key)}
-                className={`p-1 ${etapa.corTotal} hover:bg-white/90 dark:hover:bg-surface-hover rounded-lg transition-all hover:shadow-2xs active:scale-95`}
-                title="Adicionar negócio nesta coluna"
-              >
-                <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.2} />
-              </button>
+              <SimpleTooltip content="Adicionar negócio nesta coluna" side="top">
+                <button
+                  type="button"
+                  onClick={() => onNovoDealEtapa(etapa.key)}
+                  className={`p-1 ${etapa.corTotal} hover:bg-white/90 dark:hover:bg-surface-hover rounded-lg transition-all hover:shadow-2xs active:scale-95 cursor-pointer`}
+                  aria-label="Adicionar negócio nesta coluna"
+                >
+                  <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.2} />
+                </button>
+              </SimpleTooltip>
 
               {/* 3. Botão de Lupa para pesquisar negócio na coluna */}
-              <button
-                type="button"
-                onClick={() => setModoBusca(true)}
-                className="p-1 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg transition-colors"
-                title="Pesquisar negócios nesta coluna"
-              >
-                <HugeiconsIcon icon={Search01Icon} size={15} strokeWidth={1.8} />
-              </button>
+              <SimpleTooltip content="Pesquisar negócios nesta coluna" side="top">
+                <button
+                  type="button"
+                  onClick={() => setModoBusca(true)}
+                  className="p-1 text-ink-secondary hover:text-brand-primary hover:bg-white/80 dark:hover:bg-surface-hover rounded-lg transition-colors cursor-pointer"
+                  aria-label="Pesquisar negócios nesta coluna"
+                >
+                  <HugeiconsIcon icon={Search01Icon} size={15} strokeWidth={1.8} />
+                </button>
+              </SimpleTooltip>
             </div>
           </div>
         )}
@@ -591,11 +726,36 @@ const ColunaPipeline = ({
 const ModalConfigColuna = ({ aberto, onFechar, etapa, onSalvar }) => {
   const [titulo, setTitulo] = useState('');
   const [probabilidade, setProbabilidade] = useState('');
+  const [corSelecionada, setCorSelecionada] = useState('azul');
 
   useEffect(() => {
     if (etapa) {
       setTitulo(etapa.titulo || '');
       setProbabilidade(etapa.probabilidadePadrao != null ? String(etapa.probabilidadePadrao) : '50');
+
+      if (etapa.corId) {
+        setCorSelecionada(etapa.corId);
+      } else if (etapa.corDot?.includes('purple')) {
+        setCorSelecionada('roxo');
+      } else if (etapa.corDot?.includes('amber')) {
+        setCorSelecionada('ambar');
+      } else if (etapa.corDot?.includes('emerald')) {
+        setCorSelecionada('verde');
+      } else if (etapa.corDot?.includes('rose')) {
+        setCorSelecionada('vermelho');
+      } else if (etapa.corDot?.includes('orange')) {
+        setCorSelecionada('laranja');
+      } else if (etapa.corDot?.includes('teal')) {
+        setCorSelecionada('teal');
+      } else if (etapa.corDot?.includes('indigo')) {
+        setCorSelecionada('indigo');
+      } else if (etapa.corDot?.includes('pink')) {
+        setCorSelecionada('pink');
+      } else if (etapa.corDot?.includes('slate')) {
+        setCorSelecionada('slate');
+      } else {
+        setCorSelecionada('azul');
+      }
     }
   }, [etapa, aberto]);
 
@@ -604,10 +764,20 @@ const ModalConfigColuna = ({ aberto, onFechar, etapa, onSalvar }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!titulo.trim()) return;
+
+    const presetEscolhido = CORES_COLUNA_PRESETS.find(p => p.id === corSelecionada) || CORES_COLUNA_PRESETS[0];
+
     onSalvar(etapa.key, {
       titulo: titulo.trim(),
       probabilidadePadrao: probabilidade ? Number(probabilidade) : 50,
       limiteWip: null,
+      corId: presetEscolhido.id,
+      corDot: presetEscolhido.corDot,
+      corTotal: presetEscolhido.corTotal,
+      corBg: presetEscolhido.corBg,
+      corBorda: presetEscolhido.corBorda,
+      corBotaoAdd: presetEscolhido.corBotaoAdd,
+      corHex: presetEscolhido.hex,
     });
   };
 
@@ -634,6 +804,39 @@ const ModalConfigColuna = ({ aberto, onFechar, etapa, onSalvar }) => {
               className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2 text-sm text-ink-primary focus:outline-none focus:border-brand-primary"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+              Cor da Coluna
+            </label>
+            <div className="p-2.5 rounded-xl bg-surface-subtle border border-surface-border">
+              <div className="grid grid-cols-5 gap-2.5">
+                {CORES_COLUNA_PRESETS.map((preset) => {
+                  const selecionada = corSelecionada === preset.id;
+                  return (
+                    <SimpleTooltip key={preset.id} content={preset.nome}>
+                      <button
+                        type="button"
+                        onClick={() => setCorSelecionada(preset.id)}
+                        className={`w-full h-8 rounded-lg transition-all duration-150 relative flex items-center justify-center cursor-pointer shadow-xs hover:scale-105 active:scale-95 ${
+                          selecionada
+                            ? 'ring-2 ring-offset-2 ring-brand-primary dark:ring-offset-slate-900 scale-105 shadow-md'
+                            : 'hover:ring-1 hover:ring-surface-border-strong opacity-90 hover:opacity-100'
+                        }`}
+                        style={{ backgroundColor: preset.hex }}
+                      >
+                        {selecionada && (
+                          <span className="text-white drop-shadow-sm font-bold text-xs select-none">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    </SimpleTooltip>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <div>
@@ -708,20 +911,91 @@ const EMPRESAS_SUGERIDAS_PADRAO = [
   'Vanguard Seguros',
 ];
 
+// ─── CONFIGURAÇÕES E OPÇÕES DO MODAL DE NEGÓCIOS ─────────────
+const DDIS_PAISES = [
+  { ddi: '+55', pais: 'Brasil', flag: '🇧🇷' },
+  { ddi: '+1', pais: 'EUA / Canadá', flag: '🇺🇸' },
+  { ddi: '+351', pais: 'Portugal', flag: '🇵🇹' },
+  { ddi: '+54', pais: 'Argentina', flag: '🇦🇷' },
+  { ddi: '+34', pais: 'Espanha', flag: '🇪🇸' },
+  { ddi: '+44', pais: 'Reino Unido', flag: '🇬🇧' },
+  { ddi: '+56', pais: 'Chile', flag: '🇨🇱' },
+  { ddi: '+52', pais: 'México', flag: '🇲🇽' },
+  { ddi: '+598', pais: 'Uruguai', flag: '🇺🇾' },
+  { ddi: '+595', pais: 'Paraguai', flag: '🇵🇾' },
+];
+
+const FONTES_OPCOES = [
+  { value: '', label: 'Selecionar fonte' },
+  { value: 'site', label: 'Site / Formulário Web' },
+  { value: 'indicacao', label: 'Indicação' },
+  { value: 'linkedin', label: 'LinkedIn / Social' },
+  { value: 'trafego_pago', label: 'Tráfego Pago (Google / Meta Ads)' },
+  { value: 'whatsapp', label: 'WhatsApp / Prospecção' },
+  { value: 'email', label: 'E-mail Marketing' },
+  { value: 'evento', label: 'Evento / Feira' },
+  { value: 'manual', label: 'Outbound / Manual' },
+  { value: 'outro', label: 'Outro' },
+];
+
+const SEGMENTOS_EMPRESA_OPCOES = [
+  { value: '', label: 'Selecionar segmento' },
+  { value: 'tecnologia', label: 'Tecnologia & Software (SaaS)' },
+  { value: 'servicos', label: 'Serviços Corporativos / B2B' },
+  { value: 'financeiro', label: 'Financeiro, Fintech & Seguros' },
+  { value: 'saude', label: 'Saúde, Clínicas & Farmacêutica' },
+  { value: 'varejo', label: 'Varejo & E-commerce' },
+  { value: 'industria', label: 'Indústria, Manufatura & Logística' },
+  { value: 'educacao', label: 'Educação & Treinamentos' },
+  { value: 'agronegocio', label: 'Agronegócio' },
+  { value: 'consultoria', label: 'Consultoria & Auditoria' },
+  { value: 'imobiliario', label: 'Imobiliário & Construção Civil' },
+  { value: 'outro', label: 'Outro' },
+];
+
+const BASES_LEGAIS_OPCOES = [
+  { value: 'sem_base', label: 'Não sei dizer ou não possuo base legal' },
+  { value: 'consentimento', label: 'Consentimento explícito do titular (Art. 7º, I LGPD)' },
+  { value: 'legitimo_interesse', label: 'Legítimo interesse do controlador (Art. 7º, IX LGPD)' },
+  { value: 'execucao_contrato', label: 'Execução de contrato / Procedimentos preliminares' },
+  { value: 'obrigacao_legal', label: 'Cumprimento de obrigação legal ou regulatória' },
+];
+
+const ABAS_MODAL_NEGOCIO = [
+  { id: 'negocio', label: 'Negócio', icone: Briefcase02Icon, descricao: 'Informações da negociação' },
+  { id: 'contato', label: 'Contato', icone: UserIcon, descricao: 'Informações do contato' },
+  { id: 'empresa', label: 'Empresa', icone: Building02Icon, descricao: 'Informações da empresa' },
+];
+
 // ─── FORM VAZIO PARA CRIAÇÃO/EDIÇÃO DE NEGÓCIO ─────────────────
 const FORM_VAZIO = {
+  // Aba 1: Negócio
   negocio_nome: '',
   valor_formatado: '',
   status_funil: 'nao_chamei',
   responsavel_nome: 'Lucas Bastos',
   previsao_fechamento: '',
+  origem: '',
+  campanha: '',
   observacoes: '',
-  contato_nome: '',
-  contato_email: '',
-  contato_telefone: '',
-  empresa: '',
   score: '50',
   tag_categoria: 'Novo',
+
+  // Aba 2: Contato
+  contato_id: '',
+  contato_nome: '',
+  contato_cargo: '',
+  contato_telefones: [{ ddi: '+55', numero: '' }],
+  contato_emails: [{ email: '' }],
+  base_legal_comunicacao: 'sem_base',
+
+  // Aba 3: Empresa
+  empresa_id: '',
+  empresa_nome: '',
+  empresa_segmento: '',
+  empresa_site: '',
+  empresa_resumo: '',
+  empresa_endereco: '',
 };
 
 // ─── MODAL: NOVO / EDITAR NEGÓCIO (EMITLY / PRANCHETO DESIGN) ──
@@ -738,15 +1012,28 @@ const ModalLead = ({
   const [salvando, setSalvando]                 = useState(false);
   const [erro, setErro]                         = useState('');
 
-  // Estados de Contatos (ReUI Autocomplete + criação inline)
-  const [criandoContatoInline, setCriandoContato]     = useState(false);
-  const [novoContato, setNovoContato]                 = useState({ nome: '', email: '', telefone: '' });
-  const [listaContatos, setListaContatos]             = useState(CONTATOS_SUGERIDOS_PADRAO);
+  // Controle de Abas e Notificação de Exclamação (!)
+  const [abaAtiva, setAbaAtiva]                 = useState('negocio');
+  const [abasVisualizadas, setAbasVisualizadas] = useState(() => new Set(['negocio']));
 
-  // Estados de Empresas (ReUI Autocomplete + criação inline)
-  const [criandoEmpresaInline, setCriandoEmpresa]     = useState(false);
-  const [novaEmpresaNome, setNovaEmpresaNome]         = useState('');
+  // Controle de Alertas informativos nas abas
+  const [alertaContatoAberto, setAlertaContatoAberto] = useState(true);
+  const [alertaEmpresaAberto, setAlertaEmpresaAberto] = useState(true);
+
+  // Estados de listas para sugestões / busca
+  const [listaContatos, setListaContatos]             = useState(CONTATOS_SUGERIDOS_PADRAO);
   const [listaEmpresas, setListaEmpresas]             = useState(EMPRESAS_SUGERIDAS_PADRAO);
+  const [empresasCompletas, setEmpresasCompletas]     = useState([]);
+
+  // Troca de aba e remoção automática da exclamação
+  const mudarAba = (novaAba) => {
+    setAbaAtiva(novaAba);
+    setAbasVisualizadas((prev) => {
+      const next = new Set(prev);
+      next.add(novaAba);
+      return next;
+    });
+  };
 
   // Sincroniza listas de contatos e empresas vindas de deals existentes e do Supabase
   useEffect(() => {
@@ -762,6 +1049,7 @@ const ModalLead = ({
         contatosMapeados.set(nomeContato.toLowerCase(), {
           id: d.id,
           nome: nomeContato,
+          cargo: d.cargo || '',
           email: d.email || '',
           telefone: d.telefone || '',
         });
@@ -779,27 +1067,43 @@ const ModalLead = ({
     setListaContatos(Array.from(contatosMapeados.values()));
     setListaEmpresas(Array.from(empresasSet));
 
-    // Busca assíncrona adicional no Supabase se houver conexão
+    // Busca assíncrona adicional no Supabase (crm_contatos e crm_empresas)
     async function carregarDadosDb() {
       try {
-        const { data } = await supabase
+        const { data: dbContatos } = await supabase
           .from('crm_contatos')
-          .select('id, nome, email, telefone, empresa')
-          .limit(40);
+          .select('id, nome, cargo, email, telefone, empresa, empresa_id')
+          .limit(60);
 
-        if (data && data.length > 0) {
-          data.forEach((item) => {
+        if (dbContatos && dbContatos.length > 0) {
+          dbContatos.forEach((item) => {
             if (item.nome && !contatosMapeados.has(item.nome.toLowerCase())) {
               contatosMapeados.set(item.nome.toLowerCase(), {
                 id: item.id,
                 nome: item.nome,
+                cargo: item.cargo || '',
                 email: item.email || '',
                 telefone: item.telefone || '',
+                empresa: item.empresa || '',
               });
             }
             if (item.empresa) empresasSet.add(item.empresa.trim());
           });
           setListaContatos(Array.from(contatosMapeados.values()));
+          setListaEmpresas(Array.from(empresasSet));
+        }
+
+        const { data: dbEmp } = await supabase
+          .from('crm_empresas')
+          .select('id, nome_fantasia, razao_social, segmento, site, endereco, observacoes')
+          .limit(60);
+
+        if (dbEmp && dbEmp.length > 0) {
+          setEmpresasCompletas(dbEmp);
+          dbEmp.forEach(emp => {
+            const nome = emp.nome_fantasia || emp.razao_social;
+            if (nome) empresasSet.add(nome.trim());
+          });
           setListaEmpresas(Array.from(empresasSet));
         }
       } catch (_e) {
@@ -817,44 +1121,70 @@ const ModalLead = ({
         ? (MAPA_TAGS_PT[String(leadEditando.tags[0]).toLowerCase()] || leadEditando.tags[0])
         : 'Novo';
 
+      const enderecoStr = typeof leadEditando.endereco === 'string'
+        ? leadEditando.endereco
+        : (leadEditando.endereco?.logradouro
+            ? [leadEditando.endereco.logradouro, leadEditando.endereco.numero, leadEditando.endereco.cidade].filter(Boolean).join(', ')
+            : '');
+
       setForm({
         negocio_nome:        leadEditando.negocio_nome || leadEditando.nome || '',
         valor_formatado:     leadEditando.valor_estimado != null ? formatarMoedaBRL(Number(leadEditando.valor_estimado)) : '',
         status_funil:        normalizarEtapaFunil(leadEditando.status_funil || statusInicial || 'nao_chamei'),
         responsavel_nome:    leadEditando.responsavel?.nome || 'Lucas Bastos',
         previsao_fechamento: leadEditando.previsao_fechamento ? leadEditando.previsao_fechamento.slice(0, 10) : '',
+        origem:              leadEditando.origem || '',
+        campanha:            leadEditando.campanha || '',
         observacoes:         leadEditando.observacoes || '',
-        contato_nome:        leadEditando.nome || '',
-        contato_email:       leadEditando.email || '',
-        contato_telefone:    leadEditando.telefone || '',
-        empresa:             leadEditando.empresa || '',
         score:               leadEditando.score != null ? String(leadEditando.score) : '50',
         tag_categoria:       tagInicial,
+
+        contato_id:          leadEditando.id || '',
+        contato_nome:        leadEditando.nome || '',
+        contato_cargo:       leadEditando.cargo || '',
+        contato_telefones:   leadEditando.telefone ? [{ ddi: '+55', numero: leadEditando.telefone }] : [{ ddi: '+55', numero: '' }],
+        contato_emails:      leadEditando.email ? [{ email: leadEditando.email }] : [{ email: '' }],
+        base_legal_comunicacao: leadEditando.origem_detalhes?.base_legal || 'sem_base',
+
+        empresa_id:          leadEditando.empresa_id || '',
+        empresa_nome:        leadEditando.empresa || leadEditando.razao_social || '',
+        empresa_segmento:    leadEditando.segmento || '',
+        empresa_site:        leadEditando.site || '',
+        empresa_resumo:      leadEditando.origem_detalhes?.empresa_resumo || '',
+        empresa_endereco:    enderecoStr,
       });
+
+      // Na edição, todas as abas já são consideradas vistas
+      setAbasVisualizadas(new Set(['negocio', 'contato', 'empresa']));
+      setAbaAtiva('negocio');
     } else {
       setForm({
         ...FORM_VAZIO,
         status_funil: normalizarEtapaFunil(statusInicial || 'nao_chamei'),
       });
+      // Ao criar um negócio, apenas a primeira aba foi vista; contato e empresa exibirão a exclamação
+      setAbasVisualizadas(new Set(['negocio']));
+      setAbaAtiva('negocio');
     }
 
     setErro('');
-    setCriandoContato(false);
-    setCriandoEmpresa(false);
+    setAlertaContatoAberto(true);
+    setAlertaEmpresaAberto(true);
   }, [leadEditando, aberto, statusInicial]);
 
-  // Itens formatados para o componente reui/c-autocomplete-9
+  // Itens formatados para o Autocomplete de Contatos
   const contatosAutocompleteItems = useMemo(
     () =>
       listaContatos.map((c) => ({
         id: String(c.id || c.nome),
         name: c.nome,
-        subtitle: [c.email, c.telefone].filter(Boolean).join(' · ') || 'Contato cadastrado',
+        subtitle: [c.cargo, c.email, c.telefone].filter(Boolean).join(' · ') || 'Contato cadastrado',
         raw: c,
       })),
     [listaContatos]
   );
 
+  // Itens formatados para o Autocomplete de Empresas
   const empresasAutocompleteItems = useMemo(
     () =>
       listaEmpresas.map((emp) => ({
@@ -880,63 +1210,184 @@ const ModalLead = ({
     setForm(f => ({ ...f, valor_formatado: masked }));
   };
 
-  // Ações de seleção de contato
-  const selecionarContato = (contato) => {
+  // Gerenciamento de Telefones dinâmicos
+  const handleTelefoneChange = (index, campo, valor) => {
+    setForm(f => {
+      const novos = [...f.contato_telefones];
+      novos[index] = { ...novos[index], [campo]: valor };
+      return { ...f, contato_telefones: novos };
+    });
+  };
+
+  const handleAdicionarTelefone = () => {
     setForm(f => ({
       ...f,
-      contato_nome: contato.nome,
-      contato_email: contato.email || f.contato_email,
-      contato_telefone: contato.telefone || f.contato_telefone,
+      contato_telefones: [...f.contato_telefones, { ddi: '+55', numero: '' }],
     }));
   };
 
-  const handleSalvarNovoContatoInline = () => {
-    if (!novoContato.nome.trim()) return;
-    const criado = {
-      id: `contato-novo-${Date.now()}`,
-      nome: novoContato.nome.trim(),
-      email: novoContato.email.trim(),
-      telefone: novoContato.telefone.trim(),
-    };
-    setListaContatos(prev => [criado, ...prev]);
-    selecionarContato(criado);
-    setNovoContato({ nome: '', email: '', telefone: '' });
-    setCriandoContato(false);
+  const handleRemoverTelefone = (index) => {
+    setForm(f => ({
+      ...f,
+      contato_telefones: f.contato_telefones.filter((_, i) => i !== index),
+    }));
   };
 
-  // Ações de seleção de empresa
-  const selecionarEmpresa = (empresaNome) => {
-    setForm(f => ({ ...f, empresa: empresaNome }));
+  // Gerenciamento de E-mails dinâmicos
+  const handleEmailChange = (index, valor) => {
+    setForm(f => {
+      const novos = [...f.contato_emails];
+      novos[index] = { ...novos[index], email: valor };
+      return { ...f, contato_emails: novos };
+    });
   };
 
-  const handleSalvarNovaEmpresaInline = () => {
-    if (!novaEmpresaNome.trim()) return;
-    const nomeNormalizado = novaEmpresaNome.trim();
-    setListaEmpresas(prev => [nomeNormalizado, ...prev.filter(e => e.toLowerCase() !== nomeNormalizado.toLowerCase())]);
-    selecionarEmpresa(nomeNormalizado);
-    setNovaEmpresaNome('');
-    setCriandoEmpresa(false);
+  const handleAdicionarEmail = () => {
+    setForm(f => ({
+      ...f,
+      contato_emails: [...f.contato_emails, { email: '' }],
+    }));
+  };
+
+  const handleRemoverEmail = (index) => {
+    setForm(f => ({
+      ...f,
+      contato_emails: f.contato_emails.filter((_, i) => i !== index),
+    }));
+  };
+
+  // Seleção e preenchimento de contato existente
+  const handleSelecionarContato = (contato) => {
+    setForm(f => ({
+      ...f,
+      contato_id: contato.id || '',
+      contato_nome: contato.nome || f.contato_nome,
+      contato_cargo: contato.cargo || f.contato_cargo,
+      contato_emails: contato.email ? [{ email: contato.email }] : f.contato_emails,
+      contato_telefones: contato.telefone ? [{ ddi: '+55', numero: contato.telefone }] : f.contato_telefones,
+      empresa_nome: contato.empresa || f.empresa_nome,
+    }));
+  };
+
+  const handleLimparContato = () => {
+    setForm(f => ({
+      ...f,
+      contato_id: '',
+      contato_nome: '',
+      contato_cargo: '',
+      contato_telefones: [{ ddi: '+55', numero: '' }],
+      contato_emails: [{ email: '' }],
+      base_legal_comunicacao: 'sem_base',
+    }));
+  };
+
+  // Seleção e preenchimento de empresa existente
+  const handleSelecionarEmpresa = (empresaNome) => {
+    const achada = empresasCompletas.find(
+      e => (e.nome_fantasia || e.razao_social || '').toLowerCase() === empresaNome.toLowerCase()
+    );
+
+    const endFormatado = achada?.endereco
+      ? (typeof achada.endereco === 'string'
+          ? achada.endereco
+          : [achada.endereco.logradouro, achada.endereco.numero, achada.endereco.cidade].filter(Boolean).join(', '))
+      : '';
+
+    setForm(f => ({
+      ...f,
+      empresa_nome: empresaNome,
+      empresa_id: achada?.id || '',
+      empresa_segmento: achada?.segmento || f.empresa_segmento,
+      empresa_site: achada?.site || f.empresa_site,
+      empresa_resumo: achada?.observacoes || f.empresa_resumo,
+      empresa_endereco: endFormatado || f.empresa_endereco,
+    }));
+  };
+
+  const handleLimparEmpresa = () => {
+    setForm(f => ({
+      ...f,
+      empresa_id: '',
+      empresa_nome: '',
+      empresa_segmento: '',
+      empresa_site: '',
+      empresa_resumo: '',
+      empresa_endereco: '',
+    }));
   };
 
   // Envio do formulário
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+
     if (!form.negocio_nome.trim()) {
-      setErro('Informe o título do negócio.');
+      setErro('Informe o nome da negociação.');
+      mudarAba('negocio');
       return;
     }
 
     setSalvando(true);
     setErro('');
+
     try {
       const valorEstimadoNumerico = desformatarMoedaBRL(form.valor_formatado);
+
+      // Telefones consolidados
+      const telefonesValidos = form.contato_telefones
+        .map(t => `${t.ddi} ${t.numero}`.trim())
+        .filter(t => t.length > 4);
+      const primeiroTelefone = telefonesValidos[0] || form.contato_telefones[0]?.numero?.trim() || null;
+
+      // E-mails consolidados
+      const emailsValidos = form.contato_emails
+        .map(e => e.email.trim())
+        .filter(Boolean);
+      const primeiroEmail = emailsValidos[0] || null;
+
+      // Endereço estruturado
+      const enderecoObj = form.empresa_endereco.trim()
+        ? { logradouro: form.empresa_endereco.trim() }
+        : {};
+
+      let empresaIdResolvido = form.empresa_id || null;
+
+      // Se informou nome da empresa mas não tem empresa_id cadastrado, cadastra em crm_empresas
+      if (form.empresa_nome.trim() && !empresaIdResolvido) {
+        try {
+          const { data: novaEmpresaDb } = await supabase
+            .from('crm_empresas')
+            .insert({
+              nome_fantasia: form.empresa_nome.trim(),
+              razao_social: form.empresa_nome.trim(),
+              segmento: form.empresa_segmento || null,
+              site: form.empresa_site.trim() || null,
+              observacoes: form.empresa_resumo.trim() || null,
+              endereco: enderecoObj,
+            })
+            .select('id')
+            .single();
+
+          if (novaEmpresaDb?.id) {
+            empresaIdResolvido = novaEmpresaDb.id;
+          }
+        } catch (_errEmp) {
+          // Continua sem falhar
+        }
+      }
 
       await onSalvar({
         negocio_nome:        form.negocio_nome.trim(),
         nome:                form.contato_nome.trim() || form.negocio_nome.trim(),
-        empresa:             form.empresa.trim() || null,
-        email:               form.contato_email.trim() || null,
-        telefone:            form.contato_telefone.trim() || null,
+        cargo:               form.contato_cargo.trim() || null,
+        email:               primeiroEmail,
+        telefone:            primeiroTelefone,
+        empresa:             form.empresa_nome.trim() || null,
+        empresa_id:          empresaIdResolvido,
+        segmento:            form.empresa_segmento || null,
+        site:                form.empresa_site.trim() || null,
+        endereco:            enderecoObj,
+        origem:              form.origem || 'manual',
+        campanha:            form.campanha ? form.campanha.trim() : null,
         valor_estimado:      valorEstimadoNumerico,
         status_funil:        form.status_funil,
         responsavel_nome:    form.responsavel_nome,
@@ -944,6 +1395,12 @@ const ModalLead = ({
         observacoes:         form.observacoes.trim() || null,
         score:               Number(form.score) || 50,
         tags:                [form.tag_categoria || 'Novo'],
+        origem_detalhes: {
+          base_legal:        form.base_legal_comunicacao,
+          telefones_extras:  telefonesValidos.slice(1),
+          emails_extras:     emailsValidos.slice(1),
+          empresa_resumo:    form.empresa_resumo.trim() || null,
+        },
       });
 
       onFechar();
@@ -956,21 +1413,21 @@ const ModalLead = ({
 
   return (
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-start justify-center p-3 sm:p-5 overflow-y-auto"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
       onClick={onFechar}
     >
       <div
-        className="bg-surface-card rounded-2xl p-6 sm:p-7 w-full max-w-xl my-auto border border-surface-border shadow-2xl transition-all"
+        className="bg-surface-card rounded-2xl w-full max-w-2xl border border-surface-border shadow-2xl transition-all flex flex-col max-h-[92vh] overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Topo do Modal */}
-        <div className="flex items-center justify-between pb-4 border-b border-surface-border mb-5">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-surface-border shrink-0">
           <div>
             <h3 className="font-bold text-lg text-ink-primary tracking-tight">
-              {leadEditando ? 'Editar negócio' : 'Adicione um novo negócio'}
+              {leadEditando ? 'Editar Negociação' : 'Criar Negociação'}
             </h3>
-            <p className="text-sm text-ink-secondary font-medium mt-0.5">
-              Defina os parâmetros do negócio, previsões e contatos vinculados
+            <p className="text-xs sm:text-sm text-ink-secondary font-medium mt-0.5">
+              Preencha as informações do negócio, contato e empresa
             </p>
           </div>
           <button
@@ -983,241 +1440,557 @@ const ModalLead = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Linha 1: Título do Negócio & Valor do negócio */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div>
-              <label className="block text-sm font-semibold text-ink-primary mb-1.5">
-                Título do Negócio <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={form.negocio_nome}
-                onChange={set('negocio_nome')}
-                placeholder="Ex: Expansão de infraestrutura"
-                className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
-              />
-            </div>
+        {/* Abas com indicador de exclamação (!) */}
+        <div className="px-6 pt-4 pb-2 shrink-0 border-b border-surface-border/60 bg-surface-subtle/40">
+          <Tabs value={abaAtiva} onValueChange={mudarAba} className="w-full">
+            <TabsList className="grid grid-cols-3 w-full bg-surface-subtle p-1 rounded-xl border border-surface-border">
+              {ABAS_MODAL_NEGOCIO.map((tab) => {
+                const Icone = tab.icone;
+                const precisaVisualizar = !leadEditando && !abasVisualizadas.has(tab.id);
 
-            <div>
-              <label className="block text-sm font-semibold text-ink-primary mb-1.5">
-                Valor do negócio
-              </label>
-              <input
-                type="text"
-                value={form.valor_formatado}
-                onChange={handleValorChange}
-                placeholder="R$ 1.000,00"
-                className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
-              />
-            </div>
-          </div>
+                return (
+                  <TabsTrigger
+                    key={tab.id}
+                    value={tab.id}
+                    className="flex items-center justify-center gap-1.5 sm:gap-2 py-2 px-2 rounded-lg text-xs sm:text-sm font-semibold transition-all relative"
+                  >
+                    <HugeiconsIcon icon={Icone} size={15} strokeWidth={2} className="shrink-0" />
+                    <span>{tab.label}</span>
+                    {precisaVisualizar && (
+                      <SimpleTooltip content="Aba pendente de visualização / preenchimento">
+                        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 text-white font-black text-[10px] leading-none shadow-xs animate-bounce ml-0.5">
+                          !
+                        </span>
+                      </SimpleTooltip>
+                    )}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </Tabs>
+        </div>
 
-          {/* Linha 2: Etapa & Responsável pelo Negócio */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div>
-              <label className="block text-sm font-semibold text-ink-primary mb-1.5">Etapa</label>
-              <SelectField
-                value={form.status_funil}
-                onChange={set('status_funil')}
-              >
-                {(etapas || ETAPAS_PIPELINE).map(e => (
-                  <option key={e.key} value={e.key}>{e.titulo}</option>
-                ))}
-              </SelectField>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-ink-primary mb-1.5">
-                Responsável pelo Negócio
-              </label>
-              <SelectField
-                value={form.responsavel_nome}
-                onChange={set('responsavel_nome')}
-              >
-                <option value="Lucas Bastos">Lucas Bastos</option>
-                <option value="Carlos Silva">Carlos Silva</option>
-                <option value="Marina Costa">Marina Costa</option>
-                <option value="Diego Alves">Diego Alves</option>
-                <option value="João Ferreira">João Ferreira</option>
-                <option value="Ana Paula">Ana Paula</option>
-              </SelectField>
-            </div>
-          </div>
-
-          {/* Linha 3: Data de fechamento prevista */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div>
-              <label className="block text-sm font-semibold text-ink-primary mb-1.5">
-                Data de fechamento prevista
-              </label>
-              <DatePicker
-                value={form.previsao_fechamento}
-                onChange={set('previsao_fechamento')}
-                placeholder="Selecionar data prevista"
-              />
-            </div>
-          </div>
-
-          {/* Linha 4: Descrição do negócio */}
-          <div>
-            <label className="block text-sm font-semibold text-ink-primary mb-1.5">
-              Descrição do negócio
-            </label>
-            <textarea
-              value={form.observacoes}
-              onChange={set('observacoes')}
-              maxLength={1000}
-              rows={3}
-              placeholder="Descreva detalhes, alinhamentos, escopo ou histórico..."
-              className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary resize-none"
-            />
-            <div className="text-right text-[11px] text-ink-secondary font-medium mt-1">
-              {form.observacoes.length}/1000
-            </div>
-          </div>
-
-          {/* Linha 5: Contato (ReUI c-autocomplete-9 + criação inline) */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-ink-primary mb-1.5">Contato</label>
-            <AutocompleteReUI9
-              items={contatosAutocompleteItems}
-              value={form.contato_nome}
-              onValueChange={(val) =>
-                setForm((f) => ({
-                  ...f,
-                  contato_nome: val,
-                  ...(val === '' ? { contato_email: '', contato_telefone: '' } : {}),
-                }))
-              }
-              onSelectItem={(item) => selecionarContato(item.raw || { nome: item.name })}
-              placeholder="Pesquisar ou selecionar contato..."
-              entitySingular="contato"
-              entityPlural="contatos"
-              addLabel="Adicionar um contato"
-              onAddClick={(termo) => {
-                setNovoContato((n) => ({ ...n, nome: termo || n.nome }));
-                setCriandoContato(true);
-              }}
-            />
-
-            {criandoContatoInline && (
-              <div className="p-3.5 space-y-2.5 bg-surface-subtle border border-surface-border rounded-xl">
-                <p className="text-sm font-semibold text-ink-primary">Adicionar novo contato</p>
+        {/* Formulário Principal com Scroll */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          {/* ══════════════ ABA 1: NEGÓCIO ══════════════ */}
+          {abaAtiva === 'negocio' && (
+            <div className="space-y-4 animate-in fade-in-50 duration-150">
+              {/* Nome da Negociação */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Nome da negociação <span className="text-rose-500">*</span>
+                </label>
                 <input
                   type="text"
-                  placeholder="Nome completo *"
-                  value={novoContato.nome}
-                  onChange={(e) => setNovoContato((n) => ({ ...n, nome: e.target.value }))}
-                  className="w-full px-3 py-2 rounded-xl border border-surface-border text-sm focus:outline-none focus:border-brand-primary bg-surface-card text-ink-primary"
+                  value={form.negocio_nome}
+                  onChange={set('negocio_nome')}
+                  placeholder="Digite o nome da negociação"
+                  className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              </div>
+
+              {/* Fonte e Etapa do funil */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                    Fonte
+                  </label>
+                  <SelectField
+                    value={form.origem}
+                    onChange={set('origem')}
+                  >
+                    {FONTES_OPCOES.map(f => (
+                      <option key={f.value} value={f.value}>{f.label}</option>
+                    ))}
+                  </SelectField>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                    Etapa do funil de vendas
+                  </label>
+                  <SelectField
+                    value={form.status_funil}
+                    onChange={set('status_funil')}
+                  >
+                    {(etapas || ETAPAS_PIPELINE).map(e => (
+                      <option key={e.key} value={e.key}>{e.titulo}</option>
+                    ))}
+                  </SelectField>
+                </div>
+              </div>
+
+              {/* Valor do Negócio e Previsão de Fechamento */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                    Valor do negócio
+                  </label>
                   <input
-                    type="email"
-                    placeholder="E-mail (opcional)"
-                    value={novoContato.email}
-                    onChange={(e) => setNovoContato((n) => ({ ...n, email: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl border border-surface-border text-sm focus:outline-none focus:border-brand-primary bg-surface-card text-ink-primary"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Telefone / WhatsApp (opcional)"
-                    value={novoContato.telefone}
-                    onChange={(e) => setNovoContato((n) => ({ ...n, telefone: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl border border-surface-border text-sm focus:outline-none focus:border-brand-primary bg-surface-card text-ink-primary"
+                    type="text"
+                    value={form.valor_formatado}
+                    onChange={handleValorChange}
+                    placeholder="R$ 0,00"
+                    className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
                   />
                 </div>
-                <div className="flex gap-2 pt-1">
+
+                <div>
+                  <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                    Data de fechamento prevista
+                  </label>
+                  <DatePicker
+                    value={form.previsao_fechamento}
+                    onChange={set('previsao_fechamento')}
+                    placeholder="Selecionar data prevista"
+                  />
+                </div>
+              </div>
+
+              {/* Responsável pelo Negócio */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Responsável pelo Negócio
+                </label>
+                <SelectField
+                  value={form.responsavel_nome}
+                  onChange={set('responsavel_nome')}
+                >
+                  <option value="Lucas Bastos">Lucas Bastos</option>
+                  <option value="Carlos Silva">Carlos Silva</option>
+                  <option value="Marina Costa">Marina Costa</option>
+                  <option value="Diego Alves">Diego Alves</option>
+                  <option value="João Ferreira">João Ferreira</option>
+                  <option value="Ana Paula">Ana Paula</option>
+                </SelectField>
+              </div>
+
+              {/* Descrição do negócio */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Descrição do negócio
+                </label>
+                <textarea
+                  value={form.observacoes}
+                  onChange={set('observacoes')}
+                  maxLength={1000}
+                  rows={3}
+                  placeholder="Descreva detalhes, alinhamentos, escopo ou histórico..."
+                  className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary resize-none"
+                />
+                <div className="text-right text-[11px] text-ink-secondary font-medium mt-1">
+                  {form.observacoes.length}/1000
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ══════════════ ABA 2: CONTATO ══════════════ */}
+          {abaAtiva === 'contato' && (
+            <div className="space-y-4 animate-in fade-in-50 duration-150">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-secondary">
+                  Informações do Contato
+                </span>
+                {form.contato_nome && (
                   <button
                     type="button"
-                    onClick={() => setCriandoContato(false)}
-                    className="flex-1 py-1.5 text-sm font-semibold text-ink-secondary bg-surface-card hover:bg-surface-hover border border-surface-border rounded-xl transition-colors"
+                    onClick={handleLimparContato}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                   >
-                    Cancelar
+                    <HugeiconsIcon icon={Cancel01Icon} size={13} />
+                    <span>Limpar dados</span>
                   </button>
+                )}
+              </div>
+
+              {/* Seleção de Contato Existente via Autocomplete ReUI */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Buscar contato existente
+                </label>
+                <AutocompleteReUI9
+                  items={contatosAutocompleteItems}
+                  value={form.contato_nome}
+                  onValueChange={(val) => setForm(f => ({ ...f, contato_nome: val }))}
+                  onSelectItem={(item) => handleSelecionarContato(item.raw || { nome: item.name })}
+                  placeholder="Pesquisar por nome, cargo ou e-mail..."
+                  entitySingular="contato"
+                  entityPlural="contatos"
+                  addLabel="Criar novo contato"
+                  onAddClick={(termo) => setForm(f => ({ ...f, contato_nome: termo || f.contato_nome }))}
+                />
+              </div>
+
+              {/* Nome do Contato */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Nome do contato <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.contato_nome}
+                  onChange={set('contato_nome')}
+                  placeholder="Digite o nome do contato"
+                  className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
+                />
+              </div>
+
+              {/* Cargo */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Cargo
+                </label>
+                <input
+                  type="text"
+                  value={form.contato_cargo}
+                  onChange={set('contato_cargo')}
+                  placeholder="Digite o cargo do contato"
+                  className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
+                />
+              </div>
+
+              {/* Telefones com Seletor DDI e Múltiplos Números */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Telefone(s)
+                </label>
+                <div className="space-y-2">
+                  {form.contato_telefones.map((tel, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      {/* Seletor DDI com bandeira */}
+                      <div className="w-28 shrink-0">
+                        <select
+                          value={tel.ddi}
+                          onChange={(e) => handleTelefoneChange(idx, 'ddi', e.target.value)}
+                          className="w-full bg-surface-subtle border border-surface-border rounded-xl px-2 py-2.5 text-xs sm:text-sm font-semibold text-ink-primary focus:outline-none focus:border-brand-primary"
+                        >
+                          {DDIS_PAISES.map(p => (
+                            <option key={p.ddi} value={p.ddi}>
+                              {p.flag} {p.ddi}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Input de número de telefone */}
+                      <input
+                        type="tel"
+                        value={tel.numero}
+                        onChange={(e) => handleTelefoneChange(idx, 'numero', e.target.value)}
+                        placeholder="(11) 99999-9999"
+                        className="flex-1 bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
+                      />
+
+                      {/* Remover telefone se houver mais de um */}
+                      {form.contato_telefones.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoverTelefone(idx)}
+                          className="p-2 text-ink-secondary hover:text-rose-500 rounded-lg transition-colors"
+                          title="Remover telefone"
+                        >
+                          <HugeiconsIcon icon={Delete02Icon} size={16} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
                   <button
                     type="button"
-                    onClick={handleSalvarNovoContatoInline}
-                    className="flex-1 py-1.5 text-sm font-semibold text-white bg-brand-primary hover:bg-brand-primary-hover rounded-xl transition-colors"
+                    onClick={handleAdicionarTelefone}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:text-brand-primary-hover pt-1 transition-colors"
                   >
-                    Adicionar
+                    <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.5} />
+                    <span>Adicionar telefone</span>
                   </button>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Linha 6: Empresa (ReUI c-autocomplete-9 + criação inline) */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-ink-primary mb-1.5">Empresa</label>
-            <AutocompleteReUI9
-              items={empresasAutocompleteItems}
-              value={form.empresa}
-              onValueChange={(val) => setForm((f) => ({ ...f, empresa: val }))}
-              onSelectItem={(item) => selecionarEmpresa(item.name)}
-              placeholder="Pesquisar ou selecionar empresa..."
-              entitySingular="empresa"
-              entityPlural="empresas"
-              addLabel="Adicione uma empresa"
-              onAddClick={(termo) => {
-                setNovaEmpresaNome(termo || '');
-                setCriandoEmpresa(true);
-              }}
-              avatarClassName="bg-[#F5F2FC] text-brand-purple"
-            />
+              {/* E-mails com Múltiplos Campos */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  E-mail(s)
+                </label>
+                <div className="space-y-2">
+                  {form.contato_emails.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="email"
+                        value={item.email}
+                        onChange={(e) => handleEmailChange(idx, e.target.value)}
+                        placeholder="seunome@email.com"
+                        className="flex-1 bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
+                      />
+                      {form.contato_emails.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoverEmail(idx)}
+                          className="p-2 text-ink-secondary hover:text-rose-500 rounded-lg transition-colors"
+                          title="Remover e-mail"
+                        >
+                          <HugeiconsIcon icon={Delete02Icon} size={16} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
 
-            {criandoEmpresaInline && (
-              <div className="p-3.5 space-y-2.5 bg-surface-subtle border border-surface-border rounded-xl">
-                <p className="text-sm font-semibold text-ink-primary">Adicionar nova empresa</p>
-                <input
-                  type="text"
-                  placeholder="Nome da empresa *"
-                  value={novaEmpresaNome}
-                  onChange={(e) => setNovaEmpresaNome(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-surface-border text-sm focus:outline-none focus:border-brand-primary bg-surface-card text-ink-primary"
-                />
-                <div className="flex gap-2 pt-1">
                   <button
                     type="button"
-                    onClick={() => setCriandoEmpresa(false)}
-                    className="flex-1 py-1.5 text-sm font-semibold text-ink-secondary bg-surface-card hover:bg-surface-hover border border-surface-border rounded-xl transition-colors"
+                    onClick={handleAdicionarEmail}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:text-brand-primary-hover pt-1 transition-colors"
                   >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSalvarNovaEmpresaInline}
-                    className="flex-1 py-1.5 text-sm font-semibold text-white bg-brand-primary hover:bg-brand-primary-hover rounded-xl transition-colors"
-                  >
-                    Adicionar
+                    <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.5} />
+                    <span>Adicionar email</span>
                   </button>
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* Base Legal de Comunicação / LGPD */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Contato e envio de comunicação (LGPD)
+                </label>
+                <SelectField
+                  value={form.base_legal_comunicacao}
+                  onChange={set('base_legal_comunicacao')}
+                >
+                  {BASES_LEGAIS_OPCOES.map(b => (
+                    <option key={b.value} value={b.value}>{b.label}</option>
+                  ))}
+                </SelectField>
+              </div>
+
+              {/* Alerta Informativo */}
+              {alertaContatoAberto && (
+                <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-sky-50 dark:bg-sky-950/30 border-l-4 border-l-sky-500 border border-sky-200 dark:border-sky-900/60 text-sky-800 dark:text-sky-300 text-xs font-medium">
+                  <div className="flex items-center gap-2">
+                    <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-sky-600 dark:text-sky-400 shrink-0" />
+                    <span>As informações serão salvas ao criar a negociação</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAlertaContatoAberto(false)}
+                    className="text-sky-600 dark:text-sky-400 hover:text-sky-900 dark:hover:text-sky-100 p-0.5 rounded transition-colors"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                  </button>
+                </div>
+              )}
+
+              {/* Botão Remover Contato */}
+              {form.contato_nome && (
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={handleLimparContato}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-200/80 dark:hover:bg-sky-900/60 text-xs font-bold transition-all shadow-2xs border border-sky-200/60 dark:border-sky-800"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2.5} />
+                    <span>Remover contato</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ══════════════ ABA 3: EMPRESA ══════════════ */}
+          {abaAtiva === 'empresa' && (
+            <div className="space-y-4 animate-in fade-in-50 duration-150">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-secondary">
+                  Informações da Empresa
+                </span>
+                {form.empresa_nome && (
+                  <button
+                    type="button"
+                    onClick={handleLimparEmpresa}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} size={13} />
+                    <span>Limpar dados</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Seleção de Empresa Existente via Autocomplete ReUI */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Buscar empresa cadastrada
+                </label>
+                <AutocompleteReUI9
+                  items={empresasAutocompleteItems}
+                  value={form.empresa_nome}
+                  onValueChange={(val) => setForm(f => ({ ...f, empresa_nome: val }))}
+                  onSelectItem={(item) => handleSelecionarEmpresa(item.name)}
+                  placeholder="Pesquisar ou selecionar empresa..."
+                  entitySingular="empresa"
+                  entityPlural="empresas"
+                  addLabel="Criar nova empresa"
+                  onAddClick={(termo) => setForm(f => ({ ...f, empresa_nome: termo || f.empresa_nome }))}
+                  avatarClassName="bg-[#F5F2FC] text-brand-purple"
+                />
+              </div>
+
+              {/* Nome da Empresa */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Nome da empresa <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.empresa_nome}
+                  onChange={set('empresa_nome')}
+                  placeholder="Digite o nome da empresa"
+                  className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
+                />
+              </div>
+
+              {/* Segmento */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Segmento
+                </label>
+                <SelectField
+                  value={form.empresa_segmento}
+                  onChange={set('empresa_segmento')}
+                >
+                  {SEGMENTOS_EMPRESA_OPCOES.map(s => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </SelectField>
+              </div>
+
+              {/* URL / Website */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  URL
+                </label>
+                <input
+                  type="text"
+                  value={form.empresa_site}
+                  onChange={set('empresa_site')}
+                  placeholder="Digite o endereço do site da empresa"
+                  className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
+                />
+              </div>
+
+              {/* Resumo */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Resumo
+                </label>
+                <textarea
+                  value={form.empresa_resumo}
+                  onChange={set('empresa_resumo')}
+                  rows={3}
+                  placeholder="Descreva a empresa"
+                  className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary resize-none"
+                />
+              </div>
+
+              {/* Endereço */}
+              <div>
+                <label className="block text-sm font-semibold text-ink-primary mb-1.5">
+                  Endereço
+                </label>
+                <input
+                  type="text"
+                  value={form.empresa_endereco}
+                  onChange={set('empresa_endereco')}
+                  placeholder="Digite o endereço da empresa"
+                  className="w-full bg-surface-subtle border border-surface-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary text-ink-primary font-medium transition-colors"
+                />
+              </div>
+
+              {/* Alerta Informativo */}
+              {alertaEmpresaAberto && (
+                <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-sky-50 dark:bg-sky-950/30 border-l-4 border-l-sky-500 border border-sky-200 dark:border-sky-900/60 text-sky-800 dark:text-sky-300 text-xs font-medium">
+                  <div className="flex items-center gap-2">
+                    <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-sky-600 dark:text-sky-400 shrink-0" />
+                    <span>As informações serão salvas ao criar a negociação</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAlertaEmpresaAberto(false)}
+                    className="text-sky-600 dark:text-sky-400 hover:text-sky-900 dark:hover:text-sky-100 p-0.5 rounded transition-colors"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                  </button>
+                </div>
+              )}
+
+              {/* Botão Remover Empresa */}
+              {form.empresa_nome && (
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={handleLimparEmpresa}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-200/80 dark:hover:bg-sky-900/60 text-xs font-bold transition-all shadow-2xs border border-sky-200/60 dark:border-sky-800"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2.5} />
+                    <span>Remover empresa</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {erro && (
-            <p className="text-rose-600 text-sm font-semibold bg-rose-50 px-3 py-2 rounded-xl border border-rose-200">
+            <p className="text-rose-600 text-sm font-semibold bg-rose-50 dark:bg-rose-950/40 px-3 py-2 rounded-xl border border-rose-200 dark:border-rose-900">
               {erro}
             </p>
           )}
 
-          {/* Rodapé com Ações (Cancelar e Criar / Salvar) */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-surface-border">
-            <button
-              type="button"
-              onClick={onFechar}
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-ink-secondary bg-surface-subtle border border-surface-border hover:bg-surface-hover transition-all"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={salvando}
-              className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-brand-primary hover:bg-brand-primary-hover transition-all disabled:opacity-50 shadow-xs"
-            >
-              {salvando ? 'Salvando...' : leadEditando ? 'Salvar Negócio' : 'Criar'}
-            </button>
+          {/* Rodapé com Navegação e Ações */}
+          <div className="flex items-center justify-between pt-4 border-t border-surface-border">
+            {/* Navegação entre etapas */}
+            <div className="flex items-center gap-2">
+              {abaAtiva === 'negocio' && (
+                <button
+                  type="button"
+                  onClick={() => mudarAba('contato')}
+                  className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-brand-secondary hover:bg-brand-secondary/10 transition-colors"
+                >
+                  Ir para Contato →
+                </button>
+              )}
+              {abaAtiva === 'contato' && (
+                <button
+                  type="button"
+                  onClick={() => mudarAba('empresa')}
+                  className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-brand-secondary hover:bg-brand-secondary/10 transition-colors"
+                >
+                  Ir para Empresa →
+                </button>
+              )}
+              {abaAtiva === 'empresa' && (
+                <button
+                  type="button"
+                  onClick={() => mudarAba('negocio')}
+                  className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-ink-secondary hover:bg-surface-hover transition-colors"
+                >
+                  ← Voltar ao Negócio
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onFechar}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-ink-secondary bg-surface-subtle border border-surface-border hover:bg-surface-hover transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={salvando}
+                className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-brand-primary hover:bg-brand-primary-hover transition-all disabled:opacity-50 shadow-xs"
+              >
+                {salvando ? 'Salvando...' : leadEditando ? 'Salvar Negociação' : 'Criar Negociação'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -1234,7 +2007,21 @@ const PaginaLeads = () => {
   } = useLeads();
 
   const navigate                              = useNavigate();
-  const [etapas, setEtapas]                   = useState(ETAPAS_PIPELINE);
+  const [etapas, setEtapas]                   = useState(() => {
+    try {
+      const salvo = localStorage.getItem('prancheto_crm_etapas_config');
+      if (salvo) {
+        const configSalva = JSON.parse(salvo);
+        return ETAPAS_PIPELINE.map(p => ({
+          ...p,
+          ...(configSalva[p.key] || {})
+        }));
+      }
+    } catch {
+      // fallback
+    }
+    return ETAPAS_PIPELINE;
+  });
   const [colunaConfigurando, setColunaConfigurando] = useState(null);
   const [modalAberto, setModalAberto]         = useState(false);
   const [etapaPreSelecionada, setEtapaPre]    = useState('nao_chamei');
@@ -1436,7 +2223,29 @@ const PaginaLeads = () => {
   };
 
   const handleSalvarConfigColuna = (etapaKey, novosDados) => {
-    setEtapas(prev => prev.map(e => e.key === etapaKey ? { ...e, ...novosDados } : e));
+    setEtapas(prev => {
+      const atualizado = prev.map(e => e.key === etapaKey ? { ...e, ...novosDados } : e);
+      try {
+        const configs = {};
+        atualizado.forEach(e => {
+          configs[e.key] = {
+            titulo: e.titulo,
+            probabilidadePadrao: e.probabilidadePadrao,
+            corId: e.corId,
+            corDot: e.corDot,
+            corTotal: e.corTotal,
+            corBg: e.corBg,
+            corBorda: e.corBorda,
+            corBotaoAdd: e.corBotaoAdd,
+            corHex: e.corHex,
+          };
+        });
+        localStorage.setItem('prancheto_crm_etapas_config', JSON.stringify(configs));
+      } catch (err) {
+        console.error('Erro ao salvar configurações da coluna no localStorage:', err);
+      }
+      return atualizado;
+    });
     setColunaConfigurando(null);
   };
 

@@ -14,12 +14,12 @@ import {
   Search01Icon,
   Cancel01Icon,
   Add01Icon,
-  BotIcon,
   AiSparklesIcon,
   SentIcon,
   Comment01Icon,
   Mic01Icon,
 } from '@hugeicons/core-free-icons';
+import pranchetinho from '../../../assets/mascote/pranchetinho-chat.png';
 
 const Chat = () => {
   const {
@@ -191,8 +191,8 @@ const Chat = () => {
           {/* Top Bar do Chat */}
           <div className="px-5 py-3.5 border-b border-[#E4ECE7] flex items-center justify-between bg-white flex-shrink-0 z-10">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#0E382C] text-[#D4EC9D] flex items-center justify-center shrink-0 shadow-xs">
-                <HugeiconsIcon icon={BotIcon} size={18} strokeWidth={2} />
+              <div className="w-9 h-9 rounded-xl bg-brand-accent/40 border border-brand-accent/60 p-1 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                <img src={pranchetinho} alt="Pranchetinho" className="w-full h-full object-contain pointer-events-none" draggable={false} />
               </div>
               <div className="min-w-0">
                 <h3 className="font-extrabold text-sm text-[#111915] truncate">
@@ -218,14 +218,14 @@ const Chat = () => {
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-surface custom-scrollbar">
             {vazio && (
               <div className="flex flex-col items-center justify-center h-full text-center py-12 px-4 max-w-lg mx-auto">
-                <div className="w-14 h-14 rounded-2xl bg-brand-accent text-brand-secondary flex items-center justify-center mb-3 shadow-2xs">
-                  <HugeiconsIcon icon={BotIcon} size={28} strokeWidth={1.8} />
+                <div className="w-16 h-16 rounded-3xl bg-brand-accent/30 dark:bg-brand-primary/10 p-2 flex items-center justify-center mb-3 shadow-xs border border-brand-accent/50 dark:border-brand-primary/20 overflow-hidden">
+                  <img src={pranchetinho} alt="Pranchetinho" className="w-full h-full object-contain pointer-events-none" draggable={false} />
                 </div>
                 <h3 className="text-base font-extrabold text-ink-primary mb-1.5">
                   O que vamos fazer no CRM hoje?
                 </h3>
                 <p className="text-sm text-ink-secondary leading-relaxed mb-6">
-                  Peça para consultar negócios no pipeline, cadastrar novos leads ou registrar contatos.
+                  Peça para consultar negócios no pipeline, cadastrar novos clientes ou registrar contatos.
                   Ações que alteram dados sempre solicitarão sua confirmação prévia.
                 </p>
 
@@ -276,8 +276,8 @@ const Chat = () => {
 
             {enviando && (
               <div className="flex gap-2.5 sm:gap-3 flex-row items-center">
-                <div className="w-8 h-8 rounded-xl bg-[#DCF5E4] text-[#15803D] flex items-center justify-center shrink-0 shadow-2xs">
-                  <HugeiconsIcon icon={BotIcon} size={18} strokeWidth={2} />
+                <div className="w-8 h-8 rounded-xl bg-brand-accent/40 dark:bg-brand-primary/10 border border-brand-accent/60 dark:border-brand-primary/20 flex items-center justify-center shrink-0 shadow-2xs p-1 overflow-hidden">
+                  <img src={pranchetinho} alt="Pranchetinho" className="w-full h-full object-contain pointer-events-none" draggable={false} />
                 </div>
                 <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-white border border-[#E4ECE7] shadow-2xs flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -319,7 +319,7 @@ const Chat = () => {
                   placeholder={
                     acoesPendentes.length > 0
                       ? 'Confirme ou descarte a ação acima...'
-                      : 'Pergunte sobre seus leads ou comande o CRM...'
+                      : 'Pergunte sobre seus clientes ou comande o CRM...'
                   }
                   disabled={enviando}
                   aria-label="Mensagem para o assistente"

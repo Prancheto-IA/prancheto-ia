@@ -20,7 +20,7 @@ export const CATALOGO_WIDGETS = [
   { slug: 'mini_agenda',     label: 'Mini Agenda',            emoji: '🗓️', descricao: 'Seus próximos compromissos da semana.',              tamanho: 'padrao' },
   { slug: 'acessos_rapidos', label: 'Acessos Rápidos',        emoji: '⚡', descricao: 'Atalhos para CRM, Relatórios, Calendário e Configurações.', tamanho: 'padrao' },
   { slug: 'mural_anuncios',  label: 'Mural de Anúncios',      emoji: '📣', descricao: 'Últimas publicações do Feed da empresa.',             tamanho: 'padrao' },
-  { slug: 'leads_quentes',   label: 'Leads Quentes',          emoji: '🔥', descricao: 'Leads com score alto, prontos pra abordar.',          tamanho: 'padrao' },
+  { slug: 'leads_quentes',   label: 'Clientes Quentes',          emoji: '🔥', descricao: 'Clientes com score alto, prontos pra abordar.',          tamanho: 'padrao' },
 ];
 
 // Reservado no catálogo, mas não ativável — fonte de dados ainda em

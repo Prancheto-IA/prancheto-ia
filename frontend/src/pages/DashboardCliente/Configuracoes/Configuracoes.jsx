@@ -18,6 +18,7 @@ import { usePermission } from '../../../hooks/usePermission.js';
 import { supabase } from '../../../lib/supabase.js';
 import SecaoPlano from './SecaoPlano.jsx';
 import IdentidadeVisual from './IdentidadeVisual.jsx';
+import SecaoImportarExportar from './SecaoImportarExportar.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Key01Icon, Shield01Icon } from '@hugeicons/core-free-icons';
 
@@ -25,6 +26,7 @@ const ABAS = [
   { slug: 'geral', label: 'Geral' },
   { slug: 'identidade', label: 'Identidade Visual' },
   { slug: 'plano', label: 'Plano da Organização' },
+  { slug: 'dados', label: 'Importar & Exportar' },
 ];
 
 const NOME_MAX     = 120;
@@ -403,6 +405,11 @@ const Configuracoes = () => {
       {/* 4. Conteúdo da Aba Plano */}
       <div className={`w-full flex-1 ${abaAtiva === 'plano' ? 'block' : 'hidden'}`}>
         <SecaoPlano />
+      </div>
+
+      {/* 5. Conteúdo da Aba Importar & Exportar */}
+      <div className={`w-full flex-1 ${abaAtiva === 'dados' ? 'block' : 'hidden'}`}>
+        <SecaoImportarExportar />
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ const WidgetLeadsQuentes = () => {
 
   return (
     <WidgetShell
-      titulo="Leads Quentes"
+      titulo="Clientes Quentes"
       icone={<HugeiconsIcon icon={FireIcon} size={16} strokeWidth={1.8} className="text-brand-primary dark:text-[#7DD3FC]" />}
       acaoLabel="Ver no CRM"
       onAcao={() => navigate('/crm/leads')}
@@ -52,7 +52,7 @@ const WidgetLeadsQuentes = () => {
           <div className="w-5 h-5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : leads.length === 0 ? (
-        <p className="text-sm text-ink-secondary text-center py-6">Nenhum lead com score ≥ 70 no momento.</p>
+        <p className="text-sm text-ink-secondary text-center py-6">Nenhum cliente com score ≥ 70 no momento.</p>
       ) : (
         <div className="space-y-2">
           {leads.map((l) => (

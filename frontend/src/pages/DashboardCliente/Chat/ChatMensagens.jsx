@@ -18,12 +18,12 @@ import {
   ArrowRight01Icon,
   CheckmarkCircle02Icon,
   Alert02Icon,
-  BotIcon,
   Settings02Icon,
   Mic01Icon,
   Cancel01Icon,
   SentIcon,
 } from '@hugeicons/core-free-icons';
+import pranchetinho from '../../../assets/mascote/pranchetinho-chat.png';
 
 // Rótulo e ícone de cada ferramenta na linha de atividade
 export const ROTULO_FERRAMENTA = {
@@ -34,7 +34,7 @@ export const ROTULO_FERRAMENTA = {
   registrar_interacao:  { icon: Comment01Icon, texto: 'Registrou uma interação' },
   atualizar_contato:    { icon: Edit02Icon, texto: 'Atualizou dados do contato' },
   mover_no_funil:       { icon: ArrowRight01Icon, texto: 'Moveu negócio no funil' },
-  converter_em_cliente: { icon: CheckmarkCircle02Icon, texto: 'Converteu lead em cliente' },
+  converter_em_cliente: { icon: CheckmarkCircle02Icon, texto: 'Converteu contato em cliente' },
 };
 
 export const horario = (iso) =>
@@ -42,7 +42,7 @@ export const horario = (iso) =>
 
 export const SUGESTOES = [
   'Como está meu funil de negócios?',
-  'Crie um lead: Joana Prado, da Vertex (joana@vertex.com)',
+  'Cadastre um cliente: Joana Prado, da Vertex (joana@vertex.com)',
   'Quais negociações estão em aberto?',
   'Resuma as atividades mais recentes do CRM',
 ];
@@ -146,8 +146,13 @@ export const Bolha = ({ mensagem }) => {
           {usuario?.nome ? usuario.nome[0].toUpperCase() : 'U'}
         </div>
       ) : (
-        <div className="w-8 h-8 rounded-xl bg-brand-accent text-brand-secondary flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-          <HugeiconsIcon icon={BotIcon} size={18} strokeWidth={2} />
+        <div className="w-8 h-8 rounded-xl bg-brand-accent/40 dark:bg-brand-primary/10 border border-brand-accent/60 dark:border-brand-primary/20 flex items-center justify-center shrink-0 shadow-xs mt-0.5 p-1 overflow-hidden">
+          <img
+            src={pranchetinho}
+            alt="Pranchetinho"
+            className="w-full h-full object-contain select-none pointer-events-none"
+            draggable={false}
+          />
         </div>
       )}
 

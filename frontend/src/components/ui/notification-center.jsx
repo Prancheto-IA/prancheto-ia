@@ -35,7 +35,7 @@ export const NOTIFICACOES_INICIAIS = [
     id: 'n1',
     source: 'CRM • Pipeline',
     icon: 'crm',
-    title: 'Lead qualificado em negociação',
+    title: 'Cliente qualificado em negociação',
     body: 'TechCorp Enterprise avançou para a etapa de Proposta Comercial com valor estimado de R$ 48.000,00.',
     time: 'há 2 min',
     unread: true,

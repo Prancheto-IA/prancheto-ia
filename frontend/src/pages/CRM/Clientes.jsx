@@ -12,6 +12,7 @@ import {
   formatarMoeda, formatarData, formatarDataHora, tempoRelativo,
 } from '../../hooks/useCRM.js';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 import {
   ENDERECO_VAZIO, CampoWhatsapp, CamposEmpresa, limparEndereco,
   PORTE_LABEL, formatarEndereco, temInformacoesExtras,
@@ -101,9 +102,17 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0 ml-3">
-            <button onClick={() => onEditar(cliente)} className="text-muted hover:text-primary-400 transition-colors" title="Editar">✏️</button>
-            <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(cliente.id)} className="text-muted hover:text-red-400 transition-colors" title="Excluir">🗑️</button></PermissaoGuarda>
-            <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-lg">✕</button>
+            <SimpleTooltip content="Editar Cliente">
+              <button onClick={() => onEditar(cliente)} className="text-muted hover:text-primary-400 transition-colors cursor-pointer">✏️</button>
+            </SimpleTooltip>
+            <PermissaoGuarda permissao="crm.excluir">
+              <SimpleTooltip content="Excluir Cliente">
+                <button onClick={() => onExcluir(cliente.id)} className="text-muted hover:text-red-400 transition-colors cursor-pointer">🗑️</button>
+              </SimpleTooltip>
+            </PermissaoGuarda>
+            <SimpleTooltip content="Fechar painel">
+              <button onClick={onFechar} className="text-muted hover:text-white transition-colors text-lg cursor-pointer">✕</button>
+            </SimpleTooltip>
           </div>
         </div>
 
@@ -148,7 +157,7 @@ const PainelCliente = ({ cliente, onFechar, onEditar, onExcluir }) => {
           {aba === 'historico' && (
             <div className="p-5 space-y-3">
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                Exibindo todo o histórico — incluindo interações do período como Lead.
+                Exibindo todo o histórico de interações do cliente.
               </p>
               {carregandoInt ? (
                 <div className="flex justify-center py-4"><Spinner /></div>
@@ -647,7 +656,7 @@ const PaginaClientes = () => {
             <p className="text-4xl mb-3">🏆</p>
             <p className="font-medium" style={{ color: 'var(--color-text-primary)' }}>Nenhum cliente ainda</p>
             <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-              {busca ? 'Tente outro termo de busca.' : 'Converta leads para clientes na aba Leads.'}
+              {busca ? 'Tente outro termo de busca.' : 'Cadastre novos clientes no pipeline de negócios.'}
             </p>
           </div>
         ) : (

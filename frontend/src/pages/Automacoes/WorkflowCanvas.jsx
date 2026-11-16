@@ -35,6 +35,8 @@ import {
   CheckCircle2,
   Hourglass,
   Filter,
+  ArrowLeft,
+  ArrowRight,
 } from 'lucide-react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { WhatsappIcon } from '@hugeicons/core-free-icons';
@@ -49,9 +51,8 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/reui/tooltip';
 import { Field, FieldLabel, FieldDescription } from '@/components/ui/field';
-import pranchetinhoFavicon from '../../assets/mascote/pranchetinho-favicon.png';
 import {
   NODE_WIDTH,
   NODE_HEIGHT,
@@ -443,39 +444,108 @@ const EdgeAddButton = ({ edge, isFinalEdge, x, y, onInsertBetween, onAddBranchFr
 };
 
 // -------------------------------------------------------------
-// SUBCOMPONENTE: Card de Item do Catálogo (Drawer)
+// SUBCOMPONENTE: Card de Item do Catálogo (Drawer) com Suporte a Drag & Drop
 // -------------------------------------------------------------
-const ItemBlocoCard = ({ item, onSelect }) => (
-  <button
-    type="button"
-    onClick={onSelect}
-    className="w-full flex items-start gap-3 rounded-2xl border border-surface-border/70 bg-surface-card hover:border-brand-primary/60 hover:shadow-xs p-3 text-left transition-all cursor-pointer group"
-  >
-    <span
-      style={{ background: item.meshGradient }}
-      className="h-9 w-9 shrink-0 rounded-xl shadow-xs ring-1 ring-inset ring-black/5 group-hover:scale-105 transition-transform mt-0.5 flex items-center justify-center text-white"
+const ItemBlocoCard = ({ item, onSelect }) => {
+  const handleDragStart = (e) => {
+    e.dataTransfer.setData('application/prancheto-node-type', item.type);
+    e.dataTransfer.setData('text/plain', item.type);
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      draggable={true}
+      onDragStart={handleDragStart}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      className="w-full flex items-start gap-3 rounded-2xl border border-surface-border/70 bg-surface-card hover:border-brand-primary/60 hover:shadow-xs p-3 text-left transition-all cursor-grab active:cursor-grabbing select-none group"
     >
-      {renderNodeIcon(item.type, 'w-4 h-4 text-white')}
-    </span>
-    <div className="min-w-0 flex-1">
-      <div className="flex items-center justify-between gap-1.5">
-        <p className="text-xs font-bold text-ink-primary group-hover:text-brand-secondary dark:group-hover:text-[#7DD3FC] truncate">
-          {item.title}
+      <span
+        style={{ background: item.meshGradient }}
+        className="h-9 w-9 shrink-0 rounded-xl shadow-xs ring-1 ring-inset ring-black/5 group-hover:scale-105 transition-transform mt-0.5 flex items-center justify-center text-white pointer-events-none"
+      >
+        {renderNodeIcon(item.type, 'w-4 h-4 text-white')}
+      </span>
+      <div className="min-w-0 flex-1 pointer-events-none">
+        <div className="flex items-center justify-between gap-1.5">
+          <p className="text-xs font-bold text-ink-primary group-hover:text-brand-secondary dark:group-hover:text-[#7DD3FC] truncate">
+            {item.title}
+          </p>
+          <span className="text-[10px] text-ink-muted shrink-0">
+            {item.category === 'trigger' ? 'Gatilho' : 'Ação'}
+          </span>
+        </div>
+        <p className="text-[11px] text-ink-secondary line-clamp-2 leading-tight mt-0.5">
+          {item.shortDesc}
         </p>
-        <span className="text-[10px] text-ink-muted shrink-0">
-          {item.category === 'trigger' ? 'Gatilho' : 'Ação'}
-        </span>
       </div>
-      <p className="text-[11px] text-ink-secondary line-clamp-2 leading-tight mt-0.5">
-        {item.shortDesc}
-      </p>
     </div>
-  </button>
-);
+  );
+};
 
 // -------------------------------------------------------------
-// SUBCOMPONENTE: Menu Lateral Direito de Adicionar Blocos (ReUI)
+// SUBCOMPONENTE: Menu Lateral Direito de Adicionar Blocos (ReUI / Categorias)
 // -------------------------------------------------------------
+const renderCategoriaIcon = (cat, className = 'w-5 h-5') => {
+  if (cat.id === 'whatsapp') {
+    return <HugeiconsIcon icon={WhatsappIcon} size={20} className={className} />;
+  }
+  const IconComponent = cat.icon;
+  return IconComponent ? <IconComponent className={className} /> : null;
+};
+
+const CATEGORIAS_DRAWER = [
+  {
+    id: 'whatsapp',
+    title: 'WhatsApp',
+    desc: 'Envio de mensagens automáticas, follow-ups e avisos na instância conectada',
+    icon: null,
+    defaultType: 'action_whatsapp_text',
+    filter: (item) => item.category === 'whatsapp',
+  },
+  {
+    id: 'crm',
+    title: 'CRM & Pipeline',
+    desc: 'Criação de tarefas, registro de interações e movimentações no funil de vendas',
+    icon: CheckCircle2,
+    defaultType: 'action_crm_task',
+    filter: (item) => item.category === 'crm',
+  },
+  {
+    id: 'ai',
+    title: 'Pranchetinho IA',
+    desc: 'Personalização inteligente de copy, tom de voz e respostas com contexto do cliente',
+    icon: Sparkles,
+    defaultType: 'ai_pranchetinho',
+    filter: (item) => item.category === 'ai',
+  },
+  {
+    id: 'logic',
+    title: 'Lógica & Controle',
+    desc: 'Condições de decisão Se/Senão (IF), filtros de qualificação e pausas temporizadas (Delay)',
+    icon: GitBranch,
+    defaultType: 'logic_condition',
+    filter: (item) => item.category === 'logic',
+  },
+  {
+    id: 'trigger',
+    title: 'Gatilhos de Início',
+    desc: 'Eventos que disparam a automação: etapas do funil, inatividade, reuniões ou agendamentos',
+    icon: Zap,
+    isTrigger: true,
+    defaultType: 'trigger_lead_created',
+    filter: (item) => item.category === 'trigger',
+  },
+];
+
 const StudioAddNodeDrawer = ({
   isOpen,
   onClose,
@@ -484,73 +554,104 @@ const StudioAddNodeDrawer = ({
   onClearSelectedNode,
 }) => {
   const [busca, setBusca] = useState('');
-  const [tabAtiva, setTabAtiva] = useState('todos');
+  const [categoriaAtiva, setCategoriaAtiva] = useState(null);
+  const [filtroGatilho, setFiltroGatilho] = useState('todos');
+
+  // Resetar estado ao abrir
+  useEffect(() => {
+    if (isOpen) {
+      setBusca('');
+      setCategoriaAtiva(null);
+      setFiltroGatilho('todos');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const termo = busca.trim().toLowerCase();
+  const catAtual = CATEGORIAS_DRAWER.find((c) => c.id === categoriaAtiva);
 
-  const filtrados = CATALOGO_NOS.filter((item) => {
-    if (tabAtiva === 'gatilhos' && item.category !== 'trigger') return false;
-    if (tabAtiva === 'acoes' && item.category === 'trigger') return false;
-    if (!termo) return true;
-    return (
-      item.title.toLowerCase().includes(termo) ||
-      (item.shortDesc || '').toLowerCase().includes(termo) ||
-      (item.phaseLabel || '').toLowerCase().includes(termo)
-    );
-  });
+  // Se tiver busca na tela inicial de categorias, busca em todos os nós
+  const resultadosBuscaGeral = termo
+    ? CATALOGO_NOS.filter((item) => {
+        return (
+          item.title.toLowerCase().includes(termo) ||
+          (item.shortDesc || '').toLowerCase().includes(termo) ||
+          (item.phaseLabel || '').toLowerCase().includes(termo)
+        );
+      })
+    : [];
 
-  const gatilhosFase1 = filtrados.filter(
-    (i) => i.category === 'trigger' && i.grupo === 'fase1'
-  );
-  const gatilhosFase2 = filtrados.filter(
-    (i) => i.category === 'trigger' && i.grupo === 'fase2'
-  );
-  const gatilhosAgendamento = filtrados.filter(
-    (i) => i.category === 'trigger' && i.grupo === 'agendamento'
-  );
-  const acoesELogica = filtrados.filter((i) => i.category !== 'trigger');
-
-  const totalGatilhos = CATALOGO_NOS.filter((i) => i.category === 'trigger').length;
-  const totalAcoes = CATALOGO_NOS.filter((i) => i.category !== 'trigger').length;
+  // Se estiver dentro de uma categoria
+  const blocosDaCategoria = catAtual
+    ? CATALOGO_NOS.filter((item) => {
+        if (!catAtual.filter(item)) return false;
+        if (catAtual.id === 'trigger' && filtroGatilho !== 'todos') {
+          if (filtroGatilho === 'fase1' && item.grupo !== 'fase1') return false;
+          if (filtroGatilho === 'fase2' && item.grupo !== 'fase2') return false;
+          if (filtroGatilho === 'agendamento' && item.grupo !== 'agendamento') return false;
+        }
+        if (!termo) return true;
+        return (
+          item.title.toLowerCase().includes(termo) ||
+          (item.shortDesc || '').toLowerCase().includes(termo) ||
+          (item.phaseLabel || '').toLowerCase().includes(termo)
+        );
+      })
+    : [];
 
   return (
     <aside
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
+      onDragOver={(e) => e.stopPropagation()}
       className="absolute top-0 right-0 bottom-0 z-40 w-full sm:w-[410px] border-l border-surface-border bg-surface-card/98 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
     >
-      {/* Cabeçalho */}
+      {/* CABEÇALHO */}
       <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-surface-border bg-surface-subtle/60">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span
-            style={{ background: MESH_GRADIENTS.brand }}
-            className="h-8 w-8 rounded-xl flex items-center justify-center text-white shadow-xs shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-          </span>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h2 className="text-sm font-bold text-ink-primary truncate">Adicionar Bloco</h2>
-              <Badge variant="violet" size="xs">ReUI</Badge>
+        {categoriaAtiva ? (
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={() => {
+                setCategoriaAtiva(null);
+                setBusca('');
+              }}
+              className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-ink-secondary hover:text-ink-primary hover:bg-surface-hover transition-all cursor-pointer shrink-0"
+              aria-label="Voltar para categorias"
+            >
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+              <span>Voltar</span>
+            </button>
+            <div className="h-4 w-px bg-surface-border shrink-0" />
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-sm font-bold text-ink-primary truncate">
+                {catAtual?.title}
+              </span>
             </div>
-            <p className="text-[11px] text-ink-secondary truncate">
-              Gatilhos CRM, mensagens WhatsApp e lógica
+          </div>
+        ) : (
+          <div className="min-w-0">
+            <h2 className="text-base font-bold text-ink-primary tracking-tight">
+              O que acontece em seguida?
+            </h2>
+            <p className="text-[11px] text-ink-secondary">
+              Selecione uma categoria para adicionar à automação
             </p>
           </div>
-        </div>
+        )}
+
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg p-1.5 text-ink-secondary hover:bg-surface-hover hover:text-ink-primary transition-colors cursor-pointer"
+          className="rounded-lg p-1.5 text-ink-secondary hover:bg-surface-hover hover:text-ink-primary transition-colors cursor-pointer shrink-0"
           aria-label="Fechar catálogo"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Busca & Contexto */}
+      {/* CAMPO DE BUSCA & CONTEXTO */}
       <div className="p-3.5 border-b border-surface-border space-y-2.5 bg-surface-card">
         <div className="relative">
           <Search className="w-4 h-4 text-ink-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -558,8 +659,12 @@ const StudioAddNodeDrawer = ({
             type="text"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por nome, gatilho, ação..."
-            className="h-9 w-full rounded-xl border border-surface-border bg-surface-subtle pl-9 pr-8 text-xs font-medium text-ink-primary outline-none focus:border-brand-primary transition-colors"
+            placeholder={
+              categoriaAtiva
+                ? `Buscar em ${catAtual?.title}...`
+                : 'Buscar blocos...'
+            }
+            className="h-9 w-full rounded-xl border border-surface-border bg-surface-subtle pl-9 pr-8 text-xs font-medium text-ink-primary outline-none focus:border-brand-primary dark:focus:border-brand-purple transition-colors"
           />
           {busca && (
             <button
@@ -572,7 +677,7 @@ const StudioAddNodeDrawer = ({
           )}
         </div>
 
-        {selectedNode ? (
+        {selectedNode && (
           <div className="flex items-center justify-between gap-2 rounded-xl border border-brand-primary/30 bg-brand-primary/5 px-2.5 py-1.5 text-[11px] text-ink-primary">
             <div className="flex items-center gap-1.5 min-w-0">
               <Zap className="w-3.5 h-3.5 text-brand-purple shrink-0" />
@@ -588,121 +693,149 @@ const StudioAddNodeDrawer = ({
               Inserir avulso
             </button>
           </div>
-        ) : (
-          <p className="text-[11px] text-ink-muted">
-            Clique em qualquer bloco para adicionar à automação.
-          </p>
         )}
 
-        {/* Tabs ReUI */}
-        <Tabs value={tabAtiva} onValueChange={setTabAtiva} className="w-full">
-          <TabsList className="w-full grid grid-cols-3">
-            <TabsTrigger value="todos" className="text-xs">
-              Todos ({CATALOGO_NOS.length})
-            </TabsTrigger>
-            <TabsTrigger value="gatilhos" className="text-xs">
-              Gatilhos ({totalGatilhos})
-            </TabsTrigger>
-            <TabsTrigger value="acoes" className="text-xs">
-              Ações ({totalAcoes})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {/* Sub-filtros para Gatilhos (quando dentro da categoria 'trigger') */}
+        {categoriaAtiva === 'trigger' && (
+          <div className="flex items-center gap-1 pt-1 overflow-x-auto scrollbar-none">
+            {[
+              { id: 'todos', label: 'Todos (10)' },
+              { id: 'fase1', label: 'Funil CRM (4)' },
+              { id: 'fase2', label: 'Tempo & SLA (5)' },
+              { id: 'agendamento', label: 'Agendamento (1)' },
+            ].map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFiltroGatilho(f.id)}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  filtroGatilho === f.id
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-surface-subtle text-ink-secondary hover:text-ink-primary'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Lista de Blocos */}
-      <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
-        {filtrados.length === 0 ? (
-          <div className="py-12 text-center space-y-2">
-            <p className="text-xs font-bold text-ink-primary">Nenhum bloco encontrado</p>
-            <p className="text-[11px] text-ink-muted">Tente buscar por outro termo</p>
+      {/* CONTEÚDO PRINCIPAL */}
+      <div className="flex-1 overflow-y-auto p-3.5 space-y-2">
+        {/* CASO 1: BUSCA GLOBAL ATIVA NA RAIZ */}
+        {!categoriaAtiva && termo ? (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary">
+                Resultados da busca
+              </span>
+              <span className="text-[10px] text-ink-muted">
+                {resultadosBuscaGeral.length} encontrados
+              </span>
+            </div>
+            {resultadosBuscaGeral.length === 0 ? (
+              <div className="py-12 text-center space-y-2">
+                <p className="text-xs font-bold text-ink-primary">Nenhum bloco encontrado</p>
+                <p className="text-[11px] text-ink-muted">Tente buscar por outro termo</p>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {resultadosBuscaGeral.map((item) => (
+                  <ItemBlocoCard
+                    key={item.type}
+                    item={item}
+                    onSelect={() => onAddNodeType(item.type)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : !categoriaAtiva ? (
+          /* CASO 2: TELA RAIZ COM AS CATEGORIAS REAIS DO PRANCHETO */
+          <div className="space-y-1">
+            {CATEGORIAS_DRAWER.map((cat) => {
+              const isLastTrigger = cat.isTrigger;
+              return (
+                <React.Fragment key={cat.id}>
+                  {isLastTrigger && (
+                    <div className="border-t border-surface-border/70 my-2.5 mx-1" />
+                  )}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    draggable={Boolean(cat.defaultType)}
+                    onDragStart={(e) => {
+                      if (cat.defaultType) {
+                        e.dataTransfer.setData('application/prancheto-node-type', cat.defaultType);
+                        e.dataTransfer.setData('text/plain', cat.defaultType);
+                        e.dataTransfer.effectAllowed = 'copy';
+                      }
+                    }}
+                    onClick={() => {
+                      setCategoriaAtiva(cat.id);
+                      setBusca('');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setCategoriaAtiva(cat.id);
+                        setBusca('');
+                      }
+                    }}
+                    className="group relative w-full flex items-center gap-3.5 py-3 px-3 rounded-xl text-left hover:bg-surface-hover/80 transition-all cursor-grab active:cursor-grabbing select-none"
+                  >
+                    {/* Barra de destaque laranja no hover */}
+                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-[#F97316] opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                    <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-surface-subtle text-ink-secondary group-hover:text-ink-primary group-hover:bg-surface-hover transition-colors pointer-events-none">
+                      {renderCategoriaIcon(cat, 'w-5 h-5')}
+                    </span>
+
+                    <div className="min-w-0 flex-1 pointer-events-none">
+                      <h3 className="text-sm font-semibold text-ink-primary group-hover:text-brand-primary dark:group-hover:text-white transition-colors">
+                        {cat.title}
+                      </h3>
+                      <p className="text-xs text-ink-secondary leading-snug line-clamp-2 mt-0.5">
+                        {cat.desc}
+                      </p>
+                    </div>
+
+                    <ArrowRight className="w-4 h-4 text-ink-muted group-hover:text-ink-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-1 pointer-events-none" />
+                  </div>
+                </React.Fragment>
+              );
+            })}
           </div>
         ) : (
-          <>
-            {/* Seção Gatilhos Fase 1 */}
-            {gatilhosFase1.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between px-1">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary">
-                    Gatilhos · Funil &amp; Ciclo de Vida (Fase 1)
-                  </span>
-                  <Badge variant="violet" size="xs">4 gatilhos</Badge>
-                </div>
-                <div className="space-y-1.5">
-                  {gatilhosFase1.map((item) => (
-                    <ItemBlocoCard
-                      key={item.type}
-                      item={item}
-                      onSelect={() => onAddNodeType(item.type)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+          /* CASO 3: DENTRO DE UMA CATEGORIA SELECIONADA */
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary">
+                {catAtual?.title}
+              </span>
+              <span className="text-[10px] text-ink-muted">
+                {blocosDaCategoria.length} bloco(s)
+              </span>
+            </div>
 
-            {/* Seção Gatilhos Fase 2 */}
-            {gatilhosFase2.length > 0 && (
+            {blocosDaCategoria.length === 0 ? (
+              <div className="py-12 text-center space-y-2">
+                <p className="text-xs font-bold text-ink-primary">Nenhum bloco encontrado</p>
+                <p className="text-[11px] text-ink-muted">Tente outro filtro ou termo de busca</p>
+              </div>
+            ) : (
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between px-1">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary">
-                    Gatilhos · Tempo, Agenda &amp; Tags (Fase 2)
-                  </span>
-                  <Badge variant="warning" size="xs">5 gatilhos</Badge>
-                </div>
-                <div className="space-y-1.5">
-                  {gatilhosFase2.map((item) => (
-                    <ItemBlocoCard
-                      key={item.type}
-                      item={item}
-                      onSelect={() => onAddNodeType(item.type)}
-                    />
-                  ))}
-                </div>
+                {blocosDaCategoria.map((item) => (
+                  <ItemBlocoCard
+                    key={item.type}
+                    item={item}
+                    onSelect={() => onAddNodeType(item.type)}
+                  />
+                ))}
               </div>
             )}
-
-            {/* Seção Gatilhos Data e Horário */}
-            {gatilhosAgendamento.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between px-1">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary">
-                    Agendamento · Data &amp; Horário
-                  </span>
-                  <Badge variant="info" size="xs">Cron</Badge>
-                </div>
-                <div className="space-y-1.5">
-                  {gatilhosAgendamento.map((item) => (
-                    <ItemBlocoCard
-                      key={item.type}
-                      item={item}
-                      onSelect={() => onAddNodeType(item.type)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Seção Ações & Lógica */}
-            {acoesELogica.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between px-1">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary">
-                    Ações, IA &amp; Controle de Fluxo
-                  </span>
-                  <Badge variant="success" size="xs">5 blocos</Badge>
-                </div>
-                <div className="space-y-1.5">
-                  {acoesELogica.map((item) => (
-                    <ItemBlocoCard
-                      key={item.type}
-                      item={item}
-                      onSelect={() => onAddNodeType(item.type)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
     </aside>
@@ -952,7 +1085,7 @@ const StudioNodeInspector = ({
                 placeholder="Ex: 5000 (0 para qualquer valor)"
                 className="h-10 w-full rounded-xl border border-surface-border bg-surface-subtle px-3 text-sm font-medium text-ink-primary outline-none focus:border-brand-primary"
               />
-              <FieldDescription>Dispara quando o lead for marcado como Ganho no CRM.</FieldDescription>
+              <FieldDescription>Dispara quando o cliente for marcado como Ganho no CRM.</FieldDescription>
             </Field>
 
             <div className="flex items-center justify-between gap-3 rounded-xl border border-surface-border bg-surface-subtle p-3">
@@ -995,7 +1128,7 @@ const StudioNodeInspector = ({
         {node.type === 'trigger_no_contact' && (
           <>
             <Field>
-              <FieldLabel>Dias sem contato com o lead</FieldLabel>
+              <FieldLabel>Dias sem contato com o cliente</FieldLabel>
               <input
                 type="number"
                 min={1}
@@ -1004,7 +1137,7 @@ const StudioNodeInspector = ({
                 onChange={(e) => updateField('diasSemContato', Number(e.target.value) || 1)}
                 className="h-10 w-full rounded-xl border border-surface-border bg-surface-subtle px-3 text-sm font-medium text-ink-primary outline-none focus:border-brand-primary"
               />
-              <FieldDescription>Dispara quando o lead não possui atividade há X dias.</FieldDescription>
+              <FieldDescription>Dispara quando o cliente não possui atividade há X dias.</FieldDescription>
             </Field>
 
             <div className="flex items-center justify-between gap-3 rounded-xl border border-surface-border bg-surface-subtle p-3">
@@ -1106,7 +1239,7 @@ const StudioNodeInspector = ({
                 <SelectItem value="reativacao">🔄 Reativação de Contato</SelectItem>
               </SelectContent>
             </Select>
-            <FieldDescription>Dispara quando a tag for atribuída ao lead.</FieldDescription>
+            <FieldDescription>Dispara quando a tag for atribuída ao cliente.</FieldDescription>
           </Field>
         )}
 
@@ -1216,7 +1349,7 @@ const StudioNodeInspector = ({
         {node.type === 'logic_condition' && (
           <>
             <Field>
-              <FieldLabel>Campo do Lead</FieldLabel>
+              <FieldLabel>Campo do Cliente</FieldLabel>
               <Select
                 value={cfg.campo || 'valor_estimado'}
                 onValueChange={(v) => updateField('campo', v)}
@@ -1227,8 +1360,8 @@ const StudioNodeInspector = ({
                 <SelectContent>
                   <SelectItem value="valor_estimado">Valor Estimado (R$)</SelectItem>
                   <SelectItem value="telefone">Telefone / WhatsApp</SelectItem>
-                  <SelectItem value="origem">Origem do Lead</SelectItem>
-                  <SelectItem value="score">Score do Lead</SelectItem>
+                  <SelectItem value="origem">Origem do Cliente</SelectItem>
+                  <SelectItem value="score">Score do Cliente</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
@@ -1427,21 +1560,86 @@ const WorkflowCanvas = ({
   simulacaoEstado,
 }) => {
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [selectedNodeIds, setSelectedNodeIds] = useState(new Set());
+  const [selectionBox, setSelectionBox] = useState(null);
+  const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
+
   const [zoom, setZoom] = useState(0.75);
   const [pan, setPan] = useState({ x: 96, y: 12 });
   const [conectandoOrigemId, setConectandoOrigemId] = useState(null);
   const [sidebarAdicionarAberto, setSidebarAdicionarAberto] = useState(false);
   const [addCatalogPopoverOpen, setAddCatalogPopoverOpen] = useState(false);
+  const [isDraggingOverCanvas, setIsDraggingOverCanvas] = useState(false);
 
   const dragStateRef = useRef(null);
   const panStateRef = useRef(null);
+  const canvasContainerRef = useRef(null);
 
   useEffect(() => {
     setSelectedNodeId((prev) =>
       prev && workflowAtual?.nodes?.some((n) => n.id === prev) ? prev : null
     );
+    setSelectedNodeIds((prev) => {
+      const next = new Set();
+      prev.forEach((id) => {
+        if (workflowAtual?.nodes?.some((n) => n.id === id)) next.add(id);
+      });
+      return next;
+    });
     setConectandoOrigemId(null);
   }, [workflowAtual?.id, workflowAtual?.nodes]);
+
+  // Listener global de teclado para detectar tecla Ctrl / Meta (Cmd no Mac)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Control' || e.key === 'Meta') {
+        setIsCtrlPressed(true);
+      }
+    };
+    const handleKeyUp = (e) => {
+      if (e.key === 'Control' || e.key === 'Meta') {
+        setIsCtrlPressed(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // Listener de Scroll para Zoom suave centralizado no cursor quando Ctrl estiver pressionado
+  useEffect(() => {
+    const el = canvasContainerRef.current;
+    if (!el) return;
+
+    const onWheel = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const zoomDelta = e.deltaY < 0 ? 0.08 : -0.08;
+
+        const rect = el.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        setZoom((prevZoom) => {
+          const nextZoom = Math.min(1.6, Math.max(0.4, Number((prevZoom + zoomDelta).toFixed(2))));
+
+          setPan((prevPan) => ({
+            x: Math.round(mouseX - (mouseX - prevPan.x) * (nextZoom / prevZoom)),
+            y: Math.round(mouseY - (mouseY - prevPan.y) * (nextZoom / prevZoom)),
+          }));
+
+          return nextZoom;
+        });
+      }
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
 
   if (!workflowAtual) return null;
 
@@ -1459,12 +1657,30 @@ const WorkflowCanvas = ({
   const handleNodePointerDown = (e, node) => {
     if (e.button !== 0) return;
     e.stopPropagation();
+
+    // Se o nó clicado não estava na seleção múltipla, seleciona apenas ele
+    let currentSelectedIds = selectedNodeIds;
+    if (!selectedNodeIds.has(node.id)) {
+      currentSelectedIds = new Set([node.id]);
+      setSelectedNodeIds(currentSelectedIds);
+      setSelectedNodeId(node.id);
+    } else {
+      setSelectedNodeId(node.id);
+    }
+
+    const movingNodeIds = Array.from(currentSelectedIds);
+    const initialPositions = new Map();
+    nodes.forEach((n) => {
+      if (movingNodeIds.includes(n.id)) {
+        initialPositions.set(n.id, { ...n.position });
+      }
+    });
+
     dragStateRef.current = {
-      nodeId: node.id,
+      movingNodeIds,
+      initialPositions,
       startX: e.clientX,
       startY: e.clientY,
-      originX: node.position.x,
-      originY: node.position.y,
     };
 
     const onMove = (ev) => {
@@ -1472,13 +1688,22 @@ const WorkflowCanvas = ({
       if (!ds) return;
       const dx = (ev.clientX - ds.startX) / zoom;
       const dy = (ev.clientY - ds.startY) / zoom;
-      const nextX = Math.max(20, Math.round(ds.originX + dx));
-      const nextY = Math.max(20, Math.round(ds.originY + dy));
+
       onUpdateWorkflow(workflowAtual.id, (wf) => ({
         ...wf,
-        nodes: wf.nodes.map((n) =>
-          n.id === ds.nodeId ? { ...n, position: { x: nextX, y: nextY } } : n
-        ),
+        nodes: wf.nodes.map((n) => {
+          if (ds.movingNodeIds.includes(n.id)) {
+            const initPos = ds.initialPositions.get(n.id) || n.position;
+            return {
+              ...n,
+              position: {
+                x: Math.max(20, Math.round(initPos.x + dx)),
+                y: Math.max(20, Math.round(initPos.y + dy)),
+              },
+            };
+          }
+          return n;
+        }),
       }));
     };
 
@@ -1493,25 +1718,105 @@ const WorkflowCanvas = ({
   };
 
   const handleCanvasPointerDown = (e) => {
-    if (e.button !== 0) return;
-    panStateRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      originPanX: pan.x,
-      originPanY: pan.y,
-    };
+    if (e.button !== 0 && e.button !== 1) return;
+
+    // Se Ctrl / Meta ou botão do meio: Modo Pan (Mover o Canvas)
+    if (e.ctrlKey || e.metaKey || e.button === 1) {
+      setIsPanning(true);
+      panStateRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        originPanX: pan.x,
+        originPanY: pan.y,
+      };
+
+      const onMove = (ev) => {
+        const ps = panStateRef.current;
+        if (!ps) return;
+        setPan({
+          x: Math.round(ps.originPanX + (ev.clientX - ps.startX)),
+          y: Math.round(ps.originPanY + (ev.clientY - ps.startY)),
+        });
+      };
+
+      const onUp = () => {
+        setIsPanning(false);
+        panStateRef.current = null;
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+      };
+
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      return;
+    }
+
+    // Sem Ctrl: Modo de Seleção Retangular (Marquee Selection)
+    if (!canvasContainerRef.current) return;
+    const rect = canvasContainerRef.current.getBoundingClientRect();
+    const startX = e.clientX - rect.left;
+    const startY = e.clientY - rect.top;
+
+    let hasMoved = false;
 
     const onMove = (ev) => {
-      const ps = panStateRef.current;
-      if (!ps) return;
-      setPan({
-        x: Math.round(ps.originPanX + (ev.clientX - ps.startX)),
-        y: Math.round(ps.originPanY + (ev.clientY - ps.startY)),
-      });
+      const currentX = ev.clientX - rect.left;
+      const currentY = ev.clientY - rect.top;
+
+      if (!hasMoved && (Math.abs(currentX - startX) > 4 || Math.abs(currentY - startY) > 4)) {
+        hasMoved = true;
+      }
+
+      if (hasMoved) {
+        setSelectionBox({ startX, startY, currentX, currentY });
+
+        // Coordenadas da caixa no espaço do canvas (considerando pan e zoom)
+        const boxLeft = Math.min(startX, currentX);
+        const boxRight = Math.max(startX, currentX);
+        const boxTop = Math.min(startY, currentY);
+        const boxBottom = Math.max(startY, currentY);
+
+        const worldMinX = (boxLeft - pan.x) / zoom;
+        const worldMaxX = (boxRight - pan.x) / zoom;
+        const worldMinY = (boxTop - pan.y) / zoom;
+        const worldMaxY = (boxBottom - pan.y) / zoom;
+
+        // Colisão AABB (Axis-Aligned Bounding Box) com cada nó
+        const novosSelecionados = new Set();
+        nodes.forEach((n) => {
+          const nLeft = n.position.x;
+          const nRight = n.position.x + NODE_WIDTH;
+          const nTop = n.position.y;
+          const nBottom = n.position.y + NODE_HEIGHT;
+
+          const intersecta =
+            nLeft <= worldMaxX &&
+            nRight >= worldMinX &&
+            nTop <= worldMaxY &&
+            nBottom >= worldMinY;
+
+          if (intersecta) {
+            novosSelecionados.add(n.id);
+          }
+        });
+
+        setSelectedNodeIds(novosSelecionados);
+        if (novosSelecionados.size === 1) {
+          setSelectedNodeId(Array.from(novosSelecionados)[0]);
+        } else if (novosSelecionados.size === 0) {
+          setSelectedNodeId(null);
+        }
+      }
     };
 
     const onUp = () => {
-      panStateRef.current = null;
+      if (!hasMoved) {
+        // Clique simples no canvas vazio: limpa seleção
+        setSelectedNodeId(null);
+        setSelectedNodeIds(new Set());
+        if (conectandoOrigemId) setConectandoOrigemId(null);
+      }
+      setSelectionBox(null);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
     };
@@ -1663,6 +1968,77 @@ const WorkflowCanvas = ({
     });
     setSelectedNodeId(id);
     setSidebarAdicionarAberto(false);
+  };
+
+  const adicionarItemCatalogoNaPosicao = (type, dropPos, sourceId = null) => {
+    const meta = getCatalogoNo(type);
+    const id = `n${Date.now().toString(36).slice(-4)}`;
+    const isTrigger = meta.category === 'trigger';
+
+    let anchor = null;
+    if (sourceId) {
+      anchor = nodes.find((n) => n.id === sourceId) || null;
+    }
+
+    const novoNo = {
+      id,
+      type,
+      nodeRole: isTrigger ? 'start' : 'step',
+      position: dropPos,
+      config: { ...meta.defaultConfig },
+    };
+
+    onUpdateWorkflow(workflowAtual.id, (wf) => {
+      const nextNodes = [...wf.nodes, novoNo];
+      const nextEdges = anchor
+        ? [...wf.edges, { id: `e-${anchor.id}-${id}`, source: anchor.id, target: id }]
+        : wf.edges;
+      return {
+        ...wf,
+        nodes: nextNodes,
+        edges: nextEdges,
+      };
+    });
+    setSelectedNodeId(id);
+  };
+
+  const handleCanvasDragOver = (e) => {
+    if (
+      e.dataTransfer.types.includes('application/prancheto-node-type') ||
+      e.dataTransfer.types.includes('text/plain')
+    ) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      if (!isDraggingOverCanvas) setIsDraggingOverCanvas(true);
+    }
+  };
+
+  const handleCanvasDragLeave = (e) => {
+    if (canvasContainerRef.current && canvasContainerRef.current.contains(e.relatedTarget)) {
+      return;
+    }
+    setIsDraggingOverCanvas(false);
+  };
+
+  const handleCanvasDrop = (e) => {
+    e.preventDefault();
+    setIsDraggingOverCanvas(false);
+
+    const type =
+      e.dataTransfer.getData('application/prancheto-node-type') ||
+      e.dataTransfer.getData('text/plain');
+    if (!type) return;
+
+    if (!canvasContainerRef.current) return;
+    const rect = canvasContainerRef.current.getBoundingClientRect();
+    const clientX = e.clientX - rect.left;
+    const clientY = e.clientY - rect.top;
+
+    // Converte da tela para as coordenadas do canvas (considerando pan e zoom)
+    const dropX = Math.round((clientX - pan.x) / zoom - NODE_WIDTH / 2);
+    const dropY = Math.round((clientY - pan.y) / zoom - NODE_HEIGHT / 2);
+
+    adicionarItemCatalogoNaPosicao(type, { x: dropX, y: dropY }, selectedNodeId);
   };
 
   const removerNo = (nodeId) => {
@@ -1855,17 +2231,22 @@ const WorkflowCanvas = ({
               <BadgeDot variant={workflowAtual.ativo ? 'success' : 'default'} pulse={workflowAtual.ativo} />
             </div>
 
-            {/* Botão Testar Fluxo com Lead CRM */}
-            <button
-              type="button"
-              onClick={onOpenSimuladorLead}
-              className="inline-flex items-center gap-1.5 h-8 rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-3 text-xs font-semibold text-ink-primary shadow-2xs transition-colors cursor-pointer"
-              title="Testar disparo com lead do CRM"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-brand-purple" />
-              <span className="hidden sm:inline">Testar Lead</span>
-              <span className="sm:hidden">Testar</span>
-            </button>
+            {/* Botão Testar Fluxo com Cliente CRM */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={onOpenSimuladorLead}
+                  className="inline-flex items-center gap-1.5 h-8 rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-3 text-xs font-semibold text-ink-primary shadow-2xs transition-colors cursor-pointer"
+                  aria-label="Testar disparo com cliente do CRM"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-brand-purple" />
+                  <span className="hidden sm:inline">Testar Cliente</span>
+                  <span className="sm:hidden">Testar</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Testar disparo com cliente do CRM</TooltipContent>
+            </Tooltip>
 
             {/* Botão Run / Executar */}
             <button
@@ -1886,12 +2267,20 @@ const WorkflowCanvas = ({
 
         {/* ÁREA PRINCIPAL DO CANVAS */}
         <div
+          ref={canvasContainerRef}
           onPointerDown={handleCanvasPointerDown}
-          onClick={() => {
-            setSelectedNodeId(null);
-            if (conectandoOrigemId) setConectandoOrigemId(null);
-          }}
-          className="relative flex-1 overflow-hidden bg-[#FAFBFD] dark:bg-[#0B1222] cursor-grab active:cursor-grabbing"
+          onDragOver={handleCanvasDragOver}
+          onDragLeave={handleCanvasDragLeave}
+          onDrop={handleCanvasDrop}
+          className={`relative flex-1 overflow-hidden bg-[#FAFBFD] dark:bg-[#0B1222] select-none transition-colors ${
+            isPanning
+              ? 'cursor-grabbing'
+              : isCtrlPressed
+              ? 'cursor-grab'
+              : 'cursor-default'
+          } ${
+            isDraggingOverCanvas ? 'ring-2 ring-inset ring-brand-primary/50 bg-brand-primary/5' : ''
+          }`}
           style={{
             backgroundImage:
               'radial-gradient(circle, rgba(148,163,184,0.34) 1px, transparent 1px)',
@@ -1899,7 +2288,69 @@ const WorkflowCanvas = ({
             backgroundPosition: `${pan.x}px ${pan.y}px`,
           }}
         >
-          {/* BOTÃO FLUTUANTE NO CANTO SUPERIOR DIREITO (PRANCHETINHO FAVICON + DRAWER) */}
+          {/* Caixa de Seleção Retangular (Marquee Selection) */}
+          {selectionBox && (
+            <div
+              className="absolute pointer-events-none z-30 border border-brand-primary bg-brand-primary/15 rounded-xs shadow-xs backdrop-blur-[0.5px]"
+              style={{
+                left: Math.min(selectionBox.startX, selectionBox.currentX),
+                top: Math.min(selectionBox.startY, selectionBox.currentY),
+                width: Math.abs(selectionBox.currentX - selectionBox.startX),
+                height: Math.abs(selectionBox.currentY - selectionBox.startY),
+              }}
+            />
+          )}
+
+          {/* Badge Indicador de Seleção Múltipla */}
+          {selectedNodeIds.size > 1 && (
+            <div className="absolute top-4 left-4 z-30 flex items-center gap-2 rounded-xl border border-brand-primary/40 bg-surface-card/95 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-ink-primary shadow-lg animate-in fade-in">
+              <Badge variant="violet" size="xs">
+                {selectedNodeIds.size} blocos selecionados
+              </Badge>
+              <span className="text-[11px] text-ink-muted">
+                Arraste qualquer um para mover o grupo
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedNodeIds(new Set());
+                  setSelectedNodeId(null);
+                }}
+                className="text-[10px] text-ink-secondary hover:text-ink-primary underline ml-1 cursor-pointer"
+              >
+                Desmarcar
+              </button>
+            </div>
+          )}
+
+          {/* Dica de Navegação e Atalhos Ctrl no Rodapé */}
+          <div className="absolute bottom-4 left-4 z-20 pointer-events-none hidden sm:flex items-center gap-1.5 rounded-full border border-surface-border/80 bg-surface-card/90 backdrop-blur-md px-3 py-1 text-[11px] text-ink-secondary shadow-xs">
+            <span className="font-semibold text-ink-primary">Dica:</span>
+            <span>Arraste no canvas para selecionar</span>
+            <span className="text-ink-muted">·</span>
+            <span className="inline-flex items-center gap-1">
+              <kbd className="px-1.5 py-0.2 rounded border border-surface-border bg-surface-subtle font-mono text-[10px] text-ink-primary font-bold">
+                Ctrl
+              </kbd>
+              <span>+ Arrastar para mover</span>
+            </span>
+            <span className="text-ink-muted">·</span>
+            <span className="inline-flex items-center gap-1">
+              <kbd className="px-1.5 py-0.2 rounded border border-surface-border bg-surface-subtle font-mono text-[10px] text-ink-primary font-bold">
+                Ctrl
+              </kbd>
+              <span>+ Scroll para zoom</span>
+            </span>
+          </div>
+
+          {/* Banner indicador de Drag & Drop sobre o canvas */}
+          {isDraggingOverCanvas && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center gap-2 rounded-full border border-brand-primary/40 bg-brand-primary/95 text-white px-4 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md">
+              <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              Solte para posicionar o bloco no fluxo
+            </div>
+          )}
+          {/* BOTÃO FLUTUANTE NO CANTO SUPERIOR DIREITO (+ / DRAWER ESTILO N8N) */}
           <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -1912,29 +2363,19 @@ const WorkflowCanvas = ({
                   className={`group relative flex h-11 w-11 items-center justify-center rounded-2xl border shadow-lg transition-all cursor-pointer ${
                     sidebarAdicionarAberto
                       ? 'border-brand-primary bg-[#0B132B] text-white dark:bg-brand-purple scale-105 shadow-brand-primary/20'
-                      : 'border-surface-border bg-surface-card/95 backdrop-blur-md text-ink-primary hover:border-brand-secondary/60 hover:shadow-brand-secondary/20 hover:scale-105'
+                      : 'border-surface-border bg-surface-card/95 backdrop-blur-md text-ink-primary hover:border-brand-primary hover:text-brand-primary dark:hover:text-[#7DD3FC] hover:shadow-brand-primary/20 hover:scale-105'
                   }`}
                   aria-label="Adicionar bloco ou gatilho"
                 >
                   {sidebarAdicionarAberto ? (
                     <X className="w-5 h-5 text-white transition-transform duration-200" />
                   ) : (
-                    <>
-                      <img
-                        src={pranchetinhoFavicon}
-                        alt="Pranchetinho"
-                        className="w-6 h-6 object-contain select-none transition-transform duration-200 group-hover:scale-110 pointer-events-none"
-                        draggable={false}
-                      />
-                      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-primary text-white text-[10px] font-bold shadow-2xs">
-                        <Plus className="w-2.5 h-2.5 stroke-[3]" />
-                      </span>
-                    </>
+                    <Plus className="w-5 h-5 stroke-[2.2] transition-transform duration-200 group-hover:rotate-90 text-ink-primary group-hover:text-brand-primary dark:group-hover:text-[#7DD3FC]" />
                   )}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="left">
-                {sidebarAdicionarAberto ? 'Fechar catálogo' : 'Adicionar Gatilhos e Ações (+)'}
+                {sidebarAdicionarAberto ? 'Fechar catálogo' : 'Adicionar Bloco (+)'}
               </TooltipContent>
             </Tooltip>
           </div>
@@ -2044,10 +2485,13 @@ const WorkflowCanvas = ({
               <StudioNodeCard
                 key={node.id}
                 node={node}
-                selecionado={selectedNodeId === node.id}
+                selecionado={selectedNodeId === node.id || selectedNodeIds.has(node.id)}
                 statusSimulacao={simulacaoEstado.nosStatus[node.id]}
                 conectandoOrigemId={conectandoOrigemId}
-                onSelect={setSelectedNodeId}
+                onSelect={(id) => {
+                  setSelectedNodeId(id);
+                  setSelectedNodeIds(new Set([id]));
+                }}
                 onPointerDownDrag={handleNodePointerDown}
                 onInsertBelow={adicionarPassoAbaixo}
                 onAddBranch={adicionarRamoParalelo}
@@ -2144,7 +2588,7 @@ const WorkflowCanvas = ({
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    title="Adicionar novo bloco ao fluxo"
+                    aria-label="Adicionar novo bloco ao fluxo"
                     className="rounded-lg p-1.5 text-ink-secondary hover:bg-surface-hover hover:text-brand-secondary transition-colors cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -2203,14 +2647,17 @@ const WorkflowCanvas = ({
             onClearSelectedNode={() => setSelectedNodeId(null)}
           />
 
-          {/* INSPETOR FLUTUANTE DIREITO (visível quando o menu de adicionar não estiver ativo) */}
-          {selectedNode && !sidebarAdicionarAberto && (
+          {/* INSPETOR FLUTUANTE DIREITO (visível quando o menu de adicionar não estiver ativo e apenas 1 nó selecionado) */}
+          {selectedNode && !sidebarAdicionarAberto && selectedNodeIds.size <= 1 && (
             <StudioNodeInspector
               node={selectedNode}
               conexoes={conexoes}
               leadPreview={leadPreview}
               onChangeConfig={atualizarConfigNo}
-              onClose={() => setSelectedNodeId(null)}
+              onClose={() => {
+                setSelectedNodeId(null);
+                setSelectedNodeIds(new Set());
+              }}
               onDeleteNode={removerNo}
             />
           )}

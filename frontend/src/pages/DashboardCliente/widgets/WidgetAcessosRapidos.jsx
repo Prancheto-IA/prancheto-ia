@@ -17,7 +17,7 @@ import {
 
 const ATALHOS = [
   {
-    label: 'CRM Leads',
+    label: 'CRM Clientes',
     rota: '/crm/leads',
     icone: <HugeiconsIcon icon={UserMultiple02Icon} size={20} strokeWidth={1.8} className="text-brand-primary dark:text-[#7DD3FC]" />,
   },

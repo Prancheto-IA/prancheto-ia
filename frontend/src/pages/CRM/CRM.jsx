@@ -12,6 +12,7 @@ import { supabase } from '../../lib/supabase.js';
 import { NOME_PRODUTO } from '../../lib/ambiente.js';
 import { useCamposCustom, FUNIL_LEAD, funilInfo, normalizarEtapaFunil } from '../../hooks/useCRM.js';
 import { SelectField } from '@/components/ui/select';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 
 // ─── Constantes ────────────────────────────────────────────────
 const FUNIL = FUNIL_LEAD;
@@ -38,19 +39,25 @@ const BadgeScore = ({ score }) => {
   if (score == null) return null;
   const s = Number(score);
   if (s >= 70) return (
-    <span className="text-sm px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#ef444422', color: '#ef4444' }} title={`Score: ${s}`}>
-      🔥 {s}
-    </span>
+    <SimpleTooltip content={`Score: ${s} (Quente)`}>
+      <span className="text-sm px-1.5 py-0.5 rounded-full font-medium cursor-default" style={{ backgroundColor: '#ef444422', color: '#ef4444' }}>
+        🔥 {s}
+      </span>
+    </SimpleTooltip>
   );
   if (s >= 30) return (
-    <span className="text-sm px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#f59e0b22', color: '#f59e0b' }} title={`Score: ${s}`}>
-      🌡️ {s}
-    </span>
+    <SimpleTooltip content={`Score: ${s} (Morno)`}>
+      <span className="text-sm px-1.5 py-0.5 rounded-full font-medium cursor-default" style={{ backgroundColor: '#f59e0b22', color: '#f59e0b' }}>
+        🌡️ {s}
+      </span>
+    </SimpleTooltip>
   );
   return (
-    <span className="text-sm px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#94a3b822', color: '#94a3b8' }} title={`Score: ${s}`}>
-      ❄️ {s}
-    </span>
+    <SimpleTooltip content={`Score: ${s} (Frio)`}>
+      <span className="text-sm px-1.5 py-0.5 rounded-full font-medium cursor-default" style={{ backgroundColor: '#94a3b822', color: '#94a3b8' }}>
+        ❄️ {s}
+      </span>
+    </SimpleTooltip>
   );
 };
 
@@ -332,12 +339,18 @@ const PainelContato = ({ contato, onFechar, onEditar, onExcluir, onMudarStatus }
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0 ml-3">
-            <button onClick={() => onEditar(contato)}
-              className="text-muted hover:text-primary-400 transition-colors text-sm" title="Editar">✏️</button>
-            <button onClick={() => onExcluir(contato.id)}
-              className="text-muted hover:text-red-400 transition-colors text-sm" title="Excluir">🗑️</button>
-            <button onClick={onFechar}
-              className="text-muted hover:text-white transition-colors text-lg ml-1">✕</button>
+            <SimpleTooltip content="Editar Contato">
+              <button onClick={() => onEditar(contato)}
+                className="text-muted hover:text-primary-400 transition-colors text-sm cursor-pointer">✏️</button>
+            </SimpleTooltip>
+            <SimpleTooltip content="Excluir Contato">
+              <button onClick={() => onExcluir(contato.id)}
+                className="text-muted hover:text-red-400 transition-colors text-sm cursor-pointer">🗑️</button>
+            </SimpleTooltip>
+            <SimpleTooltip content="Fechar painel">
+              <button onClick={onFechar}
+                className="text-muted hover:text-white transition-colors text-lg ml-1 cursor-pointer">✕</button>
+            </SimpleTooltip>
           </div>
         </div>
 
@@ -536,12 +549,16 @@ const CardContato = ({ contato, onAbrir, onEditar, onExcluir, excluindo }) => (
           R$ {Number(contato.valor_estimado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </span>
       )}
-      <button onClick={() => onEditar(contato)}
-        className="text-muted hover:text-primary-400 transition-colors text-sm p-1" title="Editar">✏️</button>
-      <button onClick={() => onExcluir(contato.id)} disabled={excluindo === contato.id}
-        className="text-muted hover:text-red-400 transition-colors text-sm p-1 disabled:opacity-50" title="Excluir">
-        {excluindo === contato.id ? '⏳' : '🗑️'}
-      </button>
+      <SimpleTooltip content="Editar Contato">
+        <button onClick={() => onEditar(contato)}
+          className="text-muted hover:text-primary-400 transition-colors text-sm p-1 cursor-pointer">✏️</button>
+      </SimpleTooltip>
+      <SimpleTooltip content="Excluir Contato">
+        <button onClick={() => onExcluir(contato.id)} disabled={excluindo === contato.id}
+          className="text-muted hover:text-red-400 transition-colors text-sm p-1 disabled:opacity-50 cursor-pointer">
+          {excluindo === contato.id ? '⏳' : '🗑️'}
+        </button>
+      </SimpleTooltip>
     </div>
   </div>
 );
@@ -662,17 +679,21 @@ const PaginaCRM = () => {
           <span className="text-sm px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-300 border border-primary-500/30">CRM</span>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={alternarTema}
-            className="text-muted hover:text-white transition-colors text-lg" title="Alternar tema">
-            {temaEscuro ? '☀️' : '🌙'}
-          </button>
+          <SimpleTooltip content="Alternar tema">
+            <button onClick={alternarTema}
+              className="text-muted hover:text-white transition-colors text-lg cursor-pointer">
+              {temaEscuro ? '☀️' : '🌙'}
+            </button>
+          </SimpleTooltip>
           <span className="text-sm hidden sm:block" style={{ color: 'var(--color-text-secondary)' }}>
             {usuario?.nome?.split(' ')[0] || 'Usuário'}
           </span>
-          <button onClick={logout}
-            className="text-muted hover:text-red-400 transition-colors text-lg" title="Sair">
-            🚪
-          </button>
+          <SimpleTooltip content="Sair do sistema">
+            <button onClick={logout}
+              className="text-muted hover:text-red-400 transition-colors text-lg cursor-pointer">
+              🚪
+            </button>
+          </SimpleTooltip>
         </div>
       </header>
 
@@ -683,7 +704,7 @@ const PaginaCRM = () => {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink-primary">
-              CRM — Contatos & Leads
+              CRM — Contatos & Clientes
             </h1>
             <p className="text-sm text-ink-secondary font-medium mt-0.5">
               {totalContatos} contato{totalContatos !== 1 ? 's' : ''}

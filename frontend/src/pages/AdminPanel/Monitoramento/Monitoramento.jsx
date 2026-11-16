@@ -20,6 +20,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase.js';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 
 // =============================================================
 // CONSTANTES
@@ -507,27 +508,23 @@ const Monitoramento = () => {
                       day: '2-digit', month: '2-digit',
                     });
                     return (
-                      <div key={d.dia} className="flex-1 flex flex-col items-center gap-1 group">
-                        <div className="relative w-full flex flex-col items-center justify-end" style={{ height: '80px' }}>
-                          {/* Tooltip */}
-                          <div className="absolute bottom-full mb-1 hidden group-hover:flex flex-col items-center z-10">
-                            <div className="bg-primary-900 border border-primary-700 rounded px-2 py-1 text-sm text-white whitespace-nowrap">
-                              {d.total} eventos · {errosDia} erros
-                            </div>
-                          </div>
-                          {/* Barra de erros */}
-                          {errosDia > 0 && (
+                      <div key={d.dia} className="flex-1 flex flex-col items-center gap-1">
+                        <SimpleTooltip content={`${d.total} eventos · ${errosDia} erros`} side="top">
+                          <div className="relative w-full flex flex-col items-center justify-end cursor-pointer" style={{ height: '80px' }}>
+                            {/* Barra de erros */}
+                            {errosDia > 0 && (
+                              <div
+                                className="w-full bg-red-500/60 rounded-t"
+                                style={{ height: `${Math.max(4, Math.round((errosDia / Math.max(d.total, 1)) * altura))}px` }}
+                              />
+                            )}
+                            {/* Barra principal */}
                             <div
-                              className="w-full bg-red-500/60 rounded-t"
-                              style={{ height: `${Math.max(4, Math.round((errosDia / Math.max(d.total, 1)) * altura))}px` }}
+                              className="w-full bg-primary-500 rounded-t transition-all duration-300"
+                              style={{ height: `${altura - (errosDia > 0 ? Math.max(4, Math.round((errosDia / Math.max(d.total, 1)) * altura)) : 0)}px` }}
                             />
-                          )}
-                          {/* Barra principal */}
-                          <div
-                            className="w-full bg-primary-500 rounded-t transition-all duration-300"
-                            style={{ height: `${altura - (errosDia > 0 ? Math.max(4, Math.round((errosDia / Math.max(d.total, 1)) * altura)) : 0)}px` }}
-                          />
-                        </div>
+                          </div>
+                        </SimpleTooltip>
                         <span className="text-muted text-sm">{dataFormatada}</span>
                       </div>
                     );

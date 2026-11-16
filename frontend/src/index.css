@@ -992,7 +992,7 @@ html.dark textarea::placeholder {
    BOTÃO FLUTUANTE DO AGENTE DE IA (PRANCHETINHO)
    ============================================================= */
 
-/* 1. Wrapper fixo no canto inferior direito que agrupa a bolha e o botão X */
+/* 1. Wrapper fixo no canto inferior direito que agrupa a bolha, a sombra e o botão X */
 .botao-flutuante-ia-wrapper {
   position: fixed;
   bottom: 24px;
@@ -1000,6 +1000,85 @@ html.dark textarea::placeholder {
   z-index: 70;
   width: 62px;
   height: 62px;
+  pointer-events: auto;
+}
+
+/* Sombra de chão suave e reativa à flutuação */
+.botao-flutuante-ia-sombra {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) scale(1);
+  width: 46px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(14, 56, 44, 0.40) 0%, rgba(115, 56, 242, 0.20) 50%, transparent 75%);
+  filter: blur(2.5px);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+  will-change: transform, opacity;
+  animation: sombraBouncingBolha 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+html.dark .botao-flutuante-ia-sombra {
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(56, 189, 248, 0.30) 50%, transparent 75%);
+}
+
+/* Corpo flutuante com efeito nítido e vivo de bouncing e flutuação em idle */
+.botao-flutuante-ia-corpo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  will-change: transform;
+  animation: flutuarBouncingBolha 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Quando o chat estiver aberto, o botão se fixa no chão de forma estável */
+.botao-flutuante-ia-wrapper.chat-aberto .botao-flutuante-ia-corpo,
+.botao-flutuante-ia-wrapper.chat-aberto .botao-flutuante-ia-sombra {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Keyframes de flutuação e bouncing dinâmico e visível em idle */
+@keyframes flutuarBouncingBolha {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+  }
+  45% {
+    transform: translateY(-13px);
+    animation-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+  }
+  75% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.2, 1.3, 0.4, 1);
+  }
+  88% {
+    transform: translateY(-3.5px);
+    animation-timing-function: ease-in-out;
+  }
+}
+
+@keyframes sombraBouncingBolha {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.7;
+  }
+  45% {
+    transform: translateX(-50%) scale(0.65);
+    opacity: 0.22;
+  }
+  75% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.7;
+  }
+  88% {
+    transform: translateX(-50%) scale(0.85);
+    opacity: 0.48;
+  }
 }
 
 /* Container circular com overflow: hidden */
@@ -1029,7 +1108,7 @@ html.dark textarea::placeholder {
 }
 
 .botao-flutuante-ia-wrapper:hover .botao-flutuante-ia {
-  transform: translateY(-3px) scale(1.06);
+  transform: scale(1.06);
   border-color: rgba(115, 56, 242, 0.35);
   box-shadow:
     0 16px 32px -6px rgba(0, 13, 61, 0.28),
@@ -1037,7 +1116,7 @@ html.dark textarea::placeholder {
 }
 
 .botao-flutuante-ia:active {
-  transform: translateY(-1px) scale(0.98);
+  transform: scale(0.96);
 }
 
 .botao-flutuante-ia:focus-visible {
@@ -1074,7 +1153,7 @@ html.dark .botao-flutuante-ia:focus-visible {
   position: absolute;
   top: -6px;
   right: -6px;
-  z-index: 2;
+  z-index: 3;
   width: 22px;
   height: 22px;
   padding: 0;

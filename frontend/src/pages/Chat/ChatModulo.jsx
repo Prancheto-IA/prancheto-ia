@@ -73,7 +73,7 @@ const COLEGAS_DEMO = [
 const GRUPOS_DEMO = [
   { id: 'grp-1', nome: 'Equipe de Marketing', descricao: 'Campanhas, briefings e métricas de tráfego', totalMembros: 24, tempo: '1 min', ultimaMsg: 'Wade: O que precisamos fazer para iniciar?', unread: 1, fixado: true, etiquetas: ['projetos'] },
   { id: 'grp-2', nome: 'Design & UX/UI', descricao: 'Alinhamento visual e protótipos Figma', totalMembros: 8, tempo: '15 min', ultimaMsg: 'Vou dar uma olhada na prancha hoje.', unread: 0, fixado: false, etiquetas: ['projetos'] },
-  { id: 'grp-3', nome: 'Comercial & Vendas', descricao: 'Negociações de alto valor e leads quentes', totalMembros: 12, tempo: '2h', ultimaMsg: 'Meta da semana batida com sucesso!', unread: 0, fixado: false, etiquetas: ['clientes'] },
+  { id: 'grp-3', nome: 'Comercial & Vendas', descricao: 'Negociações de alto valor e clientes quentes', totalMembros: 12, tempo: '2h', ultimaMsg: 'Meta da semana batida com sucesso!', unread: 0, fixado: false, etiquetas: ['clientes'] },
 ];
 
 // Configuração das Etiquetas de Filtro do Chat

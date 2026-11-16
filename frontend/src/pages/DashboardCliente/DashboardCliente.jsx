@@ -42,7 +42,7 @@ const DashboardCliente = () => {
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-[#111915] tracking-tight truncate">
-              {saudacao()}, {primeiroNome}!
+              {saudacao()}, Chefe {primeiroNome}!
             </h1>
             <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-semibold ${badgeCargo.bg} ${badgeCargo.text}`}>
               {badgeCargo.label}
@@ -98,7 +98,7 @@ const DashboardCliente = () => {
             <span className="text-[10px] bg-brand-purple dark:bg-[#818CF8]/25 dark:border dark:border-[#818CF8]/40 text-white dark:text-[#E0E7FF] px-2.5 py-0.5 rounded-full font-bold">8 Novos</span>
           </div>
           <div className="text-xl font-bold">R$ 48.500,00</div>
-          <p className="text-sm text-white/85 dark:text-slate-300 truncate mt-1">Leads qualificados em negociação</p>
+          <p className="text-sm text-white/85 dark:text-slate-300 truncate mt-1">Clientes qualificados em negociação</p>
         </div>
 
         {/* Card 4: Azul Escuro Stats (#001769) */}

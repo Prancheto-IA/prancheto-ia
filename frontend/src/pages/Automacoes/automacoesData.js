@@ -12,7 +12,7 @@ export const STORAGE_KEY_CONEXOES  = 'prancheto_automacoes_conexoes_v1';
 export const STORAGE_KEY_LOGS      = 'prancheto_automacoes_logs_v1';
 
 export const VARIAVEIS_DISPONIVEIS = [
-  { token: '{{lead.nome}}',           label: 'Nome do Lead',          exemplo: 'Mariana Costa' },
+  { token: '{{lead.nome}}',           label: 'Nome do Cliente',       exemplo: 'Mariana Costa' },
   { token: '{{lead.empresa}}',        label: 'Empresa',               exemplo: 'Vértice Arquitetura' },
   { token: '{{lead.valor_estimado}}', label: 'Valor do Negócio',      exemplo: 'R$ 18.500,00' },
   { token: '{{etapa.anterior}}',      label: 'Etapa Anterior',        exemplo: 'Chamei' },
@@ -77,11 +77,11 @@ export const CATALOGO_NOS = [
     grupo: 'fase1',
     nodeRole: 'start',
     phaseLabel: 'Gatilho · Funil',
-    title: 'Lead Movido de Etapa',
-    shortDesc: 'Dispara quando o lead avança ou recua no funil CRM',
+    title: 'Cliente Movido de Etapa',
+    shortDesc: 'Dispara quando o cliente avança ou recua no funil CRM',
     meshGradient: MESH_GRADIENTS.brand,
     defaultConfig: {
-      customTitle: 'Lead Movido de Etapa (CRM)',
+      customTitle: 'Cliente Movido de Etapa (CRM)',
       phaseLabel: 'Gatilho Inicial',
       meshKey: 'brand',
       etapaOrigem: 'qualquer',
@@ -95,11 +95,11 @@ export const CATALOGO_NOS = [
     grupo: 'fase1',
     nodeRole: 'start',
     phaseLabel: 'Gatilho · Entrada',
-    title: 'Novo Lead Criado',
-    shortDesc: 'Dispara imediatamente na entrada de um novo lead',
+    title: 'Novo Cliente Criado',
+    shortDesc: 'Dispara imediatamente na entrada de um novo cliente',
     meshGradient: MESH_GRADIENTS.aurora,
     defaultConfig: {
-      customTitle: 'Novo Lead no CRM',
+      customTitle: 'Novo Cliente no CRM',
       phaseLabel: 'Gatilho Inicial',
       meshKey: 'aurora',
       origem: 'qualquer',
@@ -112,7 +112,7 @@ export const CATALOGO_NOS = [
     grupo: 'fase1',
     nodeRole: 'start',
     phaseLabel: 'Gatilho · Sucesso',
-    title: 'Lead Ganho / Fechado',
+    title: 'Cliente Ganho / Fechado',
     shortDesc: 'Dispara quando o negócio é marcado como Ganho / Venda realizada',
     meshGradient: MESH_GRADIENTS.emerald,
     defaultConfig: {
@@ -129,11 +129,11 @@ export const CATALOGO_NOS = [
     grupo: 'fase1',
     nodeRole: 'start',
     phaseLabel: 'Gatilho · Arquivado',
-    title: 'Lead Perdido / Desqualificado',
-    shortDesc: 'Dispara quando o lead é desqualificado ou marcado como perdido',
+    title: 'Cliente Perdido / Desqualificado',
+    shortDesc: 'Dispara quando o cliente é desqualificado ou marcado como perdido',
     meshGradient: MESH_GRADIENTS.rose,
     defaultConfig: {
-      customTitle: 'Lead Perdido / Arquivado',
+      customTitle: 'Cliente Perdido / Arquivado',
       phaseLabel: 'Gatilho · Reengajamento',
       meshKey: 'rose',
       motivoPerda: 'todos',
@@ -147,8 +147,8 @@ export const CATALOGO_NOS = [
     grupo: 'fase2',
     nodeRole: 'start',
     phaseLabel: 'Gatilho · SLA',
-    title: 'Lead Parado na Etapa',
-    shortDesc: 'Dispara se o lead ficar parado por mais de X horas na etapa',
+    title: 'Cliente Parado na Etapa',
+    shortDesc: 'Dispara se o cliente ficar parado por mais de X horas na etapa',
     meshGradient: MESH_GRADIENTS.amber,
     defaultConfig: {
       customTitle: 'Monitor de Parada na Etapa',
@@ -164,7 +164,7 @@ export const CATALOGO_NOS = [
     grupo: 'fase2',
     nodeRole: 'start',
     phaseLabel: 'Gatilho · Inatividade',
-    title: 'Sem Contato com o Lead',
+    title: 'Sem Contato com o Cliente',
     shortDesc: 'Dispara após X dias sem nenhuma mensagem ou atividade',
     meshGradient: MESH_GRADIENTS.sunset,
     defaultConfig: {
@@ -215,11 +215,11 @@ export const CATALOGO_NOS = [
     grupo: 'fase2',
     nodeRole: 'start',
     phaseLabel: 'Gatilho · Tag',
-    title: 'Tag Adicionada ao Lead',
+    title: 'Tag Adicionada ao Cliente',
     shortDesc: 'Dispara quando uma tag específica (ex: VIP, Urgente) é atribuída',
     meshGradient: MESH_GRADIENTS.magenta,
     defaultConfig: {
-      customTitle: 'Tag Atribuída ao Lead',
+      customTitle: 'Tag Atribuída ao Cliente',
       phaseLabel: 'Gatilho · Segmentação',
       meshKey: 'magenta',
       tag: 'vip',
@@ -252,7 +252,7 @@ export const CATALOGO_NOS = [
     nodeRole: 'step',
     phaseLabel: 'Fase IA · Personalização',
     title: 'Pranchetinho IA · Copy',
-    shortDesc: 'Personaliza a abordagem com contexto do lead',
+    shortDesc: 'Personaliza a abordagem com contexto do cliente',
     meshGradient: MESH_GRADIENTS.magenta,
     defaultConfig: {
       customTitle: 'Definição de Tom & Copy IA',
@@ -269,7 +269,7 @@ export const CATALOGO_NOS = [
     nodeRole: 'step',
     phaseLabel: 'Fase · Condição IF',
     title: 'Condição IF / Filtro',
-    shortDesc: 'Valida valor estimado, telefone ou origem do lead',
+    shortDesc: 'Valida valor estimado, telefone ou origem do cliente',
     meshGradient: MESH_GRADIENTS.sunset,
     defaultConfig: {
       customTitle: 'Filtro de Ticket >= R$ 5.000',
@@ -321,7 +321,7 @@ export const CATALOGO_NOS = [
     nodeRole: 'step',
     phaseLabel: 'Ação · CRM',
     title: 'Registrar Follow-up CRM',
-    shortDesc: 'Cria tarefa ou interação automática no card do lead',
+    shortDesc: 'Cria tarefa ou interação automática no card do cliente',
     meshGradient: MESH_GRADIENTS.cyan,
     defaultConfig: {
       customTitle: 'Sincronizar Timeline CRM',
@@ -359,7 +359,7 @@ export const resumirConfigNo = (node) => {
     case 'trigger_inactivity':
       return `${cfg.horasSemResposta || 24}h parado em ${funilInfo(cfg.etapaAlvo || 'chamar_novamente').label}`;
     case 'trigger_no_contact':
-      return `${cfg.diasSemContato || 3} dias sem interação com o lead`;
+      return `${cfg.diasSemContato || 3} dias sem interação com o cliente`;
     case 'trigger_meeting_scheduled':
       return `Reunião agendada (${cfg.tipoReuniao === 'online' ? 'Online' : cfg.tipoReuniao === 'presencial' ? 'Presencial' : 'Call'})`;
     case 'trigger_meeting_reminder':
@@ -590,7 +590,7 @@ export const WORKFLOWS_INICIAIS = [
         nodeRole: 'start',
         position: { x: 462, y: 42 },
         config: {
-          customTitle: 'Lead Movido para Chamar Novamente (.CRM)',
+          customTitle: 'Cliente Movido para Chamar Novamente (.CRM)',
           phaseLabel: 'Gatilho Inicial',
           meshKey: 'brand',
           etapaOrigem: 'chamei',
@@ -684,7 +684,7 @@ export const WORKFLOWS_INICIAIS = [
           conexaoId: 'meta-oficial',
           tipoEnvio: 'texto',
           mensagem:
-            '🔥 Lead estratégico *{{lead.nome}}* ({{lead.empresa}} · {{lead.valor_estimado}}) movido para *{{etapa.nova}}*!',
+            '🔥 Cliente estratégico *{{lead.nome}}* ({{lead.empresa}} · {{lead.valor_estimado}}) movido para *{{etapa.nova}}*!',
         },
       },
       {
@@ -693,7 +693,7 @@ export const WORKFLOWS_INICIAIS = [
         nodeRole: 'step',
         position: { x: 942, y: 426 },
         config: {
-          customTitle: 'Enriquecer Dados do Lead',
+          customTitle: 'Enriquecer Dados do Cliente',
           phaseLabel: 'Fase 2 / Ramo 2 / Ramo 2.2',
           meshKey: 'amber',
           tipo: 'nota',
@@ -765,7 +765,7 @@ export const WORKFLOWS_INICIAIS = [
     id: 'wf-qualificacao-boas-vindas',
     nome: 'Boas-vindas Chamei → WhatsApp',
     descricao:
-      'Quando o lead avança para Chamei, valida telefone e dispara boas-vindas personalizadas.',
+      'Quando o cliente avança para Chamei, valida telefone e dispara boas-vindas personalizadas.',
     ativo: true,
     categoria: 'Primeiro Contato',
     execucoesTotal: 194,
@@ -950,7 +950,7 @@ export const LOGS_INICIAIS = [
     mensagemEnviada:
       'Oi Mariana Costa! 📄 Acabamos de liberar a proposta da *Vértice Arquitetura* (R$ 18.500,00).\n\nPreparamos uma condição especial válida até sexta-feira para agilizar a implantação.',
     passos: [
-      { id: 's1', titulo: 'Lead Movido para Chamar Novamente (.CRM)', status: 'ok', tempoMs: 45, detalhe: 'Chamei → Chamar Novamente' },
+      { id: 's1', titulo: 'Cliente Movido para Chamar Novamente (.CRM)', status: 'ok', tempoMs: 45, detalhe: 'Chamei → Chamar Novamente' },
       { id: 's2', titulo: 'Definição Visual & Tom com IA', status: 'ok', tempoMs: 310, detalhe: 'Tom consultivo selecionado' },
       { id: 's4', titulo: 'Enviar Proposta no WhatsApp', status: 'ok', tempoMs: 620, detalhe: 'Entregue · ID wamid.HBgMNTUxMT...' },
       { id: 's6', titulo: 'Filtro de Ticket >= R$ 5.000', status: 'ok', tempoMs: 18, detalhe: 'R$ 18.500 >= R$ 5.000 (Verdadeiro)' },
@@ -993,7 +993,7 @@ export const LOGS_INICIAIS = [
     mensagemEnviada:
       'Não enviada — sessão WhatsApp aguardando nova leitura de QR Code na Evolution API.',
     passos: [
-      { id: 'n1', titulo: 'Lead Movido de Etapa', status: 'ok', tempoMs: 32, detalhe: 'Não Chamei → Chamei' },
+      { id: 'n1', titulo: 'Cliente Movido de Etapa', status: 'ok', tempoMs: 32, detalhe: 'Não Chamei → Chamei' },
       { id: 'n2', titulo: 'Condição IF / Filtro', status: 'ok', tempoMs: 18, detalhe: 'telefone != vazio (Verdadeiro)' },
       { id: 'n4', titulo: 'Enviar WhatsApp', status: 'erro', tempoMs: 490, detalhe: 'Erro 503: Sessão Evolution API temporariamente offline' },
     ],

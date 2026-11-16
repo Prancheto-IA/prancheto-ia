@@ -26,6 +26,7 @@ import {
   SparklesIcon,
   Mic01Icon,
 } from '@hugeicons/core-free-icons';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 
 const PainelChatFlutuante = ({ onFechar, style }) => {
   const navigate = useNavigate();
@@ -131,32 +132,38 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
 
         {/* Ações do cabeçalho */}
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={novaConversa}
-            title="Nova conversa"
-            className="p-1.5 rounded-xl text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
-          >
-            <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.8} />
-          </button>
+          <SimpleTooltip content="Nova conversa" side="bottom">
+            <button
+              type="button"
+              onClick={novaConversa}
+              aria-label="Nova conversa"
+              className="p-1.5 rounded-xl text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
+            >
+              <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.8} />
+            </button>
+          </SimpleTooltip>
 
-          <button
-            type="button"
-            onClick={abrirChatCompleto}
-            title="Abrir em tela cheia"
-            className="p-1.5 rounded-xl text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
-          >
-            <HugeiconsIcon icon={ArrowUpRight01Icon} size={18} strokeWidth={1.8} />
-          </button>
+          <SimpleTooltip content="Abrir em tela cheia" side="bottom">
+            <button
+              type="button"
+              onClick={abrirChatCompleto}
+              aria-label="Abrir em tela cheia"
+              className="p-1.5 rounded-xl text-ink-secondary hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
+            >
+              <HugeiconsIcon icon={ArrowUpRight01Icon} size={18} strokeWidth={1.8} />
+            </button>
+          </SimpleTooltip>
 
-          <button
-            type="button"
-            onClick={onFechar}
-            title="Fechar assistente"
-            className="p-1.5 rounded-xl text-ink-muted hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
-          >
-            <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
-          </button>
+          <SimpleTooltip content="Fechar assistente" side="bottom">
+            <button
+              type="button"
+              onClick={onFechar}
+              aria-label="Fechar assistente"
+              className="p-1.5 rounded-xl text-ink-muted hover:text-ink-primary hover:bg-surface-subtle transition-colors cursor-pointer"
+            >
+              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
+            </button>
+          </SimpleTooltip>
         </div>
       </div>
 
@@ -186,7 +193,7 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
               Olá! Como posso te ajudar hoje?
             </h4>
             <p className="text-sm text-ink-secondary max-w-xs mb-5 leading-relaxed">
-              Consulte seu funil de vendas, adicione novos leads ou registre tarefas usando linguagem natural.
+              Consulte seu funil de vendas, adicione novos clientes ou registre tarefas usando linguagem natural.
             </p>
 
             <div className="w-full space-y-2">
@@ -296,26 +303,28 @@ const PainelChatFlutuante = ({ onFechar, style }) => {
               className="flex-1 bg-surface-subtle border border-surface-border focus:border-brand-primary text-ink-primary rounded-2xl px-4 py-2.5 text-sm placeholder:text-ink-muted focus:outline-none focus:bg-surface-card transition-all shadow-2xs disabled:opacity-50"
             />
             {vozSuportada && (
-              <button
-                type="button"
-                onClick={alternarEscuta}
-                disabled={enviando}
-                title="Falar comando por voz"
-                aria-label="Falar comando por voz"
-                className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all cursor-pointer bg-surface-subtle border border-surface-border text-ink-secondary hover:text-brand-primary hover:border-brand-primary/40 shadow-2xs active:scale-95"
-              >
-                <HugeiconsIcon icon={Mic01Icon} size={18} strokeWidth={2} />
-              </button>
+              <SimpleTooltip content="Falar comando por voz" side="top">
+                <button
+                  type="button"
+                  onClick={alternarEscuta}
+                  disabled={enviando}
+                  aria-label="Falar comando por voz"
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all cursor-pointer bg-surface-subtle border border-surface-border text-ink-secondary hover:text-brand-primary hover:border-brand-primary/40 shadow-2xs active:scale-95"
+                >
+                  <HugeiconsIcon icon={Mic01Icon} size={18} strokeWidth={2} />
+                </button>
+              </SimpleTooltip>
             )}
-            <button
-              type="submit"
-              disabled={!texto.trim() || enviando}
-              className="w-10 h-10 rounded-2xl bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-40 text-white transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed active:scale-95"
-              aria-label="Enviar mensagem"
-              title="Enviar mensagem"
-            >
-              <HugeiconsIcon icon={SentIcon} size={18} strokeWidth={2} />
-            </button>
+            <SimpleTooltip content="Enviar mensagem" side="top">
+              <button
+                type="submit"
+                disabled={!texto.trim() || enviando}
+                className="w-10 h-10 rounded-2xl bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-40 text-white transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed active:scale-95"
+                aria-label="Enviar mensagem"
+              >
+                <HugeiconsIcon icon={SentIcon} size={18} strokeWidth={2} />
+              </button>
+            </SimpleTooltip>
           </div>
         )}
       </form>

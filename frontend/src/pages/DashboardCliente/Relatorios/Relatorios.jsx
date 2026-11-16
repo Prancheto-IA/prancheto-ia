@@ -29,6 +29,7 @@ import {
   HourglassIcon,
   Time02Icon,
 } from '@hugeicons/core-free-icons';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 
 // ----------------------------------------------------------
 // MODAL: Insights de IA
@@ -67,7 +68,7 @@ const ModalInsightsIA = ({ aberto, onFechar, dados }) => {
               Eficiência no Pipeline
             </div>
             <p className="text-sm text-ink-primary leading-relaxed">
-              Você possui <strong>{dados.totalLeads} leads ativos</strong> e uma taxa de conversão estimada em{' '}
+              Você possui <strong>{dados.totalLeads} clientes ativos</strong> e uma taxa de conversão estimada em{' '}
               <strong>{dados.taxaConversao}%</strong>. O canal mais produtivo atualmente é{' '}
               <span className="capitalize font-semibold text-brand-primary">{dados.topCanal || 'Direto'}</span>.
             </p>
@@ -79,7 +80,7 @@ const ModalInsightsIA = ({ aberto, onFechar, dados }) => {
               Oportunidade Imediata
             </div>
             <p className="text-sm text-ink-primary leading-relaxed">
-              Existem <strong>{dados.leadsQuentes} leads com alta pontuação (quentes)</strong> aguardando contato prioritário.
+              Existem <strong>{dados.leadsQuentes} clientes com alta pontuação (quentes)</strong> aguardando contato prioritário.
               Acelerar o envio de propostas para este grupo pode elevar a receita em até 22%.
             </p>
           </div>
@@ -260,14 +261,14 @@ const Relatorios = () => {
     const linhas = [
       ['RELATÓRIO DE DESEMPENHO E MÉTRICAS - PRANCHETO.IA', new Date().toLocaleDateString('pt-BR')],
       ['Indicador', 'Valor'],
-      ['Total de Leads', dados.totalLeads],
+      ['Total de Clientes', dados.totalLeads],
       ['Clientes Ativos', dados.totalClientes],
       ['Negócios Fechados', dados.fechados],
       ['Receita Fechada', `R$ ${fmt(dados.valorFechado)}`],
       ['Taxa de Conversão', `${dados.taxaConversao}%`],
       ['LTV Médio', `R$ ${fmt(dados.ltvMedio)}`],
-      ['Leads Quentes', dados.leadsQuentes],
-      ['Leads Frios', dados.leadsFrios],
+      ['Clientes Quentes', dados.leadsQuentes],
+      ['Clientes Frios', dados.leadsFrios],
       ['Pipeline Ativo', `R$ ${fmt(dados.valorPipeline)}`],
       ['Total Ações Outbound', dados.totalAcoes],
       ['Ações Pendentes', dados.acoesPendentes],
@@ -332,23 +333,25 @@ const Relatorios = () => {
 
         {/* Ações do Header */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          <button
-            onClick={carregar}
-            className="px-4 py-2 bg-white hover:bg-[#F7FAF8] text-[#111915] border border-[#E4ECE7] text-sm font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2"
-            title="Recarregar dados"
-          >
-            <HugeiconsIcon icon={ArrowReloadHorizontalIcon} size={15} strokeWidth={2} className="text-[#0E382C]" />
-            <span>Atualizar</span>
-          </button>
+          <SimpleTooltip content="Recarregar dados" side="bottom">
+            <button
+              onClick={carregar}
+              className="px-4 py-2 bg-white hover:bg-[#F7FAF8] text-[#111915] border border-[#E4ECE7] text-sm font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <HugeiconsIcon icon={ArrowReloadHorizontalIcon} size={15} strokeWidth={2} className="text-[#0E382C]" />
+              <span>Atualizar</span>
+            </button>
+          </SimpleTooltip>
 
-          <button
-            onClick={exportarCSV}
-            className="px-4 py-2 bg-white hover:bg-[#F7FAF8] text-[#111915] border border-[#E4ECE7] text-sm font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2"
-            title="Exportar planilha CSV"
-          >
-            <HugeiconsIcon icon={Download01Icon} size={15} strokeWidth={2} className="text-[#687770]" />
-            <span>Exportar</span>
-          </button>
+          <SimpleTooltip content="Exportar planilha CSV" side="bottom">
+            <button
+              onClick={exportarCSV}
+              className="px-4 py-2 bg-white hover:bg-[#F7FAF8] text-[#111915] border border-[#E4ECE7] text-sm font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <HugeiconsIcon icon={Download01Icon} size={15} strokeWidth={2} className="text-[#687770]" />
+              <span>Exportar</span>
+            </button>
+          </SimpleTooltip>
 
           <button
             onClick={() => setModalIA(true)}
@@ -385,7 +388,7 @@ const Relatorios = () => {
               {dados?.totalLeads ?? 0}
             </p>
             <p className="text-sm font-semibold text-[#687770] mt-1">
-              Total de leads
+              Total de clientes
             </p>
           </div>
         </div>
@@ -505,12 +508,12 @@ const Relatorios = () => {
               {dados?.leadsQuentes ?? 0}
             </p>
             <p className="text-sm font-semibold text-[#687770] mt-1">
-              Leads quentes
+              Clientes quentes
             </p>
           </div>
         </div>
 
-        {/* Card 8: Leads frios */}
+        {/* Card 8: Clientes frios */}
         <div className="bg-white rounded-2xl p-4 sm:p-4.5 border border-[#E4ECE7] shadow-[0_2px_10px_-2px_rgba(14,56,44,0.03)] hover:shadow-md hover:border-[#CBDCD1] transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
@@ -525,7 +528,7 @@ const Relatorios = () => {
               {dados?.leadsFrios ?? 0}
             </p>
             <p className="text-sm font-semibold text-[#687770] mt-1">
-              Leads frios
+              Clientes frios
             </p>
           </div>
         </div>
@@ -611,7 +614,7 @@ const Relatorios = () => {
                     Fontes de contatos
                   </h3>
                   <p className="text-[11px] text-[#687770]">
-                    Origem dos leads e canais de atração cadastrados
+                    Origem dos clientes e canais de atração cadastrados
                   </p>
                 </div>
               </div>
@@ -665,9 +668,9 @@ const Relatorios = () => {
           </div>
         </div>
 
-        {/* COLUNA DIREITA (5 COLS): Temperatura dos Leads + Outbound & Agenda */}
+        {/* COLUNA DIREITA (5 COLS): Temperatura dos Clientes + Outbound & Agenda */}
         <div className="lg:col-span-5 space-y-5">
-          {/* Card: Temperatura dos Leads */}
+          {/* Card: Temperatura dos Clientes */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E4ECE7] shadow-[0_2px_12px_-3px_rgba(14,56,44,0.03)] space-y-4">
             <div className="flex items-center justify-between border-b border-[#E4ECE7] pb-3.5">
               <div className="flex items-center gap-2.5">
@@ -676,7 +679,7 @@ const Relatorios = () => {
                 </div>
                 <div>
                   <h3 className="font-extrabold text-sm sm:text-base text-[#111915]">
-                    Temperatura dos leads
+                    Temperatura dos clientes
                   </h3>
                   <p className="text-[11px] text-[#687770]">
                     Classificação baseada em score e probabilidade

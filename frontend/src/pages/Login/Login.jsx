@@ -292,7 +292,7 @@ const PaginaLogin = () => {
                 {/* Right Overlapping Card (Lead Scoring por IA) */}
                 <article className="absolute top-12 xl:top-14 2xl:top-16 right-0 xl:-right-2 w-48 xl:w-56 2xl:w-60 bg-white/95 text-ink-primary rounded-xl xl:rounded-2xl p-3 xl:p-3.5 shadow-xl border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold text-ink-primary">Lead Score por IA</span>
+                    <span className="text-sm font-bold text-ink-primary">Score do Cliente por IA</span>
                     <span className="text-[10px] font-bold text-brand-primary bg-brand-accent px-1.5 py-0.5 rounded-md flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary"></span>
                       98 / 100
@@ -301,7 +301,7 @@ const PaginaLogin = () => {
                   <p className="text-[11px] font-semibold text-ink-primary truncate">TechCorp Enterprise</p>
                   <div className="flex justify-between items-baseline my-1">
                     <span className="text-sm font-bold text-ink-primary">R$ 48.000 <span className="text-[10px] font-normal text-ink-muted">/ ano</span></span>
-                    <span className="text-[9px] font-bold text-white bg-brand-purple px-1.5 py-0.5 rounded">Lead Quente</span>
+                    <span className="text-[9px] font-bold text-white bg-brand-purple px-1.5 py-0.5 rounded">Cliente Quente</span>
                   </div>
                   <div className="w-full bg-surface h-1.5 xl:h-2 rounded-full overflow-hidden mt-1.5">
                     <div className="bg-gradient-to-r from-[#0455BF] to-[#7338F2] h-full rounded-full" style={{ width: '98%' }}></div>
@@ -363,7 +363,7 @@ const PaginaLogin = () => {
                 {/* Right Overlapping Card (Lead Qualificado Automático) */}
                 <article className="absolute top-12 xl:top-14 2xl:top-16 right-0 xl:-right-2 w-48 xl:w-56 2xl:w-60 bg-white/95 text-ink-primary rounded-xl xl:rounded-2xl p-3 xl:p-3.5 shadow-xl border border-white/80 z-10 transform rotate-2 transition-all duration-300 hover:rotate-0 hover:z-20 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold text-ink-primary">Lead Qualificado</span>
+                    <span className="text-sm font-bold text-ink-primary">Cliente Qualificado</span>
                     <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} className="text-brand-secondary" />
                   </div>
                   <p className="text-[11px] font-semibold text-ink-primary">Mariana Souza</p>
@@ -394,7 +394,7 @@ const PaginaLogin = () => {
                     </div>
                   </div>
                   <div className="w-full bg-brand-accent text-brand-primary border border-surface-border rounded-lg py-1 px-2 text-center text-[10px] font-semibold">
-                    ✓ Lead Direcionado ao SDR
+                    ✓ Cliente Direcionado ao SDR
                   </div>
                 </article>
               </>
@@ -495,7 +495,7 @@ const PaginaLogin = () => {
                   Pipeline Comercial &amp; Previsão de Vendas com IA
                 </h2>
                 <p className="text-[11px] xl:text-sm 2xl:text-sm text-brand-accent/85 leading-relaxed font-normal max-w-sm xl:max-w-md mx-auto">
-                  Monitore negociações em tempo real, priorize os leads mais quentes e impulsione conversões com recomendações preditivas automatizadas.
+                  Monitore negociações em tempo real, priorize os clientes mais quentes e impulsione conversões com recomendações preditivas automatizadas.
                 </p>
               </>
             )}

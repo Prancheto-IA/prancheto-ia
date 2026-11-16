@@ -16,6 +16,7 @@ import {
 import { ETAPAS_PIPELINE, DEALS_DEMO } from './Leads.jsx';
 import { SelectField } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -155,7 +156,7 @@ const LeadDetalhe = () => {
               estado: 'USA',
               responsavel: { nome: 'Artflow Creative Agency' },
               previsao_fechamento: new Date(Date.now() + 15 * 86400000).toISOString(),
-              observacoes: 'Lead altamente engajado e interessado na solução completa.',
+              observacoes: 'Cliente altamente engajado e interessado na solução completa.',
               criado_em: '2023-04-23T10:00:00Z',
               atualizado_em: new Date().toISOString(),
             };
@@ -421,7 +422,7 @@ const LeadDetalhe = () => {
       <div className="flex-1 flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-[#687770]">Carregando detalhes do lead...</p>
+          <p className="text-sm font-semibold text-[#687770]">Carregando detalhes do cliente...</p>
         </div>
       </div>
     );
@@ -489,7 +490,7 @@ const LeadDetalhe = () => {
 
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-[#111915] tracking-tight">
-                {deal.nome || 'Lead Sem Nome'}
+                {deal.nome || 'Cliente Sem Nome'}
               </h1>
               <div className="flex items-center gap-4 mt-1 flex-wrap text-sm text-[#687770]">
                 {/* Localização */}
@@ -506,46 +507,50 @@ const LeadDetalhe = () => {
             </div>
           </div>
 
-          {/* Ações de Contato Direto (Menos é Mais: sem ícones de redes sociais irrelevantes) */}
+          {/* Ações de Contato Direto */}
           <div className="flex items-center gap-2">
             {/* E-mail */}
-            <a
-              href={`mailto:${deal.email || ''}`}
-              title="Enviar e-mail"
-              className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-primary hover:bg-surface-subtle text-ink-secondary hover:text-brand-primary flex items-center justify-center transition-all shadow-2xs"
-            >
-              <HugeiconsIcon icon={Mail01Icon} size={16} strokeWidth={1.8} />
-            </a>
+            <SimpleTooltip content="Enviar e-mail">
+              <a
+                href={`mailto:${deal.email || ''}`}
+                className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-primary hover:bg-surface-subtle text-ink-secondary hover:text-brand-primary flex items-center justify-center transition-all shadow-2xs"
+              >
+                <HugeiconsIcon icon={Mail01Icon} size={16} strokeWidth={1.8} />
+              </a>
+            </SimpleTooltip>
 
             {/* Telefone */}
-            <a
-              href={`tel:${deal.telefone || deal.whatsapp || ''}`}
-              title="Ligar"
-              className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-primary hover:bg-surface-subtle text-ink-secondary hover:text-brand-primary flex items-center justify-center transition-all shadow-2xs"
-            >
-              <HugeiconsIcon icon={Call02Icon} size={16} strokeWidth={1.8} />
-            </a>
+            <SimpleTooltip content="Ligar">
+              <a
+                href={`tel:${deal.telefone || deal.whatsapp || ''}`}
+                className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-primary hover:bg-surface-subtle text-ink-secondary hover:text-brand-primary flex items-center justify-center transition-all shadow-2xs"
+              >
+                <HugeiconsIcon icon={Call02Icon} size={16} strokeWidth={1.8} />
+              </a>
+            </SimpleTooltip>
 
             {/* WhatsApp */}
-            <a
-              href={`https://wa.me/${(deal.whatsapp || deal.telefone || '').replace(/\D/g, '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Abrir WhatsApp"
-              className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-secondary hover:bg-brand-accent/40 text-ink-secondary hover:text-brand-secondary flex items-center justify-center transition-all shadow-2xs"
-            >
-              <HugeiconsIcon icon={WhatsappIcon} size={16} strokeWidth={1.8} />
-            </a>
+            <SimpleTooltip content="Abrir conversa no WhatsApp">
+              <a
+                href={`https://wa.me/${(deal.whatsapp || deal.telefone || '').replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-xl border border-surface-border bg-surface-card hover:border-brand-secondary hover:bg-brand-accent/40 text-ink-secondary hover:text-brand-secondary flex items-center justify-center transition-all shadow-2xs"
+              >
+                <HugeiconsIcon icon={WhatsappIcon} size={16} strokeWidth={1.8} />
+              </a>
+            </SimpleTooltip>
 
             {/* Copiloto IA (Dica rápida de fechamento) */}
-            <button
-              onClick={() => dispararCopilot('proxima_acao')}
-              title="Copiloto IA: Sugestão Estratégica"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-brand-accent bg-surface-subtle hover:bg-brand-accent text-brand-primary text-sm font-semibold transition-all shadow-2xs ml-1"
-            >
-              <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} className="text-brand-primary" />
-              <span>Copiloto IA</span>
-            </button>
+            <SimpleTooltip content="Copiloto IA: Sugestão Estratégica">
+              <button
+                onClick={() => dispararCopilot('proxima_acao')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-brand-accent bg-surface-subtle hover:bg-brand-accent text-brand-primary text-sm font-semibold transition-all shadow-2xs ml-1 cursor-pointer"
+              >
+                <HugeiconsIcon icon={FlashIcon} size={14} strokeWidth={2} className="text-brand-primary" />
+                <span>Copiloto IA</span>
+              </button>
+            </SimpleTooltip>
           </div>
         </div>
 
@@ -561,7 +566,20 @@ const LeadDetalhe = () => {
             {/* Empresa */}
             <div className="px-4 sm:px-5 flex flex-col">
               <span className="text-[10px] font-semibold text-[#687770] uppercase tracking-wider mb-0.5">Empresa</span>
-              <span className="font-semibold text-[#111915]">{deal.empresa || 'Widget.io'}</span>
+              {deal.empresa ? (
+                <SimpleTooltip content="Ver no módulo de Empresas">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/crm/empresas')}
+                    className="font-semibold text-brand-secondary hover:underline text-left cursor-pointer truncate flex items-center gap-1"
+                  >
+                    {deal.empresa}
+                    <span className="text-[10px] font-mono">↗</span>
+                  </button>
+                </SimpleTooltip>
+              ) : (
+                <span className="font-semibold text-[#111915]">—</span>
+              )}
             </div>
 
             {/* E-mail */}
@@ -634,33 +652,33 @@ const LeadDetalhe = () => {
           };
 
           return (
-            <button
-              key={etapa.key}
-              type="button"
-              onClick={() => handleMudarEtapa(etapa.key)}
-              className={`flex-1 min-w-[155px] h-11 px-4 flex items-center justify-center transition-all duration-150 select-none text-sm font-semibold
-                ${isAtual
-                  ? 'bg-brand-primary text-white'
-                  : isPassado
-                  ? 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover'
-                  : 'bg-surface-hover text-ink-secondary hover:bg-surface-muted hover:text-brand-primary'
-                }
-              `}
-              style={clipStyle}
-              title={`Mover para ${etapa.titulo}`}
-            >
-              <div className="flex items-center gap-1.5 whitespace-nowrap">
-                {(isPassado || isAtual) && (
-                  <HugeiconsIcon
-                    icon={CheckmarkCircle02Icon}
-                    size={14}
-                    strokeWidth={2.5}
-                    className={`flex-shrink-0 ${isAtual ? 'text-brand-accent' : 'text-brand-secondary'}`}
-                  />
-                )}
-                <span className="whitespace-nowrap">{etapa.titulo}</span>
-              </div>
-            </button>
+            <SimpleTooltip key={etapa.key} content={`Mover para ${etapa.titulo}`}>
+              <button
+                type="button"
+                onClick={() => handleMudarEtapa(etapa.key)}
+                className={`flex-1 min-w-[155px] h-11 px-4 flex items-center justify-center transition-all duration-150 select-none text-sm font-semibold
+                  ${isAtual
+                    ? 'bg-brand-primary text-white'
+                    : isPassado
+                    ? 'bg-brand-accent text-brand-primary hover:bg-brand-accent-hover'
+                    : 'bg-surface-hover text-ink-secondary hover:bg-surface-muted hover:text-brand-primary'
+                  }
+                `}
+                style={clipStyle}
+              >
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  {(isPassado || isAtual) && (
+                    <HugeiconsIcon
+                      icon={CheckmarkCircle02Icon}
+                      size={14}
+                      strokeWidth={2.5}
+                      className={`flex-shrink-0 ${isAtual ? 'text-brand-accent' : 'text-brand-secondary'}`}
+                    />
+                  )}
+                  <span className="whitespace-nowrap">{etapa.titulo}</span>
+                </div>
+              </button>
+            </SimpleTooltip>
           );
         })}
       </div>
@@ -891,13 +909,14 @@ const LeadDetalhe = () => {
 
                       {/* Botões de Ação na Barra */}
                       <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          onClick={() => removerAtividade(act.id)}
-                          title="Excluir"
-                          className="w-7 h-7 rounded-lg text-[#99A6A0] hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
-                        >
-                          <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={2} />
-                        </button>
+                        <SimpleTooltip content="Excluir atividade">
+                          <button
+                            onClick={() => removerAtividade(act.id)}
+                            className="w-7 h-7 rounded-lg text-[#99A6A0] hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors cursor-pointer"
+                          >
+                            <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={2} />
+                          </button>
+                        </SimpleTooltip>
                       </div>
                     </div>
 
@@ -1080,7 +1099,7 @@ const LeadDetalhe = () => {
             </div>
 
             <p className="text-sm text-[#111915] leading-relaxed">
-              O lead está na etapa de <strong>{etapaAtual?.titulo}</strong>. Recomendamos alinhamento imediato via WhatsApp para validação de escopo.
+              O cliente está na etapa de <strong>{etapaAtual?.titulo}</strong>. Recomendamos alinhamento imediato via WhatsApp para validação de escopo.
             </p>
 
             <button
@@ -1101,7 +1120,7 @@ const LeadDetalhe = () => {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl border border-[#E4ECE7] shadow-xl max-w-lg w-full overflow-hidden animate-fade-in">
             <div className="px-6 py-4 border-b border-[#E4ECE7] flex items-center justify-between">
-              <h2 className="text-sm font-bold text-[#111915]">Editar Informações do Lead</h2>
+              <h2 className="text-sm font-bold text-[#111915]">Editar Informações do Cliente</h2>
               <button
                 onClick={() => setModalEditar(false)}
                 className="text-[#687770] hover:text-[#111915] text-sm"

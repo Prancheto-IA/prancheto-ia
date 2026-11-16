@@ -25,6 +25,7 @@ import { useLeads, FUNIL_LEAD, funilInfo } from '../../hooks/useCRM.js';
 import { Badge, BadgeDot } from '@/components/reui/badge';
 import { Switch } from '@/components/reui/switch';
 import { AutocompleteReUI9 } from '@/components/reui/c-autocomplete-9';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 import {
   Select,
   SelectTrigger,
@@ -74,7 +75,7 @@ const salvarStorage = (chaveBase, tenantId, dados) => {
 const criarNovoWorkflow = (contador) => ({
   id: `wf-${Date.now().toString(36)}`,
   nome: `Nova Automação #${contador}`,
-  descricao: 'Fluxo automático disparado quando o lead muda de etapa no funil CRM.',
+  descricao: 'Fluxo automático disparado quando o cliente muda de etapa no funil CRM.',
   ativo: true,
   categoria: 'Personalizado',
   execucoesTotal: 0,
@@ -88,7 +89,7 @@ const criarNovoWorkflow = (contador) => ({
       nodeRole: 'start',
       position: { x: 482, y: 46 },
       config: {
-        customTitle: 'Lead Movido de Etapa (.CRM)',
+        customTitle: 'Cliente Movido de Etapa (.CRM)',
         phaseLabel: 'Gatilho Inicial',
         meshKey: 'brand',
         etapaOrigem: 'qualquer',
@@ -106,7 +107,7 @@ const criarNovoWorkflow = (contador) => ({
         phaseLabel: 'Fase 1',
         meshKey: 'magenta',
         tom: 'consultivo',
-        promptInstrucao: 'Adaptar mensagem cordial ao contexto do lead.',
+        promptInstrucao: 'Adaptar mensagem cordial ao contexto do cliente.',
         salvarVariavel: '{{ia.mensagem_gerada}}',
       },
     },
@@ -471,7 +472,7 @@ const Automacoes = () => {
                   className="inline-flex items-center gap-1.5 rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-3.5 py-2 text-xs font-semibold text-ink-primary transition-colors cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-brand-purple" />
-                  <span>Simular Lead</span>
+                  <span>Simular Cliente</span>
                 </button>
 
                 <button
@@ -644,18 +645,20 @@ const Automacoes = () => {
                     >
                       {/* Lado Esquerdo: Ícone + Título + Metadados em formato compacto */}
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setWorkflowSelecionadoId(wf.id);
-                            setModoVisao('studio');
-                          }}
-                          style={{ background: orbBg }}
-                          title="Abrir automação no Studio"
-                          className="h-9 w-9 rounded-xl flex items-center justify-center text-white shadow-2xs shrink-0 hover:scale-105 transition-transform cursor-pointer"
-                        >
-                          <Zap className="w-4 h-4" />
-                        </button>
+                        <SimpleTooltip content="Abrir automação no Studio" side="top">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setWorkflowSelecionadoId(wf.id);
+                              setModoVisao('studio');
+                            }}
+                            style={{ background: orbBg }}
+                            aria-label="Abrir automação no Studio"
+                            className="h-9 w-9 rounded-xl flex items-center justify-center text-white shadow-2xs shrink-0 hover:scale-105 transition-transform cursor-pointer"
+                          >
+                            <Zap className="w-4 h-4" />
+                          </button>
+                        </SimpleTooltip>
 
                         <div className="min-w-0 flex-1 space-y-0.5">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -714,30 +717,38 @@ const Automacoes = () => {
                         </div>
 
                         <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => executarSimulacaoFluxo(wf)}
-                            title="Executar simulação no Studio"
-                            className="rounded-lg p-1.5 text-brand-purple hover:bg-surface-hover transition-colors cursor-pointer"
-                          >
-                            <Play className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDuplicarWorkflow(wf)}
-                            title="Duplicar automação"
-                            className="rounded-lg p-1.5 text-ink-secondary hover:bg-surface-hover transition-colors cursor-pointer"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleExcluirWorkflow(wf.id)}
-                            title="Excluir automação"
-                            className="rounded-lg p-1.5 text-ink-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <SimpleTooltip content="Executar simulação no Studio" side="top">
+                            <button
+                              type="button"
+                              onClick={() => executarSimulacaoFluxo(wf)}
+                              aria-label="Executar simulação no Studio"
+                              className="rounded-lg p-1.5 text-brand-purple hover:bg-surface-hover transition-colors cursor-pointer"
+                            >
+                              <Play className="w-3.5 h-3.5" />
+                            </button>
+                          </SimpleTooltip>
+
+                          <SimpleTooltip content="Duplicar automação" side="top">
+                            <button
+                              type="button"
+                              onClick={() => handleDuplicarWorkflow(wf)}
+                              aria-label="Duplicar automação"
+                              className="rounded-lg p-1.5 text-ink-secondary hover:bg-surface-hover transition-colors cursor-pointer"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
+                          </SimpleTooltip>
+
+                          <SimpleTooltip content="Excluir automação" side="top">
+                            <button
+                              type="button"
+                              onClick={() => handleExcluirWorkflow(wf.id)}
+                              aria-label="Excluir automação"
+                              className="rounded-lg p-1.5 text-ink-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </SimpleTooltip>
 
                           <button
                             type="button"
@@ -824,7 +835,7 @@ const Automacoes = () => {
                     Histórico de Execuções &amp; Trace
                   </h2>
                   <p className="text-xs text-ink-secondary">
-                    Inspecione cada etapa executada e a mensagem WhatsApp disparada por lead.
+                    Inspecione cada etapa executada e a mensagem WhatsApp disparada por cliente.
                   </p>
                 </div>
               </div>
@@ -844,7 +855,7 @@ const Automacoes = () => {
         </div>
       )}
 
-      {/* MODAL: TESTAR DISPARO COM LEAD CRM (AUTOCOMPLETE REUI 9) */}
+      {/* MODAL: TESTAR DISPARO COM CLIENTE CRM (AUTOCOMPLETE REUI 9) */}
       {modalTesteAberto && (
         <div
           className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
@@ -864,7 +875,7 @@ const Automacoes = () => {
                     Simulador de Mudança de Etapa CRM
                   </h3>
                   <p className="text-xs text-ink-secondary">
-                    Escolha um lead do CRM e execute a árvore visual no Studio.
+                    Escolha um cliente do CRM e execute a árvore visual no Studio.
                   </p>
                 </div>
               </div>
@@ -878,7 +889,7 @@ const Automacoes = () => {
             </div>
 
             <Field>
-              <FieldLabel>Lead do CRM</FieldLabel>
+              <FieldLabel>Cliente do CRM</FieldLabel>
               <AutocompleteReUI9
                 items={autocompleteLeadItems}
                 value={testeLeadNome}
@@ -886,9 +897,9 @@ const Automacoes = () => {
                 onSelectItem={(item) => {
                   if (item?.leadObj) setTesteLeadSelecionado(item.leadObj);
                 }}
-                placeholder="Buscar lead por nome ou empresa..."
-                entitySingular="lead"
-                entityPlural="leads"
+                placeholder="Buscar cliente por nome ou empresa..."
+                entitySingular="cliente"
+                entityPlural="clientes"
               />
               <FieldDescription>
                 As variáveis {'{{lead.nome}}'}, {'{{lead.empresa}}'} e {'{{lead.valor_estimado}}'} serão preenchidas automaticamente.

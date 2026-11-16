@@ -243,10 +243,10 @@ export const FERRAMENTAS: Ferramenta[] = [
       required: ['nome'],
       additionalProperties: false,
     },
-    resumo: async (a) => `Criar o lead "${a.nome}"${a.empresa ? ` (${a.empresa})` : ''}`,
+    resumo: async (a) => `Criar o cliente "${a.nome}"${a.empresa ? ` (${a.empresa})` : ''}`,
     executar: async (args, ctx) => {
       const nome = String(args.nome ?? '').trim();
-      if (!nome) throw new Error('O lead precisa de um nome.');
+      if (!nome) throw new Error('O cliente precisa de um nome.');
 
       const { data, error } = await ctx.supabase
         .from('crm_contatos')

@@ -31,8 +31,9 @@ import {
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
-} from '@/components/ui/tooltip';
-import logoCompletoPrancheto from '@/assets/logo/Logo-LH.svg';
+  SimpleTooltip,
+} from '@/components/reui/tooltip';
+import logoCompletoPrancheto from '@/assets/logo/Logo-LHW.svg';
 import iconePrancheto from '@/assets/logo/Logo-S.svg';
 import { IconeCerebro } from '@/components/ui/IconeCerebro.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -44,6 +45,7 @@ import {
   Calendar03Icon,
   Comment01Icon,
   CustomerSupportIcon,
+  Building02Icon,
   Building06Icon,
   Settings02Icon,
   Analytics01Icon,
@@ -97,33 +99,20 @@ const MarcaLogo = ({ colapsada = false }) => {
   // Logo Oficial do Prancheto.IA (mantém ambos no DOM para transição instantânea sem remount)
   return (
     <div
-      className={`relative isolate flex items-center justify-center group/logo ${
-        colapsada ? 'w-10 h-10' : 'px-2.5 py-1.5'
-      }`}
+      className={`relative flex items-center justify-center group/logo ${colapsada ? 'w-10 h-10 translate-x-1' : 'px-1.5 py-1'
+        }`}
     >
-      {/* Gradiente blur bem suave e difuso atrás do logo */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-1.5 rounded-full bg-gradient-to-r from-[#38BDF8]/25 via-white/30 to-[#A855F7]/25 blur-lg opacity-75 group-hover/logo:opacity-95 transition-opacity duration-200"
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-2xl bg-white/20 dark:bg-white/15 blur-md"
-      />
-
       <img
         src={iconePrancheto}
         alt="Prancheto.IA"
-        className={`relative z-10 w-7 h-7 object-contain flex-shrink-0 select-none drop-shadow-[0_1px_2px_rgba(0,13,61,0.18)] ${
-          colapsada ? 'block' : 'hidden'
-        }`}
+        className={`w-8 h-8 object-contain flex-shrink-0 select-none ${colapsada ? 'block' : 'hidden'
+          }`}
       />
       <img
         src={logoCompletoPrancheto}
         alt="Prancheto.IA"
-        className={`relative z-10 h-7 w-auto max-w-[178px] object-contain select-none drop-shadow-[0_1px_2px_rgba(0,13,61,0.12)] ${
-          colapsada ? 'hidden' : 'block'
-        }`}
+        className={`h-9 w-auto max-w-[195px] object-contain select-none ${colapsada ? 'hidden' : 'block'
+          }`}
       />
     </div>
   );
@@ -133,6 +122,7 @@ const MarcaLogo = ({ colapsada = false }) => {
 const ICONES_MAP = {
   dashboard: DashboardSquare01Icon,
   crm: UserGroupIcon,
+  empresas: Building02Icon,
   automacoes: WorkflowSquare10Icon,
   projetos: Folder01Icon,
   tarefas: Task01Icon,
@@ -160,12 +150,16 @@ const getIconeItem = (slug) => {
 const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
   const location = useLocation();
   const rotaExata = location.pathname === item.rota;
-  const ativoViaPrefixo = item.prefixoAtivo
-    ? location.pathname.startsWith(item.prefixoAtivo)
-    : false;
+  let ativoViaPrefixo = false;
+  if (item.slug === 'crm') {
+    ativoViaPrefixo = location.pathname.startsWith('/crm') && !location.pathname.startsWith('/crm/empresas');
+  } else if (item.prefixoAtivo) {
+    ativoViaPrefixo = location.pathname.startsWith(item.prefixoAtivo);
+  }
   const ativo = item.exact ? rotaExata : rotaExata || ativoViaPrefixo;
   const ehChatIa = item.slug === 'chat_ia' && typeof onDesafixarChatIa === 'function';
   const labelExibicao = item.slug === 'chat_ia' ? 'Pranchetinho' : item.label;
+  const tooltipExibicao = item.slug === 'chat_ia' ? 'Chat com IA' : labelExibicao;
 
   return (
     <div className={`relative group transition-[width] duration-150 ease-out ${colapsada ? 'w-10' : 'w-full'}`}>
@@ -176,9 +170,8 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
               to={item.rota}
               end={item.exact}
               onClick={onClick}
-              className={`h-10 w-full flex items-center rounded-xl font-medium text-sm transition-all duration-150 relative overflow-hidden ${
-                ativo ? 'shell-nav-item-ativo font-semibold' : 'shell-nav-item'
-              }`}
+              className={`h-10 w-full flex items-center rounded-xl font-medium text-sm transition-all duration-150 relative overflow-hidden ${ativo ? 'shell-nav-item-ativo font-semibold' : 'shell-nav-item'
+                }`}
             >
               {/* Slot fixo para o ícone: exatamente 40px de largura e altura, sem encolher */}
               <span className="w-10 h-10 flex items-center justify-center flex-shrink-0">
@@ -187,9 +180,8 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
 
               {/* Rótulo de texto: visível no estado expandido, clipe limpo no recolhido */}
               <span
-                className={`truncate whitespace-nowrap ${ehChatIa ? 'pr-9' : 'pr-2.5'} transition-opacity duration-100 ${
-                  colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
-                }`}
+                className={`truncate whitespace-nowrap ${ehChatIa ? 'pr-9' : 'pr-2.5'} transition-opacity duration-100 ${colapsada ? 'opacity-0 pointer-events-none' : 'opacity-100 flex-1'
+                  }`}
               >
                 {labelExibicao}
               </span>
@@ -197,33 +189,40 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
           }
         />
         <TooltipContent side="inline-end" sideOffset={10}>
-          <p className="text-xs font-semibold">{labelExibicao}</p>
+          <p className="text-xs font-semibold">{tooltipExibicao}</p>
         </TooltipContent>
       </Tooltip>
 
       {/* Botão X exclusivo do item "Pranchetinho" — aparece ao passar o mouse em qualquer parte do botão */}
       {ehChatIa && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onDesafixarChatIa();
-          }}
-          title="Ocultar Pranchetinho da sidebar e voltar botão flutuante"
-          aria-label="Ocultar Pranchetinho da sidebar e voltar botão flutuante"
-          className={
-            colapsada
-              ? 'absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-surface-card text-ink-primary border border-surface-border shadow-md flex items-center justify-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-all hover:bg-red-500 hover:border-red-500 hover:text-white cursor-pointer'
-              : `absolute right-2 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-lg flex items-center justify-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-all cursor-pointer ${
-                  ativo
-                    ? 'bg-brand-primary/10 text-brand-primary hover:bg-red-500 hover:text-white'
-                    : 'bg-white/15 text-white hover:bg-red-500 hover:text-white'
-                }`
-          }
-        >
-          <HugeiconsIcon icon={Cancel01Icon} size={colapsada ? 10 : 14} strokeWidth={2.2} />
-        </button>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDesafixarChatIa();
+                }}
+                aria-label="Ocultar Pranchetinho da sidebar e voltar botão flutuante"
+                className={
+                  colapsada
+                    ? 'absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-surface-card text-ink-primary border border-surface-border shadow-md flex items-center justify-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-all hover:bg-red-500 hover:border-red-500 hover:text-white cursor-pointer'
+                    : `absolute right-2 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-lg flex items-center justify-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-all cursor-pointer ${ativo
+                      ? 'bg-brand-primary/10 text-brand-primary hover:bg-red-500 hover:text-white'
+                      : 'bg-white/15 text-white hover:bg-red-500 hover:text-white'
+                    }`
+                }
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={colapsada ? 10 : 14} strokeWidth={2.2} />
+              </button>
+            }
+          />
+          <TooltipContent side="top">
+            <p className="text-xs font-semibold">Ocultar e voltar botão flutuante</p>
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   );
@@ -259,22 +258,26 @@ const ItemSortableModal = ({ item, onToggle }) => {
         : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
         }`}
     >
-      <button
-        {...attributes}
-        {...listeners}
-        className="text-slate-400 hover:text-slate-600 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none p-1"
-        title="Arrastar para reordenar"
-      >
-        <HugeiconsIcon icon={DragDropVerticalIcon} size={16} strokeWidth={1.8} />
-      </button>
+      <SimpleTooltip content="Arrastar para reordenar" side="top">
+        <button
+          {...attributes}
+          {...listeners}
+          className="text-slate-400 hover:text-slate-600 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none p-1"
+          aria-label="Arrastar para reordenar"
+        >
+          <HugeiconsIcon icon={DragDropVerticalIcon} size={16} strokeWidth={1.8} />
+        </button>
+      </SimpleTooltip>
 
       <span className="flex-shrink-0 text-slate-600">{getIconeItem(item.slug)}</span>
       <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
 
       {fixo ? (
-        <span className="text-slate-400 flex-shrink-0 flex items-center justify-center p-1" title="Item fixo">
-          <HugeiconsIcon icon={LockKeyIcon} size={14} strokeWidth={1.8} />
-        </span>
+        <SimpleTooltip content="Item fixo na barra lateral" side="top">
+          <span className="text-slate-400 flex-shrink-0 flex items-center justify-center p-1" aria-label="Item fixo">
+            <HugeiconsIcon icon={LockKeyIcon} size={14} strokeWidth={1.8} />
+          </span>
+        </SimpleTooltip>
       ) : (
         <button
           onClick={() => onToggle(item.slug)}
@@ -705,9 +708,8 @@ const LayoutCliente = ({ children }) => {
                       aria-label="Configurações"
                       className={({ isActive }) => {
                         const ativa = isActive || location.pathname.startsWith('/dashboard/configuracoes');
-                        return `w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 ${
-                          ativa ? 'shell-header-btn-ativo' : 'shell-header-btn'
-                        }`;
+                        return `w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 ${ativa ? 'shell-header-btn-ativo' : 'shell-header-btn'
+                          }`;
                       }}
                     >
                       <HugeiconsIcon icon={Settings02Icon} size={18} strokeWidth={1.8} />
@@ -747,72 +749,71 @@ const LayoutCliente = ({ children }) => {
                   </TooltipContent>
                 </Tooltip>
 
-              {menuUsuarioAberto && (
-                <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-sm">
-                  {/* Dados do usuário */}
-                  <div className="px-4 py-2.5 border-b border-surface-border">
-                    <p className="font-bold text-ink-primary truncate">{usuario?.nome || 'Usuário'}</p>
-                    <p className="text-[11px] text-ink-secondary truncate">{usuario?.email}</p>
-                    <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold mt-1.5 ${badgeCargo.bg} ${badgeCargo.text}`}>
-                      {badgeCargo.label}
-                    </span>
-                  </div>
+                {menuUsuarioAberto && (
+                  <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-sm">
+                    {/* Dados do usuário */}
+                    <div className="px-4 py-2.5 border-b border-surface-border">
+                      <p className="font-bold text-ink-primary truncate">{usuario?.nome || 'Usuário'}</p>
+                      <p className="text-[11px] text-ink-secondary truncate">{usuario?.email}</p>
+                      <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold mt-1.5 ${badgeCargo.bg} ${badgeCargo.text}`}>
+                        {badgeCargo.label}
+                      </span>
+                    </div>
 
-                  {/* Links rápidos */}
-                  <div className="py-1">
-                    <NavLink
-                      to="/dashboard/configuracoes"
-                      onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
-                    >
-                      <HugeiconsIcon icon={UserIcon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
-                      <span>Meu Perfil</span>
-                    </NavLink>
-                    <NavLink
-                      to="/dashboard/configuracoes"
-                      onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
-                    >
-                      <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
-                      <span>Configurações</span>
-                    </NavLink>
-                    <NavLink
-                      to="/suporte"
-                      onClick={() => setMenuUsuarioAberto(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
-                    >
-                      <HugeiconsIcon icon={HelpCircleIcon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
-                      <span>Suporte</span>
-                    </NavLink>
-                  </div>
+                    {/* Links rápidos */}
+                    <div className="py-1">
+                      <NavLink
+                        to="/dashboard/configuracoes"
+                        onClick={() => setMenuUsuarioAberto(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
+                      >
+                        <HugeiconsIcon icon={UserIcon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
+                        <span>Meu Perfil</span>
+                      </NavLink>
+                      <NavLink
+                        to="/dashboard/configuracoes"
+                        onClick={() => setMenuUsuarioAberto(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
+                      >
+                        <HugeiconsIcon icon={Settings02Icon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
+                        <span>Configurações</span>
+                      </NavLink>
+                      <NavLink
+                        to="/suporte"
+                        onClick={() => setMenuUsuarioAberto(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-ink-primary hover:bg-surface-subtle font-medium"
+                      >
+                        <HugeiconsIcon icon={HelpCircleIcon} size={16} strokeWidth={1.8} className="text-ink-secondary" />
+                        <span>Suporte</span>
+                      </NavLink>
+                    </div>
 
-                  {/* Sair */}
-                  <div className="pt-1 border-t border-surface-border">
-                    <button
-                      onClick={() => {
-                        setMenuUsuarioAberto(false);
-                        logout();
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-red-600 hover:bg-red-50 font-semibold text-left"
-                    >
-                      <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={1.8} className="text-red-600" />
-                      <span>Sair da Conta</span>
-                    </button>
+                    {/* Sair */}
+                    <div className="pt-1 border-t border-surface-border">
+                      <button
+                        onClick={() => {
+                          setMenuUsuarioAberto(false);
+                          logout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-red-600 hover:bg-red-50 font-semibold text-left"
+                      >
+                        <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={1.8} className="text-red-600" />
+                        <span>Sair da Conta</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-        </TooltipProvider>
-      </header>
+          </TooltipProvider>
+        </header>
 
         {/* Page Content Stream (Nível 1) */}
         <main
-          className={`flex-1 bg-surface rounded-tl-3xl dark:border-t dark:border-l dark:border-white/[0.07] flex flex-col min-h-0 shadow-sm ${
-            location.pathname.startsWith('/automacoes')
+          className={`flex-1 bg-surface rounded-tl-3xl dark:border-t dark:border-l dark:border-white/[0.07] flex flex-col min-h-0 shadow-sm ${location.pathname.startsWith('/automacoes')
               ? 'overflow-hidden p-0'
               : 'overflow-auto px-4 sm:px-6 py-5 sm:py-6'
-          }`}
+            }`}
         >
           {children}
         </main>

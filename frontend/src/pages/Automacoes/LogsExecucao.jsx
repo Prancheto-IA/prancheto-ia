@@ -61,7 +61,7 @@ const LogsExecucao = ({ logs }) => {
             type="text"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por lead, empresa ou fluxo..."
+            placeholder="Buscar por cliente, empresa ou fluxo..."
             className="h-9 w-full rounded-xl border border-surface-border bg-surface-subtle pl-9 pr-3 text-xs font-medium text-ink-primary placeholder:text-ink-muted outline-none focus:border-brand-primary"
           />
         </div>

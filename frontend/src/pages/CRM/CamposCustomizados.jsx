@@ -8,6 +8,7 @@ import { useCamposCustom, TIPOS_CAMPO } from '../../hooks/useCRM.js';
 import PermissaoGuarda from '../../components/ui/PermissaoGuarda.jsx';
 import { useOrg } from '../../hooks/useOrg.js';
 import { SelectField } from '@/components/ui/select';
+import { SimpleTooltip } from '@/components/reui/tooltip';
 
 // ─── Componentes auxiliares ────────────────────────────────────
 const Spinner = () => (
@@ -250,8 +251,14 @@ const CardCampo = ({ campo, onEditar, onExcluir }) => (
       </div>
     </div>
     <div className="flex gap-2 flex-shrink-0">
-      <button onClick={() => onEditar(campo)} className="text-muted hover:text-primary-400 transition-colors text-sm" title="Editar">✏️</button>
-      <PermissaoGuarda permissao="crm.excluir"><button onClick={() => onExcluir(campo.id)} className="text-muted hover:text-red-400 transition-colors text-sm" title="Desativar">🗑️</button></PermissaoGuarda>
+      <SimpleTooltip content="Editar Campo">
+        <button onClick={() => onEditar(campo)} className="text-muted hover:text-primary-400 transition-colors text-sm cursor-pointer">✏️</button>
+      </SimpleTooltip>
+      <PermissaoGuarda permissao="crm.excluir">
+        <SimpleTooltip content="Desativar Campo">
+          <button onClick={() => onExcluir(campo.id)} className="text-muted hover:text-red-400 transition-colors text-sm cursor-pointer">🗑️</button>
+        </SimpleTooltip>
+      </PermissaoGuarda>
     </div>
   </div>
 );
