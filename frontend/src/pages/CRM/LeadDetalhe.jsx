@@ -1030,44 +1030,46 @@ const LeadDetalhe = () => {
               <span className="text-[10px] text-[#687770] font-medium">Conta</span>
             </div>
 
-            {/* Deal Item 1 */}
-            <div className="p-3.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:border-[#0E382C] hover:bg-white transition-all group cursor-pointer">
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-white border border-[#E4ECE7] flex items-center justify-center text-sm font-bold text-[#0E382C]">
-                    $
+            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-0.5">
+              {/* Deal Item 1 */}
+              <div className="p-3.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:border-[#0E382C] hover:bg-white transition-all group cursor-pointer">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-white border border-[#E4ECE7] flex items-center justify-center text-sm font-bold text-[#0E382C]">
+                      $
+                    </div>
+                    <span className="text-sm font-bold text-[#111915]">Expansão de Licenças</span>
                   </div>
-                  <span className="text-sm font-bold text-[#111915]">Expansão de Licenças</span>
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} className="text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} className="text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" />
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold text-[#0E382C]">R$ 5.600</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">
+                    Chamar Novamente
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#687770] mt-1">{deal.empresa || 'Widget.io'}</p>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-[#0E382C]">R$ 5.600</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">
-                  Chamar Novamente
-                </span>
-              </div>
-              <p className="text-[11px] text-[#687770] mt-1">{deal.empresa || 'Widget.io'}</p>
-            </div>
 
-            {/* Deal Item 2 */}
-            <div className="p-3.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:border-[#0E382C] hover:bg-white transition-all group cursor-pointer">
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-white border border-[#E4ECE7] flex items-center justify-center text-sm font-bold text-[#0E382C]">
-                    $
+              {/* Deal Item 2 */}
+              <div className="p-3.5 rounded-xl border border-[#E4ECE7] bg-[#F7FAF8] hover:border-[#0E382C] hover:bg-white transition-all group cursor-pointer">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-white border border-[#E4ECE7] flex items-center justify-center text-sm font-bold text-[#0E382C]">
+                      $
+                    </div>
+                    <span className="text-sm font-bold text-[#111915]">Suporte e Onboarding</span>
                   </div>
-                  <span className="text-sm font-bold text-[#111915]">Suporte e Onboarding</span>
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} className="text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} className="text-[#99A6A0] group-hover:text-[#0E382C] group-hover:translate-x-0.5 transition-all" />
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold text-[#0E382C]">R$ 1.200</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                    Deu Bom!
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#687770] mt-1">{deal.empresa || 'Widget.io'}</p>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-[#0E382C]">R$ 1.200</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                  Deu Bom!
-                </span>
-              </div>
-              <p className="text-[11px] text-[#687770] mt-1">{deal.empresa || 'Widget.io'}</p>
             </div>
           </div>
 
