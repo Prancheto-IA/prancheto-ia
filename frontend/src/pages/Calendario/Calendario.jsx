@@ -78,13 +78,13 @@ const TIPOS_EVENTO = {
 };
 
 const DIAS_SEMANA = [
-  { curto: 'Mon', completo: 'Segunda-feira' },
-  { curto: 'Tues', completo: 'Terça-feira' },
-  { curto: 'Wed', completo: 'Quarta-feira' },
-  { curto: 'Thu', completo: 'Quinta-feira' },
-  { curto: 'Fri', completo: 'Sexta-feira' },
-  { curto: 'Sat', completo: 'Sábado' },
-  { curto: 'Sun', completo: 'Domingo' },
+  { curto: 'Seg', completo: 'Segunda-feira' },
+  { curto: 'Ter', completo: 'Terça-feira' },
+  { curto: 'Qua', completo: 'Quarta-feira' },
+  { curto: 'Qui', completo: 'Quinta-feira' },
+  { curto: 'Sex', completo: 'Sexta-feira' },
+  { curto: 'Sáb', completo: 'Sábado' },
+  { curto: 'Dom', completo: 'Domingo' },
 ];
 
 const MESES = [
@@ -1324,11 +1324,12 @@ const Calendario = () => {
         {visaoModo === 'mes' && (
           <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
             <div className="w-full flex-1 min-h-0 flex flex-col overflow-hidden">
-              {/* Linha dos Dias da Semana (Mon - Sun) */}
+              {/* Linha dos Dias da Semana (Seg - Dom) */}
               <div className="grid grid-cols-7 border-b border-[#E4ECE7] bg-[#F7FAF8] divide-x divide-[#E4ECE7] flex-shrink-0">
                 {DIAS_SEMANA.map((d) => (
                   <div key={d.curto} className="py-2.5 text-center text-sm font-semibold text-[#687770]">
-                    {d.curto}
+                    <span className="hidden md:inline">{d.completo}</span>
+                    <span className="md:hidden">{d.curto}</span>
                   </div>
                 ))}
               </div>
@@ -1386,7 +1387,10 @@ const Calendario = () => {
                     className="bg-[#F7FAF8] rounded-2xl p-2.5 border border-[#E4ECE7] flex flex-col space-y-2 h-full"
                   >
                     <div className="flex items-center justify-between pb-2 border-b border-[#E4ECE7] flex-shrink-0">
-                      <span className="text-sm font-bold text-[#687770]">{diaInfo.curto}</span>
+                      <span className="text-sm font-bold text-[#687770]">
+                        <span className="hidden xl:inline">{diaInfo.completo}</span>
+                        <span className="xl:hidden">{diaInfo.curto}</span>
+                      </span>
                       <span
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
                           eHoje ? 'bg-[#111915] text-white' : 'text-[#111915]'
