@@ -471,7 +471,7 @@ const Automacoes = () => {
           {/* Cabeçalho da Página */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-ink-primary">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-ink-primary">
                 Automações
               </h1>
               <p className="text-xs sm:text-sm text-ink-secondary">
@@ -483,11 +483,11 @@ const Automacoes = () => {
               <button
                 type="button"
                 onClick={() => setModalConexoesAberto(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/15 bg-surface-card hover:bg-surface-hover px-4 py-2 text-xs font-bold text-ink-primary transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-3.5 py-2 text-xs font-semibold text-ink-primary transition-colors cursor-pointer"
               >
-                <HugeiconsIcon icon={WhatsappIcon} size={16} className="text-emerald-500" />
+                <HugeiconsIcon icon={WhatsappIcon} size={15} className="text-emerald-500" />
                 <span>WhatsApp</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black">
+                <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
                   {conexoesOnline}/{conexoes.length}
                 </span>
               </button>
@@ -498,45 +498,45 @@ const Automacoes = () => {
                   setTesteWorkflowId(workflowAtual?.id || workflows[0]?.id || '');
                   setModalTesteAberto(true);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-black/10 dark:border-white/15 bg-surface-card hover:bg-surface-hover px-4 py-2 text-xs font-bold text-ink-primary transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-3.5 py-2 text-xs font-semibold text-ink-primary transition-colors cursor-pointer"
               >
-                <HugeiconsIcon icon={AiSparklesIcon} size={16} className="text-brand-purple" />
+                <HugeiconsIcon icon={AiSparklesIcon} size={15} className="text-brand-purple" />
                 <span>Simular Lead</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleCriarNovoFluxo}
-                className="inline-flex items-center gap-2 rounded-full bg-brand-primary hover:bg-brand-primary-hover text-white px-5 py-2.5 text-xs font-black shadow-md transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 px-4 py-2 text-xs font-semibold text-white shadow-xs transition-opacity cursor-pointer"
               >
-                <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.4} />
+                <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.4} />
                 <span>Nova Automação</span>
               </button>
             </div>
           </div>
 
-          {/* Barra de Busca e Filtros em Pílulas */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+          {/* Barra de Busca e Filtros no Padrão do Projeto */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
             <div className="relative flex-1 max-w-md">
               <HugeiconsIcon
                 icon={Search01Icon}
                 size={16}
                 strokeWidth={2}
-                className="text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                className="text-ink-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
               />
               <input
                 type="text"
                 value={buscaFluxo}
                 onChange={(e) => setBuscaFluxo(e.target.value)}
                 placeholder="Pesquisar automações..."
-                className="h-10 w-full rounded-full border border-black/10 dark:border-white/15 bg-black/5 dark:bg-white/5 pl-10 pr-8 text-xs font-bold text-ink-primary outline-none focus:border-brand-primary transition-colors"
+                className="h-9 w-full rounded-xl border border-surface-border bg-surface-subtle pl-9 pr-8 text-xs font-medium text-ink-primary outline-none focus:border-brand-primary transition-colors"
               />
               {buscaFluxo && (
                 <button
                   type="button"
                   onClick={() => setBuscaFluxo('')}
                   aria-label="Limpar busca"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-primary cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-primary cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -544,13 +544,13 @@ const Automacoes = () => {
             </div>
 
             {/* Pílulas de Filtro (Todos / Ativos / Pausados) */}
-            <div className="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-full w-fit">
+            <div className="flex items-center gap-1 bg-surface-subtle border border-surface-border p-1 rounded-xl w-fit">
               <button
                 type="button"
                 onClick={() => setFiltroStatusFluxo('todos')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filtroStatusFluxo === 'todos'
-                    ? 'bg-white dark:bg-[#18181B] text-black dark:text-white shadow-xs'
+                    ? 'bg-surface-card text-ink-primary shadow-xs'
                     : 'text-ink-muted hover:text-ink-primary'
                 }`}
               >
@@ -559,9 +559,9 @@ const Automacoes = () => {
               <button
                 type="button"
                 onClick={() => setFiltroStatusFluxo('ativos')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filtroStatusFluxo === 'ativos'
-                    ? 'bg-white dark:bg-[#18181B] text-black dark:text-white shadow-xs'
+                    ? 'bg-surface-card text-ink-primary shadow-xs'
                     : 'text-ink-muted hover:text-ink-primary'
                 }`}
               >
@@ -570,9 +570,9 @@ const Automacoes = () => {
               <button
                 type="button"
                 onClick={() => setFiltroStatusFluxo('pausados')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filtroStatusFluxo === 'pausados'
-                    ? 'bg-white dark:bg-[#18181B] text-black dark:text-white shadow-xs'
+                    ? 'bg-surface-card text-ink-primary shadow-xs'
                     : 'text-ink-muted hover:text-ink-primary'
                 }`}
               >
@@ -581,14 +581,14 @@ const Automacoes = () => {
             </div>
           </div>
 
-          {/* Grade de 3 Colunas de Automações Coloridas */}
+          {/* Grade de 3 Colunas de Automações no Design System do Projeto */}
           {fluxosFiltrados.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-surface-border-strong bg-surface-card/70 px-6 py-16 text-center space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center mx-auto text-ink-muted">
-                <HugeiconsIcon icon={FlashIcon} size={24} />
+              <div className="w-11 h-11 rounded-xl bg-surface-subtle border border-surface-border flex items-center justify-center mx-auto text-ink-muted">
+                <HugeiconsIcon icon={FlashIcon} size={22} />
               </div>
               <div className="space-y-1">
-                <h2 className="text-base font-bold text-ink-primary">
+                <h2 className="text-sm font-bold text-ink-primary">
                   Nenhuma automação encontrada
                 </h2>
                 <p className="text-xs text-ink-secondary max-w-sm mx-auto">
@@ -598,9 +598,9 @@ const Automacoes = () => {
               <button
                 type="button"
                 onClick={handleCriarNovoFluxo}
-                className="inline-flex items-center gap-2 rounded-full bg-brand-primary hover:bg-brand-primary-hover text-white px-5 py-2.5 text-xs font-black cursor-pointer shadow-md"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 text-white px-4 py-2 text-xs font-semibold cursor-pointer shadow-xs"
               >
-                <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.4} />
+                <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2.4} />
                 <span>Criar Primeira Automação</span>
               </button>
             </div>
@@ -622,24 +622,24 @@ const Automacoes = () => {
                     key={wf.id}
                     onClick={() => handleAbrirDetalhes(wf)}
                     style={{ backgroundColor: corCard }}
-                    className="rounded-2xl p-5 sm:p-6 text-white shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between min-h-[220px] group select-none"
+                    className="rounded-2xl p-5 text-white shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between min-h-[220px] group select-none relative overflow-hidden"
                   >
-                    {/* Topo do Card: Ícones circulares dos serviços + Badge Ativo */}
+                    {/* Topo do Card: Ícones dos serviços + Badge Ativo */}
                     <div className="flex items-center justify-between gap-3 mb-3.5">
-                      <div className="flex items-center -space-x-2">
-                        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center border-2 border-white/30 text-white shadow-sm">
-                          <HugeiconsIcon icon={IconeGatilho} size={20} strokeWidth={2.2} />
+                      <div className="flex items-center -space-x-1.5">
+                        <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center border border-white/30 text-white shadow-xs">
+                          <HugeiconsIcon icon={IconeGatilho} size={18} strokeWidth={2.2} />
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-white/30 backdrop-blur-xs flex items-center justify-center border-2 border-white/40 text-white shadow-sm">
-                          <HugeiconsIcon icon={IconeAcao} size={20} strokeWidth={2.2} />
+                        <div className="w-9 h-9 rounded-xl bg-white/30 backdrop-blur-xs flex items-center justify-center border border-white/40 text-white shadow-xs">
+                          <HugeiconsIcon icon={IconeAcao} size={18} strokeWidth={2.2} />
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                          className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg ${
                             wf.ativo
-                              ? 'bg-white text-black shadow-xs'
+                              ? 'bg-white text-ink-primary shadow-2xs'
                               : 'bg-white/20 text-white/90'
                           }`}
                         >
@@ -649,44 +649,37 @@ const Automacoes = () => {
                     </div>
 
                     {/* Título e Descrição */}
-                    <div className="space-y-1 mb-5">
-                      <h3 className="text-base sm:text-lg font-black leading-snug line-clamp-2">
+                    <div className="space-y-1 mb-4">
+                      <h3 className="text-sm sm:text-base font-extrabold leading-snug line-clamp-2">
                         {wf.nome}
                       </h3>
                       <p className="text-xs text-white/85 line-clamp-2 leading-relaxed">
                         {wf.descricao || 'Automação inteligente acionada por eventos do CRM.'}
                       </p>
-                      <span className="text-[11px] text-white/70 font-semibold block pt-1">
+                      <span className="text-[11px] text-white/70 font-medium block pt-1">
                         {wf.execucoesTotal || 0} disparos · {wf.ultimaExecucao || 'Pronta'}
                       </span>
                     </div>
 
-                    {/* Rodapé: Switch Rápido + Botão Testar + Botão Detalhes */}
+                    {/* Rodapé: Switch Padrão do Projeto + Botão Testar + Botão Detalhes */}
                     <div
-                      className="flex items-center justify-between gap-2 pt-3.5 border-t border-white/20"
+                      className="flex items-center justify-between gap-2 pt-3 border-t border-white/20"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {/* Switch rápido de Ativação */}
-                      <div
-                        onClick={() => alternarAtivoWorkflow(wf.id, !wf.ativo)}
-                        className={`px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer transition-colors ${
-                          wf.ativo
-                            ? 'bg-black/35 hover:bg-black/45 text-white'
-                            : 'bg-white/20 hover:bg-white/30 text-white/80'
-                        }`}
-                        title={wf.ativo ? 'Clique para pausar' : 'Clique para ativar'}
-                      >
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            wf.ativo ? 'bg-emerald-400 animate-pulse' : 'bg-white/50'
-                          }`}
+                      {/* Seletor Switch Nativo do Projeto */}
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          size="sm"
+                          variant="success"
+                          checked={wf.ativo}
+                          onCheckedChange={(checked) => alternarAtivoWorkflow(wf.id, checked)}
                         />
-                        <span className="text-[11px] font-black">
+                        <span className="text-xs font-semibold text-white">
                           {wf.ativo ? 'Ativo' : 'Pausado'}
                         </span>
                       </div>
 
-                      {/* Botões de Ação */}
+                      {/* Botões no padrão do projeto */}
                       <div className="flex items-center gap-1.5">
                         <button
                           type="button"
@@ -700,7 +693,7 @@ const Automacoes = () => {
                         <button
                           type="button"
                           onClick={() => handleAbrirDetalhes(wf)}
-                          className="px-3 py-1.5 rounded-lg bg-white text-black font-black text-xs hover:bg-white/90 transition-all cursor-pointer shadow-xs flex items-center gap-1"
+                          className="px-3 py-1.5 rounded-xl bg-white text-ink-primary font-semibold text-xs hover:bg-white/90 transition-all cursor-pointer shadow-2xs flex items-center gap-1"
                         >
                           <span>Ver Detalhes</span>
                           <HugeiconsIcon icon={ArrowRight01Icon} size={13} strokeWidth={2.4} />
