@@ -76,7 +76,7 @@ const lerStorage = (chaveBase, tenantId, fallback) => {
     const bruto = localStorage.getItem(chave);
     if (!bruto) return fallback;
     const parsed = JSON.parse(bruto);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : fallback;
+    return Array.isArray(parsed) ? parsed : fallback;
   } catch {
     return fallback;
   }
@@ -301,12 +301,6 @@ const Automacoes = () => {
   const executarConfirmacaoExclusao = useCallback(() => {
     if (wfParaExcluir) {
       // Excluir individual
-      if (workflows.length <= 1) {
-        adicionarNotificacao('warning', 'Mantenha ao menos uma automação cadastrada.');
-        setModalConfirmarExclusao(false);
-        setWfParaExcluir(null);
-        return;
-      }
       const alvo = workflows.find((w) => w.id === wfParaExcluir.id);
       const restantes = workflows.filter((w) => w.id !== wfParaExcluir.id);
       setWorkflows(restantes);
@@ -317,11 +311,6 @@ const Automacoes = () => {
       adicionarNotificacao('info', `Automação "${alvo?.nome || ''}" excluída com sucesso.`);
     } else if (idsSelecionados.length > 0) {
       // Excluir em lote
-      if (workflows.length - idsSelecionados.length < 1) {
-        adicionarNotificacao('warning', 'Você precisa manter ao menos uma automação cadastrada.');
-        setModalConfirmarExclusao(false);
-        return;
-      }
       const restantes = workflows.filter((w) => !idsSelecionados.includes(w.id));
       const qtd = idsSelecionados.length;
       setWorkflows(restantes);

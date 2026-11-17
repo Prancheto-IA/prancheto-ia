@@ -266,6 +266,7 @@ const WorkflowLinearBuilder = ({
 
   // Menu expansível de passos intermediários (+/-)
   const [menuIntermediarioAberto, setMenuIntermediarioAberto] = useState(false);
+  const [menuAcaoAdicionalAberto, setMenuAcaoAdicionalAberto] = useState(false);
 
   // Busca na tela de escolher serviços
   const [buscaServico, setBuscaServico] = useState('');
@@ -1419,6 +1420,101 @@ const WorkflowLinearBuilder = ({
                     onRemover={() => handleRemoverNo(acao.id)}
                   />
                 ))}
+              </div>
+            )}
+
+            {/* Conector e Botão de Adicionar Mais Passos após a Ação */}
+            {passosAcoes.length > 0 && (
+              <div className="pt-2">
+                <div className="flex flex-col items-center justify-center py-2">
+                  <div className="w-0.5 h-6 bg-surface-border" />
+
+                  <button
+                    type="button"
+                    onClick={() => setMenuAcaoAdicionalAberto((v) => !v)}
+                    className="px-3.5 py-1.5 rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover text-ink-primary font-semibold text-xs shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer z-10"
+                    title="Adicionar próximo passo ou ação"
+                  >
+                    <HugeiconsIcon
+                      icon={menuAcaoAdicionalAberto ? MinusSignIcon : Add01Icon}
+                      size={14}
+                      strokeWidth={2.4}
+                    />
+                    <span>{menuAcaoAdicionalAberto ? 'Fechar' : 'Adicionar Passo'}</span>
+                  </button>
+
+                  <div className="w-0.5 h-6 bg-surface-border" />
+                </div>
+
+                {/* Menu de Escolha do Próximo Passo */}
+                {menuAcaoAdicionalAberto && (
+                  <div className="rounded-2xl border border-surface-border bg-surface-card p-3.5 shadow-md space-y-2 mb-2 animate-scale-up">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-hover transition-colors">
+                      <div>
+                        <h4 className="text-xs font-bold text-ink-primary">
+                          Nova Ação Automática
+                        </h4>
+                        <p className="text-[11px] text-ink-muted">
+                          Dispare WhatsApp, crie tarefas no CRM ou envie Webhooks.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuAcaoAdicionalAberto(false);
+                          handleIniciarAdicaoAcao();
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 text-white font-semibold text-xs shadow-xs cursor-pointer"
+                      >
+                        Adicionar
+                      </button>
+                    </div>
+
+                    <div className="h-px bg-surface-border" />
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-hover transition-colors">
+                      <div>
+                        <h4 className="text-xs font-bold text-ink-primary">
+                          Personalização com IA
+                        </h4>
+                        <p className="text-[11px] text-ink-muted">
+                          Gere mensagens adaptadas com o Pranchetinho IA.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuAcaoAdicionalAberto(false);
+                          handleIniciarAdicaoIntermediario('ia');
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 text-white font-semibold text-xs shadow-xs cursor-pointer"
+                      >
+                        Adicionar
+                      </button>
+                    </div>
+
+                    <div className="h-px bg-surface-border" />
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-hover transition-colors">
+                      <div>
+                        <h4 className="text-xs font-bold text-ink-primary">Atraso / Delay</h4>
+                        <p className="text-[11px] text-ink-muted">
+                          Aguarde minutos, horas ou dias antes de continuar.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuAcaoAdicionalAberto(false);
+                          handleIniciarAdicaoIntermediario('atraso');
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 text-white font-semibold text-xs shadow-xs cursor-pointer"
+                      >
+                        Adicionar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
