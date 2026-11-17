@@ -1324,19 +1324,24 @@ function MonthView({
                     variant="compact"
                   />
                 ))}
-                {dayEvents.length > 2 && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onViewMore?.(day);
-                    }}
-                    className="text-[10px] font-bold text-ink-secondary hover:text-brand-primary hover:underline px-0.5 truncate cursor-pointer transition-colors text-left"
-                    title="Ver compromissos na visão semanal"
-                  >
-                    +{dayEvents.length - 2} mais
-                  </button>
-                )}
+                {dayEvents.length > 2 && (() => {
+                  const qtdRestante = dayEvents.length - 2;
+                  const labelEvento = `+${qtdRestante} ${qtdRestante === 1 ? 'evento' : 'eventos'}`;
+                  return (
+                    <button
+                      type="button"
+                      data-event-card="true"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewMore?.(day);
+                      }}
+                      className="w-full text-left rounded-md px-1.5 py-0.5 text-[11px] font-semibold bg-surface-subtle hover:bg-surface-hover text-ink-secondary hover:text-ink-primary border border-surface-border transition-all duration-200 truncate shadow-2xs leading-tight hover:scale-[1.02] cursor-pointer block select-none"
+                      title="Ver todos os compromissos deste dia"
+                    >
+                      {labelEvento}
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           );
