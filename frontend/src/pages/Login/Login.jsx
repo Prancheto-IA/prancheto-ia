@@ -8,6 +8,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useAuthStore } from '../../store/authStore.js';
+import logoClaro from '@/assets/logo/Logo-LH.svg';
+import logoEscuro from '@/assets/logo/Logo-LHW.svg';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Mail01Icon,
@@ -68,18 +70,18 @@ const PaginaLogin = () => {
         {/* BEGIN: LeftColumnAuthentication */}
         <section className="lg:col-span-6 flex flex-col justify-between p-6 sm:p-8 md:p-10 lg:p-7 xl:p-10 2xl:p-12 bg-surface-card" data-purpose="auth-panel">
           <div>
-            {/* Top Branding */}
-            <header className="flex items-center space-x-2.5 mb-6 lg:mb-7 xl:mb-8">
-              <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center shadow-sm">
-                <svg className="w-4 h-4 text-brand-accent" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                  <polyline points="2 17 12 22 22 17"></polyline>
-                  <polyline points="2 12 12 17 22 12"></polyline>
-                </svg>
-              </div>
-              <span className="text-xl font-bold tracking-tight text-brand-primary">
-                Prancheto<span className="text-brand-secondary">.IA</span>
-              </span>
+            {/* Top Branding com suporte a modo claro e escuro */}
+            <header className="flex items-center mb-6 lg:mb-7 xl:mb-8">
+              <img
+                src={logoClaro}
+                alt="Prancheto.IA"
+                className="h-10 sm:h-11 w-auto max-w-[210px] object-contain select-none block dark:hidden"
+              />
+              <img
+                src={logoEscuro}
+                alt="Prancheto.IA"
+                className="h-10 sm:h-11 w-auto max-w-[210px] object-contain select-none hidden dark:block"
+              />
             </header>
 
             {/* Welcome Title & Subtitle */}
