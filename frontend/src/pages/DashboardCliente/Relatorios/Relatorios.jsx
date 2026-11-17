@@ -264,9 +264,9 @@ const Relatorios = () => {
       ['Total de Clientes', dados.totalLeads],
       ['Clientes Ativos', dados.totalClientes],
       ['Negócios Fechados', dados.fechados],
-      ['Receita Fechada', `R$ ${fmt(dados.valorFechado)}`],
+      ['Grana Total no Mês', `R$ ${fmt(dados.valorFechado)}`],
       ['Taxa de Conversão', `${dados.taxaConversao}%`],
-      ['LTV Médio', `R$ ${fmt(dados.ltvMedio)}`],
+      ['Grana média (clientes)', `R$ ${fmt(dados.ltvMedio)}`],
       ['Clientes Quentes', dados.leadsQuentes],
       ['Clientes Frios', dados.leadsFrios],
       ['Pipeline Ativo', `R$ ${fmt(dados.valorPipeline)}`],
@@ -433,7 +433,7 @@ const Relatorios = () => {
           </div>
         </div>
 
-        {/* Card 4: Receita fechada */}
+        {/* Card 4: Grana Total no Mês */}
         <div className="bg-white rounded-2xl p-4 sm:p-4.5 border border-[#E4ECE7] shadow-[0_2px_10px_-2px_rgba(14,56,44,0.03)] hover:shadow-md hover:border-[#CBDCD1] transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -448,7 +448,7 @@ const Relatorios = () => {
               R$ {fmt(dados?.valorFechado || 0)}
             </p>
             <p className="text-sm font-semibold text-[#687770] mt-1">
-              Receita fechada
+              Grana Total no Mês
             </p>
           </div>
         </div>
@@ -473,7 +473,7 @@ const Relatorios = () => {
           </div>
         </div>
 
-        {/* Card 6: LTV médio */}
+        {/* Card 6: Grana média (clientes) */}
         <div className="bg-white rounded-2xl p-4 sm:p-4.5 border border-[#E4ECE7] shadow-[0_2px_10px_-2px_rgba(14,56,44,0.03)] hover:shadow-md hover:border-[#CBDCD1] transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
@@ -488,7 +488,7 @@ const Relatorios = () => {
               R$ {fmt(dados?.ltvMedio || 0)}
             </p>
             <p className="text-sm font-semibold text-[#687770] mt-1">
-              LTV médio (clientes)
+              Grana média (clientes)
             </p>
           </div>
         </div>

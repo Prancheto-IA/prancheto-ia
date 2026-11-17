@@ -26,7 +26,7 @@ export const CATALOGO_SIDEBAR = [
   { slug: 'chat_ia',      label: 'Pranchetinho',    emoji: '🧠', rota: '/dashboard/agente',            exact: false, prefixoAtivo: '/dashboard/agente',     removivel: true  },
   { slug: 'tarefas',      label: 'Tarefas',        emoji: '✅', rota: '/tarefas',                     exact: false, prefixoAtivo: null,                    removivel: true  },
   { slug: 'projetos',     label: 'Projetos',       emoji: '📁', rota: '/projetos',                    exact: false, prefixoAtivo: '/projetos',             removivel: true  },
-  { slug: 'organizacao',  label: 'Organização',    emoji: '🏢', rota: '/times-pessoas',               exact: false, prefixoAtivo: '/times-pessoas',        removivel: true  },
+  { slug: 'organizacao',  label: 'Galera do Time', emoji: '🏢', rota: '/times-pessoas',               exact: false, prefixoAtivo: '/times-pessoas',        removivel: true  },
   { slug: 'relatorios',   label: 'Relatórios',     emoji: '📊', rota: '/dashboard/relatorios',        exact: false, prefixoAtivo: null,                    removivel: true  },
 ];
 

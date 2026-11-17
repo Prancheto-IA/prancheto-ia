@@ -34,7 +34,6 @@ import {
   SimpleTooltip,
 } from '@/components/reui/tooltip';
 import logoCompletoPrancheto from '@/assets/logo/Logo-LHW.svg';
-import iconePrancheto from '@/assets/logo/Logo-S.svg';
 import { IconeCerebro } from '@/components/ui/IconeCerebro.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -76,9 +75,9 @@ const BADGE_CARGO = {
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Logo da Marca
+// COMPONENTE: Logo da Marca (Fixo no Header)
 // ----------------------------------------------------------
-const MarcaLogo = ({ colapsada = false }) => {
+const MarcaLogo = () => {
   const logoTenantUrl = useTenantStore((s) => s.tenant?.logo_url);
   const [falhou, setFalhou] = useState(false);
 
@@ -90,29 +89,19 @@ const MarcaLogo = ({ colapsada = false }) => {
       <img
         src={logoTenantUrl}
         alt="Logo"
-        className="h-8 max-w-full object-contain flex-shrink-0"
+        className="h-12 max-w-[210px] object-contain flex-shrink-0"
         onError={() => setFalhou(true)}
       />
     );
   }
 
-  // Logo Oficial do Prancheto.IA (mantém ambos no DOM para transição instantânea sem remount)
+  // Logo Oficial do Prancheto.IA - h-12 fixo no Header
   return (
-    <div
-      className={`relative flex items-center justify-center group/logo ${colapsada ? 'w-10 h-10 translate-x-1' : 'px-1.5 py-1'
-        }`}
-    >
-      <img
-        src={iconePrancheto}
-        alt="Prancheto.IA"
-        className={`w-8 h-8 object-contain flex-shrink-0 select-none ${colapsada ? 'block' : 'hidden'
-          }`}
-      />
+    <div className="relative flex items-center justify-center group/logo py-0.5">
       <img
         src={logoCompletoPrancheto}
         alt="Prancheto.IA"
-        className={`h-9 w-auto max-w-[195px] object-contain select-none ${colapsada ? 'hidden' : 'block'
-          }`}
+        className="h-12 w-auto max-w-[220px] object-contain select-none"
       />
     </div>
   );
@@ -158,7 +147,12 @@ const ItemNav = ({ item, colapsada, onClick, onDesafixarChatIa }) => {
   }
   const ativo = item.exact ? rotaExata : rotaExata || ativoViaPrefixo;
   const ehChatIa = item.slug === 'chat_ia' && typeof onDesafixarChatIa === 'function';
-  const labelExibicao = item.slug === 'chat_ia' ? 'Pranchetinho' : item.label;
+  const labelExibicao =
+    item.slug === 'chat_ia'
+      ? 'Pranchetinho'
+      : item.slug === 'organizacao'
+        ? 'Galera do Time'
+        : item.label;
   const tooltipExibicao = item.slug === 'chat_ia' ? 'Chat com IA' : labelExibicao;
 
   return (
@@ -270,7 +264,9 @@ const ItemSortableModal = ({ item, onToggle }) => {
       </SimpleTooltip>
 
       <span className="flex-shrink-0 text-slate-600">{getIconeItem(item.slug)}</span>
-      <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
+      <span className="flex-1 text-sm font-medium truncate">
+        {item.slug === 'organizacao' ? 'Galera do Time' : item.label}
+      </span>
 
       {fixo ? (
         <SimpleTooltip content="Item fixo na barra lateral" side="top">
@@ -421,31 +417,22 @@ const Sidebar = ({ aberta, onFechar, prefs }) => {
         className={`
           fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden shell-sidebar lg:bg-transparent
           transition-[width] duration-150 ease-out flex-shrink-0
-          lg:static lg:z-auto lg:translate-x-0
+          lg:static lg:z-auto lg:h-full lg:translate-x-0
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
           w-64 ${colapsada ? 'lg:w-16' : 'lg:w-64'}
         `}
       >
-        <div className="w-64 h-full flex flex-col flex-shrink-0">
+        <div className={`h-full flex flex-col flex-shrink-0 ${colapsada ? 'w-16' : 'w-64'}`}>
           <TooltipProvider delay={100}>
-            {/* Logo Header */}
-            <div className="h-16 flex items-center px-3 flex-shrink-0 overflow-hidden">
-              <Tooltip disabled={!colapsada}>
-                <TooltipTrigger
-                  render={
-                    <NavLink
-                      to="/dashboard"
-                      className="flex items-center gap-2 min-w-0 transition-opacity hover:opacity-90 cursor-pointer"
-                    >
-                      <MarcaLogo colapsada={colapsada} />
-                    </NavLink>
-                  }
-                />
-                <TooltipContent side="inline-end" sideOffset={10}>
-                  <p className="text-xs font-semibold">Ir para o início</p>
-                </TooltipContent>
-              </Tooltip>
-              <button onClick={onFechar} className="ml-auto text-white/70 hover:text-white lg:hidden p-1 rounded-lg cursor-pointer" title="Fechar menu">
+            {/* Topo visível exclusivamente no drawer mobile */}
+            <div className="h-16 flex items-center justify-between px-4 flex-shrink-0 lg:hidden border-b border-white/10">
+              <MarcaLogo />
+              <button
+                type="button"
+                onClick={onFechar}
+                className="text-white/80 hover:text-white p-1 rounded-lg cursor-pointer"
+                title="Fechar menu"
+              >
                 <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
               </button>
             </div>
@@ -559,65 +546,36 @@ const LayoutCliente = ({ children }) => {
   }, [menuUsuarioAberto, notificacoesAbertas]);
 
   return (
-    <div className="h-screen shell-app-bg flex items-stretch overflow-hidden font-sans">
-      {/* Sidebar */}
-      <Sidebar
-        aberta={sidebarAberta}
-        onFechar={() => setSidebarAberta(false)}
-        prefs={prefs}
-      />
+    <div className="h-screen shell-app-bg flex flex-col overflow-hidden font-sans">
+      {/* ─── Top Header (Fixo de ponta a ponta com logo integrado) ─── */}
+      <header className="h-16 bg-transparent pl-3 sm:pl-4 lg:pl-[15.5px] pr-4 sm:pr-6 flex items-center justify-between gap-4 flex-shrink-0 z-30">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <button
+                  type="button"
+                  onClick={() => setSidebarAberta(true)}
+                  className="lg:hidden p-2 text-white/80 hover:text-white rounded-lg cursor-pointer"
+                  aria-label="Abrir menu"
+                >
+                  <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
+                </button>
+              }
+            />
+            <TooltipContent side="bottom" sideOffset={8}>
+              <p className="text-xs font-semibold">Abrir menu</p>
+            </TooltipContent>
+          </Tooltip>
 
-      {/* Toggle Sidebar Desktop Button */}
-      <TooltipProvider delay={100}>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <button
-                onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
-                className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full shell-toggle-btn focus:outline-none transition-[left,background,color,transform,box-shadow] duration-150 ease-out cursor-pointer"
-                style={{
-                  left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
-                }}
-                aria-label={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
-              >
-                <HugeiconsIcon
-                  icon={prefs.colapsada ? ArrowRight01Icon : ArrowLeft01Icon}
-                  size={14}
-                  strokeWidth={2.2}
-                  className="transition-transform duration-150"
-                />
-              </button>
-            }
-          />
-          <TooltipContent side="inline-end" sideOffset={10}>
-            <p className="text-xs font-semibold">{prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      {/* Main App Canvas */}
-      <div className="flex-1 flex flex-col min-w-0 bg-transparent">
-        {/* Top Header */}
-        <header className="h-16 bg-transparent px-6 flex items-center justify-between gap-4 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <button
-                    type="button"
-                    onClick={() => setSidebarAberta(true)}
-                    className="lg:hidden p-2 text-white/80 hover:text-white rounded-lg cursor-pointer"
-                    aria-label="Abrir menu"
-                  >
-                    <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
-                  </button>
-                }
-              />
-              <TooltipContent side="bottom" sideOffset={8}>
-                <p className="text-xs font-semibold">Abrir menu</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          {/* Logo da Marca - Alinhado com a lateral direita dos botões da sidebar */}
+          <NavLink
+            to="/dashboard"
+            className="flex items-center min-w-0 transition-opacity hover:opacity-90 cursor-pointer"
+          >
+            <MarcaLogo />
+          </NavLink>
+        </div>
 
           {/* Search Pill */}
           <div className="flex-1 max-w-xl hidden sm:block relative">
@@ -808,16 +766,53 @@ const LayoutCliente = ({ children }) => {
           </TooltipProvider>
         </header>
 
-        {/* Page Content Stream (Nível 1) */}
-        <main
-          className={`flex-1 bg-surface rounded-tl-3xl dark:border-t dark:border-l dark:border-white/[0.07] flex flex-col min-h-0 shadow-sm ${location.pathname.startsWith('/automacoes')
-              ? 'overflow-hidden p-0'
-              : 'overflow-auto px-4 sm:px-6 py-5 sm:py-6'
-            }`}
-        >
-          {children}
-        </main>
-      </div>
+        {/* ─── Corpo da Aplicação: Sidebar + Main Content Stream ─── */}
+        <div className="flex-1 flex items-stretch min-h-0 overflow-hidden">
+          {/* Sidebar */}
+          <Sidebar
+            aberta={sidebarAberta}
+            onFechar={() => setSidebarAberta(false)}
+            prefs={prefs}
+          />
+
+          {/* Toggle Sidebar Desktop Button */}
+          <TooltipProvider delay={100}>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    onClick={() => prefs.alternarColapsada(!prefs.colapsada)}
+                    className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full shell-toggle-btn focus:outline-none transition-[left,background,color,transform,box-shadow] duration-150 ease-out cursor-pointer"
+                    style={{
+                      left: prefs.colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
+                    }}
+                    aria-label={prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}
+                  >
+                    <HugeiconsIcon
+                      icon={prefs.colapsada ? ArrowRight01Icon : ArrowLeft01Icon}
+                      size={14}
+                      strokeWidth={2.2}
+                      className="transition-transform duration-150"
+                    />
+                  </button>
+                }
+              />
+              <TooltipContent side="inline-end" sideOffset={10}>
+                <p className="text-xs font-semibold">{prefs.colapsada ? 'Expandir menu' : 'Recolher menu'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {/* Page Content Stream (Nível 1) */}
+          <main
+            className={`flex-1 bg-surface rounded-tl-3xl dark:border-t dark:border-l dark:border-white/[0.07] flex flex-col min-h-0 shadow-sm ${location.pathname.startsWith('/automacoes')
+                ? 'overflow-hidden p-0'
+                : 'overflow-auto px-4 sm:px-6 py-5 sm:py-6'
+              }`}
+          >
+            {children}
+          </main>
+        </div>
 
       {/* Floating Chat IA */}
       {prefs.chatIaModo === 'flutuante' && !prefs.carregando && (

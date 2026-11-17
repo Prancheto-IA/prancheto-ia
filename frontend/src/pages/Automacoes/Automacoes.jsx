@@ -19,6 +19,23 @@ import {
   Clock,
   GitBranch,
 } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  FlashIcon,
+  WhatsappIcon,
+  AiSparklesIcon,
+  Clock01Icon,
+  Task01Icon,
+  WorkflowSquare10Icon,
+  PlayIcon,
+  ArrowRight01Icon,
+  Add01Icon,
+  Settings02Icon,
+  Delete02Icon,
+  Copy01Icon,
+  CheckmarkCircle02Icon,
+  Search01Icon,
+} from '@hugeicons/core-free-icons';
 import { useAuthStore } from '../../store/authStore.js';
 import { useUIStore } from '../../store/uiStore.js';
 import { useLeads, FUNIL_LEAD, funilInfo } from '../../hooks/useCRM.js';
@@ -34,7 +51,7 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { Field, FieldLabel, FieldDescription } from '@/components/ui/field';
-import WorkflowCanvas from './WorkflowCanvas.jsx';
+import WorkflowLinearBuilder, { getServicoDoNo, SERVICOS_DISPONIVEIS } from './WorkflowLinearBuilder.jsx';
 import WhatsAppConexoes from './WhatsAppConexoes.jsx';
 import LogsExecucao from './LogsExecucao.jsx';
 import {
@@ -156,6 +173,7 @@ const Automacoes = () => {
 
   // Visão ativa na seção Workflows: 'lista' (tela inicial) | 'studio' (canvas)
   const [modoVisao, setModoVisao] = useState('lista');
+  const [builderTelaInicial, setBuilderTelaInicial] = useState('detalhes');
   const [modalConexoesAberto, setModalConexoesAberto] = useState(false);
   const [modalLogsAberto, setModalLogsAberto] = useState(false);
   const [modalTesteAberto, setModalTesteAberto] = useState(false);
@@ -239,8 +257,21 @@ const Automacoes = () => {
     const novo = criarNovoWorkflow(workflows.length + 1);
     setWorkflows((prev) => [novo, ...prev]);
     setWorkflowSelecionadoId(novo.id);
+    setBuilderTelaInicial('builder');
     setModoVisao('studio');
-    adicionarNotificacao('success', `"${novo.nome}" criada no Studio!`);
+    adicionarNotificacao('success', `"${novo.nome}" criada!`);
+  };
+
+  const handleAbrirDetalhes = (wf) => {
+    setWorkflowSelecionadoId(wf.id);
+    setBuilderTelaInicial('detalhes');
+    setModoVisao('studio');
+  };
+
+  const handleAbrirBuilder = (wf) => {
+    setWorkflowSelecionadoId(wf.id);
+    setBuilderTelaInicial('builder');
+    setModoVisao('studio');
   };
 
   const handleDuplicarWorkflow = (wf) => {
@@ -413,8 +444,8 @@ const Automacoes = () => {
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full h-full">
       {modoVisao === 'studio' ? (
-        /* STUDIO CANVAS EM TELA CHEIA */
-        <WorkflowCanvas
+        /* CONSTRUTOR LINEAR DE AUTOMAÇÕES */
+        <WorkflowLinearBuilder
           workflows={workflows}
           workflowAtual={workflowAtual}
           conexoes={conexoes}
@@ -432,342 +463,255 @@ const Automacoes = () => {
             setModalTesteAberto(true);
           }}
           simulacaoEstado={simulacaoEstado}
+          telaInicial={builderTelaInicial}
         />
       ) : (
-        /* PÁGINA LISTA DE WORKFLOWS (AINDA NA SEÇÃO WORKFLOW) */
-        <div className="flex-1 w-full overflow-y-auto px-4 sm:px-6 py-5 sm:py-6 space-y-6">
-          {/* Cabeçalho da página */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="space-y-0.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-ink-primary">
-                  Automações
-                </h1>
-              </div>
+        /* PÁGINA LISTA DE AUTOMAÇÕES */
+        <div className="flex-1 w-full overflow-y-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+          {/* Cabeçalho da Página */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-ink-primary">
+                Automações
+              </h1>
               <p className="text-xs sm:text-sm text-ink-secondary">
-                Gerencie suas automações por etapa do funil, acompanhe execuções e crie novas automações.
+                Gerencie e configure seus fluxos inteligentes em poucos cliques.
               </p>
             </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setModalConexoesAberto(true)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-3.5 py-2 text-xs font-semibold text-ink-primary transition-colors cursor-pointer"
-                >
-                  <Settings className="w-3.5 h-3.5 text-ink-secondary" />
-                  <span>Conexões WhatsApp</span>
-                  <Badge variant={conexoesOnline > 0 ? 'success' : 'default'} size="xs">
-                    <BadgeDot variant={conexoesOnline > 0 ? 'success' : 'default'} />
-                    {conexoesOnline}/{conexoes.length}
-                  </Badge>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTesteWorkflowId(workflowAtual?.id || workflows[0]?.id || '');
-                    setModalTesteAberto(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-3.5 py-2 text-xs font-semibold text-ink-primary transition-colors cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-brand-purple" />
-                  <span>Simular Cliente</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleCriarNovoFluxo}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-opacity cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Nova Automação</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Resumo rápido */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="rounded-2xl border border-surface-border bg-surface-card p-4 space-y-1">
-                <span className="text-[11px] font-semibold text-ink-secondary">
-                  Total de Automações
-                </span>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-extrabold text-ink-primary tabular-nums">
-                    {workflows.length}
-                  </span>
-                  <Badge variant="outline" size="xs">
-                    Studio
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-surface-border bg-surface-card p-4 space-y-1">
-                <span className="text-[11px] font-semibold text-ink-secondary">
-                  Ativos em Produção
-                </span>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-extrabold text-ink-primary tabular-nums">
-                    {totalAtivos}
-                  </span>
-                  <Badge variant="success" size="xs">
-                    <BadgeDot variant="success" pulse={totalAtivos > 0} />
-                    {totalAtivos > 0 ? 'Rodando' : 'Pausados'}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-surface-border bg-surface-card p-4 space-y-1">
-                <span className="text-[11px] font-semibold text-ink-secondary">
-                  Execuções Totais
-                </span>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-extrabold text-ink-primary tabular-nums">
-                    {totalExecucoes}
-                  </span>
-                  <span className="text-[11px] font-medium text-ink-muted">disparos</span>
-                </div>
-              </div>
-
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => setModalConexoesAberto(true)}
-                className="rounded-2xl border border-surface-border bg-surface-card hover:border-surface-border-strong p-4 space-y-1 text-left transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/15 bg-surface-card hover:bg-surface-hover px-4 py-2 text-xs font-bold text-ink-primary transition-colors cursor-pointer"
               >
-                <span className="text-[11px] font-semibold text-ink-secondary">
-                  Canais WhatsApp Online
+                <HugeiconsIcon icon={WhatsappIcon} size={16} className="text-emerald-500" />
+                <span>WhatsApp</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black">
+                  {conexoesOnline}/{conexoes.length}
                 </span>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-extrabold text-ink-primary tabular-nums">
-                    {conexoesOnline}/{conexoes.length}
-                  </span>
-                  <span className="text-[11px] font-semibold text-brand-secondary dark:text-[#7DD3FC]">
-                    Configurar →
-                  </span>
-                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTesteWorkflowId(workflowAtual?.id || workflows[0]?.id || '');
+                  setModalTesteAberto(true);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-black/10 dark:border-white/15 bg-surface-card hover:bg-surface-hover px-4 py-2 text-xs font-bold text-ink-primary transition-colors cursor-pointer"
+              >
+                <HugeiconsIcon icon={AiSparklesIcon} size={16} className="text-brand-purple" />
+                <span>Simular Lead</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCriarNovoFluxo}
+                className="inline-flex items-center gap-2 rounded-full bg-brand-primary hover:bg-brand-primary-hover text-white px-5 py-2.5 text-xs font-black shadow-md transition-all cursor-pointer"
+              >
+                <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.4} />
+                <span>Nova Automação</span>
               </button>
             </div>
+          </div>
 
-            {/* Barra de busca e filtro */}
-            <div className="rounded-2xl border border-surface-border bg-surface-card p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 text-ink-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  value={buscaFluxo}
-                  onChange={(e) => setBuscaFluxo(e.target.value)}
-                  placeholder="Buscar automação por nome, descrição ou categoria..."
-                  className="h-9 w-full rounded-xl border border-surface-border bg-surface-subtle pl-9 pr-8 text-xs font-medium text-ink-primary outline-none focus:border-brand-primary transition-colors"
-                />
-                {buscaFluxo && (
-                  <button
-                    type="button"
-                    onClick={() => setBuscaFluxo('')}
-                    aria-label="Limpar busca"
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-ink-muted hover:text-ink-primary cursor-pointer"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between sm:justify-end gap-3">
-                <span className="text-xs font-medium text-ink-muted tabular-nums whitespace-nowrap">
-                  {fluxosFiltrados.length} de {workflows.length} automações
-                </span>
-                <div className="w-44">
-                  <Select value={filtroStatusFluxo} onValueChange={setFiltroStatusFluxo}>
-                    <SelectTrigger className="h-9 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todas as automações</SelectItem>
-                      <SelectItem value="ativos">Apenas ativos</SelectItem>
-                      <SelectItem value="pausados">Apenas pausados</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+          {/* Barra de Busca e Filtros em Pílulas */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <div className="relative flex-1 max-w-md">
+              <HugeiconsIcon
+                icon={Search01Icon}
+                size={16}
+                strokeWidth={2}
+                className="text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              />
+              <input
+                type="text"
+                value={buscaFluxo}
+                onChange={(e) => setBuscaFluxo(e.target.value)}
+                placeholder="Pesquisar automações..."
+                className="h-10 w-full rounded-full border border-black/10 dark:border-white/15 bg-black/5 dark:bg-white/5 pl-10 pr-8 text-xs font-bold text-ink-primary outline-none focus:border-brand-primary transition-colors"
+              />
+              {buscaFluxo && (
+                <button
+                  type="button"
+                  onClick={() => setBuscaFluxo('')}
+                  aria-label="Limpar busca"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-primary cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
-            {/* Lista de Automações */}
-            {fluxosFiltrados.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-surface-border-strong bg-surface-card/70 px-6 py-12 text-center space-y-3">
-                <span className="mx-auto h-11 w-11 rounded-2xl bg-surface-subtle border border-surface-border flex items-center justify-center text-ink-secondary">
-                  <GitBranch className="w-5 h-5" />
-                </span>
-                <div className="space-y-1">
-                  <h2 className="text-sm font-bold text-ink-primary">
-                    Nenhuma automação encontrada
-                  </h2>
-                  <p className="text-xs text-ink-secondary max-w-md mx-auto">
-                    Ajuste os filtros de busca ou crie uma nova automação do zero no Studio visual.
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-                  {(buscaFluxo || filtroStatusFluxo !== 'todos') && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setBuscaFluxo('');
-                        setFiltroStatusFluxo('todos');
-                      }}
-                      className="rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-3.5 py-2 text-xs font-semibold text-ink-primary cursor-pointer"
-                    >
-                      Limpar filtros
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={handleCriarNovoFluxo}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 px-4 py-2 text-xs font-semibold text-white cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    Criar Nova Automação
-                  </button>
-                </div>
+            {/* Pílulas de Filtro (Todos / Ativos / Pausados) */}
+            <div className="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-full w-fit">
+              <button
+                type="button"
+                onClick={() => setFiltroStatusFluxo('todos')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  filtroStatusFluxo === 'todos'
+                    ? 'bg-white dark:bg-[#18181B] text-black dark:text-white shadow-xs'
+                    : 'text-ink-muted hover:text-ink-primary'
+                }`}
+              >
+                Todos ({workflows.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFiltroStatusFluxo('ativos')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  filtroStatusFluxo === 'ativos'
+                    ? 'bg-white dark:bg-[#18181B] text-black dark:text-white shadow-xs'
+                    : 'text-ink-muted hover:text-ink-primary'
+                }`}
+              >
+                Ativos ({totalAtivos})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFiltroStatusFluxo('pausados')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  filtroStatusFluxo === 'pausados'
+                    ? 'bg-white dark:bg-[#18181B] text-black dark:text-white shadow-xs'
+                    : 'text-ink-muted hover:text-ink-primary'
+                }`}
+              >
+                Pausados ({workflows.length - totalAtivos})
+              </button>
+            </div>
+          </div>
+
+          {/* Grade de 3 Colunas de Automações Coloridas */}
+          {fluxosFiltrados.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-surface-border-strong bg-surface-card/70 px-6 py-16 text-center space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center mx-auto text-ink-muted">
+                <HugeiconsIcon icon={FlashIcon} size={24} />
               </div>
-            ) : (
-              <div className="space-y-3">
-                {fluxosFiltrados.map((wf) => {
-                  const selecionadoRecentemente = workflowAtual?.id === wf.id;
-                  const firstMeshKey = wf.nodes?.[0]?.config?.meshKey || 'brand';
-                  const orbBg = MESH_GRADIENTS[firstMeshKey] || MESH_GRADIENTS.brand;
+              <div className="space-y-1">
+                <h2 className="text-base font-bold text-ink-primary">
+                  Nenhuma automação encontrada
+                </h2>
+                <p className="text-xs text-ink-secondary max-w-sm mx-auto">
+                  Crie uma nova automação inteligente combinando serviços e canais.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCriarNovoFluxo}
+                className="inline-flex items-center gap-2 rounded-full bg-brand-primary hover:bg-brand-primary-hover text-white px-5 py-2.5 text-xs font-black cursor-pointer shadow-md"
+              >
+                <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2.4} />
+                <span>Criar Primeira Automação</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {fluxosFiltrados.map((wf) => {
+                const gatilho = wf.nodes?.find(
+                  (n) => n.type.startsWith('trigger_') || n.nodeRole === 'start'
+                );
+                const acao = wf.nodes?.find((n) => n.id !== gatilho?.id);
+                const servicoGatilho = getServicoDoNo(gatilho?.type || 'trigger_stage_changed');
+                const servicoAcao = getServicoDoNo(acao?.type || 'action_whatsapp_text');
+                const corCard = servicoGatilho?.cor || '#0080FF';
+                const IconeGatilho = servicoGatilho?.icone || FlashIcon;
+                const IconeAcao = servicoAcao?.icone || WhatsappIcon;
 
-                  return (
-                    <div
-                      key={wf.id}
-                      className={`rounded-2xl border bg-surface-card px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${
-                        selecionadoRecentemente
-                          ? 'border-brand-secondary/70 ring-1 ring-brand-secondary/20 shadow-2xs'
-                          : 'border-surface-border hover:border-surface-border-strong hover:shadow-2xs'
-                      }`}
-                    >
-                      {/* Lado Esquerdo: Ícone + Título + Metadados em formato compacto */}
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <SimpleTooltip content="Abrir automação no Studio" side="top">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setWorkflowSelecionadoId(wf.id);
-                              setModoVisao('studio');
-                            }}
-                            style={{ background: orbBg }}
-                            aria-label="Abrir automação no Studio"
-                            className="h-9 w-9 rounded-xl flex items-center justify-center text-white shadow-2xs shrink-0 hover:scale-105 transition-transform cursor-pointer"
-                          >
-                            <Zap className="w-4 h-4" />
-                          </button>
-                        </SimpleTooltip>
-
-                        <div className="min-w-0 flex-1 space-y-0.5">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setWorkflowSelecionadoId(wf.id);
-                                setModoVisao('studio');
-                              }}
-                              className="text-left text-sm font-bold text-ink-primary hover:text-brand-secondary dark:hover:text-[#7DD3FC] transition-colors truncate cursor-pointer"
-                            >
-                              {wf.nome}
-                            </button>
-
-                            <Badge variant={wf.ativo ? 'success' : 'default'} size="xs">
-                              <BadgeDot variant={wf.ativo ? 'success' : 'default'} pulse={wf.ativo} />
-                              {wf.ativo ? 'Ativo' : 'Pausado'}
-                            </Badge>
-
-                            {selecionadoRecentemente && (
-                              <Badge variant="outline" size="xs">
-                                Aberto recente
-                              </Badge>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2 text-xs text-ink-secondary truncate">
-                            <span className="truncate max-w-[260px] sm:max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl text-ink-muted">
-                              {wf.descricao}
-                            </span>
-                            <span className="text-ink-muted/50 shrink-0">·</span>
-                            <span className="shrink-0 text-[11px] text-ink-muted">
-                              <strong className="text-ink-primary tabular-nums">{wf.nodes?.length || 0}</strong> blocos
-                            </span>
-                            <span className="text-ink-muted/50 shrink-0">·</span>
-                            <span className="shrink-0 text-[11px] text-ink-muted">
-                              <strong className="text-ink-primary tabular-nums">{wf.execucoesTotal || 0}</strong> disparos
-                            </span>
-                            <span className="text-ink-muted/50 shrink-0 hidden md:inline">·</span>
-                            <span className="shrink-0 text-[11px] text-ink-muted hidden md:inline">
-                              {wf.ultimaExecucao || 'Sem execuções'}
-                            </span>
-                          </div>
+                return (
+                  <div
+                    key={wf.id}
+                    onClick={() => handleAbrirDetalhes(wf)}
+                    style={{ backgroundColor: corCard }}
+                    className="rounded-2xl p-5 sm:p-6 text-white shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between min-h-[220px] group select-none"
+                  >
+                    {/* Topo do Card: Ícones circulares dos serviços + Badge Ativo */}
+                    <div className="flex items-center justify-between gap-3 mb-3.5">
+                      <div className="flex items-center -space-x-2">
+                        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center border-2 border-white/30 text-white shadow-sm">
+                          <HugeiconsIcon icon={IconeGatilho} size={20} strokeWidth={2.2} />
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-white/30 backdrop-blur-xs flex items-center justify-center border-2 border-white/40 text-white shadow-sm">
+                          <HugeiconsIcon icon={IconeAcao} size={20} strokeWidth={2.2} />
                         </div>
                       </div>
 
-                      {/* Lado Direito: Switch + Ações inline */}
-                      <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-surface-border/60">
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            size="sm"
-                            variant="success"
-                            checked={wf.ativo}
-                            onCheckedChange={(checked) => alternarAtivoWorkflow(wf.id, checked)}
-                          />
-                        </div>
-
-                        <div className="flex items-center gap-1">
-                          <SimpleTooltip content="Executar simulação no Studio" side="top">
-                            <button
-                              type="button"
-                              onClick={() => executarSimulacaoFluxo(wf)}
-                              aria-label="Executar simulação no Studio"
-                              className="rounded-lg p-1.5 text-brand-purple hover:bg-surface-hover transition-colors cursor-pointer"
-                            >
-                              <Play className="w-3.5 h-3.5" />
-                            </button>
-                          </SimpleTooltip>
-
-                          <SimpleTooltip content="Duplicar automação" side="top">
-                            <button
-                              type="button"
-                              onClick={() => handleDuplicarWorkflow(wf)}
-                              aria-label="Duplicar automação"
-                              className="rounded-lg p-1.5 text-ink-secondary hover:bg-surface-hover transition-colors cursor-pointer"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                            </button>
-                          </SimpleTooltip>
-
-                          <SimpleTooltip content="Excluir automação" side="top">
-                            <button
-                              type="button"
-                              onClick={() => handleExcluirWorkflow(wf.id)}
-                              aria-label="Excluir automação"
-                              className="rounded-lg p-1.5 text-ink-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </SimpleTooltip>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setWorkflowSelecionadoId(wf.id);
-                              setModoVisao('studio');
-                            }}
-                            className="ml-1 inline-flex items-center gap-1.5 rounded-xl bg-[#0B132B] dark:bg-brand-purple hover:opacity-90 px-3 py-1.5 text-xs font-semibold text-white transition-opacity cursor-pointer"
-                          >
-                            <span>Abrir</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                            wf.ativo
+                              ? 'bg-white text-black shadow-xs'
+                              : 'bg-white/20 text-white/90'
+                          }`}
+                        >
+                          {wf.ativo ? 'Ativo' : 'Pausado'}
+                        </span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+
+                    {/* Título e Descrição */}
+                    <div className="space-y-1 mb-5">
+                      <h3 className="text-base sm:text-lg font-black leading-snug line-clamp-2">
+                        {wf.nome}
+                      </h3>
+                      <p className="text-xs text-white/85 line-clamp-2 leading-relaxed">
+                        {wf.descricao || 'Automação inteligente acionada por eventos do CRM.'}
+                      </p>
+                      <span className="text-[11px] text-white/70 font-semibold block pt-1">
+                        {wf.execucoesTotal || 0} disparos · {wf.ultimaExecucao || 'Pronta'}
+                      </span>
+                    </div>
+
+                    {/* Rodapé: Switch Rápido + Botão Testar + Botão Detalhes */}
+                    <div
+                      className="flex items-center justify-between gap-2 pt-3.5 border-t border-white/20"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* Switch rápido de Ativação */}
+                      <div
+                        onClick={() => alternarAtivoWorkflow(wf.id, !wf.ativo)}
+                        className={`px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer transition-colors ${
+                          wf.ativo
+                            ? 'bg-black/35 hover:bg-black/45 text-white'
+                            : 'bg-white/20 hover:bg-white/30 text-white/80'
+                        }`}
+                        title={wf.ativo ? 'Clique para pausar' : 'Clique para ativar'}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            wf.ativo ? 'bg-emerald-400 animate-pulse' : 'bg-white/50'
+                          }`}
+                        />
+                        <span className="text-[11px] font-black">
+                          {wf.ativo ? 'Ativo' : 'Pausado'}
+                        </span>
+                      </div>
+
+                      {/* Botões de Ação */}
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => executarSimulacaoFluxo(wf)}
+                          className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
+                          title="Testar agora"
+                        >
+                          <HugeiconsIcon icon={PlayIcon} size={15} strokeWidth={2.4} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAbrirDetalhes(wf)}
+                          className="px-3 py-1.5 rounded-lg bg-white text-black font-black text-xs hover:bg-white/90 transition-all cursor-pointer shadow-xs flex items-center gap-1"
+                        >
+                          <span>Ver Detalhes</span>
+                          <HugeiconsIcon icon={ArrowRight01Icon} size={13} strokeWidth={2.4} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
