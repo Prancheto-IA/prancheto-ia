@@ -374,7 +374,7 @@ export function EventManager({
       <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between bg-surface-card border border-surface-border px-3.5 py-2.5 sm:px-4 sm:py-2.5 rounded-2xl shadow-2xs flex-shrink-0">
         {/* Lado Esquerdo: Navegação de Data */}
         <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
-          <h2 className="text-base sm:text-lg font-extrabold text-ink-primary tracking-tight whitespace-nowrap">
+          <h2 className="text-base sm:text-lg font-bold text-ink-primary tracking-tight whitespace-nowrap">
             {formatarTituloPeriodo()}
           </h2>
           {view !== 'list' && (
@@ -392,7 +392,7 @@ export function EventManager({
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentDate(new Date())}
-                className="h-8 px-2.5 rounded-xl border-surface-border hover:bg-surface-hover text-xs font-bold"
+                className="h-8 px-2.5 rounded-xl border-surface-border hover:bg-surface-hover text-xs font-semibold"
               >
                 Hoje
               </Button>
@@ -438,7 +438,7 @@ export function EventManager({
                 variant="outline"
                 size="sm"
                 className={cn(
-                  'h-8 gap-1.5 rounded-xl border-surface-border bg-surface-card hover:bg-surface-hover flex-shrink-0 text-xs font-bold transition-all',
+                  'h-8 gap-1.5 rounded-xl border-surface-border bg-surface-card hover:bg-surface-hover flex-shrink-0 text-xs font-semibold transition-all',
                   hasActiveFilters && 'border-brand-primary text-brand-primary bg-brand-primary/5'
                 )}
               >
@@ -447,7 +447,7 @@ export function EventManager({
                 {totalFiltrosAtivos > 0 && (
                   <Badge
                     variant="secondary"
-                    className="h-4 px-1.5 text-[10px] bg-brand-primary text-white rounded-full font-bold ml-0.5"
+                    className="h-4 px-1.5 text-[10px] bg-brand-primary text-white rounded-full font-semibold ml-0.5"
                   >
                     {totalFiltrosAtivos}
                   </Badge>
@@ -456,7 +456,7 @@ export function EventManager({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <div className="flex items-center justify-between px-2 py-1.5">
-                <span className="text-xs font-bold text-ink-primary">Filtros</span>
+                <span className="text-xs font-semibold text-ink-primary">Filtros</span>
                 {hasActiveFilters && (
                   <button
                     type="button"
@@ -637,7 +637,7 @@ export function EventManager({
 
           <Button
             onClick={() => handleOpenCreateDialog()}
-            className="h-8 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer whitespace-nowrap"
+            className="h-8 px-3 rounded-xl text-xs font-semibold shadow-xs cursor-pointer whitespace-nowrap"
           >
             <Plus className="mr-1 h-3.5 w-3.5" />
             Novo Evento
@@ -897,7 +897,7 @@ export function EventManager({
             </Button>
             <Button
               onClick={isCreating ? handleCreateEvent : handleUpdateEvent}
-              className="rounded-xl font-bold"
+              className="rounded-xl font-semibold"
             >
               {isCreating ? 'Criar Evento' : 'Salvar Alterações'}
             </Button>
@@ -963,7 +963,7 @@ function EventDetailPopover({
         {/* Cabeçalho com indicador de cor e tipo de evento */}
         <div className={cn('px-3.5 py-2.5 flex items-center justify-between text-white', colorClasses.bg)}>
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider bg-black/25 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-semibold uppercase tracking-wider bg-black/25 px-2 py-0.5 rounded-full">
               {event.category || 'Compromisso'}
             </span>
           </div>
@@ -980,7 +980,7 @@ function EventDetailPopover({
         {/* Informações detalhadas do evento */}
         <div className="p-3.5 space-y-2.5">
           <div>
-            <h4 className="font-extrabold text-sm sm:text-base text-ink-primary leading-tight">
+            <h4 className="font-bold text-sm sm:text-base text-ink-primary leading-tight">
               {event.title}
             </h4>
             {event.description && (
@@ -1039,7 +1039,7 @@ function EventDetailPopover({
               setIsOpen(false);
               onDelete?.(event.id);
             }}
-            className="h-7 px-2.5 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 rounded-xl gap-1 cursor-pointer"
+            className="h-7 px-2.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 rounded-xl gap-1 cursor-pointer"
           >
             <Trash2 className="h-3.5 w-3.5" />
             <span>Apagar</span>
@@ -1051,7 +1051,7 @@ function EventDetailPopover({
               setIsOpen(false);
               onEdit?.(event);
             }}
-            className="h-7 px-3 text-xs font-bold rounded-xl gap-1 cursor-pointer"
+            className="h-7 px-3 text-xs font-semibold rounded-xl gap-1 cursor-pointer"
           >
             <Pencil className="h-3 w-3" />
             <span>Editar</span>
@@ -1263,7 +1263,7 @@ function MonthView({
         {diasSemana.map((day) => (
           <div
             key={day.curto}
-            className="border-r border-surface-border py-1.5 sm:py-2 text-center text-xs font-bold text-ink-secondary last:border-r-0"
+            className="border-r border-surface-border py-1.5 sm:py-2 text-center text-xs font-semibold text-ink-secondary last:border-r-0"
           >
             <span className="hidden sm:inline">{day.completo}</span>
             <span className="sm:hidden">{day.curto}</span>
@@ -1297,7 +1297,7 @@ function MonthView({
               <div className="flex items-center justify-between mb-0.5 flex-shrink-0">
                 <div
                   className={cn(
-                    'flex h-5 w-5 sm:h-5.5 sm:w-5.5 items-center justify-center rounded-full text-xs font-bold transition-all',
+                    'flex h-5 w-5 sm:h-5.5 sm:w-5.5 items-center justify-center rounded-full text-xs font-semibold transition-all',
                     isToday
                       ? 'bg-brand-primary text-white shadow-xs'
                       : isCurrentMonth
@@ -1387,7 +1387,7 @@ function WeekView({
   return (
     <Card className="flex-1 min-h-0 overflow-auto border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
       <div className="grid grid-cols-8 border-b border-surface-border sticky top-0 bg-surface-subtle z-20">
-        <div className="border-r border-surface-border p-2 text-center text-xs font-bold text-ink-secondary">
+        <div className="border-r border-surface-border p-2 text-center text-xs font-semibold text-ink-secondary">
           Hora
         </div>
         {weekDays.map((day) => {
@@ -1395,14 +1395,14 @@ function WeekView({
           return (
             <div
               key={day.toISOString()}
-              className="border-r border-surface-border p-2 text-center text-xs font-bold last:border-r-0"
+              className="border-r border-surface-border p-2 text-center text-xs font-semibold last:border-r-0"
             >
               <div className="text-ink-secondary capitalize">
                 {day.toLocaleDateString('pt-BR', { weekday: 'short' })}
               </div>
               <div
                 className={cn(
-                  'text-xs mt-0.5 inline-block px-1.5 py-0.5 rounded-full font-extrabold',
+                  'text-xs mt-0.5 inline-block px-1.5 py-0.5 rounded-full font-bold',
                   eHoje ? 'bg-brand-primary text-white' : 'text-ink-primary'
                 )}
               >
@@ -1416,7 +1416,7 @@ function WeekView({
         {hours.map((hour) => (
           <React.Fragment key={`hour-row-${hour}`}>
             <div
-              className="border-b border-r border-surface-border p-1.5 text-xs sm:text-sm font-bold text-ink-primary text-center bg-surface-subtle/40 flex items-center justify-center select-none"
+              className="border-b border-r border-surface-border p-1.5 text-xs sm:text-sm font-semibold text-ink-primary text-center bg-surface-subtle/40 flex items-center justify-center select-none"
             >
               {hour.toString().padStart(2, '0')}:00
             </div>
@@ -1491,7 +1491,7 @@ function DayView({
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(currentDate, hour)}
             >
-              <div className="w-14 sm:w-16 flex-shrink-0 border-r border-surface-border p-1.5 text-center text-xs sm:text-sm font-bold text-ink-primary bg-surface-subtle/40 flex items-center justify-center select-none">
+              <div className="w-14 sm:w-16 flex-shrink-0 border-r border-surface-border p-1.5 text-center text-xs sm:text-sm font-semibold text-ink-primary bg-surface-subtle/40 flex items-center justify-center select-none">
                 {hour.toString().padStart(2, '0')}:00
               </div>
               <div className="min-h-10 sm:min-h-11 flex-1 p-1 transition-colors hover:bg-surface-hover/50">
