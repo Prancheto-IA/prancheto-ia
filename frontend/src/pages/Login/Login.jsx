@@ -12,6 +12,7 @@ import logoClaro from '@/assets/logo/Logo-LH.svg';
 import logoEscuro from '@/assets/logo/Logo-LHW.svg';
 import slide1Img from '@/assets/login/Login-Slide1.webp';
 import slide2Img from '@/assets/login/Login-Slide2.webp';
+import slide3Img from '@/assets/login/Login-Slide3.webp';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Mail01Icon,
@@ -33,6 +34,11 @@ const SLIDES_LOGIN = [
     id: 2,
     imagem: slide2Img,
     alt: 'Atendimento Automatizado - Responda seus clientes 24/7 com inteligência, agilidade e mais eficiência.',
+  },
+  {
+    id: 3,
+    imagem: slide3Img,
+    alt: 'Visão 360° de Metas - Acompanhe metas, resultados e desempenho da sua equipe em uma visão completa e estratégica.',
   },
 ];
 
