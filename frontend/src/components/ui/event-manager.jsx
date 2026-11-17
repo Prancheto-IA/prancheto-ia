@@ -337,30 +337,45 @@ export function EventManager({
     return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
   };
 
+  // Formatação do título do período atual em português correto (ex: "Novembro de 2026" com "de" minúsculo)
+  const formatarTituloPeriodo = () => {
+    if (view === 'month') {
+      const mesAno = currentDate.toLocaleDateString('pt-BR', {
+        month: 'long',
+        year: 'numeric',
+      });
+      // "novembro de 2026" -> "Novembro de 2026"
+      return mesAno.charAt(0).toUpperCase() + mesAno.slice(1);
+    }
+    if (view === 'week') {
+      const dataInicio = currentDate.toLocaleDateString('pt-BR', {
+        day: 'numeric',
+        month: 'short',
+      });
+      return `Semana de ${dataInicio}`;
+    }
+    if (view === 'day') {
+      const diaCompleto = currentDate.toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+      return diaCompleto.charAt(0).toUpperCase() + diaCompleto.slice(1);
+    }
+    if (view === 'list') {
+      return 'Compromissos';
+    }
+    return '';
+  };
+
   return (
     <div className={cn('flex flex-col gap-2.5 font-sans text-ink-primary h-full min-h-0 overflow-hidden', className)}>
       {/* Header Unificado com Título, Navegação, Busca, Filtros, Visualizações e Novo Evento */}
       <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between bg-surface-card border border-surface-border px-3.5 py-2.5 sm:px-4 sm:py-2.5 rounded-2xl shadow-2xs flex-shrink-0">
         {/* Lado Esquerdo: Navegação de Data */}
         <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
-          <h2 className="text-base sm:text-lg font-extrabold text-ink-primary capitalize tracking-tight whitespace-nowrap">
-            {view === 'month' &&
-              currentDate.toLocaleDateString('pt-BR', {
-                month: 'long',
-                year: 'numeric',
-              })}
-            {view === 'week' &&
-              `Semana de ${currentDate.toLocaleDateString('pt-BR', {
-                day: 'numeric',
-                month: 'short',
-              })}`}
-            {view === 'day' &&
-              currentDate.toLocaleDateString('pt-BR', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-              })}
-            {view === 'list' && 'Compromissos'}
+          <h2 className="text-base sm:text-lg font-extrabold text-ink-primary tracking-tight whitespace-nowrap">
+            {formatarTituloPeriodo()}
           </h2>
           {view !== 'list' && (
             <div className="flex items-center gap-1">
@@ -926,13 +941,23 @@ function EventDetailPopover({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        {children}
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          className="w-full block cursor-pointer outline-none text-left"
+        >
+          {children}
+        </div>
       </PopoverTrigger>
       <PopoverContent
-        align="start"
+        align="center"
         side="top"
         sideOffset={6}
-        className="w-76 sm:w-80 p-0 rounded-2xl border border-surface-border bg-surface-card shadow-2xl z-50 overflow-hidden text-ink-primary"
+        collisionPadding={16}
+        className="w-76 sm:w-80 p-0 rounded-2xl border border-surface-border bg-surface-card shadow-2xl z-[150] overflow-hidden text-ink-primary"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabeçalho com indicador de cor e tipo de evento */}
@@ -969,12 +994,15 @@ function EventDetailPopover({
           <div className="flex items-start gap-2 text-xs text-ink-secondary bg-surface-subtle/70 p-2 rounded-xl border border-surface-border/60">
             <Clock className="h-3.5 w-3.5 text-ink-muted flex-shrink-0 mt-0.5" />
             <div>
-              <div className="font-semibold text-ink-primary capitalize text-xs">
-                {new Date(event.startTime).toLocaleDateString('pt-BR', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                })}
+              <div className="font-semibold text-ink-primary text-xs">
+                {(() => {
+                  const dataFormatada = new Date(event.startTime).toLocaleDateString('pt-BR', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                  });
+                  return dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+                })()}
               </div>
               <div className="text-[11px] text-ink-muted">
                 {formatTime(event.startTime)} às {formatTime(event.endTime)} ({getDuration()})
@@ -1070,9 +1098,13 @@ function EventCard({
   if (variant === 'compact') {
     triggerElement = (
       <div
+        data-event-card="true"
         draggable
         onDragStart={() => onDragStart?.(event)}
         onDragEnd={onDragEnd}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
         className="relative cursor-pointer select-none"
       >
         <div
@@ -1089,9 +1121,13 @@ function EventCard({
   } else if (variant === 'detailed') {
     triggerElement = (
       <div
+        data-event-card="true"
         draggable
         onDragStart={() => onDragStart?.(event)}
         onDragEnd={onDragEnd}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
         className={cn(
           'cursor-pointer rounded-xl p-2.5 sm:p-3 transition-all duration-200 select-none hover:scale-[1.01] hover:shadow-lg',
           colorClasses.bg,
@@ -1129,9 +1165,13 @@ function EventCard({
   } else {
     triggerElement = (
       <div
+        data-event-card="true"
         draggable
         onDragStart={() => onDragStart?.(event)}
         onDragEnd={onDragEnd}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
         className="relative select-none"
       >
         <div
@@ -1227,7 +1267,13 @@ function MonthView({
           return (
             <div
               key={index}
-              onClick={() => onDayClick?.(day)}
+              onClick={(e) => {
+                // Impede abertura do modal de criação se o clique veio de um evento ou botão
+                if (e.target.closest('[data-event-card]') || e.target.closest('button')) {
+                  return;
+                }
+                onDayClick?.(day);
+              }}
               className={cn(
                 'border-r border-surface-border p-1 sm:p-1.5 transition-colors last:border-r-0 cursor-pointer flex flex-col justify-start overflow-hidden min-h-0',
                 !isCurrentMonth && 'bg-surface-subtle/50 opacity-45',
@@ -1250,7 +1296,10 @@ function MonthView({
                   {day.getDate()}
                 </div>
               </div>
-              <div className="space-y-0.5 sm:space-y-1 flex-1 overflow-hidden">
+              <div
+                className="space-y-0.5 sm:space-y-1 flex-1 overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {dayEvents.slice(0, 2).map((event) => (
                   <EventCard
                     key={event.id}
@@ -1465,12 +1514,14 @@ function ListView({
 
   const groupedEvents = sortedEvents.reduce((acc, event) => {
     const d = new Date(event.startTime);
-    const dateKey = d.toLocaleDateString('pt-BR', {
+    const dataFormatada = d.toLocaleDateString('pt-BR', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
+    // Capitaliza apenas a primeira letra (ex: "Terça-feira, 17 de novembro de 2026")
+    const dateKey = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
     if (!acc[dateKey]) {
       acc[dateKey] = [];
     }
@@ -1483,7 +1534,7 @@ function ListView({
       <div className="space-y-6">
         {Object.entries(groupedEvents).map(([date, dateEvents]) => (
           <div key={date} className="space-y-2.5">
-            <h3 className="text-xs font-bold text-ink-secondary capitalize tracking-wider">{date}</h3>
+            <h3 className="text-xs font-bold text-ink-secondary tracking-wider">{date}</h3>
             <div className="space-y-2">
               {dateEvents.map((event) => {
                 const colorClasses = getColorClasses(event.color);
