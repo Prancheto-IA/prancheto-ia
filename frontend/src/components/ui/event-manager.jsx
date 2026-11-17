@@ -33,8 +33,16 @@ import {
   Search,
   Filter,
   X,
+  Briefcase,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,20 +56,25 @@ import {
   DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 
-export const defaultColors = [
-  { name: 'Azul', value: 'blue', bg: 'bg-blue-600', text: 'text-blue-700', badgeBg: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30' },
-  { name: 'Verde', value: 'green', bg: 'bg-emerald-600', text: 'text-emerald-700', badgeBg: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' },
-  { name: 'Roxo', value: 'purple', bg: 'bg-purple-600', text: 'text-purple-700', badgeBg: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
-  { name: 'Laranja', value: 'orange', bg: 'bg-orange-500', text: 'text-orange-700', badgeBg: 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30' },
-  { name: 'Rosa', value: 'pink', bg: 'bg-pink-600', text: 'text-pink-700', badgeBg: 'bg-pink-500/15 text-pink-700 dark:text-pink-300 border-pink-500/30' },
-  { name: 'Vermelho', value: 'red', bg: 'bg-rose-600', text: 'text-rose-700', badgeBg: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30' },
-];
+// Cores mapeadas automaticamente por tipo de evento
+export const CATEGORY_COLORS = {
+  'Reunião': { name: 'Azul', value: 'blue', bg: 'bg-blue-600', text: 'text-blue-700', border: 'border-blue-600', badgeBg: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30' },
+  'Tarefa': { name: 'Verde', value: 'green', bg: 'bg-emerald-600', text: 'text-emerald-700', border: 'border-emerald-600', badgeBg: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' },
+  'Lembrete': { name: 'Laranja', value: 'orange', bg: 'bg-orange-500', text: 'text-orange-700', border: 'border-orange-500', badgeBg: 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30' },
+  'Pessoal': { name: 'Roxo', value: 'purple', bg: 'bg-purple-600', text: 'text-purple-700', border: 'border-purple-600', badgeBg: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
+};
 
+export const getCategoryColor = (category) => {
+  return CATEGORY_COLORS[category] || CATEGORY_COLORS['Reunião'];
+};
+
+export const defaultColors = Object.values(CATEGORY_COLORS);
 export const defaultCategories = ['Reunião', 'Tarefa', 'Lembrete', 'Pessoal'];
 export const defaultAvailableTags = ['Importante', 'Urgente', 'Trabalho', 'Pessoal', 'Equipe', 'Cliente'];
 
 export function EventManager({
   events: initialEvents = [],
+  deals = [],
   onEventCreate,
   onEventUpdate,
   onEventDelete,
@@ -81,9 +94,9 @@ export function EventManager({
   const [newEvent, setNewEvent] = useState({
     title: '',
     description: '',
-    color: colors[0].value,
+    color: getCategoryColor(categories[0]).value,
     category: categories[0],
-    tags: [],
+    deal: '',
     startTime: null,
     endTime: null,
   });
@@ -107,6 +120,7 @@ export function EventManager({
           event.title?.toLowerCase().includes(query) ||
           event.description?.toLowerCase().includes(query) ||
           event.category?.toLowerCase().includes(query) ||
+          event.deal?.toLowerCase().includes(query) ||
           event.tags?.some((tag) => tag.toLowerCase().includes(query));
 
         if (!matchesSearch) return false;
@@ -150,21 +164,26 @@ export function EventManager({
     const fim = new Date(inicio);
     fim.setHours(inicio.getHours() + 1);
 
+    const catPadrao = categories[0] || 'Reunião';
     setNewEvent({
       title: '',
       description: '',
-      color: colors[0].value,
-      category: categories[0],
-      tags: [],
+      color: getCategoryColor(catPadrao).value,
+      category: catPadrao,
+      deal: '',
       startTime: inicio,
       endTime: fim,
     });
     setIsCreating(true);
+    setSelectedEvent(null);
     setIsDialogOpen(true);
   };
 
   const handleCreateEvent = useCallback(() => {
     if (!newEvent.title || !newEvent.startTime || !newEvent.endTime) return;
+
+    const cat = newEvent.category || categories[0];
+    const catColor = getCategoryColor(cat).value;
 
     const event = {
       id: Math.random().toString(36).substr(2, 9),
@@ -172,10 +191,11 @@ export function EventManager({
       description: newEvent.description,
       startTime: new Date(newEvent.startTime),
       endTime: new Date(newEvent.endTime),
-      color: newEvent.color || colors[0].value,
-      category: newEvent.category,
+      color: catColor,
+      category: cat,
+      deal: newEvent.deal || '',
       attendees: newEvent.attendees,
-      tags: newEvent.tags || [],
+      tags: [],
     };
 
     setEvents((prev) => [...prev, event]);
@@ -185,19 +205,23 @@ export function EventManager({
     setNewEvent({
       title: '',
       description: '',
-      color: colors[0].value,
-      category: categories[0],
-      tags: [],
+      color: catColor,
+      category: cat,
+      deal: '',
       startTime: null,
       endTime: null,
     });
-  }, [newEvent, colors, categories, onEventCreate]);
+  }, [newEvent, categories, onEventCreate]);
 
   const handleUpdateEvent = useCallback(() => {
     if (!selectedEvent) return;
 
+    const cat = selectedEvent.category || categories[0];
+    const catColor = getCategoryColor(cat).value;
+
     const eventoAtualizado = {
       ...selectedEvent,
+      color: catColor,
       startTime: new Date(selectedEvent.startTime),
       endTime: new Date(selectedEvent.endTime),
     };
@@ -206,7 +230,7 @@ export function EventManager({
     onEventUpdate?.(eventoAtualizado.id, eventoAtualizado);
     setIsDialogOpen(false);
     setSelectedEvent(null);
-  }, [selectedEvent, onEventUpdate]);
+  }, [selectedEvent, categories, onEventUpdate]);
 
   const handleDeleteEvent = useCallback(
     (id) => {
@@ -264,7 +288,8 @@ export function EventManager({
         if (view === 'month') {
           newDate.setMonth(prev.getMonth() + (direction === 'next' ? 1 : -1));
         } else if (view === 'week') {
-          newDate.setDate(prev.getDate() + (direction === 'next' ? 7 : -7));
+          // Pula 1 dia de cada vez na visualização semanal
+          newDate.setDate(prev.getDate() + (direction === 'next' ? 1 : -1));
         } else if (view === 'day') {
           newDate.setDate(prev.getDate() + (direction === 'next' ? 1 : -1));
         }
@@ -337,34 +362,36 @@ export function EventManager({
               })}
             {view === 'list' && 'Compromissos'}
           </h2>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigateDate('prev')}
-              className="h-8 w-8 rounded-xl border-surface-border hover:bg-surface-hover"
-              title="Período anterior"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentDate(new Date())}
-              className="h-8 px-2.5 rounded-xl border-surface-border hover:bg-surface-hover text-xs font-bold"
-            >
-              Hoje
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigateDate('next')}
-              className="h-8 w-8 rounded-xl border-surface-border hover:bg-surface-hover"
-              title="Próximo período"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+          {view !== 'list' && (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigateDate('prev')}
+                className="h-8 w-8 rounded-xl border-surface-border hover:bg-surface-hover"
+                title="Período anterior"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentDate(new Date())}
+                className="h-8 px-2.5 rounded-xl border-surface-border hover:bg-surface-hover text-xs font-bold"
+              >
+                Hoje
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigateDate('next')}
+                className="h-8 w-8 rounded-xl border-surface-border hover:bg-surface-hover"
+                title="Próximo período"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Centro: Barra de Pesquisa e Botão Único de Filtros */}
@@ -609,12 +636,17 @@ export function EventManager({
           <MonthView
             currentDate={currentDate}
             events={filteredEvents}
-            onEventClick={(event) => {
+            onEventEdit={(event) => {
               setSelectedEvent(event);
               setIsCreating(false);
               setIsDialogOpen(true);
             }}
+            onEventDelete={handleDeleteEvent}
             onDayClick={(diaData) => handleOpenCreateDialog(diaData)}
+            onViewMore={(dia) => {
+              setCurrentDate(new Date(dia));
+              setView('week');
+            }}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDrop={handleDrop}
@@ -626,11 +658,12 @@ export function EventManager({
           <WeekView
             currentDate={currentDate}
             events={filteredEvents}
-            onEventClick={(event) => {
+            onEventEdit={(event) => {
               setSelectedEvent(event);
               setIsCreating(false);
               setIsDialogOpen(true);
             }}
+            onEventDelete={handleDeleteEvent}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDrop={handleDrop}
@@ -642,11 +675,12 @@ export function EventManager({
           <DayView
             currentDate={currentDate}
             events={filteredEvents}
-            onEventClick={(event) => {
+            onEventEdit={(event) => {
               setSelectedEvent(event);
               setIsCreating(false);
               setIsDialogOpen(true);
             }}
+            onEventDelete={handleDeleteEvent}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDrop={handleDrop}
@@ -657,11 +691,12 @@ export function EventManager({
         {view === 'list' && (
           <ListView
             events={filteredEvents}
-            onEventClick={(event) => {
+            onEventEdit={(event) => {
               setSelectedEvent(event);
               setIsCreating(false);
               setIsDialogOpen(true);
             }}
+            onEventDelete={handleDeleteEvent}
             getColorClasses={getColorClasses}
           />
         )}
@@ -672,12 +707,12 @@ export function EventManager({
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {isCreating ? 'Novo Compromisso' : 'Detalhes do Compromisso'}
+              {isCreating ? 'Novo Compromisso' : 'Editar Compromisso'}
             </DialogTitle>
             <DialogDescription>
               {isCreating
                 ? 'Preencha os detalhes para agendar na sua agenda.'
-                : 'Visualize ou atualize as informações deste evento.'}
+                : 'Visualize ou atualize as informações deste compromisso.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -754,73 +789,72 @@ export function EventManager({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div className="space-y-1.5">
-                <Label htmlFor="category">Categoria</Label>
+                <Label htmlFor="category">Tipo de evento</Label>
                 <Select
                   value={isCreating ? newEvent.category : selectedEvent?.category || categories[0]}
-                  onValueChange={(value) =>
-                    isCreating
-                      ? setNewEvent((prev) => ({ ...prev, category: value }))
-                      : setSelectedEvent((prev) => (prev ? { ...prev, category: value } : null))
-                  }
+                  onValueChange={(value) => {
+                    const catColor = getCategoryColor(value).value;
+                    if (isCreating) {
+                      setNewEvent((prev) => ({ ...prev, category: value, color: catColor }));
+                    } else {
+                      setSelectedEvent((prev) => (prev ? { ...prev, category: value, color: catColor } : null));
+                    }
+                  }}
                 >
                   <SelectTrigger id="category">
-                    <SelectValue placeholder="Selecione a categoria" />
+                    <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
+                    {categories.map((cat) => {
+                      const cColor = getCategoryColor(cat);
+                      return (
+                        <SelectItem key={cat} value={cat}>
+                          <div className="flex items-center gap-2">
+                            <div className={cn('h-2.5 w-2.5 rounded-full', cColor.bg)} />
+                            <span>{cat}</span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="color">Cor de identificação</Label>
+                <Label htmlFor="deal">Atribuir negócio (CRM)</Label>
                 <Select
-                  value={isCreating ? newEvent.color : selectedEvent?.color || colors[0].value}
-                  onValueChange={(value) =>
-                    isCreating
-                      ? setNewEvent((prev) => ({ ...prev, color: value }))
-                      : setSelectedEvent((prev) => (prev ? { ...prev, color: value } : null))
-                  }
+                  value={isCreating ? (newEvent.deal || 'nenhum') : (selectedEvent?.deal || 'nenhum')}
+                  onValueChange={(val) => {
+                    const dealNome = val === 'nenhum' ? '' : val;
+                    if (isCreating) {
+                      setNewEvent((prev) => ({ ...prev, deal: dealNome }));
+                    } else {
+                      setSelectedEvent((prev) => (prev ? { ...prev, deal: dealNome } : null));
+                    }
+                  }}
                 >
-                  <SelectTrigger id="color">
-                    <SelectValue placeholder="Selecione a cor" />
+                  <SelectTrigger id="deal">
+                    <SelectValue placeholder="Vincular a negócio..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {colors.map((color) => (
-                      <SelectItem key={color.value} value={color.value}>
-                        <div className="flex items-center gap-2">
-                          <div className={cn('h-3.5 w-3.5 rounded-full', color.bg)} />
-                          <span>{color.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="nenhum">
+                      <span className="text-ink-muted">Nenhum negócio atribuído</span>
+                    </SelectItem>
+                    {deals.map((d) => {
+                      const nome = typeof d === 'string' ? d : (d.nome || d.negocio_nome || d.title);
+                      const empresa = typeof d === 'object' ? d.empresa : null;
+                      return (
+                        <SelectItem key={d.id || nome} value={nome}>
+                          <div className="flex items-center gap-2">
+                            <Briefcase className="h-3.5 w-3.5 text-brand-primary flex-shrink-0" />
+                            <span className="truncate">{nome}</span>
+                            {empresa && <span className="text-[11px] text-ink-muted">({empresa})</span>}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Tags de identificação</Label>
-              <div className="flex flex-wrap gap-1.5 pt-0.5">
-                {availableTags.map((tag) => {
-                  const isSelected = isCreating
-                    ? newEvent.tags?.includes(tag)
-                    : selectedEvent?.tags?.includes(tag);
-                  return (
-                    <Badge
-                      key={tag}
-                      variant={isSelected ? 'default' : 'outline'}
-                      className="cursor-pointer transition-all hover:scale-105 rounded-lg py-1 px-2.5 text-xs"
-                      onClick={() => toggleTag(tag, isCreating)}
-                    >
-                      {tag}
-                    </Badge>
-                  );
-                })}
               </div>
             </div>
           </div>
@@ -859,16 +893,15 @@ export function EventManager({
   );
 }
 
-// Card do Evento com Drag & Drop e Popover informativo ao passar o mouse
-function EventCard({
+// Popover com detalhes do evento e botões para editar ou apagar
+function EventDetailPopover({
   event,
-  onEventClick,
-  onDragStart,
-  onDragEnd,
   getColorClasses,
-  variant = 'default',
+  onEdit,
+  onDelete,
+  children,
 }) {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const colorClasses = getColorClasses(event.color);
 
   const formatTime = (date) => {
@@ -890,85 +923,179 @@ function EventCard({
     return `${minutes}m`;
   };
 
+  return (
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        {children}
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        side="top"
+        sideOffset={6}
+        className="w-76 sm:w-80 p-0 rounded-2xl border border-surface-border bg-surface-card shadow-2xl z-50 overflow-hidden text-ink-primary"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Cabeçalho com indicador de cor e tipo de evento */}
+        <div className={cn('px-3.5 py-2.5 flex items-center justify-between text-white', colorClasses.bg)}>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider bg-black/25 px-2 py-0.5 rounded-full">
+              {event.category || 'Compromisso'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="p-1 rounded-lg hover:bg-black/20 text-white/90 hover:text-white transition-colors cursor-pointer"
+            title="Fechar detalhes"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Informações detalhadas do evento */}
+        <div className="p-3.5 space-y-2.5">
+          <div>
+            <h4 className="font-extrabold text-sm sm:text-base text-ink-primary leading-tight">
+              {event.title}
+            </h4>
+            {event.description && (
+              <p className="mt-1 text-xs text-ink-secondary leading-relaxed line-clamp-3">
+                {event.description}
+              </p>
+            )}
+          </div>
+
+          {/* Horário */}
+          <div className="flex items-start gap-2 text-xs text-ink-secondary bg-surface-subtle/70 p-2 rounded-xl border border-surface-border/60">
+            <Clock className="h-3.5 w-3.5 text-ink-muted flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="font-semibold text-ink-primary capitalize text-xs">
+                {new Date(event.startTime).toLocaleDateString('pt-BR', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                })}
+              </div>
+              <div className="text-[11px] text-ink-muted">
+                {formatTime(event.startTime)} às {formatTime(event.endTime)} ({getDuration()})
+              </div>
+            </div>
+          </div>
+
+          {/* Negócio Vinculado */}
+          {event.deal && (
+            <div className="flex items-center gap-2 text-xs bg-brand-primary/10 border border-brand-primary/20 px-2.5 py-1.5 rounded-xl text-brand-primary">
+              <Briefcase className="h-3.5 w-3.5 flex-shrink-0" />
+              <div className="min-w-0 flex-1 truncate">
+                <span className="font-medium text-ink-muted text-[11px] mr-1">Negócio:</span>
+                <span className="font-bold truncate">{event.deal}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Participantes */}
+          {event.attendees && event.attendees.length > 0 && (
+            <div className="text-[11px] text-ink-muted truncate">
+              <span className="font-semibold text-ink-secondary">Participantes:</span>{' '}
+              {event.attendees.join(', ')}
+            </div>
+          )}
+        </div>
+
+        {/* Rodapé com Botões de Apagar e Editar */}
+        <div className="px-3.5 py-2.5 bg-surface-subtle/50 border-t border-surface-border flex items-center justify-between gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setIsOpen(false);
+              onDelete?.(event.id);
+            }}
+            className="h-7 px-2.5 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 rounded-xl gap-1 cursor-pointer"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Apagar</span>
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={() => {
+              setIsOpen(false);
+              onEdit?.(event);
+            }}
+            className="h-7 px-3 text-xs font-bold rounded-xl gap-1 cursor-pointer"
+          >
+            <Pencil className="h-3 w-3" />
+            <span>Editar</span>
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+// Card do Evento com Drag & Drop e Popover de Detalhes ao Clicar
+function EventCard({
+  event,
+  onEventEdit,
+  onEventDelete,
+  onDragStart,
+  onDragEnd,
+  getColorClasses,
+  variant = 'default',
+}) {
+  const colorClasses = getColorClasses(event.color);
+
+  const formatTime = (date) => {
+    return new Date(date).toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const getDuration = () => {
+    const start = new Date(event.startTime).getTime();
+    const end = new Date(event.endTime).getTime();
+    const diff = Math.max(0, end - start);
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    if (hours > 0) {
+      return `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`;
+    }
+    return `${minutes}m`;
+  };
+
+  let triggerElement = null;
+
   if (variant === 'compact') {
-    return (
+    triggerElement = (
       <div
         draggable
-        onDragStart={() => onDragStart(event)}
+        onDragStart={() => onDragStart?.(event)}
         onDragEnd={onDragEnd}
-        onClick={(e) => {
-          e.stopPropagation();
-          onEventClick(event);
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         className="relative cursor-pointer select-none"
       >
         <div
           className={cn(
             'rounded-md px-1.5 py-0.5 text-[11px] font-semibold transition-all duration-200',
             colorClasses.bg,
-            'text-white truncate shadow-2xs leading-tight',
-            isHovered && 'scale-[1.02] shadow-md z-10 brightness-105'
+            'text-white truncate shadow-2xs leading-tight hover:scale-[1.02] hover:brightness-105'
           )}
         >
           {event.title}
         </div>
-        {isHovered && (
-          <div className="absolute left-0 top-full z-50 mt-1 w-64 animate-in fade-in slide-in-from-top-1 duration-150 pointer-events-none">
-            <Card className="border border-surface-border bg-surface-card p-3 shadow-xl rounded-xl">
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <h4 className="font-bold text-xs text-ink-primary leading-tight">{event.title}</h4>
-                  <div className={cn('h-2.5 w-2.5 rounded-full flex-shrink-0', colorClasses.bg)} />
-                </div>
-                {event.description && (
-                  <p className="text-[11px] text-ink-secondary line-clamp-2">{event.description}</p>
-                )}
-                <div className="flex items-center gap-1.5 text-[11px] text-ink-secondary font-medium">
-                  <Clock className="h-3 w-3 text-ink-muted" />
-                  <span>
-                    {formatTime(event.startTime)} - {formatTime(event.endTime)}
-                  </span>
-                  <span className="text-[10px] text-ink-muted">({getDuration()})</span>
-                </div>
-                <div className="flex flex-wrap gap-1 pt-0.5">
-                  {event.category && (
-                    <Badge variant="secondary" className="text-[10px] h-4 px-1.5 rounded">
-                      {event.category}
-                    </Badge>
-                  )}
-                  {event.tags?.map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-[10px] h-4 px-1.5 rounded">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
       </div>
     );
-  }
-
-  if (variant === 'detailed') {
-    return (
+  } else if (variant === 'detailed') {
+    triggerElement = (
       <div
         draggable
-        onDragStart={() => onDragStart(event)}
+        onDragStart={() => onDragStart?.(event)}
         onDragEnd={onDragEnd}
-        onClick={(e) => {
-          e.stopPropagation();
-          onEventClick(event);
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         className={cn(
-          'cursor-pointer rounded-xl p-2.5 sm:p-3 transition-all duration-200 select-none',
+          'cursor-pointer rounded-xl p-2.5 sm:p-3 transition-all duration-200 select-none hover:scale-[1.01] hover:shadow-lg',
           colorClasses.bg,
-          'text-white shadow-xs',
-          isHovered && 'scale-[1.01] shadow-lg ring-2 ring-white/40'
+          'text-white shadow-xs'
         )}
       >
         <div className="font-bold text-xs sm:text-sm">{event.title}</div>
@@ -982,82 +1109,53 @@ function EventCard({
           </span>
           <span className="text-[10px]">({getDuration()})</span>
         </div>
-        {((event.category) || (event.tags && event.tags.length > 0)) && (
+        {(event.deal || event.category) && (
           <div className="mt-2 flex flex-wrap gap-1">
             {event.category && (
               <Badge variant="secondary" className="text-[10px] bg-white/20 text-white border-transparent">
                 {event.category}
               </Badge>
             )}
-            {event.tags?.map((tag) => (
-              <Badge key={tag} variant="outline" className="text-[10px] text-white border-white/30">
-                {tag}
+            {event.deal && (
+              <Badge variant="outline" className="text-[10px] text-white border-white/30 flex items-center gap-1">
+                <Briefcase className="h-2.5 w-2.5" />
+                <span>{event.deal}</span>
               </Badge>
-            ))}
+            )}
           </div>
         )}
+      </div>
+    );
+  } else {
+    triggerElement = (
+      <div
+        draggable
+        onDragStart={() => onDragStart?.(event)}
+        onDragEnd={onDragEnd}
+        className="relative select-none"
+      >
+        <div
+          className={cn(
+            'cursor-pointer rounded-lg px-2 py-1 text-xs font-semibold transition-all duration-200 hover:scale-105',
+            colorClasses.bg,
+            'text-white shadow-2xs'
+          )}
+        >
+          <div className="truncate">{event.title}</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      draggable
-      onDragStart={() => onDragStart(event)}
-      onDragEnd={onDragEnd}
-      onClick={(e) => {
-        e.stopPropagation();
-        onEventClick(event);
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="relative select-none"
+    <EventDetailPopover
+      event={event}
+      getColorClasses={getColorClasses}
+      onEdit={onEventEdit}
+      onDelete={onEventDelete}
     >
-      <div
-        className={cn(
-          'cursor-pointer rounded-lg px-2 py-1 text-xs font-semibold transition-all duration-200',
-          colorClasses.bg,
-          'text-white shadow-2xs',
-          isHovered && 'scale-105 shadow-md z-10'
-        )}
-      >
-        <div className="truncate">{event.title}</div>
-      </div>
-      {isHovered && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-68 animate-in fade-in slide-in-from-top-1 duration-150 pointer-events-none">
-          <Card className="border border-surface-border bg-surface-card p-3 shadow-xl rounded-xl">
-            <div className="space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <h4 className="font-bold text-xs text-ink-primary leading-tight">{event.title}</h4>
-                <div className={cn('h-2.5 w-2.5 rounded-full flex-shrink-0', colorClasses.bg)} />
-              </div>
-              {event.description && (
-                <p className="text-[11px] text-ink-secondary line-clamp-2">{event.description}</p>
-              )}
-              <div className="flex items-center gap-1.5 text-[11px] text-ink-secondary">
-                <Clock className="h-3 w-3 text-ink-muted" />
-                <span>
-                  {formatTime(event.startTime)} - {formatTime(event.endTime)}
-                </span>
-                <span className="text-[10px] text-ink-muted">({getDuration()})</span>
-              </div>
-              <div className="flex flex-wrap gap-1 pt-0.5">
-                {event.category && (
-                  <Badge variant="secondary" className="text-[10px] h-4 px-1.5 rounded">
-                    {event.category}
-                  </Badge>
-                )}
-                {event.tags?.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-[10px] h-4 px-1.5 rounded">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-    </div>
+      {triggerElement}
+    </EventDetailPopover>
   );
 }
 
@@ -1065,8 +1163,10 @@ function EventCard({
 function MonthView({
   currentDate,
   events,
-  onEventClick,
+  onEventEdit,
+  onEventDelete,
   onDayClick,
+  onViewMore,
   onDragStart,
   onDragEnd,
   onDrop,
@@ -1155,7 +1255,8 @@ function MonthView({
                   <EventCard
                     key={event.id}
                     event={event}
-                    onEventClick={onEventClick}
+                    onEventEdit={onEventEdit}
+                    onEventDelete={onEventDelete}
                     onDragStart={onDragStart}
                     onDragEnd={onDragEnd}
                     getColorClasses={getColorClasses}
@@ -1163,9 +1264,17 @@ function MonthView({
                   />
                 ))}
                 {dayEvents.length > 2 && (
-                  <div className="text-[10px] font-bold text-ink-secondary px-0.5 truncate">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewMore?.(day);
+                    }}
+                    className="text-[10px] font-bold text-ink-secondary hover:text-brand-primary hover:underline px-0.5 truncate cursor-pointer transition-colors text-left"
+                    title="Ver compromissos na visão semanal"
+                  >
                     +{dayEvents.length - 2} mais
-                  </div>
+                  </button>
                 )}
               </div>
             </div>
@@ -1176,22 +1285,21 @@ function MonthView({
   );
 }
 
-// Visão Semanal (Horas do dia x 7 dias da semana)
+// Visão Semanal (Horas do dia x 7 dias da semana a partir do dia selecionado)
 function WeekView({
   currentDate,
   events,
-  onEventClick,
+  onEventEdit,
+  onEventDelete,
   onDragStart,
   onDragEnd,
   onDrop,
   getColorClasses,
 }) {
-  const startOfWeek = new Date(currentDate);
-  startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
-
+  // Janela deslizante de 7 dias a partir de currentDate
   const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const day = new Date(startOfWeek);
-    day.setDate(startOfWeek.getDate() + i);
+    const day = new Date(currentDate);
+    day.setDate(currentDate.getDate() + i);
     return day;
   });
 
@@ -1260,7 +1368,8 @@ function WeekView({
                       <EventCard
                         key={event.id}
                         event={event}
-                        onEventClick={onEventClick}
+                        onEventEdit={onEventEdit}
+                        onEventDelete={onEventDelete}
                         onDragStart={onDragStart}
                         onDragEnd={onDragEnd}
                         getColorClasses={getColorClasses}
@@ -1282,7 +1391,8 @@ function WeekView({
 function DayView({
   currentDate,
   events,
-  onEventClick,
+  onEventEdit,
+  onEventDelete,
   onDragStart,
   onDragEnd,
   onDrop,
@@ -1324,7 +1434,8 @@ function DayView({
                     <EventCard
                       key={event.id}
                       event={event}
-                      onEventClick={onEventClick}
+                      onEventEdit={onEventEdit}
+                      onEventDelete={onEventDelete}
                       onDragStart={onDragStart}
                       onDragEnd={onDragEnd}
                       getColorClasses={getColorClasses}
@@ -1341,10 +1452,11 @@ function DayView({
   );
 }
 
-// Visão em Lista (Eventos agrupados por data)
+// Visão em Lista (Eventos agrupados por data com Popover de detalhes)
 function ListView({
   events,
-  onEventClick,
+  onEventEdit,
+  onEventDelete,
   getColorClasses,
 }) {
   const sortedEvents = [...events].sort(
@@ -1376,57 +1488,63 @@ function ListView({
               {dateEvents.map((event) => {
                 const colorClasses = getColorClasses(event.color);
                 return (
-                  <div
+                  <EventDetailPopover
                     key={event.id}
-                    onClick={() => onEventClick(event)}
-                    className="group cursor-pointer rounded-xl border border-surface-border bg-surface-subtle hover:bg-surface-hover p-3 transition-all hover:shadow-2xs select-none"
+                    event={event}
+                    getColorClasses={getColorClasses}
+                    onEdit={onEventEdit}
+                    onDelete={onEventDelete}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className={cn('mt-1 h-3 w-3 rounded-full flex-shrink-0', colorClasses.bg)} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
-                          <h4 className="font-bold text-sm text-ink-primary group-hover:text-brand-primary transition-colors truncate">
-                            {event.title}
-                          </h4>
-                          {event.category && (
-                            <Badge variant="secondary" className="text-[11px] self-start sm:self-auto rounded-lg">
-                              {event.category}
-                            </Badge>
-                          )}
-                        </div>
-                        {event.description && (
-                          <p className="mt-1 text-xs text-ink-secondary line-clamp-2">
-                            {event.description}
-                          </p>
-                        )}
-                        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-ink-muted">
-                          <div className="flex items-center gap-1 font-medium">
-                            <Clock className="h-3 w-3" />
-                            <span>
-                              {new Date(event.startTime).toLocaleTimeString('pt-BR', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}{' '}
-                              -{' '}
-                              {new Date(event.endTime).toLocaleTimeString('pt-BR', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </span>
-                          </div>
-                          {event.tags && event.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {event.tags.map((tag) => (
-                                <Badge key={tag} variant="outline" className="text-[10px] h-4.5 rounded">
-                                  {tag}
+                    <div
+                      className="group cursor-pointer rounded-xl border border-surface-border bg-surface-subtle hover:bg-surface-hover p-3 transition-all hover:shadow-2xs select-none"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={cn('mt-1 h-3 w-3 rounded-full flex-shrink-0', colorClasses.bg)} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
+                            <h4 className="font-bold text-sm text-ink-primary group-hover:text-brand-primary transition-colors truncate">
+                              {event.title}
+                            </h4>
+                            <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                              {event.category && (
+                                <Badge variant="secondary" className="text-[11px] rounded-lg">
+                                  {event.category}
                                 </Badge>
-                              ))}
+                              )}
+                              {event.deal && (
+                                <Badge variant="outline" className="text-[11px] rounded-lg border-brand-primary/30 text-brand-primary flex items-center gap-1">
+                                  <Briefcase className="h-3 w-3" />
+                                  <span>{event.deal}</span>
+                                </Badge>
+                              )}
                             </div>
+                          </div>
+                          {event.description && (
+                            <p className="mt-1 text-xs text-ink-secondary line-clamp-2">
+                              {event.description}
+                            </p>
                           )}
+                          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-ink-muted">
+                            <div className="flex items-center gap-1 font-medium">
+                              <Clock className="h-3 w-3" />
+                              <span>
+                                {new Date(event.startTime).toLocaleTimeString('pt-BR', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}{' '}
+                                -{' '}
+                                {new Date(event.endTime).toLocaleTimeString('pt-BR', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </EventDetailPopover>
                 );
               })}
             </div>

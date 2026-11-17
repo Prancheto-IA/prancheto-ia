@@ -26,8 +26,8 @@ const gerarEventosIniciais = () => {
       endTime: new Date(ano, mes, dia, 10, 0),
       color: 'blue',
       category: 'Reunião',
+      deal: 'Expansão de Licenças de Análise',
       attendees: ['Equipe Comercial'],
-      tags: ['Trabalho', 'Equipe'],
     },
     {
       id: 'demo-2',
@@ -35,10 +35,10 @@ const gerarEventosIniciais = () => {
       description: 'Demonstração ao vivo dos módulos do Prancheto.IA e negociação de plano anual.',
       startTime: new Date(ano, mes, dia, 14, 30),
       endTime: new Date(ano, mes, dia, 15, 30),
-      color: 'purple',
+      color: 'blue',
       category: 'Reunião',
+      deal: 'Piloto: Otimizador de Rotas',
       attendees: ['Diretoria do Cliente'],
-      tags: ['Importante', 'Cliente'],
     },
     {
       id: 'demo-3',
@@ -48,7 +48,7 @@ const gerarEventosIniciais = () => {
       endTime: new Date(ano, mes, Math.min(28, dia + 1), 11, 30),
       color: 'green',
       category: 'Tarefa',
-      tags: ['Trabalho', 'Urgente'],
+      deal: 'Migração Regional de CRM',
     },
     {
       id: 'demo-4',
@@ -56,10 +56,10 @@ const gerarEventosIniciais = () => {
       description: 'Configuração dos fluxos automáticos e integração com o WhatsApp oficial.',
       startTime: new Date(ano, mes, Math.min(28, dia + 2), 15, 0),
       endTime: new Date(ano, mes, Math.min(28, dia + 2), 16, 0),
-      color: 'orange',
+      color: 'blue',
       category: 'Reunião',
+      deal: 'Módulo de Compliance',
       attendees: ['Gestor de Sucesso'],
-      tags: ['Cliente', 'Importante'],
     },
     {
       id: 'demo-5',
@@ -69,7 +69,7 @@ const gerarEventosIniciais = () => {
       endTime: new Date(ano, mes, Math.min(28, dia + 3), 18, 0),
       color: 'green',
       category: 'Tarefa',
-      tags: ['Trabalho', 'Urgente'],
+      deal: 'Plano Enterprise Studio',
     },
     {
       id: 'demo-6',
@@ -77,9 +77,8 @@ const gerarEventosIniciais = () => {
       description: 'Conciliação bancária das assinaturas e emissão de notas fiscais.',
       startTime: new Date(ano, mes, Math.max(1, dia - 1), 11, 0),
       endTime: new Date(ano, mes, Math.max(1, dia - 1), 12, 0),
-      color: 'pink',
+      color: 'orange',
       category: 'Lembrete',
-      tags: ['Importante'],
     },
   ];
 };
@@ -89,7 +88,46 @@ export const Calendario = () => {
   const tenantId = usuario?.tenant_id;
 
   const [eventos, setEventos] = useState([]);
+  const [negocios, setNegocios] = useState([
+    { id: 'deal-1', nome: 'Módulo de Compliance', empresa: 'Apex Brasil' },
+    { id: 'deal-2', nome: 'Piloto: Otimizador de Rotas', empresa: 'LogTech' },
+    { id: 'deal-3', nome: 'Migração Regional de CRM', empresa: 'Inova Health' },
+    { id: 'deal-4', nome: 'Expansão de Licenças de Análise', empresa: 'Fintech Plus' },
+    { id: 'deal-5', nome: 'Plano Enterprise Studio', empresa: 'Studio Criativo' },
+  ]);
   const [carregando, setCarregando] = useState(true);
+
+  // Carregar negócios do CRM para atribuição no calendário
+  useEffect(() => {
+    const carregarNegociosCRM = async () => {
+      if (!tenantId) return;
+      try {
+        const { data, error } = await supabase
+          .from('crm_contatos')
+          .select('id, negocio_nome, nome, empresa')
+          .eq('tenant_id', tenantId)
+          .order('criado_em', { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          const mapeados = data
+            .map((item) => ({
+              id: String(item.id),
+              nome: item.negocio_nome || item.nome,
+              empresa: item.empresa || '',
+            }))
+            .filter((item) => item.nome && item.nome.trim() !== '');
+
+          if (mapeados.length > 0) {
+            setNegocios(mapeados);
+          }
+        }
+      } catch (err) {
+        console.warn('Erro ao carregar negócios do CRM:', err);
+      }
+    };
+
+    carregarNegociosCRM();
+  }, [tenantId]);
 
   // Chave local para cache offline por tenant
   const chaveStorage = `prancheto_eventos_${tenantId || 'default'}`;
@@ -129,6 +167,7 @@ export const Calendario = () => {
               ? new Date(item.data_fim)
               : new Date(start.getTime() + 3600000);
 
+            const cat = item.tipo || item.metadata?.category || 'Reunião';
             return {
               id: String(item.id),
               title: item.titulo || 'Sem título',
@@ -136,7 +175,8 @@ export const Calendario = () => {
               startTime: start,
               endTime: end,
               color: item.metadata?.color || 'blue',
-              category: item.tipo || item.metadata?.category || 'Reunião',
+              category: cat,
+              deal: item.metadata?.deal || item.metadata?.deal_nome || '',
               tags: item.metadata?.tags || [],
               attendees: item.metadata?.attendees || [],
             };
@@ -195,6 +235,7 @@ export const Calendario = () => {
           metadata: {
             color: formatado.color,
             category: formatado.category,
+            deal: formatado.deal || null,
             tags: formatado.tags || [],
             attendees: formatado.attendees || [],
           },
@@ -233,6 +274,7 @@ export const Calendario = () => {
             metadata: {
               color: formatado.color,
               category: formatado.category,
+              deal: formatado.deal || null,
               tags: formatado.tags || [],
               attendees: formatado.attendees || [],
             },
@@ -264,6 +306,7 @@ export const Calendario = () => {
     <div className="w-full h-[calc(100vh-4rem)] p-2 sm:p-3 bg-surface-ground flex flex-col overflow-hidden">
       <EventManager
         events={eventos}
+        deals={negocios}
         onEventCreate={handleEventCreate}
         onEventUpdate={handleEventUpdate}
         onEventDelete={handleEventDelete}
