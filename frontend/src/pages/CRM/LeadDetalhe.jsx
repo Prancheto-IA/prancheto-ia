@@ -148,7 +148,6 @@ const LeadDetalhe = () => {
               valor_estimado: 5600,
               score: 75,
               status_funil: 'chamei',
-              tags: ['Qualificado', 'Cliente', 'Alto ROI'],
               email: 'mohammadali@gmail.com',
               telefone: '(888) 456 789',
               whatsapp: '888456789',
@@ -607,24 +606,9 @@ const LeadDetalhe = () => {
             </div>
 
             {/* Criado em */}
-            <div className="px-4 sm:px-5 flex flex-col">
+            <div className="pl-4 sm:pl-5 flex flex-col">
               <span className="text-[10px] font-semibold text-[#687770] uppercase tracking-wider mb-0.5">Criado em</span>
               <span className="font-medium text-[#111915]">{formatarData(deal.criado_em)}</span>
-            </div>
-
-            {/* Tags */}
-            <div className="pl-4 sm:pl-5 flex flex-col">
-              <span className="text-[10px] font-semibold text-[#687770] uppercase tracking-wider mb-1">Tags</span>
-              <div className="flex items-center gap-1.5">
-                {(deal.tags && deal.tags.length > 0 ? deal.tags : ['Novo', 'Cliente']).map((tag, i) => (
-                  <span
-                    key={i}
-                    className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#EBF5EC] text-[#0E382C] border border-[#D4EC9D]/50"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
             </div>
           </div>
         </div>
