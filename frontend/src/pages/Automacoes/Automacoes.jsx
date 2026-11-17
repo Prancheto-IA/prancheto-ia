@@ -4,7 +4,7 @@
 // de Workflows (ao clicar no botão voltar), com modais ReUI para
 // Conexões WhatsApp, Logs de Execução e Simulador CRM.
 // =============================================================
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   X,
   Plus,
@@ -136,6 +136,20 @@ const Automacoes = () => {
   // Filtros da página "Lista de Workflows"
   const [buscaFluxo, setBuscaFluxo] = useState('');
   const [filtroStatusFluxo, setFiltroStatusFluxo] = useState('todos');
+
+  const fluxosFiltrados = useMemo(() => {
+    return workflows.filter((wf) => {
+      if (filtroStatusFluxo === 'ativos' && !wf.ativo) return false;
+      if (filtroStatusFluxo === 'pausados' && wf.ativo) return false;
+      if (!buscaFluxo.trim()) return true;
+      const q = buscaFluxo.toLowerCase();
+      return (
+        wf.nome.toLowerCase().includes(q) ||
+        (wf.descricao || '').toLowerCase().includes(q) ||
+        (wf.categoria || '').toLowerCase().includes(q)
+      );
+    });
+  }, [workflows, filtroStatusFluxo, buscaFluxo]);
 
   // Seleção e exclusão de automações (individual ou em lote)
   const [idsSelecionados, setIdsSelecionados] = useState([]);
@@ -451,18 +465,6 @@ const Automacoes = () => {
       adicionarNotificacao,
     ]
   );
-
-  const fluxosFiltrados = workflows.filter((wf) => {
-    if (filtroStatusFluxo === 'ativos' && !wf.ativo) return false;
-    if (filtroStatusFluxo === 'pausados' && wf.ativo) return false;
-    if (!buscaFluxo.trim()) return true;
-    const q = buscaFluxo.toLowerCase();
-    return (
-      wf.nome.toLowerCase().includes(q) ||
-      (wf.descricao || '').toLowerCase().includes(q) ||
-      (wf.categoria || '').toLowerCase().includes(q)
-    );
-  });
 
   const totalAtivos = workflows.filter((wf) => wf.ativo).length;
   const totalExecucoes = workflows.reduce((acc, wf) => acc + (wf.execucoesTotal || 0), 0);
