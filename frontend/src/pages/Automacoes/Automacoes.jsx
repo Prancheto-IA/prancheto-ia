@@ -94,62 +94,15 @@ const salvarStorage = (chaveBase, tenantId, dados) => {
 const criarNovoWorkflow = (contador) => ({
   id: `wf-${Date.now().toString(36)}`,
   nome: `Nova Automação #${contador}`,
-  descricao: 'Fluxo automático disparado quando o cliente muda de etapa no funil CRM.',
-  ativo: true,
+  descricao: 'Defina o gatilho inicial e as ações automáticas a serem executadas.',
+  ativo: false,
   categoria: 'Personalizado',
   execucoesTotal: 0,
   taxaEntrega: 100,
-  tempoMedio: '1,0s',
+  tempoMedio: '0,0s',
   ultimaExecucao: 'Ainda não executado',
-  nodes: [
-    {
-      id: 'n1',
-      type: 'trigger_stage_changed',
-      nodeRole: 'start',
-      position: { x: 482, y: 46 },
-      config: {
-        customTitle: 'Cliente Movido de Etapa (.CRM)',
-        phaseLabel: 'Gatilho Inicial',
-        meshKey: 'brand',
-        etapaOrigem: 'qualquer',
-        etapaDestino: 'nao_chamei',
-        apenasHorarioComercial: true,
-      },
-    },
-    {
-      id: 'n2',
-      type: 'ai_pranchetinho',
-      nodeRole: 'step',
-      position: { x: 482, y: 174 },
-      config: {
-        customTitle: 'Personalização com IA',
-        phaseLabel: 'Fase 1',
-        meshKey: 'magenta',
-        tom: 'consultivo',
-        promptInstrucao: 'Adaptar mensagem cordial ao contexto do cliente.',
-        salvarVariavel: '{{ia.mensagem_gerada}}',
-      },
-    },
-    {
-      id: 'n3',
-      type: 'action_whatsapp_text',
-      nodeRole: 'final',
-      position: { x: 482, y: 302 },
-      config: {
-        customTitle: 'Enviar Mensagem WhatsApp',
-        phaseLabel: 'Final · Disparo',
-        meshKey: 'emerald',
-        conexaoId: 'evo-comercial',
-        tipoEnvio: 'texto',
-        mensagem:
-          'Olá {{lead.nome}}! 👋\n\nAvançamos o atendimento da *{{lead.empresa}}* para *{{etapa.nova}}*.\n\n{{ia.mensagem_gerada}}',
-      },
-    },
-  ],
-  edges: [
-    { id: 'e1-2', source: 'n1', target: 'n2' },
-    { id: 'e2-3', source: 'n2', target: 'n3' },
-  ],
+  nodes: [],
+  edges: [],
 });
 
 const Automacoes = () => {

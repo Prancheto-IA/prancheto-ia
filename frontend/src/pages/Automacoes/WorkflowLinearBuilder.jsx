@@ -407,7 +407,7 @@ const WorkflowLinearBuilder = ({
       };
 
       onUpdateWorkflow(workflowAtual.id, (wf) => {
-        let lista = [...wf.nodes];
+        let lista = [...(wf.nodes || [])];
         if (isTrigger) {
           const semGatilho = lista.filter(
             (n) => !n.type.startsWith('trigger_') && n.nodeRole !== 'start'
@@ -437,7 +437,7 @@ const WorkflowLinearBuilder = ({
   // Remover nó
   const handleRemoverNo = (noId) => {
     onUpdateWorkflow(workflowAtual.id, (wf) => {
-      const novosNodes = wf.nodes.filter((n) => n.id !== noId);
+      const novosNodes = (wf.nodes || []).filter((n) => n.id !== noId);
       const novosEdges = [];
       for (let i = 0; i < novosNodes.length - 1; i++) {
         novosEdges.push({
