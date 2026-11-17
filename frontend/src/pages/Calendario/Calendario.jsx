@@ -261,20 +261,18 @@ export const Calendario = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] p-3 sm:p-5 lg:p-6 bg-surface-ground">
-      <div className="max-w-7xl mx-auto space-y-4">
-        {/* Componente EventManager Traduzido com Design System */}
-        <EventManager
-          events={eventos}
-          onEventCreate={handleEventCreate}
-          onEventUpdate={handleEventUpdate}
-          onEventDelete={handleEventDelete}
-          categories={defaultCategories}
-          colors={defaultColors}
-          availableTags={defaultAvailableTags}
-          defaultView="month"
-        />
-      </div>
+    <div className="w-full h-[calc(100vh-4rem)] p-2 sm:p-3 bg-surface-ground flex flex-col overflow-hidden">
+      <EventManager
+        events={eventos}
+        onEventCreate={handleEventCreate}
+        onEventUpdate={handleEventUpdate}
+        onEventDelete={handleEventDelete}
+        categories={defaultCategories}
+        colors={defaultColors}
+        availableTags={defaultAvailableTags}
+        defaultView="month"
+        className="h-full flex-1 min-h-0"
+      />
     </div>
   );
 };

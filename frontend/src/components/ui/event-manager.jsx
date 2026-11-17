@@ -38,10 +38,14 @@ import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuCheckboxItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 
 export const defaultColors = [
@@ -128,7 +132,8 @@ export function EventManager({
     });
   }, [events, searchQuery, selectedColors, selectedTags, selectedCategories]);
 
-  const hasActiveFilters = selectedColors.length > 0 || selectedTags.length > 0 || selectedCategories.length > 0;
+  const totalFiltrosAtivos = selectedColors.length + selectedTags.length + selectedCategories.length;
+  const hasActiveFilters = totalFiltrosAtivos > 0 || Boolean(searchQuery);
 
   const clearFilters = () => {
     setSelectedColors([]);
@@ -308,11 +313,12 @@ export function EventManager({
   };
 
   return (
-    <div className={cn('flex flex-col gap-4 font-sans text-ink-primary', className)}>
-      {/* Header */}
-      <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center lg:justify-between bg-surface-card border border-surface-border p-4 rounded-2xl shadow-2xs">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-          <h2 className="text-lg sm:text-xl font-extrabold text-ink-primary capitalize tracking-tight">
+    <div className={cn('flex flex-col gap-2.5 font-sans text-ink-primary h-full min-h-0 overflow-hidden', className)}>
+      {/* Header Unificado com Título, Navegação, Busca, Filtros, Visualizações e Novo Evento */}
+      <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between bg-surface-card border border-surface-border px-3.5 py-2.5 sm:px-4 sm:py-2.5 rounded-2xl shadow-2xs flex-shrink-0">
+        {/* Lado Esquerdo: Navegação de Data */}
+        <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
+          <h2 className="text-base sm:text-lg font-extrabold text-ink-primary capitalize tracking-tight whitespace-nowrap">
             {view === 'month' &&
               currentDate.toLocaleDateString('pt-BR', {
                 month: 'long',
@@ -325,14 +331,13 @@ export function EventManager({
               })}`}
             {view === 'day' &&
               currentDate.toLocaleDateString('pt-BR', {
-                weekday: 'long',
+                weekday: 'short',
                 day: 'numeric',
-                month: 'long',
-                year: 'numeric',
+                month: 'short',
               })}
-            {view === 'list' && 'Todos os Compromissos'}
+            {view === 'list' && 'Compromissos'}
           </h2>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <Button
               variant="outline"
               size="icon"
@@ -346,7 +351,7 @@ export function EventManager({
               variant="outline"
               size="sm"
               onClick={() => setCurrentDate(new Date())}
-              className="h-8 px-3 rounded-xl border-surface-border hover:bg-surface-hover text-xs font-bold"
+              className="h-8 px-2.5 rounded-xl border-surface-border hover:bg-surface-hover text-xs font-bold"
             >
               Hoje
             </Button>
@@ -362,49 +367,199 @@ export function EventManager({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+        {/* Centro: Barra de Pesquisa e Botão Único de Filtros */}
+        <div className="flex items-center gap-2 flex-1 max-w-md mx-0 lg:mx-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted pointer-events-none" />
+            <Input
+              placeholder="Pesquisar compromissos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 pl-8 pr-7 text-xs rounded-xl border-surface-border bg-surface-ground/50 focus:bg-surface-card"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-0.5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted hover:text-ink-primary"
+                onClick={() => setSearchQuery('')}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+
+          {/* Botão Único de Filtros com Menu Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  'h-8 gap-1.5 rounded-xl border-surface-border bg-surface-card hover:bg-surface-hover flex-shrink-0 text-xs font-bold transition-all',
+                  hasActiveFilters && 'border-brand-primary text-brand-primary bg-brand-primary/5'
+                )}
+              >
+                <Filter className="h-3.5 w-3.5 text-ink-secondary" />
+                <span className="hidden sm:inline">Filtros</span>
+                {totalFiltrosAtivos > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="h-4 px-1.5 text-[10px] bg-brand-primary text-white rounded-full font-bold ml-0.5"
+                  >
+                    {totalFiltrosAtivos}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="flex items-center justify-between px-2 py-1.5">
+                <span className="text-xs font-bold text-ink-primary">Filtros</span>
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="text-[11px] text-brand-primary hover:underline font-semibold cursor-pointer"
+                  >
+                    Limpar tudo
+                  </button>
+                )}
+              </div>
+              <DropdownMenuSeparator />
+
+              {/* Submenu Categorias */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="text-xs">
+                  <span>Categorias</span>
+                  {selectedCategories.length > 0 && (
+                    <Badge variant="secondary" className="ml-auto mr-1 h-4 px-1 text-[10px]">
+                      {selectedCategories.length}
+                    </Badge>
+                  )}
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-48">
+                  <DropdownMenuLabel className="text-xs">Filtrar por Categoria</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {categories.map((category) => (
+                    <DropdownMenuCheckboxItem
+                      key={category}
+                      checked={selectedCategories.includes(category)}
+                      onCheckedChange={(checked) => {
+                        setSelectedCategories((prev) =>
+                          checked ? [...prev, category] : prev.filter((c) => c !== category)
+                        );
+                      }}
+                      className="text-xs"
+                    >
+                      {category}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+
+              {/* Submenu Cores */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="text-xs">
+                  <span>Cores</span>
+                  {selectedColors.length > 0 && (
+                    <Badge variant="secondary" className="ml-auto mr-1 h-4 px-1 text-[10px]">
+                      {selectedColors.length}
+                    </Badge>
+                  )}
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-48">
+                  <DropdownMenuLabel className="text-xs">Filtrar por Cor</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {colors.map((color) => (
+                    <DropdownMenuCheckboxItem
+                      key={color.value}
+                      checked={selectedColors.includes(color.value)}
+                      onCheckedChange={(checked) => {
+                        setSelectedColors((prev) =>
+                          checked ? [...prev, color.value] : prev.filter((c) => c !== color.value)
+                        );
+                      }}
+                      className="text-xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={cn('h-2.5 w-2.5 rounded-full', color.bg)} />
+                        <span>{color.name}</span>
+                      </div>
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+
+              {/* Submenu Tags */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="text-xs">
+                  <span>Tags</span>
+                  {selectedTags.length > 0 && (
+                    <Badge variant="secondary" className="ml-auto mr-1 h-4 px-1 text-[10px]">
+                      {selectedTags.length}
+                    </Badge>
+                  )}
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-48">
+                  <DropdownMenuLabel className="text-xs">Filtrar por Tag</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {availableTags.map((tag) => (
+                    <DropdownMenuCheckboxItem
+                      key={tag}
+                      checked={selectedTags.includes(tag)}
+                      onCheckedChange={(checked) => {
+                        setSelectedTags((prev) =>
+                          checked ? [...prev, tag] : prev.filter((t) => t !== tag)
+                        );
+                      }}
+                      className="text-xs"
+                    >
+                      {tag}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+
+              {hasActiveFilters && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={clearFilters}
+                    className="text-xs text-brand-primary focus:text-brand-primary focus:bg-brand-primary/10 cursor-pointer font-medium"
+                  >
+                    <X className="mr-2 h-3.5 w-3.5" />
+                    Limpar todos os filtros ({totalFiltrosAtivos})
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Lado Direito: Modos de Visualização e Botão Novo Evento */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           {/* Mobile: Select dropdown */}
-          <div className="sm:hidden">
+          <div className="sm:hidden w-28">
             <Select value={view} onValueChange={(value) => setView(value)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="month">
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4" />
-                    Visão Mensal
-                  </div>
-                </SelectItem>
-                <SelectItem value="week">
-                  <div className="flex items-center gap-2">
-                    <Grid3x3 className="h-4 w-4" />
-                    Visão Semanal
-                  </div>
-                </SelectItem>
-                <SelectItem value="day">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Visão Diária
-                  </div>
-                </SelectItem>
-                <SelectItem value="list">
-                  <div className="flex items-center gap-2">
-                    <List className="h-4 w-4" />
-                    Lista de Eventos
-                  </div>
-                </SelectItem>
+                <SelectItem value="month">Mês</SelectItem>
+                <SelectItem value="week">Semana</SelectItem>
+                <SelectItem value="day">Dia</SelectItem>
+                <SelectItem value="list">Lista</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Desktop: Button group */}
-          <div className="hidden sm:flex items-center gap-1 rounded-xl border border-surface-border bg-surface-subtle p-1">
+          <div className="hidden sm:flex items-center gap-1 rounded-xl border border-surface-border bg-surface-subtle p-0.5">
             <Button
               variant={view === 'month' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setView('month')}
-              className="h-7 text-xs rounded-lg"
+              className="h-7 px-2.5 text-xs rounded-lg"
             >
               <CalendarIcon className="h-3.5 w-3.5 mr-1" />
               <span>Mês</span>
@@ -413,7 +568,7 @@ export function EventManager({
               variant={view === 'week' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setView('week')}
-              className="h-7 text-xs rounded-lg"
+              className="h-7 px-2.5 text-xs rounded-lg"
             >
               <Grid3x3 className="h-3.5 w-3.5 mr-1" />
               <span>Semana</span>
@@ -422,7 +577,7 @@ export function EventManager({
               variant={view === 'day' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setView('day')}
-              className="h-7 text-xs rounded-lg"
+              className="h-7 px-2.5 text-xs rounded-lg"
             >
               <Clock className="h-3.5 w-3.5 mr-1" />
               <span>Dia</span>
@@ -431,7 +586,7 @@ export function EventManager({
               variant={view === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setView('list')}
-              className="h-7 text-xs rounded-lg"
+              className="h-7 px-2.5 text-xs rounded-lg"
             >
               <List className="h-3.5 w-3.5 mr-1" />
               <span>Lista</span>
@@ -440,257 +595,77 @@ export function EventManager({
 
           <Button
             onClick={() => handleOpenCreateDialog()}
-            className="w-full sm:w-auto h-8 px-3.5 rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+            className="h-8 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer whitespace-nowrap"
           >
-            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            <Plus className="mr-1 h-3.5 w-3.5" />
             Novo Evento
           </Button>
         </div>
       </div>
 
-      {/* Barra de Filtros e Pesquisa */}
-      <div className="flex flex-col gap-2.5">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-          <Input
-            placeholder="Pesquisar compromissos por título, descrição ou tag..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-9 rounded-xl border-surface-border bg-surface-card"
+      {/* Visualizações do Calendário Dentro de Container Flexível sem Scroll Externo */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        {view === 'month' && (
+          <MonthView
+            currentDate={currentDate}
+            events={filteredEvents}
+            onEventClick={(event) => {
+              setSelectedEvent(event);
+              setIsCreating(false);
+              setIsDialogOpen(true);
+            }}
+            onDayClick={(diaData) => handleOpenCreateDialog(diaData)}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDrop={handleDrop}
+            getColorClasses={getColorClasses}
           />
-          {searchQuery && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-ink-muted hover:text-ink-primary"
-              onClick={() => setSearchQuery('')}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        )}
 
-        {/* Linha de filtros: Mobile com rolagem horizontal e Desktop integrado */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {/* Filtro de Cores */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 rounded-xl border-surface-border bg-surface-card hover:bg-surface-hover flex-shrink-0 text-xs">
-                <Filter className="h-3.5 w-3.5 text-ink-secondary" />
-                <span>Cores</span>
-                {selectedColors.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">
-                    {selectedColors.length}
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              <DropdownMenuLabel>Filtrar por Cor</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {colors.map((color) => (
-                <DropdownMenuCheckboxItem
-                  key={color.value}
-                  checked={selectedColors.includes(color.value)}
-                  onCheckedChange={(checked) => {
-                    setSelectedColors((prev) =>
-                      checked ? [...prev, color.value] : prev.filter((c) => c !== color.value)
-                    );
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={cn('h-3 w-3 rounded-full', color.bg)} />
-                    <span>{color.name}</span>
-                  </div>
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {view === 'week' && (
+          <WeekView
+            currentDate={currentDate}
+            events={filteredEvents}
+            onEventClick={(event) => {
+              setSelectedEvent(event);
+              setIsCreating(false);
+              setIsDialogOpen(true);
+            }}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDrop={handleDrop}
+            getColorClasses={getColorClasses}
+          />
+        )}
 
-          {/* Filtro de Tags */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 rounded-xl border-surface-border bg-surface-card hover:bg-surface-hover flex-shrink-0 text-xs">
-                <Filter className="h-3.5 w-3.5 text-ink-secondary" />
-                <span>Tags</span>
-                {selectedTags.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">
-                    {selectedTags.length}
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              <DropdownMenuLabel>Filtrar por Tag</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {availableTags.map((tag) => (
-                <DropdownMenuCheckboxItem
-                  key={tag}
-                  checked={selectedTags.includes(tag)}
-                  onCheckedChange={(checked) => {
-                    setSelectedTags((prev) => (checked ? [...prev, tag] : prev.filter((t) => t !== tag)));
-                  }}
-                >
-                  {tag}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {view === 'day' && (
+          <DayView
+            currentDate={currentDate}
+            events={filteredEvents}
+            onEventClick={(event) => {
+              setSelectedEvent(event);
+              setIsCreating(false);
+              setIsDialogOpen(true);
+            }}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDrop={handleDrop}
+            getColorClasses={getColorClasses}
+          />
+        )}
 
-          {/* Filtro de Categorias */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 rounded-xl border-surface-border bg-surface-card hover:bg-surface-hover flex-shrink-0 text-xs">
-                <Filter className="h-3.5 w-3.5 text-ink-secondary" />
-                <span>Categorias</span>
-                {selectedCategories.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">
-                    {selectedCategories.length}
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              <DropdownMenuLabel>Filtrar por Categoria</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {categories.map((category) => (
-                <DropdownMenuCheckboxItem
-                  key={category}
-                  checked={selectedCategories.includes(category)}
-                  onCheckedChange={(checked) => {
-                    setSelectedCategories((prev) =>
-                      checked ? [...prev, category] : prev.filter((c) => c !== category)
-                    );
-                  }}
-                >
-                  {category}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="gap-1.5 text-xs text-ink-secondary hover:text-ink-primary flex-shrink-0"
-            >
-              <X className="h-3.5 w-3.5" />
-              Limpar Filtros
-            </Button>
-          )}
-        </div>
+        {view === 'list' && (
+          <ListView
+            events={filteredEvents}
+            onEventClick={(event) => {
+              setSelectedEvent(event);
+              setIsCreating(false);
+              setIsDialogOpen(true);
+            }}
+            getColorClasses={getColorClasses}
+          />
+        )}
       </div>
-
-      {/* Badges dos filtros ativos */}
-      {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs font-medium text-ink-secondary">Filtros ativos:</span>
-          {selectedColors.map((colorValue) => {
-            const color = getColorClasses(colorValue);
-            return (
-              <Badge key={colorValue} variant="secondary" className="gap-1.5 rounded-lg py-0.5 text-xs">
-                <div className={cn('h-2 w-2 rounded-full', color.bg)} />
-                {color.name}
-                <button
-                  type="button"
-                  onClick={() => setSelectedColors((prev) => prev.filter((c) => c !== colorValue))}
-                  className="ml-1 hover:text-ink-primary cursor-pointer"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            );
-          })}
-          {selectedTags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="gap-1.5 rounded-lg py-0.5 text-xs">
-              {tag}
-              <button
-                type="button"
-                onClick={() => setSelectedTags((prev) => prev.filter((t) => t !== tag))}
-                className="ml-1 hover:text-ink-primary cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          {selectedCategories.map((category) => (
-            <Badge key={category} variant="secondary" className="gap-1.5 rounded-lg py-0.5 text-xs">
-              {category}
-              <button
-                type="button"
-                onClick={() => setSelectedCategories((prev) => prev.filter((c) => c !== category))}
-                className="ml-1 hover:text-ink-primary cursor-pointer"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      )}
-
-      {/* Visualizações do Calendário */}
-      {view === 'month' && (
-        <MonthView
-          currentDate={currentDate}
-          events={filteredEvents}
-          onEventClick={(event) => {
-            setSelectedEvent(event);
-            setIsCreating(false);
-            setIsDialogOpen(true);
-          }}
-          onDayClick={(diaData) => handleOpenCreateDialog(diaData)}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDrop={handleDrop}
-          getColorClasses={getColorClasses}
-        />
-      )}
-
-      {view === 'week' && (
-        <WeekView
-          currentDate={currentDate}
-          events={filteredEvents}
-          onEventClick={(event) => {
-            setSelectedEvent(event);
-            setIsCreating(false);
-            setIsDialogOpen(true);
-          }}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDrop={handleDrop}
-          getColorClasses={getColorClasses}
-        />
-      )}
-
-      {view === 'day' && (
-        <DayView
-          currentDate={currentDate}
-          events={filteredEvents}
-          onEventClick={(event) => {
-            setSelectedEvent(event);
-            setIsCreating(false);
-            setIsDialogOpen(true);
-          }}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDrop={handleDrop}
-          getColorClasses={getColorClasses}
-        />
-      )}
-
-      {view === 'list' && (
-        <ListView
-          events={filteredEvents}
-          onEventClick={(event) => {
-            setSelectedEvent(event);
-            setIsCreating(false);
-            setIsDialogOpen(true);
-          }}
-          getColorClasses={getColorClasses}
-        />
-      )}
 
       {/* Dialog de Criação / Edição do Evento */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -1131,19 +1106,19 @@ function MonthView({
   ];
 
   return (
-    <Card className="overflow-hidden border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
-      <div className="grid grid-cols-7 border-b border-surface-border bg-surface-subtle">
+    <Card className="flex-1 min-h-0 flex flex-col overflow-hidden border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
+      <div className="grid grid-cols-7 border-b border-surface-border bg-surface-subtle flex-shrink-0">
         {diasSemana.map((day) => (
           <div
             key={day.curto}
-            className="border-r border-surface-border p-2 text-center text-xs font-bold text-ink-secondary last:border-r-0"
+            className="border-r border-surface-border py-1.5 sm:py-2 text-center text-xs font-bold text-ink-secondary last:border-r-0"
           >
             <span className="hidden sm:inline">{day.completo}</span>
             <span className="sm:hidden">{day.curto}</span>
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 grid-rows-6 flex-1 min-h-0 divide-y divide-surface-border">
         {days.map((day, index) => {
           const dayEvents = getEventsForDay(day);
           const isCurrentMonth = day.getMonth() === currentDate.getMonth();
@@ -1154,17 +1129,17 @@ function MonthView({
               key={index}
               onClick={() => onDayClick?.(day)}
               className={cn(
-                'min-h-20 sm:min-h-24 border-b border-r border-surface-border p-1.5 transition-colors last:border-r-0 cursor-pointer flex flex-col justify-start',
+                'border-r border-surface-border p-1 sm:p-1.5 transition-colors last:border-r-0 cursor-pointer flex flex-col justify-start overflow-hidden min-h-0',
                 !isCurrentMonth && 'bg-surface-subtle/50 opacity-45',
                 'hover:bg-surface-hover/70'
               )}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(day)}
             >
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-0.5 flex-shrink-0">
                 <div
                   className={cn(
-                    'flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full text-xs font-bold transition-all',
+                    'flex h-5 w-5 sm:h-5.5 sm:w-5.5 items-center justify-center rounded-full text-xs font-bold transition-all',
                     isToday
                       ? 'bg-brand-primary text-white shadow-xs'
                       : isCurrentMonth
@@ -1175,8 +1150,8 @@ function MonthView({
                   {day.getDate()}
                 </div>
               </div>
-              <div className="space-y-1 flex-1 overflow-hidden">
-                {dayEvents.slice(0, 3).map((event) => (
+              <div className="space-y-0.5 sm:space-y-1 flex-1 overflow-hidden">
+                {dayEvents.slice(0, 2).map((event) => (
                   <EventCard
                     key={event.id}
                     event={event}
@@ -1187,9 +1162,9 @@ function MonthView({
                     variant="compact"
                   />
                 ))}
-                {dayEvents.length > 3 && (
-                  <div className="text-[10px] font-bold text-ink-secondary px-1">
-                    +{dayEvents.length - 3} mais
+                {dayEvents.length > 2 && (
+                  <div className="text-[10px] font-bold text-ink-secondary px-0.5 truncate">
+                    +{dayEvents.length - 2} mais
                   </div>
                 )}
               </div>
@@ -1236,7 +1211,7 @@ function WeekView({
   };
 
   return (
-    <Card className="overflow-auto border border-surface-border bg-surface-card rounded-2xl shadow-2xs max-h-[75vh]">
+    <Card className="flex-1 min-h-0 overflow-auto border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
       <div className="grid grid-cols-8 border-b border-surface-border sticky top-0 bg-surface-subtle z-20">
         <div className="border-r border-surface-border p-2 text-center text-xs font-bold text-ink-secondary">
           Hora
@@ -1329,7 +1304,7 @@ function DayView({
   };
 
   return (
-    <Card className="overflow-auto border border-surface-border bg-surface-card rounded-2xl shadow-2xs max-h-[75vh]">
+    <Card className="flex-1 min-h-0 overflow-auto border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
       <div className="space-y-0">
         {hours.map((hour) => {
           const hourEvents = getEventsForHour(hour);
@@ -1392,7 +1367,7 @@ function ListView({
   }, {});
 
   return (
-    <Card className="p-4 sm:p-5 border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
+    <Card className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
       <div className="space-y-6">
         {Object.entries(groupedEvents).map(([date, dateEvents]) => (
           <div key={date} className="space-y-2.5">
