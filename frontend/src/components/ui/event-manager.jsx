@@ -1129,34 +1129,46 @@ function EventCard({
           e.stopPropagation();
         }}
         className={cn(
-          'cursor-pointer rounded-xl p-2.5 sm:p-3 transition-all duration-200 select-none hover:scale-[1.01] hover:shadow-lg',
+          'cursor-pointer rounded-lg px-2.5 py-1.5 transition-all duration-200 select-none hover:scale-[1.005] hover:shadow-md',
           colorClasses.bg,
           'text-white shadow-xs'
         )}
       >
-        <div className="font-bold text-xs sm:text-sm">{event.title}</div>
-        {event.description && (
-          <div className="mt-1 text-xs opacity-90 line-clamp-2">{event.description}</div>
-        )}
-        <div className="mt-1.5 flex items-center gap-1.5 text-[11px] opacity-85">
-          <Clock className="h-3 w-3" />
-          <span>
-            {formatTime(event.startTime)} - {formatTime(event.endTime)}
-          </span>
-          <span className="text-[10px]">({getDuration()})</span>
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="font-bold text-xs truncate flex items-center gap-1.5 min-w-0">
+            <span className="truncate">{event.title}</span>
+            {event.description && (
+              <span className="text-[11px] opacity-80 font-normal truncate hidden sm:inline">
+                — {event.description}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1 text-[11px] opacity-90 flex-shrink-0 font-medium">
+            <Clock className="h-3 w-3" />
+            <span>
+              {formatTime(event.startTime)} - {formatTime(event.endTime)}
+            </span>
+            <span className="text-[10px] opacity-75">({getDuration()})</span>
+          </div>
         </div>
-        {(event.deal || event.category) && (
-          <div className="mt-2 flex flex-wrap gap-1">
+
+        {(event.category || event.deal || event.description) && (
+          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
             {event.category && (
-              <Badge variant="secondary" className="text-[10px] bg-white/20 text-white border-transparent">
+              <span className="text-[9px] font-bold uppercase tracking-wider bg-black/20 text-white px-1.5 py-0.5 rounded">
                 {event.category}
-              </Badge>
+              </span>
             )}
             {event.deal && (
-              <Badge variant="outline" className="text-[10px] text-white border-white/30 flex items-center gap-1">
-                <Briefcase className="h-2.5 w-2.5" />
-                <span>{event.deal}</span>
-              </Badge>
+              <span className="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded flex items-center gap-1 truncate max-w-[180px]">
+                <Briefcase className="h-2.5 w-2.5 flex-shrink-0" />
+                <span className="truncate">{event.deal}</span>
+              </span>
+            )}
+            {event.description && (
+              <span className="text-[11px] opacity-85 truncate sm:hidden">
+                {event.description}
+              </span>
             )}
           </div>
         )}
@@ -1474,11 +1486,11 @@ function DayView({
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(currentDate, hour)}
             >
-              <div className="w-16 sm:w-20 flex-shrink-0 border-r border-surface-border p-2 text-center text-xs font-semibold text-ink-muted bg-surface-subtle/30">
+              <div className="w-14 sm:w-16 flex-shrink-0 border-r border-surface-border p-1.5 text-center text-xs font-semibold text-ink-muted bg-surface-subtle/30 flex items-center justify-center">
                 {hour.toString().padStart(2, '0')}:00
               </div>
-              <div className="min-h-14 sm:min-h-16 flex-1 p-1.5 transition-colors hover:bg-surface-hover/50">
-                <div className="space-y-1.5">
+              <div className="min-h-10 sm:min-h-11 flex-1 p-1 transition-colors hover:bg-surface-hover/50">
+                <div className="space-y-1">
                   {hourEvents.map((event) => (
                     <EventCard
                       key={event.id}
@@ -1530,12 +1542,12 @@ function ListView({
   }, {});
 
   return (
-    <Card className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
-      <div className="space-y-6">
+    <Card className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 border border-surface-border bg-surface-card rounded-2xl shadow-2xs">
+      <div className="space-y-4">
         {Object.entries(groupedEvents).map(([date, dateEvents]) => (
-          <div key={date} className="space-y-2.5">
+          <div key={date} className="space-y-1.5">
             <h3 className="text-xs font-bold text-ink-secondary tracking-wider">{date}</h3>
-            <div className="space-y-2">
+            <div className="space-y-1 sm:space-y-1.5">
               {dateEvents.map((event) => {
                 const colorClasses = getColorClasses(event.color);
                 return (
@@ -1547,37 +1559,26 @@ function ListView({
                     onDelete={onEventDelete}
                   >
                     <div
-                      className="group cursor-pointer rounded-xl border border-surface-border bg-surface-subtle hover:bg-surface-hover p-3 transition-all hover:shadow-2xs select-none"
+                      className="group cursor-pointer rounded-lg border border-surface-border bg-surface-subtle hover:bg-surface-hover px-3 py-1.5 sm:py-2 transition-all hover:shadow-2xs select-none"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className={cn('mt-1 h-3 w-3 rounded-full flex-shrink-0', colorClasses.bg)} />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
-                            <h4 className="font-bold text-sm text-ink-primary group-hover:text-brand-primary transition-colors truncate">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={cn('h-2.5 w-2.5 rounded-full flex-shrink-0', colorClasses.bg)} />
+                        
+                        <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <h4 className="font-bold text-xs sm:text-sm text-ink-primary group-hover:text-brand-primary transition-colors truncate">
                               {event.title}
                             </h4>
-                            <div className="flex items-center gap-1.5 self-start sm:self-auto">
-                              {event.category && (
-                                <Badge variant="secondary" className="text-[11px] rounded-lg">
-                                  {event.category}
-                                </Badge>
-                              )}
-                              {event.deal && (
-                                <Badge variant="outline" className="text-[11px] rounded-lg border-brand-primary/30 text-brand-primary flex items-center gap-1">
-                                  <Briefcase className="h-3 w-3" />
-                                  <span>{event.deal}</span>
-                                </Badge>
-                              )}
-                            </div>
+                            {event.description && (
+                              <span className="text-xs text-ink-muted truncate hidden md:inline">
+                                — {event.description}
+                              </span>
+                            )}
                           </div>
-                          {event.description && (
-                            <p className="mt-1 text-xs text-ink-secondary line-clamp-2">
-                              {event.description}
-                            </p>
-                          )}
-                          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-ink-muted">
-                            <div className="flex items-center gap-1 font-medium">
+
+                          <div className="flex items-center gap-2 flex-shrink-0 self-start sm:self-auto">
+                            <div className="flex items-center gap-1 text-[11px] text-ink-muted font-medium">
                               <Clock className="h-3 w-3" />
                               <span>
                                 {new Date(event.startTime).toLocaleTimeString('pt-BR', {
@@ -1591,9 +1592,26 @@ function ListView({
                                 })}
                               </span>
                             </div>
+
+                            {event.category && (
+                              <Badge variant="secondary" className="text-[10px] h-5 px-1.5 rounded-md font-semibold">
+                                {event.category}
+                              </Badge>
+                            )}
+                            {event.deal && (
+                              <Badge variant="outline" className="text-[10px] h-5 px-1.5 rounded-md border-brand-primary/30 text-brand-primary hidden sm:flex items-center gap-1">
+                                <Briefcase className="h-2.5 w-2.5" />
+                                <span className="truncate max-w-[120px]">{event.deal}</span>
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </div>
+                      {event.description && (
+                        <p className="mt-0.5 text-[11px] text-ink-secondary truncate md:hidden pl-5">
+                          {event.description}
+                        </p>
+                      )}
                     </div>
                   </EventDetailPopover>
                 );
