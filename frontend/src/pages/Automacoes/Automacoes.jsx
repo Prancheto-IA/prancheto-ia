@@ -18,6 +18,8 @@ import {
   Settings,
   Clock,
   GitBranch,
+  Check,
+  MoreVertical,
 } from 'lucide-react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -182,6 +184,18 @@ const Automacoes = () => {
   const [buscaFluxo, setBuscaFluxo] = useState('');
   const [filtroStatusFluxo, setFiltroStatusFluxo] = useState('todos');
 
+  // Seleção e exclusão de automações (individual ou em lote)
+  const [idsSelecionados, setIdsSelecionados] = useState([]);
+  const [modalConfirmarExclusao, setModalConfirmarExclusao] = useState(false);
+  const [wfParaExcluir, setWfParaExcluir] = useState(null);
+  const [menuAbertoId, setMenuAbertoId] = useState(null);
+
+  useEffect(() => {
+    const fecharMenu = () => setMenuAbertoId(null);
+    window.addEventListener('click', fecharMenu);
+    return () => window.removeEventListener('click', fecharMenu);
+  }, []);
+
   // Simulação passo a passo no Canvas
   const [simulacaoEstado, setSimulacaoEstado] = useState({
     executando: false,
@@ -287,18 +301,78 @@ const Automacoes = () => {
     adicionarNotificacao('success', `Automação duplicada como "${copia.nome}".`);
   };
 
+  const toggleSelecionarWorkflow = useCallback((id) => {
+    setIdsSelecionados((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  }, []);
+
+  const alternarSelecionarTodos = useCallback(() => {
+    const idsVisiveis = fluxosFiltrados.map((w) => w.id);
+    const todosVisiveisSelecionados =
+      idsVisiveis.length > 0 && idsVisiveis.every((id) => idsSelecionados.includes(id));
+
+    if (todosVisiveisSelecionados) {
+      setIdsSelecionados((prev) => prev.filter((id) => !idsVisiveis.includes(id)));
+    } else {
+      setIdsSelecionados((prev) => Array.from(new Set([...prev, ...idsVisiveis])));
+    }
+  }, [fluxosFiltrados, idsSelecionados]);
+
+  const abrirModalExcluirIndividual = useCallback((wf) => {
+    setWfParaExcluir(wf);
+    setMenuAbertoId(null);
+    setModalConfirmarExclusao(true);
+  }, []);
+
+  const abrirModalExcluirLote = useCallback(() => {
+    if (idsSelecionados.length === 0) return;
+    setWfParaExcluir(null);
+    setModalConfirmarExclusao(true);
+  }, [idsSelecionados.length]);
+
+  const executarConfirmacaoExclusao = useCallback(() => {
+    if (wfParaExcluir) {
+      // Excluir individual
+      if (workflows.length <= 1) {
+        adicionarNotificacao('warning', 'Mantenha ao menos uma automação cadastrada.');
+        setModalConfirmarExclusao(false);
+        setWfParaExcluir(null);
+        return;
+      }
+      const alvo = workflows.find((w) => w.id === wfParaExcluir.id);
+      const restantes = workflows.filter((w) => w.id !== wfParaExcluir.id);
+      setWorkflows(restantes);
+      setIdsSelecionados((prev) => prev.filter((id) => id !== wfParaExcluir.id));
+      if (workflowSelecionadoId === wfParaExcluir.id) {
+        setWorkflowSelecionadoId(restantes[0]?.id || null);
+      }
+      adicionarNotificacao('info', `Automação "${alvo?.nome || ''}" excluída com sucesso.`);
+    } else if (idsSelecionados.length > 0) {
+      // Excluir em lote
+      if (workflows.length - idsSelecionados.length < 1) {
+        adicionarNotificacao('warning', 'Você precisa manter ao menos uma automação cadastrada.');
+        setModalConfirmarExclusao(false);
+        return;
+      }
+      const restantes = workflows.filter((w) => !idsSelecionados.includes(w.id));
+      const qtd = idsSelecionados.length;
+      setWorkflows(restantes);
+      setIdsSelecionados([]);
+      if (idsSelecionados.includes(workflowSelecionadoId)) {
+        setWorkflowSelecionadoId(restantes[0]?.id || null);
+      }
+      adicionarNotificacao('info', `${qtd} automação(ões) excluída(s) com sucesso.`);
+    }
+    setModalConfirmarExclusao(false);
+    setWfParaExcluir(null);
+  }, [wfParaExcluir, workflows, idsSelecionados, workflowSelecionadoId, adicionarNotificacao]);
+
   const handleExcluirWorkflow = (id) => {
-    if (workflows.length <= 1) {
-      adicionarNotificacao('warning', 'Mantenha ao menos uma automação cadastrada.');
-      return;
+    const wf = workflows.find((w) => w.id === id);
+    if (wf) {
+      abrirModalExcluirIndividual(wf);
     }
-    const alvo = workflows.find((w) => w.id === id);
-    const restantes = workflows.filter((w) => w.id !== id);
-    setWorkflows(restantes);
-    if (workflowSelecionadoId === id) {
-      setWorkflowSelecionadoId(restantes[0]?.id || null);
-    }
-    adicionarNotificacao('info', `Automação "${alvo?.nome || ''}" removida.`);
   };
 
   const atualizarConexao = useCallback((id, patch) => {
@@ -441,6 +515,10 @@ const Automacoes = () => {
   const totalExecucoes = workflows.reduce((acc, wf) => acc + (wf.execucoesTotal || 0), 0);
   const conexoesOnline = conexoes.filter((c) => c.status === 'conectado').length;
 
+  const idsVisiveis = fluxosFiltrados.map((w) => w.id);
+  const todosVisiveisSelecionados =
+    idsVisiveis.length > 0 && idsVisiveis.every((id) => idsSelecionados.includes(id));
+
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full h-full">
       {modoVisao === 'studio' ? (
@@ -462,6 +540,7 @@ const Automacoes = () => {
             setTesteWorkflowId(workflowAtual?.id || workflows[0]?.id || '');
             setModalTesteAberto(true);
           }}
+          onExcluirWorkflow={(wf) => abrirModalExcluirIndividual(wf)}
           simulacaoEstado={simulacaoEstado}
           telaInicial={builderTelaInicial}
         />
@@ -543,43 +622,93 @@ const Automacoes = () => {
               )}
             </div>
 
-            {/* Pílulas de Filtro (Todos / Ativos / Pausados) */}
-            <div className="flex items-center gap-1 bg-surface-subtle border border-surface-border p-1 rounded-xl w-fit">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Botão de Selecionar / Desmarcar Todas */}
               <button
                 type="button"
-                onClick={() => setFiltroStatusFluxo('todos')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  filtroStatusFluxo === 'todos'
-                    ? 'bg-surface-card text-ink-primary shadow-xs'
-                    : 'text-ink-muted hover:text-ink-primary'
+                onClick={alternarSelecionarTodos}
+                className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
+                  todosVisiveisSelecionados
+                    ? 'bg-[#0B132B] dark:bg-brand-purple text-white border-transparent'
+                    : 'border-surface-border bg-surface-card hover:bg-surface-hover text-ink-primary'
                 }`}
+                title={todosVisiveisSelecionados ? 'Desmarcar todos' : 'Selecionar todas as automações'}
               >
-                Todos ({workflows.length})
+                <Check className="w-3.5 h-3.5" />
+                <span>{todosVisiveisSelecionados ? 'Desmarcar Todos' : 'Selecionar'}</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setFiltroStatusFluxo('ativos')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  filtroStatusFluxo === 'ativos'
-                    ? 'bg-surface-card text-ink-primary shadow-xs'
-                    : 'text-ink-muted hover:text-ink-primary'
-                }`}
-              >
-                Ativos ({totalAtivos})
-              </button>
-              <button
-                type="button"
-                onClick={() => setFiltroStatusFluxo('pausados')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  filtroStatusFluxo === 'pausados'
-                    ? 'bg-surface-card text-ink-primary shadow-xs'
-                    : 'text-ink-muted hover:text-ink-primary'
-                }`}
-              >
-                Pausados ({workflows.length - totalAtivos})
-              </button>
+
+              {/* Pílulas de Filtro (Todos / Ativos / Pausados) */}
+              <div className="flex items-center gap-1 bg-surface-subtle border border-surface-border p-1 rounded-xl w-fit">
+                <button
+                  type="button"
+                  onClick={() => setFiltroStatusFluxo('todos')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    filtroStatusFluxo === 'todos'
+                      ? 'bg-surface-card text-ink-primary shadow-xs'
+                      : 'text-ink-muted hover:text-ink-primary'
+                  }`}
+                >
+                  Todos ({workflows.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFiltroStatusFluxo('ativos')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    filtroStatusFluxo === 'ativos'
+                      ? 'bg-surface-card text-ink-primary shadow-xs'
+                      : 'text-ink-muted hover:text-ink-primary'
+                  }`}
+                >
+                  Ativos ({totalAtivos})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFiltroStatusFluxo('pausados')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    filtroStatusFluxo === 'pausados'
+                      ? 'bg-surface-card text-ink-primary shadow-xs'
+                      : 'text-ink-muted hover:text-ink-primary'
+                  }`}
+                >
+                  Pausados ({workflows.length - totalAtivos})
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Barra de Ações em Lote */}
+          {idsSelecionados.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl border border-surface-border bg-surface-card shadow-xs animate-fade-in">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-xl bg-[#0B132B] dark:bg-brand-purple text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                  {idsSelecionados.length}
+                </div>
+                <span className="text-xs font-bold text-ink-primary">
+                  {idsSelecionados.length} automação{idsSelecionados.length > 1 ? 'ões' : ''} selecionada{idsSelecionados.length > 1 ? 's' : ''}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIdsSelecionados([])}
+                  className="px-3 py-1.5 rounded-xl border border-surface-border bg-surface-subtle hover:bg-surface-hover text-xs font-semibold text-ink-secondary hover:text-ink-primary transition-colors cursor-pointer"
+                >
+                  Limpar seleção
+                </button>
+
+                <button
+                  type="button"
+                  onClick={abrirModalExcluirLote}
+                  className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={2.2} />
+                  <span>Excluir selecionadas ({idsSelecionados.length})</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Grade de 3 Colunas de Automações no Design System do Projeto */}
           {fluxosFiltrados.length === 0 ? (
@@ -616,22 +745,48 @@ const Automacoes = () => {
                 const corCard = servicoGatilho?.cor || '#0080FF';
                 const IconeGatilho = servicoGatilho?.icone || FlashIcon;
                 const IconeAcao = servicoAcao?.icone || WhatsappIcon;
+                const estaSelecionado = idsSelecionados.includes(wf.id);
+                const menuAberto = menuAbertoId === wf.id;
 
                 return (
                   <div
                     key={wf.id}
                     onClick={() => handleAbrirDetalhes(wf)}
                     style={{ backgroundColor: corCard }}
-                    className="rounded-2xl p-5 text-white shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between min-h-[220px] group select-none relative overflow-hidden"
+                    className={`rounded-2xl p-5 text-white shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-all cursor-pointer flex flex-col justify-between min-h-[220px] group select-none relative overflow-visible ${
+                      estaSelecionado ? 'ring-3 ring-white shadow-xl' : ''
+                    }`}
                   >
-                    {/* Topo do Card: Ícones dos serviços + Badge Ativo */}
-                    <div className="flex items-center justify-between gap-3 mb-3.5">
-                      <div className="flex items-center -space-x-1.5">
-                        <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center border border-white/30 text-white shadow-xs">
-                          <HugeiconsIcon icon={IconeGatilho} size={18} strokeWidth={2.2} />
+                    {/* Topo do Card: Checkbox de Seleção + Ícones dos serviços + Badge Ativo + Menu ⋮ */}
+                    <div className="flex items-center justify-between gap-2 mb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        {/* Checkbox de Seleção Múltipla */}
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSelecionarWorkflow(wf.id);
+                          }}
+                          className={`w-6 h-6 rounded-lg border flex items-center justify-center cursor-pointer transition-all ${
+                            estaSelecionado
+                              ? 'bg-white text-ink-primary border-white shadow-xs'
+                              : 'bg-white/15 border-white/40 hover:bg-white/30 text-transparent'
+                          }`}
+                          title={estaSelecionado ? 'Desmarcar automação' : 'Selecionar automação para excluir'}
+                        >
+                          {estaSelecionado ? (
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          ) : (
+                            <div className="w-1.5 h-1.5 rounded-xs bg-white/40" />
+                          )}
                         </div>
-                        <div className="w-9 h-9 rounded-xl bg-white/30 backdrop-blur-xs flex items-center justify-center border border-white/40 text-white shadow-xs">
-                          <HugeiconsIcon icon={IconeAcao} size={18} strokeWidth={2.2} />
+
+                        <div className="flex items-center -space-x-1.5">
+                          <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center border border-white/30 text-white shadow-xs">
+                            <HugeiconsIcon icon={IconeGatilho} size={16} strokeWidth={2.2} />
+                          </div>
+                          <div className="w-8 h-8 rounded-xl bg-white/30 backdrop-blur-xs flex items-center justify-center border border-white/40 text-white shadow-xs">
+                            <HugeiconsIcon icon={IconeAcao} size={16} strokeWidth={2.2} />
+                          </div>
                         </div>
                       </div>
 
@@ -645,6 +800,72 @@ const Automacoes = () => {
                         >
                           {wf.ativo ? 'Ativo' : 'Pausado'}
                         </span>
+
+                        {/* Menu de Opções ⋮ */}
+                        <div className="relative" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => setMenuAbertoId(menuAberto ? null : wf.id)}
+                            className="w-7 h-7 rounded-lg hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                            title="Opções da automação"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+
+                          {menuAberto && (
+                            <div
+                              className="absolute right-0 top-full mt-1.5 w-48 rounded-xl border border-surface-border bg-surface-card p-1.5 shadow-xl text-ink-primary z-40 text-xs font-semibold animate-scale-up"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMenuAbertoId(null);
+                                  handleAbrirDetalhes(wf);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-hover flex items-center gap-2 transition-colors cursor-pointer"
+                              >
+                                <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+                                <span>Ver detalhes</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMenuAbertoId(null);
+                                  handleDuplicarWorkflow(wf);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-hover flex items-center gap-2 transition-colors cursor-pointer"
+                              >
+                                <HugeiconsIcon icon={Copy01Icon} size={14} />
+                                <span>Duplicar automação</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMenuAbertoId(null);
+                                  toggleSelecionarWorkflow(wf.id);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-hover flex items-center gap-2 transition-colors cursor-pointer"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                <span>{estaSelecionado ? 'Desmarcar' : 'Selecionar'}</span>
+                              </button>
+
+                              <div className="h-px bg-surface-border my-1" />
+
+                              <button
+                                type="button"
+                                onClick={() => abrirModalExcluirIndividual(wf)}
+                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center gap-2 transition-colors cursor-pointer font-bold"
+                              >
+                                <HugeiconsIcon icon={Delete02Icon} size={14} />
+                                <span>Excluir automação</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -897,6 +1118,77 @@ const Automacoes = () => {
               >
                 <Play className="w-3.5 h-3.5" />
                 Executar no Studio
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: CONFIRMAÇÃO DE EXCLUSÃO (INDIVIDUAL OU EM LOTE) */}
+      {modalConfirmarExclusao && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/55 backdrop-blur-xs p-4 animate-fade-in"
+          onClick={() => {
+            setModalConfirmarExclusao(false);
+            setWfParaExcluir(null);
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-surface-border bg-surface-card p-6 shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
+                <HugeiconsIcon icon={Delete02Icon} size={22} strokeWidth={2.2} />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-ink-primary">
+                  {wfParaExcluir
+                    ? 'Excluir automação'
+                    : `Excluir ${idsSelecionados.length} automações selecionadas`}
+                </h2>
+                <p className="text-xs text-ink-secondary mt-0.5">
+                  Esta ação removerá permanentemente do seu fluxo.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-ink-secondary leading-relaxed">
+              {wfParaExcluir ? (
+                <>
+                  Tem certeza que deseja excluir a automação{' '}
+                  <strong className="text-ink-primary font-bold">"{wfParaExcluir.nome}"</strong>? Os disparos e ações vinculados a ela serão interrompidos.
+                </>
+              ) : (
+                <>
+                  Tem certeza que deseja excluir as{' '}
+                  <strong className="text-ink-primary font-bold">
+                    {idsSelecionados.length} automações selecionadas
+                  </strong>
+                  ? Esta ação não poderá ser revertida.
+                </>
+              )}
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-surface-border">
+              <button
+                type="button"
+                onClick={() => {
+                  setModalConfirmarExclusao(false);
+                  setWfParaExcluir(null);
+                }}
+                className="rounded-xl border border-surface-border bg-surface-card hover:bg-surface-hover px-4 py-2 text-xs font-semibold text-ink-secondary hover:text-ink-primary transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={executarConfirmacaoExclusao}
+                className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={2.2} />
+                <span>Confirmar Exclusão</span>
               </button>
             </div>
           </div>

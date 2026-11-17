@@ -245,6 +245,7 @@ const WorkflowLinearBuilder = ({
   onOpenConexoes,
   onOpenLogs,
   onOpenSimuladorLead,
+  onExcluirWorkflow,
   simulacaoEstado = { executando: false, nosStatus: {} },
   telaInicial = 'builder',
 }) => {
@@ -1064,6 +1065,18 @@ const WorkflowLinearBuilder = ({
                   >
                     Renomear
                   </button>
+
+                  {onExcluirWorkflow && (
+                    <button
+                      type="button"
+                      onClick={() => onExcluirWorkflow(workflowAtual)}
+                      className="px-3.5 py-2 rounded-xl border border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                      title="Excluir esta automação"
+                    >
+                      <HugeiconsIcon icon={Delete02Icon} size={14} />
+                      <span>Excluir</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
