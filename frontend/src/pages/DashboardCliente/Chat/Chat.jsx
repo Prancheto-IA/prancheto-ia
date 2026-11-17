@@ -18,6 +18,9 @@ import {
   SentIcon,
   Comment01Icon,
   Mic01Icon,
+  Attachment01Icon,
+  Delete02Icon,
+  PencilEdit01Icon,
 } from '@hugeicons/core-free-icons';
 import pranchetinho from '../../../assets/mascote/pranchetinho-chat.png';
 
@@ -25,12 +28,17 @@ const Chat = () => {
   const {
     conversas, conversaAtual, mensagens, acoesPendentes,
     carregando, enviando, resolvendoAcao, erro,
-    carregarConversas, abrirConversa, novaConversa, enviar, responderAcao,
+    carregarConversas, abrirConversa, novaConversa, enviar, responderAcao, excluirConversas,
   } = useAssistente();
 
   const [texto, setTexto] = useState('');
   const [busca, setBusca] = useState('');
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [selecionadas, setSelecionadas] = useState(new Set());
+  const [apagando, setApagando] = useState(false);
+  const [anexos, setAnexos] = useState([]);
   const fimRef = useRef(null);
+  const arquivoInputRef = useRef(null);
 
   const {
     ouvindo,
@@ -50,12 +58,43 @@ const Chat = () => {
     fimRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [mensagens, acoesPendentes]);
 
+  const handleSelecionarArquivos = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setAnexos((prev) => [...prev, ...files]);
+    }
+    e.target.value = '';
+  };
+
+  const removerAnexo = (index) => {
+    setAnexos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleExcluirSelecionadas = async () => {
+    if (selecionadas.size === 0 || apagando) return;
+    setApagando(true);
+    try {
+      await excluirConversas(Array.from(selecionadas));
+      setSelecionadas(new Set());
+      setModoEdicao(false);
+    } finally {
+      setApagando(false);
+    }
+  };
+
   const submeter = (e) => {
     e.preventDefault();
-    if (!texto.trim() || enviando) return;
+    if ((!texto.trim() && anexos.length === 0) || enviando) return;
     pararEscuta();
-    const msg = texto;
+
+    let msg = texto.trim();
+    if (anexos.length > 0) {
+      const nomes = anexos.map((a) => a.name).join(', ');
+      msg = msg ? `${msg} [Anexos: ${nomes}]` : `[Anexos: ${nomes}]`;
+    }
+
     setTexto('');
+    setAnexos([]);
     enviar(msg);
   };
 
@@ -86,91 +125,160 @@ const Chat = () => {
   return (
     <div className="w-full h-full flex-1 flex gap-4 min-h-0 font-sans overflow-hidden">
       {/* ─────────────────────────────────────────────────────────
-          COLUNA ESQUERDA: LISTA DE CONVERSAS (COM NOVO CHAT E BUSCA)
+          COLUNA ESQUERDA: LISTA DE CONVERSAS (COM BUSCA, NOVA CONVERSA E EDIÇÃO)
          ───────────────────────────────────────────────────────── */}
-      <aside className="w-full md:w-72 lg:w-80 bg-white rounded-2xl border border-[#E4ECE7] shadow-[0_8px_30px_-4px_rgba(14,56,44,0.04)] flex flex-col overflow-hidden shrink-0">
-        {/* Controles no Topo: Botão Nova Conversa + Campo de Pesquisa */}
-        <div className="p-3.5 border-b border-[#E4ECE7] space-y-2.5 flex-shrink-0">
-          <button
-            type="button"
-            onClick={novaConversa}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#0E382C] hover:bg-[#07261E] text-white rounded-xl text-sm font-semibold shadow-xs transition-all active:scale-98 cursor-pointer"
-          >
-            <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2} />
-            <span>Nova conversa</span>
-          </button>
-
-          <div className="relative flex items-center">
-            <span className="absolute left-3 text-slate-400 pointer-events-none">
+      <aside className="w-full md:w-72 lg:w-80 bg-surface-card rounded-2xl border border-surface-border shadow-2xs flex flex-col overflow-hidden shrink-0">
+        {/* Controles no Topo: Campo de Pesquisa com Botão Nova Conversa ao Lado Direito */}
+        <div className="p-3 border-b border-surface-border flex items-center gap-2 flex-shrink-0">
+          <div className="relative flex-1 flex items-center min-w-0">
+            <span className="absolute left-2.5 text-ink-muted pointer-events-none">
               <HugeiconsIcon icon={Search01Icon} size={14} strokeWidth={1.8} />
             </span>
             <input
               type="text"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Pesquisar conversas..."
-              className="w-full bg-[#F7FAF8] hover:bg-white focus:bg-white text-sm text-[#111915] placeholder-slate-400 pl-8 pr-7 py-2 rounded-xl border border-[#E4ECE7] focus:outline-none focus:border-[#0E382C] transition-all"
+              placeholder="Pesquisar..."
+              className="w-full bg-surface-subtle hover:bg-surface-card focus:bg-surface-card text-xs sm:text-sm text-ink-primary placeholder:text-ink-muted pl-8 pr-7 py-2 rounded-xl border border-surface-border focus:outline-none focus:border-brand-primary transition-all"
             />
             {busca && (
               <button
                 type="button"
                 onClick={() => setBusca('')}
-                className="absolute right-2.5 p-0.5 rounded text-slate-400 hover:text-slate-600 transition-colors"
+                className="absolute right-2 p-0.5 rounded text-ink-muted hover:text-ink-primary transition-colors cursor-pointer"
                 title="Limpar busca"
               >
                 <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={1.8} />
               </button>
             )}
           </div>
+
+          <button
+            type="button"
+            onClick={novaConversa}
+            title="Iniciar nova conversa"
+            className="flex items-center justify-center gap-1.5 py-2 px-3 bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-95 cursor-pointer flex-shrink-0"
+          >
+            <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2} />
+            <span className="hidden sm:inline">Nova</span>
+          </button>
         </div>
 
-        <div className="px-4 py-2 bg-surface-subtle border-b border-surface-border flex items-center justify-between flex-shrink-0">
+        {/* Subcabeçalho com Contador e Botão de Editar */}
+        <div className="px-3.5 py-2 bg-surface-subtle border-b border-surface-border flex items-center justify-between flex-shrink-0">
           <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary">
             Histórico Recente
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-brand-accent text-brand-secondary text-[10px] font-bold">
-            {conversasFiltradas.length}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="px-2 py-0.5 rounded-full bg-brand-accent text-brand-secondary text-[10px] font-bold">
+              {conversasFiltradas.length}
+            </span>
+            {conversas.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setModoEdicao(!modoEdicao);
+                  setSelecionadas(new Set());
+                }}
+                className={`text-xs font-semibold px-2 py-0.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
+                  modoEdicao
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-hover'
+                }`}
+                title={modoEdicao ? 'Finalizar modo de seleção' : 'Editar e apagar conversas'}
+              >
+                <HugeiconsIcon icon={PencilEdit01Icon} size={12} strokeWidth={2} />
+                <span>{modoEdicao ? 'Concluir' : 'Editar'}</span>
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Barra de Ações do Modo Edição */}
+        {modoEdicao && (
+          <div className="px-3 py-2 bg-brand-accent/20 border-b border-brand-accent/40 flex items-center justify-between text-xs flex-shrink-0 animate-fade-in">
+            <button
+              type="button"
+              onClick={() => {
+                if (selecionadas.size === conversasFiltradas.length) {
+                  setSelecionadas(new Set());
+                } else {
+                  setSelecionadas(new Set(conversasFiltradas.map((c) => c.id)));
+                }
+              }}
+              className="text-brand-secondary font-semibold hover:underline cursor-pointer"
+            >
+              {selecionadas.size === conversasFiltradas.length ? 'Desmarcar todas' : 'Selecionar todas'}
+            </button>
+            <button
+              type="button"
+              onClick={handleExcluirSelecionadas}
+              disabled={selecionadas.size === 0 || apagando}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={13} strokeWidth={2} />
+              <span>{apagando ? 'Apagando...' : `Apagar (${selecionadas.size})`}</span>
+            </button>
+          </div>
+        )}
 
         <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
             {carregando && conversas.length === 0 ? (
               <div className="flex justify-center py-10">
-                <div className="w-6 h-6 border-2 border-[#0E382C] border-t-transparent rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
               </div>
             ) : conversasFiltradas.length === 0 ? (
               <div className="text-center py-12 px-4">
-                <div className="w-10 h-10 rounded-xl bg-[#F7FAF8] border border-[#E4ECE7] text-[#687770] flex items-center justify-center mx-auto mb-2.5">
+                <div className="w-10 h-10 rounded-xl bg-surface-subtle border border-surface-border text-ink-muted flex items-center justify-center mx-auto mb-2.5">
                   <HugeiconsIcon icon={Comment01Icon} size={18} strokeWidth={1.8} />
                 </div>
-                <p className="text-sm font-bold text-[#111915]">
+                <p className="text-sm font-bold text-ink-primary">
                   {busca ? 'Nenhum resultado' : 'Nenhuma conversa'}
                 </p>
-                <p className="text-[11px] text-[#687770] mt-0.5">
+                <p className="text-[11px] text-ink-secondary mt-0.5">
                   {busca ? 'Tente outro termo de busca' : 'Clique em Nova conversa para começar'}
                 </p>
               </div>
             ) : (
               conversasFiltradas.map((c) => {
                 const ativa = conversaAtual?.id === c.id;
+                const estaSelecionada = selecionadas.has(c.id);
                 return (
-                  <button
+                  <div
                     key={c.id}
-                    onClick={() => abrirConversa(c)}
-                    className={`w-full text-left p-3 rounded-xl transition-all border relative flex items-start gap-2.5 cursor-pointer ${
-                      ativa
+                    onClick={() => {
+                      if (modoEdicao) {
+                        const next = new Set(selecionadas);
+                        if (next.has(c.id)) next.delete(c.id);
+                        else next.add(c.id);
+                        setSelecionadas(next);
+                      } else {
+                        abrirConversa(c);
+                      }
+                    }}
+                    className={`w-full text-left p-3 rounded-xl transition-all border relative flex items-center gap-2.5 cursor-pointer select-none ${
+                      modoEdicao && estaSelecionada
+                        ? 'bg-rose-500/10 border-rose-500/30 text-ink-primary'
+                        : ativa
                         ? 'bg-brand-accent border-brand-secondary/30 text-brand-primary shadow-2xs'
                         : 'bg-surface-card border-transparent hover:bg-surface-subtle text-ink-primary'
                     }`}
                   >
-                    {ativa && (
-                      <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-[#0E382C] rounded-r-full" />
+                    {modoEdicao ? (
+                      <input
+                        type="checkbox"
+                        checked={estaSelecionada}
+                        onChange={() => {}}
+                        className="h-4 w-4 rounded border-surface-border text-rose-600 focus:ring-rose-500 cursor-pointer shrink-0"
+                      />
+                    ) : ativa && (
+                      <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-brand-primary rounded-r-full" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-bold truncate ${ativa ? 'text-[#0E382C]' : 'text-[#111915]'}`}>
+                      <p className={`text-sm font-semibold truncate ${ativa ? 'text-brand-primary' : 'text-ink-primary'}`}>
                         {c.titulo || 'Conversa sem título'}
                       </p>
-                      <p className="text-[10px] text-[#687770] font-medium mt-1">
+                      <p className="text-[10px] text-ink-muted font-medium mt-1">
                         {new Date(c.criado_em).toLocaleDateString('pt-BR', {
                           day: '2-digit',
                           month: 'short',
@@ -179,7 +287,7 @@ const Chat = () => {
                         })}
                       </p>
                     </div>
-                  </button>
+                  </div>
                 );
               })
             )}
@@ -187,41 +295,34 @@ const Chat = () => {
         </aside>
 
         {/* Coluna Direita: Tela Principal de Mensagens */}
-        <section className="flex-1 bg-white rounded-2xl border border-[#E4ECE7] shadow-[0_8px_30px_-4px_rgba(14,56,44,0.04)] flex flex-col overflow-hidden min-w-0">
-          {/* Top Bar do Chat */}
-          <div className="px-5 py-3.5 border-b border-[#E4ECE7] flex items-center justify-between bg-white flex-shrink-0 z-10">
+        <section className="flex-1 bg-surface-card rounded-2xl border border-surface-border shadow-2xs flex flex-col overflow-hidden min-w-0">
+          {/* Top Bar do Chat (Sem a badge "IA Conectada") */}
+          <div className="px-5 py-3.5 border-b border-surface-border flex items-center justify-between bg-surface-card flex-shrink-0 z-10">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-xl bg-brand-accent/40 border border-brand-accent/60 p-1 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
                 <img src={pranchetinho} alt="Pranchetinho" className="w-full h-full object-contain pointer-events-none" draggable={false} />
               </div>
               <div className="min-w-0">
-                <h3 className="font-extrabold text-sm text-[#111915] truncate">
+                <h3 className="font-bold text-sm text-ink-primary truncate">
                   {conversaAtual?.titulo || 'Assistente IA do CRM'}
                 </h3>
-                <p className="text-sm text-[#687770] truncate">
+                <p className="text-xs text-ink-secondary truncate">
                   Consulta de dados e automação do pipeline
                 </p>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#DCF5E4] text-[#15803D]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                IA Conectada
-              </span>
             </div>
           </div>
 
           {indisponivel && <FaixaIndisponivel erro={erro} />}
 
           {/* Fluxo de Mensagens */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-surface custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-surface-subtle/40 custom-scrollbar">
             {vazio && (
               <div className="flex flex-col items-center justify-center h-full text-center py-12 px-4 max-w-lg mx-auto">
                 <div className="w-16 h-16 rounded-3xl bg-brand-accent/30 dark:bg-brand-primary/10 p-2 flex items-center justify-center mb-3 shadow-xs border border-brand-accent/50 dark:border-brand-primary/20 overflow-hidden">
                   <img src={pranchetinho} alt="Pranchetinho" className="w-full h-full object-contain pointer-events-none" draggable={false} />
                 </div>
-                <h3 className="text-base font-extrabold text-ink-primary mb-1.5">
+                <h3 className="text-base font-bold text-ink-primary mb-1.5">
                   O que vamos fazer no CRM hoje?
                 </h3>
                 <p className="text-sm text-ink-secondary leading-relaxed mb-6">
@@ -279,10 +380,10 @@ const Chat = () => {
                 <div className="w-8 h-8 rounded-xl bg-brand-accent/40 dark:bg-brand-primary/10 border border-brand-accent/60 dark:border-brand-primary/20 flex items-center justify-center shrink-0 shadow-2xs p-1 overflow-hidden">
                   <img src={pranchetinho} alt="Pranchetinho" className="w-full h-full object-contain pointer-events-none" draggable={false} />
                 </div>
-                <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-white border border-[#E4ECE7] shadow-2xs flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-surface-card border border-surface-border shadow-2xs flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-brand-primary animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-brand-primary animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-brand-primary animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             )}
@@ -300,6 +401,30 @@ const Chat = () => {
                 {erro?.mensagem || erroVoz}
               </p>
             ) : null}
+
+            {/* Pré-visualização de Anexos */}
+            {anexos.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2 p-2 bg-surface-subtle rounded-xl border border-surface-border animate-fade-in">
+                {anexos.map((arq, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-1.5 bg-surface-card border border-surface-border px-2.5 py-1 rounded-lg text-xs text-ink-primary shadow-2xs"
+                  >
+                    <HugeiconsIcon icon={Attachment01Icon} size={13} className="text-brand-secondary shrink-0" />
+                    <span className="truncate max-w-[140px] font-medium">{arq.name}</span>
+                    <span className="text-[10px] text-ink-muted">({(arq.size / 1024).toFixed(0)} KB)</span>
+                    <button
+                      type="button"
+                      onClick={() => removerAnexo(idx)}
+                      className="p-0.5 text-ink-muted hover:text-rose-500 rounded transition-colors cursor-pointer ml-0.5"
+                      title="Remover anexo"
+                    >
+                      <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {ouvindo ? (
               <EntradaVozWaveform
@@ -325,6 +450,29 @@ const Chat = () => {
                   aria-label="Mensagem para o assistente"
                   className="flex-1 bg-surface-subtle hover:bg-surface-card focus:bg-surface-card text-sm text-ink-primary placeholder:text-ink-muted px-4 py-3 rounded-xl border border-surface-border focus:outline-none focus:border-brand-primary transition-all shadow-2xs"
                 />
+
+                {/* Input Invisível para Anexar Arquivos */}
+                <input
+                  type="file"
+                  ref={arquivoInputRef}
+                  onChange={handleSelecionarArquivos}
+                  multiple
+                  className="hidden"
+                />
+
+                {/* Botão de Anexar Arquivo */}
+                <button
+                  type="button"
+                  onClick={() => arquivoInputRef.current?.click()}
+                  disabled={enviando}
+                  title="Anexar arquivo"
+                  aria-label="Anexar arquivo"
+                  className="p-3 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer bg-surface-subtle border border-surface-border text-ink-secondary hover:text-brand-primary hover:border-brand-primary/40 shadow-2xs active:scale-95"
+                >
+                  <HugeiconsIcon icon={Attachment01Icon} size={18} strokeWidth={2} />
+                </button>
+
+                {/* Botão de Microfone / Gravação por Voz */}
                 {vozSuportada && (
                   <button
                     type="button"
@@ -337,9 +485,11 @@ const Chat = () => {
                     <HugeiconsIcon icon={Mic01Icon} size={18} strokeWidth={2} />
                   </button>
                 )}
+
+                {/* Botão de Enviar */}
                 <button
                   type="submit"
-                  disabled={!texto.trim() || enviando}
+                  disabled={(!texto.trim() && anexos.length === 0) || enviando}
                   className="px-4 py-3 bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-40 text-white rounded-xl transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed active:scale-95"
                   aria-label="Enviar"
                   title="Enviar mensagem"

@@ -223,12 +223,41 @@ export const useAssistente = () => {
     }
   }, [conversaAtual, resolvendoAcao, invocar, aplicarRetorno]);
 
+  /** Exclui uma ou mais conversas da lista */
+  const excluirConversas = useCallback(async (ids) => {
+    if (!ids || ids.length === 0) return;
+    try {
+      const { error } = await supabase
+        .from('ai_conversations')
+        .delete()
+        .in('id', ids);
+
+      if (error) {
+        // Fallback: arquiva se a deleção em cascata não for permitida
+        await supabase
+          .from('ai_conversations')
+          .update({ status: 'arquivada' })
+          .in('id', ids);
+      }
+
+      setConversas((prev) => prev.filter((c) => !ids.includes(c.id)));
+      if (conversaAtual && ids.includes(conversaAtual.id)) {
+        setConversaAtual(null);
+        setMensagens([]);
+        setAcoesPendentes([]);
+      }
+    } catch (err) {
+      console.warn('Erro ao excluir conversas:', err);
+      setErro({ mensagem: 'Não foi possível excluir as conversas selecionadas.' });
+    }
+  }, [conversaAtual]);
+
   /** Checagem do caminho todo sem gastar token. Usada pela faixa de indisponibilidade. */
   const diagnosticar = useCallback(() => invocar({ modo: 'diagnostico' }), [invocar]);
 
   return {
     conversas, conversaAtual, mensagens, acoesPendentes,
     carregando, enviando, resolvendoAcao, erro,
-    carregarConversas, abrirConversa, novaConversa, enviar, responderAcao, diagnosticar,
+    carregarConversas, abrirConversa, novaConversa, enviar, responderAcao, excluirConversas, diagnosticar,
   };
 };

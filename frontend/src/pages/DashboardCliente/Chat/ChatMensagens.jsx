@@ -5,6 +5,7 @@
 // =============================================================
 
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useAuthStore } from '../../../store/authStore.js';
 import { LiveWaveform } from '../../../components/ui/live-waveform.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -22,6 +23,7 @@ import {
   Mic01Icon,
   Cancel01Icon,
   SentIcon,
+  Attachment01Icon,
 } from '@hugeicons/core-free-icons';
 import pranchetinho from '../../../assets/mascote/pranchetinho-chat.png';
 
@@ -159,13 +161,68 @@ export const Bolha = ({ mensagem }) => {
       {/* Conteúdo */}
       {ehUsuario ? (
         <div className="max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-xs text-sm leading-relaxed bg-brand-primary text-white shadow-2xs">
+          {mensagem.metadata?.anexos && mensagem.metadata.anexos.length > 0 && (
+            <div className="mb-2 space-y-1">
+              {mensagem.metadata.anexos.map((anexo, idx) => (
+                <div key={idx} className="flex items-center gap-1.5 text-xs bg-white/15 px-2.5 py-1 rounded-lg">
+                  <HugeiconsIcon icon={Attachment01Icon} size={13} strokeWidth={2} />
+                  <span className="truncate max-w-[200px]">{anexo.nome || anexo.name}</span>
+                  {anexo.tamanho && <span className="text-[10px] opacity-75">({anexo.tamanho})</span>}
+                </div>
+              ))}
+            </div>
+          )}
           <p className="whitespace-pre-wrap">{mensagem.conteudo}</p>
           <p className="text-[10px] mt-1.5 text-white/75 text-right font-medium">{horario(mensagem.criado_em)}</p>
         </div>
       ) : (
         <div className="max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl rounded-tl-xs text-sm leading-relaxed bg-surface-card border border-surface-border text-ink-primary shadow-2xs">
-          <p className="whitespace-pre-wrap">{mensagem.conteudo}</p>
-          <p className="text-[10px] mt-1.5 text-ink-secondary font-medium">{horario(mensagem.criado_em)}</p>
+          <div className="space-y-2 text-ink-primary">
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                ul: ({ children }) => <ul className="my-2 space-y-1.5 pl-1 list-none">{children}</ul>,
+                ol: ({ children }) => <ol className="my-2 space-y-1.5 pl-4 list-decimal">{children}</ol>,
+                li: ({ children }) => (
+                  <li className="flex items-start gap-2 text-ink-primary">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-primary mt-2 shrink-0" />
+                    <span className="flex-1 leading-relaxed">{children}</span>
+                  </li>
+                ),
+                strong: ({ children }) => <strong className="font-bold text-ink-primary">{children}</strong>,
+                em: ({ children }) => <em className="italic">{children}</em>,
+                code: ({ inline, children }) =>
+                  inline ? (
+                    <code className="bg-surface-subtle px-1.5 py-0.5 rounded text-xs font-mono font-semibold text-brand-primary border border-surface-border">
+                      {children}
+                    </code>
+                  ) : (
+                    <pre className="bg-surface-subtle p-3 rounded-xl border border-surface-border font-mono text-xs overflow-x-auto my-2">
+                      <code>{children}</code>
+                    </pre>
+                  ),
+                table: ({ children }) => (
+                  <div className="overflow-x-auto my-2 rounded-xl border border-surface-border">
+                    <table className="w-full text-left text-xs divide-y divide-surface-border">
+                      {children}
+                    </table>
+                  </div>
+                ),
+                th: ({ children }) => (
+                  <th className="px-3 py-2 bg-surface-subtle font-bold text-ink-primary">
+                    {children}
+                  </th>
+                ),
+                td: ({ children }) => <td className="px-3 py-2 border-t border-surface-border">{children}</td>,
+                h1: ({ children }) => <h1 className="text-base font-bold text-ink-primary mt-3 mb-1.5">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-sm font-bold text-ink-primary mt-2.5 mb-1">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-xs font-bold text-ink-primary mt-2 mb-1">{children}</h3>,
+              }}
+            >
+              {mensagem.conteudo}
+            </ReactMarkdown>
+          </div>
+          <p className="text-[10px] mt-2 text-ink-secondary font-medium text-right">{horario(mensagem.criado_em)}</p>
         </div>
       )}
     </div>
