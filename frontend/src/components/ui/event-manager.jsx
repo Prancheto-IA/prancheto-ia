@@ -1411,7 +1411,7 @@ function WeekView({
         {hours.map((hour) => (
           <React.Fragment key={`hour-row-${hour}`}>
             <div
-              className="border-b border-r border-surface-border p-1 text-[11px] font-medium text-ink-muted text-center bg-surface-subtle/30"
+              className="border-b border-r border-surface-border p-1.5 text-xs sm:text-sm font-bold text-ink-primary text-center bg-surface-subtle/40 flex items-center justify-center select-none"
             >
               {hour.toString().padStart(2, '0')}:00
             </div>
@@ -1486,7 +1486,7 @@ function DayView({
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(currentDate, hour)}
             >
-              <div className="w-14 sm:w-16 flex-shrink-0 border-r border-surface-border p-1.5 text-center text-xs font-semibold text-ink-muted bg-surface-subtle/30 flex items-center justify-center">
+              <div className="w-14 sm:w-16 flex-shrink-0 border-r border-surface-border p-1.5 text-center text-xs sm:text-sm font-bold text-ink-primary bg-surface-subtle/40 flex items-center justify-center select-none">
                 {hour.toString().padStart(2, '0')}:00
               </div>
               <div className="min-h-10 sm:min-h-11 flex-1 p-1 transition-colors hover:bg-surface-hover/50">
