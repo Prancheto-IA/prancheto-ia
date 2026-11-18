@@ -1,7 +1,7 @@
 // =============================================================
 // PRANCHETO.IA - PAINEL ADMINISTRATIVO (LAYOUT SUPER ADMIN)
-// Shell do Painel Admin com Sidebar no mesmo estilo do LayoutCliente,
-// com cores sólidas (sem gradiente) para governança e distinção visual.
+// Shell do Painel Admin com Sidebar expandida no mesmo estilo do LayoutCliente,
+// com cores sólidas (sem gradiente) e separação visual nítida.
 // =============================================================
 
 import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
@@ -17,7 +17,6 @@ import {
 import logoCompletoPrancheto from '@/assets/logo/Logo-LHW.svg';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  DashboardSquare01Icon,
   BotIcon,
   UserGroupIcon,
   Building01Icon,
@@ -25,17 +24,12 @@ import {
   Analytics01Icon,
   Shield01Icon,
   Ticket01Icon,
-  LockKeyIcon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
   Menu01Icon,
   Cancel01Icon,
   Search01Icon,
   Sun01Icon,
   Moon02Icon,
   Logout01Icon,
-  UserIcon,
-  ArrowRight02Icon,
 } from '@hugeicons/core-free-icons';
 
 // Lazy loading das sub-páginas do painel admin
@@ -47,15 +41,8 @@ const PaginaLogsSeguranca    = lazy(() => import('./Seguranca/LogsSeguranca.jsx'
 const PaginaMonitoramento    = lazy(() => import('./Monitoramento/Monitoramento.jsx'));
 const PaginaTicketsRecebidos = lazy(() => import('./Suporte/TicketsRecebidos.jsx'));
 
-// Módulos de navegação do Super Admin
+// Módulos de navegação do Super Admin (menu direto na sidebar, sem grid)
 const ITENS_NAV_ADMIN = [
-  {
-    slug: 'visao-geral',
-    label: 'Visão Geral',
-    rota: '/admin',
-    exact: true,
-    icone: DashboardSquare01Icon,
-  },
   {
     slug: 'chat',
     label: 'Chat com IA',
@@ -110,55 +97,36 @@ const TelaCarregandoAdmin = () => (
 );
 
 // ----------------------------------------------------------
-// COMPONENTE: Item de Navegação da Sidebar (Sem gradiente)
+// COMPONENTE: Item de Navegação da Sidebar (Sólido, sem gradiente)
 // ----------------------------------------------------------
-const ItemNavAdmin = ({ item, colapsada, onClick }) => {
+const ItemNavAdmin = ({ item, onClick }) => {
   const location = useLocation();
-  const ativo = item.exact
-    ? location.pathname === item.rota
-    : location.pathname.startsWith(item.rota);
+  const ativo = location.pathname.startsWith(item.rota);
 
   return (
-    <div className={`relative group transition-[width] duration-150 ease-out ${colapsada ? 'w-10' : 'w-full'}`}>
-      <Tooltip disabled={!colapsada}>
-        <TooltipTrigger
-          render={
-            <NavLink
-              to={item.rota}
-              onClick={onClick}
-              className={`h-10 flex items-center rounded-xl text-sm transition-all duration-150 relative overflow-hidden cursor-pointer ${
-                colapsada ? 'w-10 justify-center' : 'w-full px-2.5 gap-2.5'
-              } ${
-                ativo
-                  ? 'bg-[#0E382C] text-[#D4EC9D] font-bold border border-[#D4EC9D]/30 shadow-xs'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/70 font-medium'
-              }`}
-            >
-              <span className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                <HugeiconsIcon icon={item.icone} size={18} strokeWidth={ativo ? 2.2 : 1.8} />
-              </span>
-              <span
-                className={`truncate whitespace-nowrap transition-opacity duration-100 ${
-                  colapsada ? 'opacity-0 pointer-events-none hidden' : 'opacity-100 flex-1'
-                }`}
-              >
-                {item.label}
-              </span>
-            </NavLink>
-          }
-        />
-        <TooltipContent side="inline-end" sideOffset={10}>
-          <p className="text-xs font-semibold">{item.label}</p>
-        </TooltipContent>
-      </Tooltip>
-    </div>
+    <NavLink
+      to={item.rota}
+      onClick={onClick}
+      className={`h-11 flex items-center rounded-xl text-sm transition-all duration-150 px-3.5 gap-3 w-full cursor-pointer ${
+        ativo
+          ? 'bg-[#0E382C] text-[#D4EC9D] font-bold border border-[#D4EC9D]/30 shadow-xs'
+          : 'text-slate-300 hover:text-white hover:bg-slate-800/80 font-medium'
+      }`}
+    >
+      <span className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+        <HugeiconsIcon icon={item.icone} size={18} strokeWidth={ativo ? 2.2 : 1.8} />
+      </span>
+      <span className="truncate whitespace-nowrap flex-1">
+        {item.label}
+      </span>
+    </NavLink>
   );
 };
 
 // ----------------------------------------------------------
-// COMPONENTE: Sidebar Administrativa (Sem gradiente)
+// COMPONENTE: Sidebar Administrativa (Fixa e sempre expandida w-64)
 // ----------------------------------------------------------
-const SidebarAdmin = ({ aberta, onFechar, colapsada }) => {
+const SidebarAdmin = ({ aberta, onFechar }) => {
   return (
     <>
       {aberta && (
@@ -171,180 +139,43 @@ const SidebarAdmin = ({ aberta, onFechar, colapsada }) => {
       <aside
         className={`
           fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-[#0F172A] lg:bg-transparent
-          transition-[width] duration-150 ease-out flex-shrink-0
-          lg:static lg:z-auto lg:h-full lg:translate-x-0
+          flex-shrink-0 lg:static lg:z-auto lg:h-full lg:translate-x-0 w-64
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
-          w-64 ${colapsada ? 'lg:w-16' : 'lg:w-64'}
+          transition-transform duration-200 ease-out
         `}
       >
-        <div className={`h-full flex flex-col flex-shrink-0 ${colapsada ? 'w-16' : 'w-64'}`}>
-          <TooltipProvider delay={100}>
-            {/* Topo visível exclusivamente no drawer mobile */}
-            <div className="h-16 flex items-center justify-between px-4 flex-shrink-0 lg:hidden border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <img src={logoCompletoPrancheto} alt="Prancheto.IA" className="h-9 w-auto" />
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0E382C] text-[#D4EC9D]">
-                  Admin
-                </span>
-              </div>
-              <button
-                type="button"
+        <div className="h-full w-64 flex flex-col flex-shrink-0">
+          {/* Topo visível exclusivamente no drawer mobile */}
+          <div className="h-16 flex items-center justify-between px-4 flex-shrink-0 lg:hidden border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <img src={logoCompletoPrancheto} alt="Prancheto.IA" className="h-9 w-auto" />
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0E382C] text-[#D4EC9D]">
+                Admin
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onFechar}
+              className="text-white/80 hover:text-white p-1 rounded-lg cursor-pointer"
+              title="Fechar menu"
+            >
+              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
+            </button>
+          </div>
+
+          {/* Lista de Navegação dos Módulos */}
+          <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 space-y-1.5">
+            {ITENS_NAV_ADMIN.map((item) => (
+              <ItemNavAdmin
+                key={item.slug}
+                item={item}
                 onClick={onFechar}
-                className="text-white/80 hover:text-white p-1 rounded-lg cursor-pointer"
-                title="Fechar menu"
-              >
-                <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
-              </button>
-            </div>
-
-            {/* Nav Items */}
-            <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1">
-              {ITENS_NAV_ADMIN.map((item) => (
-                <ItemNavAdmin
-                  key={item.slug}
-                  item={item}
-                  colapsada={colapsada}
-                  onClick={onFechar}
-                />
-              ))}
-            </nav>
-
-            {/* Base da Sidebar: Indicador de Governança */}
-            <div className="p-3 flex-shrink-0 overflow-hidden border-t border-slate-800/80">
-              <div className={`flex items-center ${colapsada ? 'justify-center' : 'gap-2 px-2'} text-slate-400 text-xs py-1`}>
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                {!colapsada && (
-                  <span className="truncate font-medium text-[11px] text-slate-300">
-                    Modo Governança Ativo
-                  </span>
-                )}
-              </div>
-            </div>
-          </TooltipProvider>
+              />
+            ))}
+          </nav>
         </div>
       </aside>
     </>
-  );
-};
-
-// ----------------------------------------------------------
-// COMPONENTE: Visão Geral / Dashboard Administrativo
-// ----------------------------------------------------------
-const VisaoGeralAdmin = () => {
-  const navigate = useNavigate();
-
-  const modulos = [
-    {
-      icone: <HugeiconsIcon icon={BotIcon} size={20} strokeWidth={1.8} />,
-      titulo: 'Chat com IA',
-      descricao: 'Gerar novos módulos, código e configurações via chat com a IA.',
-      status: 'ativo',
-      rota: '/admin/chat',
-    },
-    {
-      icone: <HugeiconsIcon icon={UserGroupIcon} size={20} strokeWidth={1.8} />,
-      titulo: 'Gestão de Usuários',
-      descricao: 'Gerenciar todos os usuários, cargos e sessão de impersonation.',
-      status: 'ativo',
-      rota: '/admin/usuarios',
-    },
-    {
-      icone: <HugeiconsIcon icon={Building01Icon} size={20} strokeWidth={1.8} />,
-      titulo: 'Clientes & Tenants',
-      descricao: 'Criar, editar e gerenciar tenants de organizações parceiras.',
-      status: 'ativo',
-      rota: '/admin/clientes',
-    },
-    {
-      icone: <HugeiconsIcon icon={PackageIcon} size={20} strokeWidth={1.8} />,
-      titulo: 'Planos e Limites',
-      descricao: 'Configurar planos, recursos liberados e limites por empresa.',
-      status: 'ativo',
-      rota: '/admin/planos',
-    },
-    {
-      icone: <HugeiconsIcon icon={Analytics01Icon} size={20} strokeWidth={1.8} />,
-      titulo: 'Monitoramento',
-      descricao: 'Saúde do sistema, tempo de resposta e métricas de servidores.',
-      status: 'ativo',
-      rota: '/admin/monitoramento',
-    },
-    {
-      icone: <HugeiconsIcon icon={Shield01Icon} size={20} strokeWidth={1.8} />,
-      titulo: 'Segurança & Auditoria',
-      descricao: 'Logs de acessos, registros de auditoria e controle LGPD.',
-      status: 'ativo',
-      rota: '/admin/seguranca',
-    },
-    {
-      icone: <HugeiconsIcon icon={Ticket01Icon} size={20} strokeWidth={1.8} />,
-      titulo: 'Tickets Recebidos',
-      descricao: 'Atender tickets de suporte abertos por qualquer empresa parceira.',
-      status: 'ativo',
-      rota: '/admin/tickets',
-    },
-  ];
-
-  return (
-    <div className="p-6 sm:p-8 space-y-6 max-w-7xl mx-auto w-full">
-      {/* Top Banner */}
-      <div className="bg-surface-card rounded-2xl border border-surface-border p-6 shadow-2xs">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-ink-primary tracking-tight">
-                Painel de Controle Super Admin
-              </h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0E382C] text-[#D4EC9D]">
-                Governança
-              </span>
-            </div>
-            <p className="text-sm text-ink-secondary">
-              Gerencie permissões, empresas parceiras, cotas de recursos e auditorias globais do sistema.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Sistemas Operacionais
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Grid de Acesso aos Módulos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {modulos.map((modulo, i) => (
-          <div
-            key={i}
-            onClick={() => navigate(modulo.rota)}
-            className="bg-surface-card rounded-2xl p-5 border border-surface-border shadow-2xs flex flex-col justify-between space-y-4 hover:border-brand-primary/40 hover:shadow-xs transition-all cursor-pointer group"
-          >
-            <div className="space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-surface-subtle border border-surface-border text-[#0E382C] dark:text-[#D4EC9D] flex items-center justify-center group-hover:scale-105 transition-transform">
-                {modulo.icone}
-              </div>
-              <h3 className="font-extrabold text-sm text-ink-primary flex items-center justify-between">
-                <span>{modulo.titulo}</span>
-                <HugeiconsIcon icon={ArrowRight02Icon} size={16} strokeWidth={2} className="text-ink-secondary opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </h3>
-              <p className="text-xs text-ink-secondary leading-relaxed">{modulo.descricao}</p>
-            </div>
-
-            <div className="pt-2 border-t border-surface-border flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Ativo
-              </span>
-              <span className="text-[11px] font-semibold text-brand-primary hover:underline">
-                Acessar →
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 };
 
@@ -353,13 +184,6 @@ const VisaoGeralAdmin = () => {
 // ----------------------------------------------------------
 const PaginaAdminPanel = () => {
   const [sidebarAberta, setSidebarAberta] = useState(false);
-  const [colapsada, setColapsada] = useState(() => {
-    try {
-      return localStorage.getItem('admin_sidebar_colapsada') === 'true';
-    } catch {
-      return false;
-    }
-  });
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
   const menuUsuarioRef = useRef(null);
 
@@ -367,14 +191,7 @@ const PaginaAdminPanel = () => {
   const { usuario, logout } = useAuthStore();
   const { temaEscuro, alternarTema } = useTema();
 
-  const alternarColapsada = (novo) => {
-    setColapsada(novo);
-    try {
-      localStorage.setItem('admin_sidebar_colapsada', String(novo));
-    } catch {}
-  };
-
-  // Fecha dropdown ao clicar fora
+  // Fecha dropdown de perfil ao clicar fora
   useEffect(() => {
     const handleClickFora = (e) => {
       if (menuUsuarioRef.current && !menuUsuarioRef.current.contains(e.target)) {
@@ -391,30 +208,21 @@ const PaginaAdminPanel = () => {
 
   return (
     <div className="h-screen bg-[#0F172A] flex flex-col overflow-hidden font-sans">
-      {/* ─── Top Header Fixo (Cores sólidas sem gradiente) ─── */}
+      {/* ─── Top Header Fixo ─── */}
       <header className="h-16 bg-transparent pl-3 sm:pl-4 lg:pl-[15.5px] pr-4 sm:pr-6 flex items-center justify-between gap-4 flex-shrink-0 z-30">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <button
-                  type="button"
-                  onClick={() => setSidebarAberta(true)}
-                  className="lg:hidden p-2 text-white/80 hover:text-white rounded-lg cursor-pointer"
-                  aria-label="Abrir menu admin"
-                >
-                  <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
-                </button>
-              }
-            />
-            <TooltipContent side="bottom" sideOffset={8}>
-              <p className="text-xs font-semibold">Abrir menu admin</p>
-            </TooltipContent>
-          </Tooltip>
+          <button
+            type="button"
+            onClick={() => setSidebarAberta(true)}
+            className="lg:hidden p-2 text-white/80 hover:text-white rounded-lg cursor-pointer"
+            aria-label="Abrir menu admin"
+          >
+            <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
+          </button>
 
           {/* Logo da Marca com Badge Super Admin */}
           <NavLink
-            to="/admin"
+            to="/admin/chat"
             className="flex items-center gap-2.5 min-w-0 transition-opacity hover:opacity-90 cursor-pointer"
           >
             <img
@@ -440,7 +248,7 @@ const PaginaAdminPanel = () => {
             <input
               type="text"
               readOnly
-              placeholder="Painel Administrativo Prancheto.IA"
+              placeholder="Painel de Controle Super Admin"
               className="w-full h-10 pl-11 pr-4 bg-slate-800/80 text-white placeholder-slate-400 border border-slate-700/70 rounded-full text-xs cursor-default focus:outline-none"
             />
           </div>
@@ -464,7 +272,7 @@ const PaginaAdminPanel = () => {
                 }
               />
               <TooltipContent side="bottom" sideOffset={8}>
-                <p className="text-xs font-semibold">Ir para o painel de cliente (/dashboard)</p>
+                <p className="text-xs font-semibold">Ir para o painel do cliente (/dashboard)</p>
               </TooltipContent>
             </Tooltip>
 
@@ -495,23 +303,14 @@ const PaginaAdminPanel = () => {
 
             {/* Perfil do Super Admin */}
             <div className="relative" ref={menuUsuarioRef}>
-              <Tooltip disabled={menuUsuarioAberto}>
-                <TooltipTrigger
-                  render={
-                    <button
-                      type="button"
-                      onClick={() => setMenuUsuarioAberto((v) => !v)}
-                      className="w-9 h-9 rounded-full bg-[#0E382C] text-[#D4EC9D] border-2 border-slate-700 font-bold text-sm flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:border-[#D4EC9D]/50"
-                      aria-label={`Perfil: ${usuario?.nome || 'Super Admin'}`}
-                    >
-                      <span>{primeiroNome[0]?.toUpperCase() || 'A'}</span>
-                    </button>
-                  }
-                />
-                <TooltipContent side="bottom" sideOffset={8}>
-                  <p className="text-xs font-semibold">{usuario?.nome || 'Super Admin'}</p>
-                </TooltipContent>
-              </Tooltip>
+              <button
+                type="button"
+                onClick={() => setMenuUsuarioAberto((v) => !v)}
+                className="w-9 h-9 rounded-full bg-[#0E382C] text-[#D4EC9D] border-2 border-slate-700 font-bold text-sm flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:border-[#D4EC9D]/50"
+                aria-label={`Perfil: ${usuario?.nome || 'Super Admin'}`}
+              >
+                <span>{primeiroNome[0]?.toUpperCase() || 'A'}</span>
+              </button>
 
               {menuUsuarioAberto && (
                 <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-sm">
@@ -544,48 +343,24 @@ const PaginaAdminPanel = () => {
         </TooltipProvider>
       </header>
 
-      {/* ─── Corpo: Sidebar + Main Content Canvas ─── */}
+      {/* ─── Corpo: Sidebar Sempre Expandida + Seção Principal (Canvas com Canto Arredondado) ─── */}
       <div className="flex-1 flex items-stretch min-h-0 overflow-hidden">
-        {/* Sidebar */}
+        {/* Sidebar fixa w-64 */}
         <SidebarAdmin
           aberta={sidebarAberta}
           onFechar={() => setSidebarAberta(false)}
-          colapsada={colapsada}
         />
 
-        {/* Botão de Toggle da Sidebar (Desktop) */}
-        <TooltipProvider delay={100}>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <button
-                  onClick={() => alternarColapsada(!colapsada)}
-                  className="hidden lg:flex fixed bottom-12 z-50 items-center justify-center w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-md focus:outline-none transition-[left,transform] duration-150 ease-out cursor-pointer"
-                  style={{
-                    left: colapsada ? 'calc(4rem - 0.875rem)' : 'calc(16rem - 0.875rem)',
-                  }}
-                  aria-label={colapsada ? 'Expandir menu' : 'Recolher menu'}
-                >
-                  <HugeiconsIcon
-                    icon={colapsada ? ArrowRight01Icon : ArrowLeft01Icon}
-                    size={14}
-                    strokeWidth={2.2}
-                    className="transition-transform duration-150"
-                  />
-                </button>
-              }
-            />
-            <TooltipContent side="inline-end" sideOffset={10}>
-              <p className="text-xs font-semibold">{colapsada ? 'Expandir menu' : 'Recolher menu'}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Canvas de Conteúdo Principal (Canto arredondado rounded-tl-3xl) */}
-        <main className="flex-1 bg-surface-primary dark:bg-[#0D121F] rounded-tl-3xl dark:border-t dark:border-l dark:border-white/[0.08] flex flex-col min-h-0 shadow-sm overflow-auto">
+        {/* 
+          Canvas de Conteúdo Principal (Nível 1):
+          bg-surface garante que no modo claro ele seja #F2F6FA (fundo claro com contraste nítido),
+          e dark:bg-[#111928] garante um tom de superfície distinto do #0F172A do shell externo.
+          rounded-tl-3xl reproduz exatamente o corte característico do LayoutCliente.
+        */}
+        <main className="flex-1 bg-surface dark:bg-[#111928] rounded-tl-3xl border-t border-l border-slate-700/50 dark:border-white/10 flex flex-col min-h-0 shadow-sm overflow-auto">
           <Suspense fallback={<TelaCarregandoAdmin />}>
             <Routes>
-              <Route index element={<VisaoGeralAdmin />} />
+              <Route index element={<Navigate to="/admin/chat" replace />} />
               <Route path="chat"          element={<PaginaChatIA />} />
               <Route path="usuarios"      element={<PaginaGestaoUsuarios />} />
               <Route path="clientes"      element={<PaginaGestaoClientes />} />
@@ -593,7 +368,7 @@ const PaginaAdminPanel = () => {
               <Route path="seguranca"     element={<PaginaLogsSeguranca />} />
               <Route path="monitoramento" element={<PaginaMonitoramento />} />
               <Route path="tickets"       element={<PaginaTicketsRecebidos />} />
-              <Route path="*"             element={<Navigate to="/admin" replace />} />
+              <Route path="*"             element={<Navigate to="/admin/chat" replace />} />
             </Routes>
           </Suspense>
         </main>
