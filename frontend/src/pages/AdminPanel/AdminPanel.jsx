@@ -1,7 +1,9 @@
 // =============================================================
 // PRANCHETO.IA - PAINEL ADMINISTRATIVO (LAYOUT SUPER ADMIN)
-// Shell do Painel Admin com Sidebar expandida no mesmo estilo do LayoutCliente,
-// com cores sólidas (sem gradiente) e separação visual nítida.
+// Shell com Sidebar expandida dinâmica:
+// - Modo Dia (Claro): Azul sólido (#1E3A8A)
+// - Modo Noite (Escuro): Violeta sólido (#240B45)
+// Sem gradiente, com separação visual nítida para a seção principal.
 // =============================================================
 
 import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
@@ -109,8 +111,8 @@ const ItemNavAdmin = ({ item, onClick }) => {
       onClick={onClick}
       className={`h-11 flex items-center rounded-xl text-sm transition-all duration-150 px-3.5 gap-3 w-full cursor-pointer ${
         ativo
-          ? 'bg-[#0E382C] text-[#D4EC9D] font-bold border border-[#D4EC9D]/30 shadow-xs'
-          : 'text-slate-300 hover:text-white hover:bg-slate-800/80 font-medium'
+          ? 'bg-white/20 text-white font-bold border border-white/30 shadow-xs backdrop-blur-xs'
+          : 'text-white/80 hover:text-white hover:bg-white/10 font-medium'
       }`}
     >
       <span className="w-5 h-5 flex items-center justify-center flex-shrink-0">
@@ -125,6 +127,7 @@ const ItemNavAdmin = ({ item, onClick }) => {
 
 // ----------------------------------------------------------
 // COMPONENTE: Sidebar Administrativa (Fixa e sempre expandida w-64)
+// Azul claro (#1E3A8A) no modo dia, Violeta (#240B45) no modo noite
 // ----------------------------------------------------------
 const SidebarAdmin = ({ aberta, onFechar }) => {
   return (
@@ -138,18 +141,19 @@ const SidebarAdmin = ({ aberta, onFechar }) => {
 
       <aside
         className={`
-          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden bg-[#0F172A] lg:bg-transparent
+          fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden
+          bg-[#1E3A8A] dark:bg-[#240B45] lg:bg-[#1E3A8A] lg:dark:bg-[#240B45]
           flex-shrink-0 lg:static lg:z-auto lg:h-full lg:translate-x-0 w-64
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
-          transition-transform duration-200 ease-out
+          transition-colors duration-200 ease-out
         `}
       >
         <div className="h-full w-64 flex flex-col flex-shrink-0">
           {/* Topo visível exclusivamente no drawer mobile */}
-          <div className="h-16 flex items-center justify-between px-4 flex-shrink-0 lg:hidden border-b border-slate-800">
+          <div className="h-16 flex items-center justify-between px-4 flex-shrink-0 lg:hidden border-b border-white/10">
             <div className="flex items-center gap-2">
               <img src={logoCompletoPrancheto} alt="Prancheto.IA" className="h-9 w-auto" />
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0E382C] text-[#D4EC9D]">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30">
                 Admin
               </span>
             </div>
@@ -207,7 +211,7 @@ const PaginaAdminPanel = () => {
   const primeiroNome = usuario?.nome?.split(' ')[0] || 'Admin';
 
   return (
-    <div className="h-screen bg-[#0F172A] flex flex-col overflow-hidden font-sans">
+    <div className="h-screen bg-[#1E3A8A] dark:bg-[#240B45] flex flex-col overflow-hidden font-sans transition-colors duration-200">
       {/* ─── Top Header Fixo ─── */}
       <header className="h-16 bg-transparent pl-3 sm:pl-4 lg:pl-[15.5px] pr-4 sm:pr-6 flex items-center justify-between gap-4 flex-shrink-0 z-30">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -230,7 +234,7 @@ const PaginaAdminPanel = () => {
               alt="Prancheto.IA"
               className="h-10 w-auto max-w-[200px] object-contain select-none"
             />
-            <span className="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0E382C] text-[#D4EC9D] border border-[#D4EC9D]/30 tracking-wider uppercase">
+            <span className="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30 tracking-wider uppercase">
               Super Admin
             </span>
           </NavLink>
@@ -243,13 +247,13 @@ const PaginaAdminPanel = () => {
               icon={Search01Icon}
               size={18}
               strokeWidth={1.8}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/50"
             />
             <input
               type="text"
               readOnly
               placeholder="Painel de Controle Super Admin"
-              className="w-full h-10 pl-11 pr-4 bg-slate-800/80 text-white placeholder-slate-400 border border-slate-700/70 rounded-full text-xs cursor-default focus:outline-none"
+              className="w-full h-10 pl-11 pr-4 bg-white/10 text-white placeholder-white/60 border border-white/15 rounded-full text-xs cursor-default focus:outline-none backdrop-blur-xs"
             />
           </div>
         </div>
@@ -264,10 +268,10 @@ const PaginaAdminPanel = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="h-9 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700/80 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                    className="h-9 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
                   >
                     <span>Área do Cliente</span>
-                    <span className="text-[10px] text-slate-400">↗</span>
+                    <span className="text-[10px] text-white/70">↗</span>
                   </button>
                 }
               />
@@ -284,7 +288,7 @@ const PaginaAdminPanel = () => {
                     type="button"
                     onClick={() => alternarTema(usuario?.id)}
                     aria-label={temaEscuro ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
-                    className="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700/80 flex items-center justify-center transition-all cursor-pointer"
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer"
                   >
                     <HugeiconsIcon
                       icon={temaEscuro ? Sun01Icon : Moon02Icon}
@@ -306,7 +310,7 @@ const PaginaAdminPanel = () => {
               <button
                 type="button"
                 onClick={() => setMenuUsuarioAberto((v) => !v)}
-                className="w-9 h-9 rounded-full bg-[#0E382C] text-[#D4EC9D] border-2 border-slate-700 font-bold text-sm flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:border-[#D4EC9D]/50"
+                className="w-9 h-9 rounded-full bg-white/20 text-white border-2 border-white/30 font-bold text-sm flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:border-white/60"
                 aria-label={`Perfil: ${usuario?.nome || 'Super Admin'}`}
               >
                 <span>{primeiroNome[0]?.toUpperCase() || 'A'}</span>
@@ -318,7 +322,7 @@ const PaginaAdminPanel = () => {
                   <div className="px-4 py-2.5 border-b border-surface-border">
                     <p className="font-bold text-ink-primary truncate">{usuario?.nome || 'Super Admin'}</p>
                     <p className="text-[11px] text-ink-secondary truncate">{usuario?.email}</p>
-                    <span className="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1.5 bg-[#0E382C] text-[#D4EC9D]">
+                    <span className="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1.5 bg-[#1E3A8A] text-white dark:bg-[#240B45]">
                       Super Admin
                     </span>
                   </div>
@@ -354,10 +358,10 @@ const PaginaAdminPanel = () => {
         {/* 
           Canvas de Conteúdo Principal (Nível 1):
           bg-surface garante que no modo claro ele seja #F2F6FA (fundo claro com contraste nítido),
-          e dark:bg-[#111928] garante um tom de superfície distinto do #0F172A do shell externo.
+          e dark:bg-[#111928] garante um tom de superfície distinto do shell externo.
           rounded-tl-3xl reproduz exatamente o corte característico do LayoutCliente.
         */}
-        <main className="flex-1 bg-surface dark:bg-[#111928] rounded-tl-3xl border-t border-l border-slate-700/50 dark:border-white/10 flex flex-col min-h-0 shadow-sm overflow-auto">
+        <main className="flex-1 bg-surface dark:bg-[#111928] rounded-tl-3xl border-t border-l border-white/20 dark:border-white/10 flex flex-col min-h-0 shadow-sm overflow-auto">
           <Suspense fallback={<TelaCarregandoAdmin />}>
             <Routes>
               <Route index element={<Navigate to="/admin/chat" replace />} />
