@@ -83,8 +83,8 @@ const ITENS_NAV_ADMIN = [
   },
   {
     slug: 'tickets',
-    label: 'Tickets Recebidos',
-    rota: '/admin/tickets',
+    label: 'Tickets',
+    rota: '/tickets',
     icone: Ticket01Icon,
   },
 ];
@@ -377,10 +377,19 @@ const PaginaAdminPanel = () => {
           Canvas de Conteúdo Principal (Nível 1):
           bg-surface com rounded-tl-3xl encaixado no shell contínuo de ponta a ponta
         */}
-        <main className="flex-1 bg-surface dark:bg-[#111928] rounded-tl-3xl border-t border-l border-white/20 dark:border-white/10 flex flex-col min-h-0 shadow-sm overflow-auto">
+        <main className="flex-1 bg-surface dark:bg-[#111928] rounded-tl-3xl border-t border-l border-white/20 dark:border-white/10 flex flex-col min-h-0 shadow-sm overflow-hidden">
           <Suspense fallback={<TelaCarregandoAdmin />}>
             <Routes>
-              <Route index element={<Navigate to="/admin/chat" replace />} />
+              <Route
+                index
+                element={
+                  location.pathname.startsWith('/tickets') ? (
+                    <PaginaTicketsRecebidos />
+                  ) : (
+                    <Navigate to="/admin/chat" replace />
+                  )
+                }
+              />
               <Route path="chat"          element={<PaginaChatIA />} />
               <Route path="usuarios"      element={<PaginaGestaoUsuarios />} />
               <Route path="clientes"      element={<PaginaGestaoClientes />} />
@@ -388,7 +397,15 @@ const PaginaAdminPanel = () => {
               <Route path="seguranca"     element={<PaginaLogsSeguranca />} />
               <Route path="monitoramento" element={<PaginaMonitoramento />} />
               <Route path="tickets"       element={<PaginaTicketsRecebidos />} />
-              <Route path="*"             element={<Navigate to="/admin/chat" replace />} />
+              <Route
+                path="*"
+                element={
+                  <Navigate
+                    to={location.pathname.startsWith('/tickets') ? '/tickets' : '/admin/chat'}
+                    replace
+                  />
+                }
+              />
             </Routes>
           </Suspense>
         </main>

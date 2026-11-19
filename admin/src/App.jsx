@@ -36,9 +36,17 @@ const App = () => {
           {/* Rota pública de login */}
           <Route path="/login" element={<PaginaLogin />} />
 
-          {/* Rotas administrativas sob /admin/* */}
+          {/* Rotas administrativas sob /admin/* e /tickets/* */}
           <Route
             path="/admin/*"
+            element={
+              <RotaSuperAdmin>
+                <PaginaAdminPanel />
+              </RotaSuperAdmin>
+            }
+          />
+          <Route
+            path="/tickets/*"
             element={
               <RotaSuperAdmin>
                 <PaginaAdminPanel />
@@ -56,7 +64,7 @@ const App = () => {
           <Route path="/planos" element={<Navigate to="/admin/planos" replace />} />
           <Route path="/seguranca" element={<Navigate to="/admin/seguranca" replace />} />
           <Route path="/monitoramento" element={<Navigate to="/admin/monitoramento" replace />} />
-          <Route path="/tickets" element={<Navigate to="/admin/tickets" replace />} />
+          <Route path="/admin/tickets" element={<Navigate to="/tickets" replace />} />
 
           {/* 404 / Fallback */}
           <Route path="*" element={<Navigate to="/admin" replace />} />
