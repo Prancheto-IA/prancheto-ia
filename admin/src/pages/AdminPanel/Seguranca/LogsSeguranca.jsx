@@ -730,7 +730,7 @@ export const LogsSeguranca = () => {
       {/* ═════════════════════════════════════════════════════════════
           HEADER BAR: LIVE AGENT / AUDITORIA DE SEGURANÇA
           ═════════════════════════════════════════════════════════════ */}
-      <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-4 border-b border-surface-border bg-surface-card/60 dark:bg-surface-card/20 flex-shrink-0">
+      <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-4 border-b border-surface-border bg-surface dark:bg-[#111928] flex-shrink-0">
         {/* Título e Ícone exatamente como na imagem */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-surface border border-surface-border flex items-center justify-center text-ink-primary flex-shrink-0 shadow-2xs">
@@ -903,23 +903,23 @@ export const LogsSeguranca = () => {
           TABELA FORENSE LIVE AGENT (CORPO PRINCIPAL)
           ═════════════════════════════════════════════════════════════ */}
       <div className="flex-1 overflow-x-auto overflow-y-auto">
-        <table className="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr className="border-b border-surface-border text-ink-muted font-medium bg-surface/50 sticky top-0 z-10 backdrop-blur-xs">
-              <th className="py-3 px-4 font-semibold text-ink-muted">Agent</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted">Task</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted">UrgencyScore™</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted">CPU</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted">Memory</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted">Status</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted">Last Activity</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted text-right pr-6">Ação</th>
+        <table className="w-full text-left border-separate border-spacing-0 text-xs">
+          <thead className="sticky top-0 z-20">
+            <tr className="text-ink-muted font-medium">
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Agent</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Task</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">UrgencyScore™</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">CPU</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Memory</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Status</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Last Activity</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted text-right pr-6 bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Ação</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-surface-border/60">
+          <tbody>
             {registrosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-16 text-center text-ink-muted">
+                <td colSpan={8} className="py-16 text-center text-ink-muted border-b border-surface-border/60">
                   <div className="flex flex-col items-center gap-2">
                     <ShieldAlert size={32} className="text-ink-muted/50" />
                     <p className="font-semibold text-sm">Nenhum agente ou evento de segurança encontrado</p>
@@ -944,43 +944,43 @@ export const LogsSeguranca = () => {
                     }`}
                   >
                     {/* Agent (Nome + Cargo em parênteses) */}
-                    <td className="py-3.5 px-4 font-medium text-ink-primary whitespace-nowrap">
+                    <td className="py-3.5 px-4 font-medium text-ink-primary whitespace-nowrap border-b border-surface-border/60">
                       <span>{item.agentName} </span>
                       <span className="text-ink-secondary text-[11px]">({item.agentRole})</span>
                     </td>
 
                     {/* Task */}
-                    <td className="py-3.5 px-4 text-ink-primary whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-ink-primary whitespace-nowrap border-b border-surface-border/60">
                       {item.task}
                     </td>
 
                     {/* UrgencyScore™ */}
-                    <td className="py-3.5 px-4 whitespace-nowrap">
+                    <td className="py-3.5 px-4 whitespace-nowrap border-b border-surface-border/60">
                       <FormatarUrgencyScore score={item.urgencyScore} level={item.urgencyLevel} />
                     </td>
 
                     {/* CPU */}
-                    <td className="py-3.5 px-4 text-ink-secondary font-mono whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-ink-secondary font-mono whitespace-nowrap border-b border-surface-border/60">
                       {item.cpu}
                     </td>
 
                     {/* Memory */}
-                    <td className="py-3.5 px-4 text-ink-secondary font-mono whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-ink-secondary font-mono whitespace-nowrap border-b border-surface-border/60">
                       {item.memory}
                     </td>
 
                     {/* Status */}
-                    <td className="py-3.5 px-4 whitespace-nowrap">
+                    <td className="py-3.5 px-4 whitespace-nowrap border-b border-surface-border/60">
                       <BadgeStatusLive status={item.status} />
                     </td>
 
                     {/* Last Activity */}
-                    <td className="py-3.5 px-4 text-ink-muted whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-ink-muted whitespace-nowrap border-b border-surface-border/60">
                       {item.lastActivity}
                     </td>
 
                     {/* Botão View Details */}
-                    <td className="py-3.5 px-4 text-right pr-6 whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-right pr-6 whitespace-nowrap border-b border-surface-border/60">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1004,7 +1004,7 @@ export const LogsSeguranca = () => {
       {/* ═════════════════════════════════════════════════════════════
           RODAPÉ INFORMATIVO: CONFORMIDADE & STATUS WORM (LGPD)
           ═════════════════════════════════════════════════════════════ */}
-      <div className="h-11 px-6 border-t border-surface-border flex items-center justify-between text-[11px] text-ink-muted bg-surface/40 flex-shrink-0">
+      <div className="h-11 px-6 border-t border-surface-border flex items-center justify-between text-[11px] text-ink-muted bg-surface dark:bg-[#111928] flex-shrink-0">
         <div className="flex items-center gap-2">
           <ShieldCheck size={14} className="text-emerald-500" />
           <span>Trilha de auditoria imutável (WORM). Registros protegidos contra edição e exclusão.</span>

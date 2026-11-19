@@ -1064,10 +1064,10 @@ export const PaginaTicketsRecebidos = () => {
 
         {/* Tabela de Tickets */}
         <div className="flex-1 overflow-x-auto overflow-y-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-surface-border text-ink-muted font-medium bg-surface/40 sticky top-0 z-10 backdrop-blur-xs">
-                <th className="py-2.5 px-3 w-10 text-center">
+          <table className="w-full text-left border-separate border-spacing-0 text-xs">
+            <thead className="sticky top-0 z-20">
+              <tr className="text-ink-muted font-medium">
+                <th className="py-2.5 px-3 w-10 text-center bg-surface-card dark:bg-[#151E34] sticky top-0 z-20 border-b border-surface-border">
                   <input
                     type="checkbox"
                     checked={
@@ -1078,17 +1078,17 @@ export const PaginaTicketsRecebidos = () => {
                     className="rounded border-surface-border text-[#0455BF] focus:ring-[#0455BF] cursor-pointer"
                   />
                 </th>
-                <th className="py-2.5 px-3 w-20 font-semibold text-ink-muted">#</th>
-                <th className="py-2.5 px-3 font-semibold text-ink-muted">Título do Chamado</th>
-                <th className="py-2.5 px-3 w-36 font-semibold text-ink-muted hidden sm:table-cell">Categoria</th>
-                <th className="py-2.5 px-3 w-24 font-semibold text-ink-muted text-center">Status</th>
-                <th className="py-2.5 px-2 w-8 text-center" />
+                <th className="py-2.5 px-3 w-20 font-semibold text-ink-muted bg-surface-card dark:bg-[#151E34] sticky top-0 z-20 border-b border-surface-border whitespace-nowrap">#</th>
+                <th className="py-2.5 px-3 font-semibold text-ink-muted bg-surface-card dark:bg-[#151E34] sticky top-0 z-20 border-b border-surface-border whitespace-nowrap">Título do Chamado</th>
+                <th className="py-2.5 px-3 w-36 font-semibold text-ink-muted hidden sm:table-cell bg-surface-card dark:bg-[#151E34] sticky top-0 z-20 border-b border-surface-border whitespace-nowrap">Categoria</th>
+                <th className="py-2.5 px-3 w-24 font-semibold text-ink-muted text-center bg-surface-card dark:bg-[#151E34] sticky top-0 z-20 border-b border-surface-border whitespace-nowrap">Status</th>
+                <th className="py-2.5 px-2 w-8 text-center bg-surface-card dark:bg-[#151E34] sticky top-0 z-20 border-b border-surface-border" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-surface-border/60">
+            <tbody>
               {ticketsFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-ink-muted">
+                  <td colSpan={6} className="py-12 text-center text-ink-muted border-b border-surface-border/60">
                     <div className="flex flex-col items-center gap-2">
                       <Mail size={28} className="text-ink-muted/50" />
                       <p className="font-semibold text-sm">Nenhum chamado encontrado</p>
@@ -1116,7 +1116,7 @@ export const PaginaTicketsRecebidos = () => {
                     >
                       {/* Checkbox */}
                       <td
-                        className="py-3 px-3 text-center"
+                        className="py-3 px-3 text-center border-b border-surface-border/60"
                         onClick={(e) => toggleItemSelecionado(ticket.id, e)}
                       >
                         <input
@@ -1128,12 +1128,12 @@ export const PaginaTicketsRecebidos = () => {
                       </td>
 
                       {/* Ticket Code (#) */}
-                      <td className="py-3 px-3 font-semibold text-ink-primary whitespace-nowrap">
+                      <td className="py-3 px-3 font-semibold text-ink-primary whitespace-nowrap border-b border-surface-border/60">
                         {ticket.code}
                       </td>
 
                       {/* Issue Title + Priority Flag */}
-                      <td className="py-3 px-3 min-w-0">
+                      <td className="py-3 px-3 min-w-0 border-b border-surface-border/60">
                         <div className="flex items-center gap-2 truncate">
                           <Flag
                             size={13}
@@ -1146,17 +1146,17 @@ export const PaginaTicketsRecebidos = () => {
                       </td>
 
                       {/* Category */}
-                      <td className="py-3 px-3 text-ink-secondary whitespace-nowrap hidden sm:table-cell">
+                      <td className="py-3 px-3 text-ink-secondary whitespace-nowrap hidden sm:table-cell border-b border-surface-border/60">
                         {ticket.category}
                       </td>
 
                       {/* Status Badge */}
-                      <td className="py-3 px-3 text-center whitespace-nowrap">
+                      <td className="py-3 px-3 text-center whitespace-nowrap border-b border-surface-border/60">
                         <BadgeStatusTicket status={ticket.status} />
                       </td>
 
                       {/* Chevron / Indicator */}
-                      <td className="py-3 px-2 text-center text-ink-muted">
+                      <td className="py-3 px-2 text-center text-ink-muted border-b border-surface-border/60">
                         <span
                           className={`inline-block font-mono text-sm transition-transform ${
                             isAtivo ? 'text-[#0455BF] font-bold' : 'text-ink-muted'
