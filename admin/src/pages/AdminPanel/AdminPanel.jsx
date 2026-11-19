@@ -78,7 +78,7 @@ const ITENS_NAV_ADMIN = [
   {
     slug: 'seguranca',
     label: 'Segurança & Auditoria',
-    rota: '/admin/seguranca',
+    rota: '/seguranca',
     icone: Shield01Icon,
   },
   {
@@ -385,6 +385,8 @@ const PaginaAdminPanel = () => {
                 element={
                   location.pathname.startsWith('/tickets') ? (
                     <PaginaTicketsRecebidos />
+                  ) : location.pathname.startsWith('/seguranca') ? (
+                    <PaginaLogsSeguranca />
                   ) : (
                     <Navigate to="/admin/chat" replace />
                   )
@@ -401,7 +403,13 @@ const PaginaAdminPanel = () => {
                 path="*"
                 element={
                   <Navigate
-                    to={location.pathname.startsWith('/tickets') ? '/tickets' : '/admin/chat'}
+                    to={
+                      location.pathname.startsWith('/tickets')
+                        ? '/tickets'
+                        : location.pathname.startsWith('/seguranca')
+                          ? '/seguranca'
+                          : '/admin/chat'
+                    }
                     replace
                   />
                 }
