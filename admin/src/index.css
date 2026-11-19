@@ -17,30 +17,64 @@
 /* --- CSS VARIABLES: TEMA CLARO (padrão base — sem classe) --- */
 /* O tema claro é o padrão. O tema escuro é aplicado via html.dark */
 :root {
-  --color-surface:        #f1f5f9;
-  --color-surface-card:   #ffffff;
-  --color-surface-border: #e2e8f0;
-  --color-text-primary:   #0f172a;
-  --color-text-secondary: #475569;
+  /* --- SUPERFÍCIES E NEUTROS (DESIGN SYSTEM AZUL & VIOLETA) --- */
+  --color-surface:               #F2F6FA;
+  --color-surface-subtle:        #F7FAFC;
+  --color-surface-hover:         #E8F0F7;
+  --color-surface-muted:         #D8E8F2;
+  --color-surface-card:          #FFFFFF;
+  --color-surface-border:        #DCE6F0;
+  --color-surface-border-strong: #C2D4E6;
 
-  /* --- PALETA PRIMARY: a marca do produto ---
+  /* --- TIPOGRAFIA --- */
+  --color-text-primary:          #0B132B;
+  --color-text-secondary:        #5A6A85;
+  --color-text-muted:            #8494A7;
+
+  /* --- IDENTIDADE DA MARCA (PALETA OFICIAL + WHITE-LABEL) ---
+     #000D3D - Azul Escuro Profundo (Sidebar & Header)
+     #0455BF - Azul
+     #D8E8F2 - Azul Claro
+     #7338F2 - Roxo
+     #A36BF2 - Violeta */
+  --brand-primary:               #000D3D;
+  --brand-primary-rgb:           0 13 61;
+  --brand-primary-hover:         #000826;
+  --brand-primary-hover-rgb:     0 8 38;
+
+  --brand-secondary:             #0455BF;
+  --brand-secondary-rgb:         4 85 191;
+  --brand-secondary-border:      #1E6AD1;
+  --brand-secondary-border-rgb:  30 106 209;
+
+  --brand-accent:                #D8E8F2;
+  --brand-accent-rgb:            216 232 242;
+  --brand-accent-hover:          #C2D9E8;
+  --brand-accent-hover-rgb:      194 217 232;
+
+  --brand-purple:                #7338F2;
+  --brand-purple-rgb:            115 56 242;
+  --brand-violet:                #A36BF2;
+  --brand-violet-rgb:            163 107 242;
+
+  /* --- PALETA PRIMARY: rampa 50..950 derivada de #001769 / #0455BF ---
      É também o fallback quando o tenant não aplica identidade própria.
      Os valores são canais RGB, e não hex, porque o Tailwind injeta a
      opacidade das classes com barra (bg-primary-500/15) dentro de
      rgb(<canais> / <alpha-value>) — ver tailwind.config.js.
      utils/identidadeVisual.js sobrescreve estas variáveis no <html>
      quando a organização liga a própria identidade visual. */
-  --color-primary-50:  240 244 255;
-  --color-primary-100: 224 233 255;
-  --color-primary-200: 199 214 254;
-  --color-primary-300: 165 184 252;
-  --color-primary-400: 129 145 248;
-  --color-primary-500:  99 102 241;
-  --color-primary-600:  79  70 229;
-  --color-primary-700:  67  56 202;
-  --color-primary-800:  55  48 163;
-  --color-primary-900:  49  46 129;
-  --color-primary-950:  30  27  75;
+  --color-primary-50:  242 246 250;
+  --color-primary-100: 216 232 242;
+  --color-primary-200: 180 208 235;
+  --color-primary-300: 120 168 222;
+  --color-primary-400:  56 124 206;
+  --color-primary-500:   4  85 191;
+  --color-primary-600:   0  23 105;
+  --color-primary-700:   0  19  88;
+  --color-primary-800:   0  15  70;
+  --color-primary-900:   0  11  52;
+  --color-primary-950:   0   7  34;
 
   /* Fundo de estados de hover em superfícies do tema. */
   --color-hover-surface: rgb(15 23 42 / 0.06);
@@ -82,20 +116,66 @@
   --color-neutro-rgb: 100 116 139;
 }
 
-/* --- CSS VARIABLES: TEMA ESCURO (override via classe html.dark) --- */
+/* --- CSS VARIABLES: TEMA ESCURO (OBSIDIAN SLATE & COBALT) --- */
 html.dark {
-  --color-surface:        #0f172a;
-  --color-surface-card:   #1e293b;
-  --color-surface-border: #334155;
-  --color-text-primary:   #f8fafc;
-  --color-text-secondary: #94a3b8;
+  /* --- SUPERFÍCIES GRAFITE-SAFIRA (OBSIDIAN SLATE) --- */
+  --sidebar-bg:                  #32105F;
+  --header-bg-start:             #240B45;
+  --header-bg-end:               #5420A0;
+  --color-surface:               #0D1423;
+  --color-surface-subtle:        #11192C;
+  --color-surface-card:          #151E34;
+  --color-surface-hover:         #1A2540;
+  --color-surface-muted:         #1F2C4C;
+  --color-surface-border:        #1F2C4C;
+  --color-surface-border-strong: #2A3C66;
 
-  --color-hover-surface:  rgb(255 255 255 / 0.06);
-  --color-control-border: #475569;
+  /* --- TIPOGRAFIA --- */
+  --color-text-primary:          #F8FAFC;
+  --color-text-secondary:        #94A3B8;
+  --color-text-muted:            #64748B;
 
-  --color-primaria-contraste: rgb(var(--color-primary-300));
-  --sidebar-primaria-ativa:   rgb(var(--color-primary-300));
-  --color-neutro-rgb: 148 163 184;
+  /* --- MARCA & DESTAQUES (ROYAL COBALT, SKY CYAN, INDIGO & VIOLET) --- */
+  --brand-primary:               #2563EB;
+  --brand-primary-rgb:           37 99 235;
+  --brand-primary-hover:         #1D4ED8;
+  --brand-primary-hover-rgb:     29 78 216;
+  --brand-primary-text:          #7DD3FC;
+
+  --brand-secondary:             #38BDF8;
+  --brand-secondary-rgb:         56 189 248;
+  --brand-secondary-border:      #0284C7;
+  --brand-secondary-border-rgb:  2 132 199;
+
+  --brand-accent:                #1E3A6E;
+  --brand-accent-rgb:            30 58 110;
+  --brand-accent-hover:          #274B8A;
+  --brand-accent-hover-rgb:      39 75 138;
+
+  --brand-purple:                #7547D8;
+  --brand-purple-rgb:            117 71 216;
+  --brand-violet:                #A78BFA;
+  --brand-violet-rgb:            167 139 250;
+
+  /* Rampa primary-* adaptada ao Royal Cobalt no modo escuro */
+  --color-primary-50:  15  23  42;
+  --color-primary-100: 30  58 110;
+  --color-primary-200: 37  62 107;
+  --color-primary-300: 125 211 252;
+  --color-primary-400: 56 189 248;
+  --color-primary-500: 37  99 235;
+  --color-primary-600: 37  99 235;
+  --color-primary-700: 29  78 216;
+  --color-primary-800: 30  64 175;
+  --color-primary-900: 30  58 138;
+  --color-primary-950:  9  13  22;
+
+  --color-hover-surface:  rgb(148 163 184 / 0.08);
+  --color-control-border: #3B4F78;
+
+  --color-primaria-contraste: #7DD3FC;
+  --sidebar-primaria-ativa:   #7547D8;
+  --color-neutro-rgb: 203 213 225;
 }
 
 /* --- ESTILOS BASE GLOBAIS --- */
@@ -175,7 +255,7 @@ html.dark {
   }
 
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium;
   }
 
   /* --- NAVEGAÇÃO DA BARRA LATERAL ---
@@ -233,11 +313,12 @@ html.dark {
     --badge-tom: var(--badge-cargo-rgb);
     background-color: rgb(var(--badge-tom) / 0.15);
     color: rgb(var(--badge-tom));
-    @apply inline-flex items-center text-xs px-1.5 py-0.5 rounded-full font-medium;
+    @apply inline-flex items-center text-sm px-1.5 py-0.5 rounded-full font-medium;
   }
 
   html.dark .badge-cargo {
     --badge-tom: var(--badge-cargo-rgb-claro);
+    background-color: rgb(var(--badge-tom) / 0.22);
   }
 
   /* Badge neutro (cinza): mesma forma do badge-cargo, para status/plano/
@@ -247,6 +328,12 @@ html.dark {
     background-color: rgb(var(--color-neutro-rgb) / 0.15);
     border-color: rgb(var(--color-neutro-rgb) / 0.3);
     color: rgb(var(--color-neutro-rgb));
+  }
+
+  html.dark .badge-neutro {
+    background-color: rgb(148 163 184 / 0.22);
+    border-color: rgb(148 163 184 / 0.38);
+    color: #E2E8F0;
   }
 }
 
@@ -275,9 +362,887 @@ html:not(.dark) .text-primary-400 {
   color: var(--color-primaria-contraste);
 }
 
-/* 'hover:text-white' é o pior caso: o item some justamente quando o
-   mouse chega nele. A exceção é quando o hover também pinta um fundo
-   escuro — aí o branco está correto e a regra se afasta. */
-html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-primary"]):hover {
+/* 'hover:text-white' em superfícies claras: a exceção é quando o elemento
+   está na sidebar/header escuros ou pinta fundo próprio no hover. */
+html:not(.dark) [class*="hover:text-white"]:not([class*="hover:bg-"]):not(aside *):not(header *):hover {
   color: var(--color-text-primary);
 }
+
+/* =============================================================
+   CENTRALIZAÇÃO DO DESIGN SYSTEM EMITLY & WHITE-LABEL
+   =============================================================
+   Conecta todas as classes utilitárias do Design System Emitly às
+   variáveis CSS globais (--brand-primary, --brand-secondary,
+   --brand-accent, --color-surface-* e --color-text-*).
+   Assim, tanto os tokens semânticos do Tailwind (bg-brand-primary,
+   text-brand-accent, bg-surface, border-surface-border, text-ink-*)
+   quanto as classes arbitrárias existentes nas telas respondem em
+   tempo real à paleta definida aqui e em Identidade Visual.
+   ============================================================= */
+
+/* --- Cor Primária da Marca (--brand-primary) --- */
+.bg-brand-primary:not([class*="dark:bg-"]),
+.bg-\[\#0E382C\]:not([class*="dark:bg-"]) {
+  background-color: var(--brand-primary) !important;
+}
+
+/* Shell unificado (Sidebar + Header compartilhando o mesmo fundo contínuo)
+   Modo Claro: Azul-marinho (#061B50), Azul royal (#0755C9) e Violeta (#7026D9) */
+.shell-app-bg {
+  background-color: #061B50 !important;
+  background-image:
+    radial-gradient(ellipse 30% 34% at 2% 2%, #0755C9 0%, rgba(7, 85, 201, 0.85) 38%, rgba(7, 85, 201, 0.32) 68%, transparent 100%),
+    radial-gradient(ellipse 24% 34% at 2% 98%, #7026D9 0%, rgba(112, 38, 217, 0.78) 38%, rgba(7, 85, 201, 0.35) 70%, transparent 100%),
+    radial-gradient(ellipse 46% 32% at 90% 0%, #7026D9 0%, rgba(112, 38, 217, 0.85) 45%, rgba(7, 85, 201, 0.40) 78%, transparent 100%),
+    linear-gradient(90deg, #061B50 0%, #061B50 52%, #0755C9 70%, #7026D9 88%, #7026D9 100%) !important;
+}
+html.dark .shell-app-bg {
+  background-color: #240B45 !important;
+  background-image:
+    radial-gradient(ellipse 48% 26% at 76% 0%, rgba(117, 71, 216, 0.55) 0%, rgba(84, 32, 160, 0.32) 55%, transparent 100%),
+    radial-gradient(ellipse 22% 58% at 0% 42%, rgba(72, 26, 138, 0.75) 0%, rgba(50, 16, 95, 0.40) 55%, transparent 100%),
+    linear-gradient(90deg, #240B45 0%, #2D0E57 22%, #3D1675 52%, #5420A0 84%, #441885 100%) !important;
+}
+
+/* No mobile (< 1024px), a sidebar abre como gaveta sobreposta e precisa de fundo próprio */
+@media (max-width: 1023px) {
+  .shell-sidebar {
+    background-color: #061B50 !important;
+    background-image: linear-gradient(180deg, #0755C9 0%, #061B50 32%, #061B50 68%, #7026D9 100%) !important;
+  }
+  html.dark .shell-sidebar {
+    background-color: #240B45 !important;
+    background-image: linear-gradient(180deg, #240B45 0%, #32105F 50%, #240B45 100%) !important;
+  }
+}
+
+/* --- Realces dos Botões da Sidebar e Header (Modo Claro e Modo Escuro) --- */
+.shell-nav-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+}
+.shell-nav-item:hover,
+.group:hover > .shell-nav-item,
+.group:hover .shell-nav-item {
+  background: linear-gradient(135deg, rgba(7, 85, 201, 0.88) 0%, rgba(112, 38, 217, 0.82) 100%) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.38) !important;
+  box-shadow: 0 0 16px rgba(7, 85, 201, 0.55) !important;
+}
+html.dark .shell-nav-item:hover,
+html.dark .group:hover > .shell-nav-item,
+html.dark .group:hover .shell-nav-item {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.90) 0%, rgba(117, 71, 216, 0.95) 100%) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.60) !important;
+}
+
+.shell-nav-item-ativo {
+  background: linear-gradient(135deg, #E2EEFB 0%, #C6DDF8 100%) !important;
+  color: #061B50 !important;
+  border: 1px solid rgba(255, 255, 255, 0.75) !important;
+  box-shadow: 0 4px 16px rgba(7, 85, 201, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+html.dark .shell-nav-item-ativo {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  box-shadow: 0 4px 18px rgba(139, 92, 246, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+.shell-header-btn {
+  background: linear-gradient(135deg, #E6EEFA 0%, #D5E4F7 100%) !important;
+  color: #061B50 !important;
+  border: 1px solid rgba(255, 255, 255, 0.70) !important;
+  box-shadow: 0 2px 10px rgba(6, 27, 80, 0.18) !important;
+}
+html.dark .shell-header-btn {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.26) !important;
+  box-shadow: none !important;
+}
+.shell-header-btn:hover {
+  background: #FFFFFF !important;
+  color: #0755C9 !important;
+  border-color: #FFFFFF !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.65), 0 4px 12px rgba(112, 38, 217, 0.35) !important;
+  transform: translateY(-1px);
+}
+html.dark .shell-header-btn:hover {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.65) !important;
+  transform: translateY(-1px);
+}
+
+.shell-header-btn-ativo {
+  background: #FFFFFF !important;
+  color: #7026D9 !important;
+  border: 1px solid #FFFFFF !important;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.75), 0 4px 14px rgba(112, 38, 217, 0.45) !important;
+}
+html.dark .shell-header-btn-ativo {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 0 18px rgba(139, 92, 246, 0.70) !important;
+}
+
+.shell-avatar-btn {
+  background: linear-gradient(135deg, #7026D9 0%, #5818B8 100%) !important;
+  color: #FFFFFF !important;
+  border: 2px solid rgba(255, 255, 255, 0.90) !important;
+  box-shadow: 0 2px 10px rgba(6, 27, 80, 0.25) !important;
+}
+.shell-avatar-btn:hover,
+.shell-avatar-btn-ativo {
+  background: linear-gradient(135deg, #8236EC 0%, #7026D9 100%) !important;
+  color: #FFFFFF !important;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.75), 0 4px 14px rgba(112, 38, 217, 0.55) !important;
+  transform: translateY(-1px);
+}
+html.dark .shell-avatar-btn {
+  background: #240B45 !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.30) !important;
+}
+html.dark .shell-avatar-btn:hover,
+html.dark .shell-avatar-btn-ativo {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.70) !important;
+  transform: translateY(-1px);
+}
+
+.shell-toggle-btn {
+  background: linear-gradient(135deg, #E6EEFA 0%, #D5E4F7 100%) !important;
+  color: #061B50 !important;
+  border: 1px solid rgba(255, 255, 255, 0.80) !important;
+  box-shadow: 0 2px 12px rgba(6, 27, 80, 0.30) !important;
+}
+.shell-toggle-btn:hover {
+  background: #FFFFFF !important;
+  color: #0755C9 !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.75), 0 4px 12px rgba(112, 38, 217, 0.45) !important;
+  transform: scale(1.06);
+}
+html.dark .shell-toggle-btn {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7547D8 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.40) !important;
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.65) !important;
+}
+html.dark .shell-toggle-btn:hover {
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.85) !important;
+  transform: scale(1.06);
+}
+
+.hover\:bg-brand-primary:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#0E382C\]:hover:not([class*="dark:hover:bg-"]) {
+  background-color: var(--brand-primary) !important;
+}
+.bg-brand-primary-hover:not([class*="dark:bg-"]),
+.hover\:bg-brand-primary-hover:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#07261E\]:hover:not([class*="dark:hover:bg-"]) {
+  background-color: var(--brand-primary-hover) !important;
+}
+.text-brand-primary:not([class*="dark:text-"]),
+.text-\[\#0E382C\]:not([class*="dark:text-"]),
+.text-\[\#132E22\]:not([class*="dark:text-"]) {
+  color: var(--brand-primary-text, var(--brand-primary)) !important;
+}
+.hover\:text-brand-primary:hover:not([class*="dark:hover:text-"]),
+.hover\:text-\[\#0E382C\]:hover:not([class*="dark:hover:text-"]) {
+  color: var(--brand-primary-text, var(--brand-primary)) !important;
+}
+.border-brand-primary:not([class*="dark:border-"]),
+.border-\[\#0E382C\]:not([class*="dark:border-"]) {
+  border-color: var(--brand-primary) !important;
+}
+.hover\:border-brand-primary:hover,
+.focus\:border-brand-primary:focus,
+.hover\:border-\[\#0E382C\]:hover,
+.focus\:border-\[\#0E382C\]:focus {
+  border-color: var(--brand-primary) !important;
+}
+
+/* --- Cor Secundária da Marca (--brand-secondary) --- */
+.bg-brand-secondary:not([class*="dark:bg-"]),
+.bg-\[\#134436\]:not([class*="dark:bg-"]) {
+  background-color: var(--brand-secondary) !important;
+}
+.hover\:bg-brand-secondary:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#134436\]:hover:not([class*="dark:hover:bg-"]) {
+  background-color: var(--brand-secondary) !important;
+}
+.border-brand-secondary-border:not([class*="dark:border-"]),
+.border-\[\#1F5C4A\]:not([class*="dark:border-"]) {
+  border-color: var(--brand-secondary-border) !important;
+}
+
+/* --- Cor de Acento da Marca (--brand-accent) --- */
+.bg-brand-accent:not([class*="dark:bg-"]),
+.bg-\[\#D4EC9D\]:not([class*="dark:bg-"]) {
+  background-color: var(--brand-accent) !important;
+}
+.hover\:bg-brand-accent:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#D4EC9D\]:hover:not([class*="dark:hover:bg-"]) {
+  background-color: var(--brand-accent) !important;
+}
+.bg-brand-accent-hover:not([class*="dark:bg-"]),
+.hover\:bg-brand-accent-hover:hover:not([class*="dark:hover:bg-"]),
+.hover\:bg-\[\#c5e485\]:hover:not([class*="dark:hover:bg-"]),
+.bg-\[\#c5e485\]:not([class*="dark:bg-"]) {
+  background-color: var(--brand-accent-hover) !important;
+}
+.text-brand-accent:not([class*="dark:text-"]),
+.text-\[\#D4EC9D\]:not([class*="dark:text-"]) {
+  color: var(--brand-accent) !important;
+}
+html.dark .text-brand-accent:not([class*="dark:text-"]),
+html.dark .text-\[\#D4EC9D\]:not([class*="dark:text-"]) {
+  color: #E0F2FE !important;
+}
+html.dark .bg-\[\#D4EC9D\].text-\[\#0E382C\]:not([class*="dark:bg-"]),
+html.dark .bg-brand-accent.text-brand-primary:not([class*="dark:bg-"]) {
+  background-color: rgb(56 189 248 / 0.22) !important;
+  color: #7DD3FC !important;
+}
+.border-brand-accent:not([class*="dark:border-"]),
+.border-\[\#D4EC9D\]:not([class*="dark:border-"]) {
+  border-color: var(--brand-accent) !important;
+}
+.focus\:ring-brand-accent:focus:not([class*="dark:focus:ring-"]),
+.focus\:ring-\[\#D4EC9D\]:focus:not([class*="dark:focus:ring-"]) {
+  --tw-ring-color: var(--brand-accent) !important;
+}
+
+/* --- Superfícies e Bordas Neutras --- */
+.bg-surface,
+.bg-\[\#F2F5F3\],
+.bg-\[\#FAFCFB\] {
+  background-color: var(--color-surface);
+}
+.bg-surface-card {
+  background-color: var(--color-surface-card);
+}
+.bg-surface-subtle,
+.bg-\[\#F7FAF8\],
+.bg-\[\#F0F4F2\],
+.bg-\[\#EDF4F0\] {
+  background-color: var(--color-surface-subtle);
+}
+.hover\:bg-surface-subtle:hover,
+.hover\:bg-\[\#F7FAF8\]:hover,
+.hover\:bg-\[\#F0F4F2\]:hover {
+  background-color: var(--color-surface-hover) !important;
+}
+.bg-surface-hover,
+.hover\:bg-surface-hover:hover,
+.bg-\[\#EDF2EE\],
+.hover\:bg-\[\#EDF2EE\]:hover {
+  background-color: var(--color-surface-hover);
+}
+.bg-surface-muted,
+.bg-\[\#EBF0ED\],
+.bg-\[\#E4ECE7\] {
+  background-color: var(--color-surface-muted);
+}
+.border-surface-border,
+.border-\[\#E4ECE7\],
+.border-\[\#F0F4F2\],
+.divide-\[\#E4ECE7\] > :not([hidden]) ~ :not([hidden]),
+.divide-\[\#F0F4F2\] > :not([hidden]) ~ :not([hidden]),
+.divide-surface-border > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--color-surface-border);
+}
+.border-surface-border-strong,
+.border-\[\#CBDCD1\],
+.border-\[\#CCD9D2\],
+.hover\:border-surface-border-strong:hover {
+  border-color: var(--color-surface-border-strong);
+}
+
+/* --- Destaques Roxo (#7338F2) e Violeta (#A36BF2) e Badges --- */
+.bg-brand-purple:not([class*="dark:bg-"]) {
+  background-color: var(--brand-purple) !important;
+}
+.text-brand-purple:not([class*="dark:text-"]) {
+  color: var(--brand-purple) !important;
+}
+.border-brand-purple {
+  border-color: var(--brand-purple) !important;
+}
+.bg-brand-violet:not([class*="dark:bg-"]) {
+  background-color: var(--brand-violet) !important;
+}
+.text-brand-violet:not([class*="dark:text-"]) {
+  color: var(--brand-violet) !important;
+}
+.border-brand-violet {
+  border-color: var(--brand-violet) !important;
+}
+.bg-\[\#DCF5E4\]:not([class*="dark:bg-"]),
+.bg-\[\#EBF5EC\]:not([class*="dark:bg-"]),
+.bg-\[\#D2EBD7\]:not([class*="dark:bg-"]) {
+  background-color: var(--brand-accent) !important;
+}
+html.dark .bg-\[\#DCF5E4\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#EBF5EC\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#D2EBD7\]:not([class*="dark:bg-"]) {
+  background-color: rgb(56 189 248 / 0.20) !important;
+}
+.hover\:bg-\[\#DCF5E4\]:hover,
+.hover\:bg-\[\#EBF5EC\]:hover,
+.hover\:bg-\[\#C0E2C7\]:hover {
+  background-color: var(--brand-accent-hover) !important;
+}
+.bg-\[\#15803D\]:not([class*="dark:bg-"]) {
+  background-color: var(--brand-secondary) !important;
+}
+.text-\[\#15803D\]:not([class*="dark:text-"]),
+.text-\[\#0A4D34\]:not([class*="dark:text-"]) {
+  color: var(--brand-secondary) !important;
+}
+html.dark .text-\[\#15803D\]:not([class*="dark:text-"]),
+html.dark .text-\[\#0A4D34\]:not([class*="dark:text-"]) {
+  color: #7DD3FC !important;
+}
+.donut-visual {
+  background: conic-gradient(var(--brand-primary) 0% 82%, var(--brand-accent) 82% 100%);
+}
+
+/* --- Suporte imediato para primitivos shadcn/ui (Radix Select & DayPicker) --- */
+[role="option"][data-highlighted] {
+  background-color: var(--brand-accent) !important;
+  color: var(--brand-primary-text, var(--brand-primary)) !important;
+}
+[role="option"][data-state="checked"] {
+  color: var(--brand-primary-text, var(--brand-primary)) !important;
+  font-weight: 600;
+}
+.rdp-day_selected,
+button[name="day"][aria-selected="true"] {
+  background-color: var(--brand-primary) !important;
+  color: #FFFFFF !important;
+}
+
+/* --- Adaptação automática de superfícies pastel/claras e Badges no Modo Escuro (Obsidian Slate) --- */
+html.dark .bg-\[\#F5F2FC\]:not([class*="dark:bg-"]) {
+  background-color: rgb(129 140 248 / 0.22) !important;
+}
+html.dark .bg-\[\#F7F3FD\]:not([class*="dark:bg-"]) {
+  background-color: rgb(167 139 250 / 0.22) !important;
+}
+html.dark .bg-\[\#EDF4FA\]:not([class*="dark:bg-"]) {
+  background-color: rgb(56 189 248 / 0.18) !important;
+}
+
+/* Rose / Red (Quentes, Cancelado, Atrasadas, Inativo, Crítica) */
+html.dark .bg-rose-50:not([class*="dark:bg-"]),
+html.dark .bg-rose-100:not([class*="dark:bg-"]),
+html.dark .bg-red-50:not([class*="dark:bg-"]),
+html.dark .bg-red-100:not([class*="dark:bg-"]),
+html.dark .bg-\[\#FFF5F2\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#FEF2F2\]:not([class*="dark:bg-"]) {
+  background-color: rgb(244 63 94 / 0.20) !important;
+}
+html.dark .text-rose-600:not([class*="dark:text-"]),
+html.dark .text-rose-700:not([class*="dark:text-"]),
+html.dark .text-rose-800:not([class*="dark:text-"]),
+html.dark .text-red-600:not([class*="dark:text-"]),
+html.dark .text-red-700:not([class*="dark:text-"]),
+html.dark .text-red-800:not([class*="dark:text-"]),
+html.dark .text-red-900:not([class*="dark:text-"]),
+html.dark .text-\[\#C84B31\]:not([class*="dark:text-"]) {
+  color: #FDA4AF !important;
+}
+html.dark .border-rose-200:not([class*="dark:border-"]),
+html.dark .border-red-200:not([class*="dark:border-"]),
+html.dark .border-\[\#FDE1D9\]:not([class*="dark:border-"]),
+html.dark .border-\[\#FECACA\]:not([class*="dark:border-"]) {
+  border-color: rgb(244 63 94 / 0.38) !important;
+}
+
+/* Amber / Yellow / Orange (Mornos, Pausado, Faturado, Alta) */
+html.dark .bg-amber-50:not([class*="dark:bg-"]),
+html.dark .bg-amber-100:not([class*="dark:bg-"]),
+html.dark .bg-yellow-50:not([class*="dark:bg-"]),
+html.dark .bg-yellow-100:not([class*="dark:bg-"]),
+html.dark .bg-orange-50:not([class*="dark:bg-"]),
+html.dark .bg-orange-100:not([class*="dark:bg-"]),
+html.dark .bg-\[\#FEF9EC\]:not([class*="dark:bg-"]) {
+  background-color: rgb(251 191 36 / 0.20) !important;
+}
+html.dark .text-amber-600:not([class*="dark:text-"]),
+html.dark .text-amber-700:not([class*="dark:text-"]),
+html.dark .text-amber-800:not([class*="dark:text-"]),
+html.dark .text-amber-900:not([class*="dark:text-"]),
+html.dark .text-yellow-700:not([class*="dark:text-"]),
+html.dark .text-yellow-800:not([class*="dark:text-"]),
+html.dark .text-orange-600:not([class*="dark:text-"]),
+html.dark .text-orange-700:not([class*="dark:text-"]),
+html.dark .text-orange-800:not([class*="dark:text-"]) {
+  color: #FCD34D !important;
+}
+html.dark .border-amber-200:not([class*="dark:border-"]),
+html.dark .border-amber-300:not([class*="dark:border-"]),
+html.dark .border-yellow-200:not([class*="dark:border-"]),
+html.dark .border-orange-200:not([class*="dark:border-"]),
+html.dark .border-\[\#FBEEC8\]:not([class*="dark:border-"]) {
+  border-color: rgb(251 191 36 / 0.38) !important;
+}
+
+/* Blue / Sky / Indigo / Cyan (Frios, Ganhos, Gerente, Média) */
+html.dark .bg-blue-50:not([class*="dark:bg-"]),
+html.dark .bg-blue-100:not([class*="dark:bg-"]),
+html.dark .bg-sky-50:not([class*="dark:bg-"]),
+html.dark .bg-sky-100:not([class*="dark:bg-"]),
+html.dark .bg-indigo-50:not([class*="dark:bg-"]),
+html.dark .bg-indigo-100:not([class*="dark:bg-"]),
+html.dark .bg-cyan-50:not([class*="dark:bg-"]),
+html.dark .bg-cyan-100:not([class*="dark:bg-"]),
+html.dark .bg-\[\#F0F7FF\]:not([class*="dark:bg-"]) {
+  background-color: rgb(56 189 248 / 0.20) !important;
+}
+html.dark .text-blue-600:not([class*="dark:text-"]),
+html.dark .text-blue-700:not([class*="dark:text-"]),
+html.dark .text-blue-800:not([class*="dark:text-"]),
+html.dark .text-sky-600:not([class*="dark:text-"]),
+html.dark .text-sky-700:not([class*="dark:text-"]),
+html.dark .text-sky-800:not([class*="dark:text-"]),
+html.dark .text-indigo-600:not([class*="dark:text-"]),
+html.dark .text-indigo-700:not([class*="dark:text-"]),
+html.dark .text-indigo-800:not([class*="dark:text-"]),
+html.dark .text-cyan-700:not([class*="dark:text-"]),
+html.dark .text-cyan-800:not([class*="dark:text-"]) {
+  color: #7DD3FC !important;
+}
+html.dark .border-blue-200:not([class*="dark:border-"]),
+html.dark .border-sky-200:not([class*="dark:border-"]),
+html.dark .border-indigo-200:not([class*="dark:border-"]),
+html.dark .border-\[\#D8EBFE\]:not([class*="dark:border-"]) {
+  border-color: rgb(56 189 248 / 0.38) !important;
+}
+
+/* Purple / Violet (Taxa, Valor, Sistema, Enterprise) */
+html.dark .bg-purple-50:not([class*="dark:bg-"]),
+html.dark .bg-purple-100:not([class*="dark:bg-"]),
+html.dark .bg-violet-50:not([class*="dark:bg-"]),
+html.dark .bg-violet-100:not([class*="dark:bg-"]) {
+  background-color: rgb(167 139 250 / 0.22) !important;
+}
+html.dark .text-purple-600:not([class*="dark:text-"]),
+html.dark .text-purple-700:not([class*="dark:text-"]),
+html.dark .text-purple-800:not([class*="dark:text-"]),
+html.dark .text-violet-600:not([class*="dark:text-"]),
+html.dark .text-violet-700:not([class*="dark:text-"]),
+html.dark .text-violet-800:not([class*="dark:text-"]) {
+  color: #C4B5FD !important;
+}
+html.dark .border-purple-200:not([class*="dark:border-"]),
+html.dark .border-violet-200:not([class*="dark:border-"]) {
+  border-color: rgb(167 139 250 / 0.38) !important;
+}
+
+/* Emerald / Green (Ativo, Padrão, Concluído) */
+html.dark .bg-emerald-50:not([class*="dark:bg-"]),
+html.dark .bg-emerald-100:not([class*="dark:bg-"]),
+html.dark .bg-green-50:not([class*="dark:bg-"]),
+html.dark .bg-green-100:not([class*="dark:bg-"]) {
+  background-color: rgb(52 211 153 / 0.20) !important;
+}
+html.dark .text-emerald-600:not([class*="dark:text-"]),
+html.dark .text-emerald-700:not([class*="dark:text-"]),
+html.dark .text-emerald-800:not([class*="dark:text-"]),
+html.dark .text-green-600:not([class*="dark:text-"]),
+html.dark .text-green-700:not([class*="dark:text-"]),
+html.dark .text-green-800:not([class*="dark:text-"]) {
+  color: #6EE7B7 !important;
+}
+html.dark .border-emerald-200:not([class*="dark:border-"]),
+html.dark .border-green-200:not([class*="dark:border-"]) {
+  border-color: rgb(52 211 153 / 0.38) !important;
+}
+
+/* Slate / Neutral (Planejamento, Visualizador, Neutros) */
+html.dark .bg-slate-100:not([class*="dark:bg-"]),
+html.dark .bg-neutral-50:not([class*="dark:bg-"]),
+html.dark .bg-neutral-100:not([class*="dark:bg-"]) {
+  background-color: rgb(148 163 184 / 0.20) !important;
+}
+html.dark .text-slate-600:not([class*="dark:text-"]),
+html.dark .text-slate-700:not([class*="dark:text-"]),
+html.dark .text-neutral-600:not([class*="dark:text-"]),
+html.dark .text-neutral-700:not([class*="dark:text-"]) {
+  color: #E2E8F0 !important;
+}
+html.dark main .bg-white {
+  background-color: var(--color-surface-card) !important;
+  color: var(--color-text-primary);
+}
+html.dark header .bg-white {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+}
+html.dark header input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* =============================================================
+   PROTEÇÃO GLOBAL CONTRA HOVER BRANCO / CORES ESTRANHAS NO MODO ESCURO
+   ============================================================= */
+
+/* 1. Intercepta qualquer utilitário de hover claro sólido no Tailwind quando em html.dark (sem afetar hover:bg-white/10 na sidebar/header) */
+html.dark .hover\:bg-white:hover:not([class*="dark:hover:bg-"]):not(aside *):not(header *),
+html.dark [class*="hover:bg-[#F7FAF8]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#F9FCFA]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#FAFCFB]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#F0F4F2]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#EDF2EE]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#EDF4F0]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#EBF0ED]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#E4ECE7]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#CBDCD1]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-slate-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-slate-100"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-gray-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-gray-100"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-neutral-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-neutral-100"]:hover:not([class*="dark:hover:bg-"]),
+html.dark .hover\:bg-surface-subtle:hover:not([class*="dark:hover:bg-"]),
+html.dark .hover\:bg-surface-hover:hover:not([class*="dark:hover:bg-"]) {
+  background-color: var(--color-surface-hover, #1D2842) !important;
+}
+
+/* 2. Hovers de tons claros/amarelados/oliva que no modo escuro ficavam turvos */
+html.dark [class*="hover:bg-[#D4EC9D]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#DCF5E4]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#EBF5EC]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#C0E2C7]"]:hover:not([class*="dark:hover:bg-"]) {
+  background-color: rgba(56, 189, 248, 0.16) !important;
+}
+
+/* 3. Fundos claros ativos/selecionados que usam classes com opacidade tipo bg-[#DCF5E4]/60 */
+html.dark [class*="bg-[#DCF5E4]"]:not([class*="dark:bg-"]),
+html.dark [class*="bg-[#EBF5EC]"]:not([class*="dark:bg-"]),
+html.dark [class*="bg-[#D2EBD7]"]:not([class*="dark:bg-"]) {
+  background-color: rgba(56, 189, 248, 0.16) !important;
+}
+
+/* 4. Texto em hover no modo escuro mantendo contraste total */
+html.dark [class*="hover:text-[#111915]"]:hover,
+html.dark [class*="hover:text-slate-700"]:hover,
+html.dark [class*="hover:text-slate-800"]:hover,
+html.dark [class*="hover:text-slate-900"]:hover {
+  color: var(--color-text-primary, #F8FAFC) !important;
+}
+
+html.dark [class*="group-hover:text-[#0E382C]"],
+html.dark .group:hover [class*="group-hover:text-[#0E382C]"],
+html.dark [class*="hover:text-[#0E382C]"]:hover {
+  color: var(--brand-primary-text, #7DD3FC) !important;
+}
+
+/* 5. Inputs, textareas e selects no modo escuro sem fundo branco padrão do navegador */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([class*="dark:bg-"]):not(.bg-white),
+html.dark textarea:not([class*="dark:bg-"]):not(.bg-white),
+html.dark select:not([class*="dark:bg-"]):not(.bg-white) {
+  background-color: var(--color-surface-subtle, #111827);
+  color: var(--color-text-primary, #F8FAFC);
+  border-color: var(--color-surface-border, #23304D);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--color-text-muted, #94A3B8);
+}
+
+/* --- Tipografia --- */
+.text-ink-primary,
+.text-\[\#111915\],
+.text-\[\#14221D\] {
+  color: var(--color-text-primary);
+}
+.hover\:text-ink-primary:hover {
+  color: var(--color-text-primary);
+}
+.text-ink-secondary,
+.text-\[\#687770\],
+.text-\[\#4A5D54\],
+.text-\[\#5B6D64\],
+.text-\[\#3E5248\] {
+  color: var(--color-text-secondary);
+}
+.text-ink-muted,
+.text-\[\#8A9A92\],
+.text-\[\#99A6A0\] {
+  color: var(--color-text-muted);
+}
+
+/* =============================================================
+   BOTÃO FLUTUANTE DO AGENTE DE IA (PRANCHETINHO)
+   ============================================================= */
+
+/* 1. Wrapper fixo no canto inferior direito que agrupa a bolha, a sombra e o botão X */
+.botao-flutuante-ia-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 70;
+  width: 62px;
+  height: 62px;
+  pointer-events: auto;
+}
+
+/* Sombra de chão suave e reativa à flutuação */
+.botao-flutuante-ia-sombra {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) scale(1);
+  width: 46px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(14, 56, 44, 0.40) 0%, rgba(115, 56, 242, 0.20) 50%, transparent 75%);
+  filter: blur(2.5px);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+  will-change: transform, opacity;
+  animation: sombraBouncingBolha 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+html.dark .botao-flutuante-ia-sombra {
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(56, 189, 248, 0.30) 50%, transparent 75%);
+}
+
+/* Corpo flutuante com efeito nítido e vivo de bouncing e flutuação em idle */
+.botao-flutuante-ia-corpo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  will-change: transform;
+  animation: flutuarBouncingBolha 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Quando o chat estiver aberto, o botão se fixa no chão de forma estável */
+.botao-flutuante-ia-wrapper.chat-aberto .botao-flutuante-ia-corpo,
+.botao-flutuante-ia-wrapper.chat-aberto .botao-flutuante-ia-sombra {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Keyframes de flutuação e bouncing dinâmico e visível em idle */
+@keyframes flutuarBouncingBolha {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+  }
+  45% {
+    transform: translateY(-13px);
+    animation-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+  }
+  75% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.2, 1.3, 0.4, 1);
+  }
+  88% {
+    transform: translateY(-3.5px);
+    animation-timing-function: ease-in-out;
+  }
+}
+
+@keyframes sombraBouncingBolha {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.7;
+  }
+  45% {
+    transform: translateX(-50%) scale(0.65);
+    opacity: 0.22;
+  }
+  75% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.7;
+  }
+  88% {
+    transform: translateX(-50%) scale(0.85);
+    opacity: 0.48;
+  }
+}
+
+/* Container circular com overflow: hidden */
+.botao-flutuante-ia {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--color-surface-card, #ffffff);
+  border: 1.5px solid var(--color-surface-border, rgba(220, 230, 240, 0.9));
+  box-shadow:
+    0 10px 25px -5px rgba(0, 13, 61, 0.22),
+    0 4px 10px -2px rgba(115, 56, 242, 0.14);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.2s ease;
+}
+
+.botao-flutuante-ia-wrapper:hover .botao-flutuante-ia {
+  transform: scale(1.06);
+  border-color: rgba(115, 56, 242, 0.35);
+  box-shadow:
+    0 16px 32px -6px rgba(0, 13, 61, 0.28),
+    0 6px 16px -2px rgba(115, 56, 242, 0.24);
+}
+
+.botao-flutuante-ia:active {
+  transform: scale(0.96);
+}
+
+.botao-flutuante-ia:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(4, 85, 191, 0.45),
+    0 12px 28px -5px rgba(0, 13, 61, 0.25);
+}
+
+/* Suporte ao Modo Escuro (Obsidian Slate & Cobalt) */
+html.dark .botao-flutuante-ia {
+  background-color: var(--color-surface-card, #161F33);
+  border-color: var(--color-surface-border-strong, #31436B);
+  box-shadow:
+    0 12px 28px -5px rgba(0, 0, 0, 0.6),
+    0 4px 14px -2px rgba(37, 99, 235, 0.3);
+}
+
+html.dark .botao-flutuante-ia-wrapper:hover .botao-flutuante-ia {
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow:
+    0 18px 36px -6px rgba(0, 0, 0, 0.75),
+    0 6px 20px -2px rgba(56, 189, 248, 0.35);
+}
+
+html.dark .botao-flutuante-ia:focus-visible {
+  box-shadow:
+    0 0 0 3px rgba(56, 189, 248, 0.5),
+    0 12px 28px -5px rgba(0, 0, 0, 0.6);
+}
+
+/* Botão X no canto superior direito da bolha para ocultar e fixar na sidebar */
+.botao-flutuante-ia-fechar {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--color-surface-card, #ffffff);
+  color: var(--color-text-secondary, #5a6a85);
+  border: 1px solid var(--color-surface-border, #dce6f0);
+  box-shadow: 0 4px 10px rgba(0, 13, 61, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.75);
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+html.dark .botao-flutuante-ia-fechar {
+  background-color: var(--color-surface-card, #161F33);
+  color: var(--color-text-secondary, #94A3B8);
+  border-color: var(--color-surface-border-strong, #31436B);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
+}
+
+.botao-flutuante-ia-wrapper:hover .botao-flutuante-ia-fechar,
+.botao-flutuante-ia-wrapper:focus-within .botao-flutuante-ia-fechar {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.botao-flutuante-ia-fechar:hover {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  transform: scale(1.1);
+}
+
+/* Palco interno com a proporção exata da arte original (1174 x 948)
+   para travar o alinhamento 1:1 entre o PNG base e o SVG das pálpebras */
+.botao-ia-mascote-palco {
+  position: relative;
+  width: 86%;
+  aspect-ratio: 1174 / 948;
+  display: block;
+  pointer-events: none;
+}
+
+/* 2. Imagem estática base do mascote */
+.botao-ia-imagem-base {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 3. Camada SVG das pálpebras sobreposta de forma absoluta */
+.botao-ia-palpebras-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* Grupo animado das pálpebras fechando de cima para baixo sobre os olhos */
+.botao-ia-palpebras-grupo {
+  transform-box: fill-box;
+  transform-origin: center top;
+  transform: scaleY(0);
+  will-change: transform;
+  animation: piscarPalpebrasPranchetinho 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes piscarPalpebrasPranchetinho {
+  0%, 88%, 94%, 100% {
+    transform: scaleY(0);
+  }
+  91% {
+    transform: scaleY(1);
+  }
+}
+

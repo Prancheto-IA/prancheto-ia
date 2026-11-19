@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore.js';
 import Toast from './components/ui/Toast.jsx';
 
-const PaginaLoginAdmin = lazy(() => import('./pages/Login/LoginAdmin.jsx'));
+const PaginaLogin = lazy(() => import('./pages/Login/Login.jsx'));
 const PaginaAdminPanel = lazy(() => import('./pages/AdminPanel/AdminPanel.jsx'));
 
 // Guarda de rota: somente Super Admin autenticado
@@ -34,7 +34,7 @@ const App = () => {
       <Suspense fallback={<TelaCarregando />}>
         <Routes>
           {/* Rota pública de login */}
-          <Route path="/login" element={<PaginaLoginAdmin />} />
+          <Route path="/login" element={<PaginaLogin />} />
 
           {/* Rotas administrativas sob /admin/* */}
           <Route

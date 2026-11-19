@@ -99,7 +99,7 @@ const TelaCarregandoAdmin = () => (
 );
 
 // ----------------------------------------------------------
-// COMPONENTE: Item de Navegação da Sidebar (Sólido, sem gradiente)
+// COMPONENTE: Item de Navegação da Sidebar (Cores sólidas sem gradiente)
 // ----------------------------------------------------------
 const ItemNavAdmin = ({ item, onClick }) => {
   const location = useLocation();
@@ -127,7 +127,7 @@ const ItemNavAdmin = ({ item, onClick }) => {
 
 // ----------------------------------------------------------
 // COMPONENTE: Sidebar Administrativa (Fixa e sempre expandida w-64)
-// Azul claro (#1E3A8A) no modo dia, Violeta (#240B45) no modo noite
+// Azul (#1E3A8A) no modo dia, Violeta (#240B45) no modo noite
 // ----------------------------------------------------------
 const SidebarAdmin = ({ aberta, onFechar }) => {
   return (
@@ -142,7 +142,7 @@ const SidebarAdmin = ({ aberta, onFechar }) => {
       <aside
         className={`
           fixed top-0 left-0 h-screen flex flex-col z-40 overflow-hidden
-          bg-[#1E3A8A] dark:bg-[#240B45] lg:bg-[#1E3A8A] lg:dark:bg-[#240B45]
+          bg-[#1E3A8A] dark:bg-[#240B45] lg:bg-transparent
           flex-shrink-0 lg:static lg:z-auto lg:h-full lg:translate-x-0 w-64
           ${aberta ? 'translate-x-0' : '-translate-x-full'}
           transition-colors duration-200 ease-out
@@ -210,6 +210,15 @@ const PaginaAdminPanel = () => {
 
   const primeiroNome = usuario?.nome?.split(' ')[0] || 'Admin';
 
+  const abrirAreaCliente = () => {
+    if (typeof window !== 'undefined' && window.location.port === '5174') {
+      window.location.href = 'http://localhost:5173/dashboard';
+    } else {
+      const url = import.meta.env.VITE_CLIENT_URL || '/dashboard';
+      window.location.href = url;
+    }
+  };
+
   return (
     <div className="h-screen bg-[#1E3A8A] dark:bg-[#240B45] flex flex-col overflow-hidden font-sans transition-colors duration-200">
       {/* ─── Top Header Fixo ─── */}
@@ -261,13 +270,13 @@ const PaginaAdminPanel = () => {
         {/* Ações à Direita */}
         <TooltipProvider delay={100}>
           <div className="flex items-center gap-2.5">
-            {/* Atalho rápido para o App do Cliente */}
+            {/* Botão de Visualizar Área do Cliente */}
             <Tooltip>
               <TooltipTrigger
                 render={
                   <button
                     type="button"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={abrirAreaCliente}
                     className="h-9 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
                   >
                     <span>Área do Cliente</span>
@@ -276,7 +285,7 @@ const PaginaAdminPanel = () => {
                 }
               />
               <TooltipContent side="bottom" sideOffset={8}>
-                <p className="text-xs font-semibold">Ir para o painel do cliente (/dashboard)</p>
+                <p className="text-xs font-semibold">Ir para o painel do cliente</p>
               </TooltipContent>
             </Tooltip>
 
@@ -307,14 +316,23 @@ const PaginaAdminPanel = () => {
 
             {/* Perfil do Super Admin */}
             <div className="relative" ref={menuUsuarioRef}>
-              <button
-                type="button"
-                onClick={() => setMenuUsuarioAberto((v) => !v)}
-                className="w-9 h-9 rounded-full bg-white/20 text-white border-2 border-white/30 font-bold text-sm flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:border-white/60"
-                aria-label={`Perfil: ${usuario?.nome || 'Super Admin'}`}
-              >
-                <span>{primeiroNome[0]?.toUpperCase() || 'A'}</span>
-              </button>
+              <Tooltip disabled={menuUsuarioAberto}>
+                <TooltipTrigger
+                  render={
+                    <button
+                      type="button"
+                      onClick={() => setMenuUsuarioAberto((v) => !v)}
+                      className="w-9 h-9 rounded-full bg-white/20 text-white border-2 border-white/30 font-bold text-sm flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:border-white/60"
+                      aria-label={`Perfil: ${usuario?.nome || 'Super Admin'}`}
+                    >
+                      <span>{primeiroNome[0]?.toUpperCase() || 'A'}</span>
+                    </button>
+                  }
+                />
+                <TooltipContent side="bottom" sideOffset={8}>
+                  <p className="text-xs font-semibold">{`Perfil: ${usuario?.nome || 'Super Admin'}`}</p>
+                </TooltipContent>
+              </Tooltip>
 
               {menuUsuarioAberto && (
                 <div className="absolute right-0 mt-2 w-56 bg-surface-card rounded-2xl shadow-xl border border-surface-border py-2 z-50 animate-fade-in text-sm">
@@ -347,7 +365,7 @@ const PaginaAdminPanel = () => {
         </TooltipProvider>
       </header>
 
-      {/* ─── Corpo: Sidebar Sempre Expandida + Seção Principal (Canvas com Canto Arredondado) ─── */}
+      {/* ─── Corpo: Sidebar Unificada ao Shell + Canvas de Conteúdo com Canto Arredondado ─── */}
       <div className="flex-1 flex items-stretch min-h-0 overflow-hidden">
         {/* Sidebar fixa w-64 */}
         <SidebarAdmin
@@ -357,9 +375,7 @@ const PaginaAdminPanel = () => {
 
         {/* 
           Canvas de Conteúdo Principal (Nível 1):
-          bg-surface garante que no modo claro ele seja #F2F6FA (fundo claro com contraste nítido),
-          e dark:bg-[#111928] garante um tom de superfície distinto do shell externo.
-          rounded-tl-3xl reproduz exatamente o corte característico do LayoutCliente.
+          bg-surface com rounded-tl-3xl encaixado no shell contínuo de ponta a ponta
         */}
         <main className="flex-1 bg-surface dark:bg-[#111928] rounded-tl-3xl border-t border-l border-white/20 dark:border-white/10 flex flex-col min-h-0 shadow-sm overflow-auto">
           <Suspense fallback={<TelaCarregandoAdmin />}>

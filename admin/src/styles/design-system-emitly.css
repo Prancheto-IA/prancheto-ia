@@ -1,0 +1,243 @@
+/* =============================================================
+   EMITLY DESIGN SYSTEM - ESTILOS E TOKENS CSS
+   Design System orgânico, clean e moderno para o Prancheto.IA
+   ============================================================= */
+
+:root {
+  /* --- Canvas & Surfaces --- */
+  --color-canvas:            #F2F5F3;
+  --color-canvas-subtle:     #EBF0ED;
+  --color-surface:           #FFFFFF;
+  --color-surface-secondary: #F7FAF8;
+  --color-surface-hover:     #EDF2EE;
+
+  /* --- Marca Primária (Verde Floresta Escuro) --- */
+  --color-primary:           #0E382C;
+  --color-primary-hover:     #07261E;
+  --color-primary-text:      #FFFFFF;
+
+  /* --- Item Ativo de Navegação (Verde Lima Suave) --- */
+  --color-nav-active-bg:     #D4EC9D;
+  --color-nav-active-text:   #132E22;
+
+  /* --- Badges Semânticos --- */
+  --color-badge-success-bg:   #DCF5E4;
+  --color-badge-success-text: #15803D;
+  --color-badge-danger-bg:    #FEE2E2;
+  --color-badge-danger-text:  #DC2626;
+  --color-badge-warning-bg:   #FEF3C7;
+  --color-badge-warning-text: #B45309;
+  --color-badge-dark-bg:      #0E382C;
+  --color-badge-dark-text:    #FFFFFF;
+
+  /* --- Destaques Pastel (Gráficos & Cards) --- */
+  --color-chart-coral:       #FF6C57;
+  --color-card-yellow-bg:    #FFF099;
+  --color-card-yellow-text:  #1E2922;
+  --color-card-pink-bg:      #FCE4F6;
+  --color-card-pink-text:    #1E2922;
+
+  /* --- Bordas & Tipografia --- */
+  --color-border:            #E4ECE7;
+  --color-border-subtle:     #EEF3F0;
+  --color-text-primary:      #111915;
+  --color-text-secondary:    #687770;
+  --color-text-tertiary:     #99A6A0;
+
+  /* --- Border Radii --- */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* --- Sombras --- */
+  --shadow-card:      0px 4px 20px -2px rgba(14, 56, 44, 0.04), 0px 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --shadow-highlight: 0px 8px 20px -4px rgba(255, 108, 87, 0.4);
+  --shadow-fab:       0px 8px 24px -2px rgba(14, 56, 44, 0.25);
+}
+
+/* =============================================================
+   CLASSES UTILITÁRIAS DE COMPONENTES EMITLY
+   ============================================================= */
+
+/* Moldura externa (App Canvas) */
+.emitly-canvas {
+  background-color: var(--color-canvas);
+  min-height: 100vh;
+  padding: 1.5rem;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  color: var(--color-text-primary);
+}
+
+/* Shell da aplicação */
+.emitly-app-shell {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* Cartão Padrão Emitly */
+.emitly-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem;
+}
+
+/* Botão Primário (Verde Floresta) */
+.emitly-btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+  border-radius: var(--radius-md);
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.emitly-btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.emitly-btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Item de Navegação Lateral - Ativo */
+.emitly-nav-item-active {
+  background-color: var(--color-nav-active-bg);
+  color: var(--color-nav-active-text);
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+/* Item de Navegação Lateral - Inativo */
+.emitly-nav-item {
+  color: var(--color-text-secondary);
+  border-radius: 14px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.emitly-nav-item:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+/* Badges de Tendência */
+.emitly-badge-success {
+  background-color: var(--color-badge-success-bg);
+  color: var(--color-badge-success-text);
+  border-radius: var(--radius-full);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.emitly-badge-danger {
+  background-color: var(--color-badge-danger-bg);
+  color: var(--color-badge-danger-text);
+  border-radius: var(--radius-full);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Campo de Busca Pill */
+.emitly-search-input {
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.emitly-search-input:focus {
+  border-color: var(--color-primary);
+}
+
+/* FAB de Chatbot Flutuante */
+.emitly-fab-chat {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-fab);
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  z-index: 50;
+}
+
+.emitly-fab-chat:hover {
+  transform: scale(1.05);
+  background-color: var(--color-primary-hover);
+}
+
+/* Card Amarelo do Agendamento */
+.emitly-card-yellow {
+  background-color: var(--color-card-yellow-bg);
+  color: var(--color-card-yellow-text);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+/* Card Rosa do Agendamento */
+.emitly-card-pink {
+  background-color: var(--color-card-pink-bg);
+  color: var(--color-card-pink-text);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+/* --- Padroes e Utilitarios de Login / Hero Visual (Stitch) --- */
+.hero-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+.donut-visual {
+  background: conic-gradient(#10b981 0% 55%, #f59e0b 55% 75%, #3b82f6 75% 100%);
+}
+
+.input-field:focus-within {
+  border-color: #0e382c;
+  box-shadow: 0 0 0 3px rgba(14, 56, 44, 0.12);
+}
+
+.shadow-modal {
+  box-shadow: 0 25px 60px -15px rgba(14, 56, 44, 0.18);
+}
+
+.shadow-floating-card {
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.35);
+}
+
