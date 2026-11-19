@@ -7,7 +7,7 @@
 // =============================================================
 
 import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
-import { Routes, Route, NavLink, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { Routes, Route, NavLink, useLocation, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
 import { useTema } from '../../hooks/useTema.js';
 import {
@@ -191,7 +191,6 @@ const PaginaAdminPanel = () => {
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
   const menuUsuarioRef = useRef(null);
 
-  const navigate = useNavigate();
   const { usuario, logout } = useAuthStore();
   const { temaEscuro, alternarTema } = useTema();
 

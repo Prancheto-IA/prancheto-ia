@@ -8,7 +8,6 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
-  LayoutGrid,
   Search,
   SlidersHorizontal,
   ArrowUpDown,
@@ -16,22 +15,13 @@ import {
   Shield,
   ShieldAlert,
   ShieldCheck,
-  CheckCircle2,
   AlertTriangle,
   Clock,
   X,
-  FileText,
-  Download,
   Copy,
   Check,
   User,
-  AlertOctagon,
-  ExternalLink,
-  Cpu,
   Database,
-  RefreshCw,
-  Eye,
-  Terminal,
   Activity,
   ChevronDown,
   Building2
@@ -796,10 +786,16 @@ export const LogsSeguranca = () => {
           <div className="w-9 h-9 rounded-xl bg-surface border border-surface-border flex items-center justify-center text-[#0455BF] flex-shrink-0 shadow-2xs">
             <Shield size={18} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex items-center gap-2">
             <h1 className="font-bold text-base sm:text-lg text-ink-primary truncate">
               Segurança e Auditoria
             </h1>
+            {carregandoDb && (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-medium border border-blue-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                <span className="hidden sm:inline">Sincronizando...</span>
+              </span>
+            )}
           </div>
         </div>
 

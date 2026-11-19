@@ -26,18 +26,13 @@ import {
   ChevronLeft,
   ChevronDown,
   Check,
-  Trash2,
   MessageSquare,
   ExternalLink,
   ChevronUp,
   X,
-  FileText,
-  User,
-  ShieldCheck,
   Send,
   CheckSquare2,
-  Square,
-  AlertTriangle
+  Square
 } from 'lucide-react';
 import { useSuporteAdmin } from '../../../hooks/useSuporte.js';
 import { useUIStore } from '../../../store/uiStore.js';
@@ -513,7 +508,7 @@ const BadgeStatusTicket = ({ status }) => {
 // COMPONENTE PRINCIPAL: PÁGINA TICKETS
 // =============================================================
 export const PaginaTicketsRecebidos = () => {
-  const { tickets: ticketsDb, carregando, atualizarTicket } = useSuporteAdmin();
+  const { tickets: ticketsDb, atualizarTicket } = useSuporteAdmin();
   const dispararToast = useUIStore((s) => s.dispararToast);
 
   // Lista local combinada: mock inicial + tickets reais do Supabase
