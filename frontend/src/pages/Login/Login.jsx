@@ -67,8 +67,7 @@ const PaginaLogin = () => {
   // Redirecionamento automático se já estiver autenticado
   useEffect(() => {
     if (token && usuario) {
-      const destino = usuario.isSuperAdmin ? '/admin' : '/dashboard';
-      navigate(destino, { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [token, usuario, navigate]);
 

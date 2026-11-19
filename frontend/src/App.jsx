@@ -22,7 +22,6 @@ import { Alert02Icon } from '@hugeicons/core-free-icons';
 const PaginaLogin            = lazy(() => import('./pages/Login/Login.jsx'));
 const PaginaCRMHub           = lazy(() => import('./pages/CRM/CRMHub.jsx'));
 const PaginaSuporteHub       = lazy(() => import('./pages/Suporte/SuporteHub.jsx'));
-const PaginaAdminPanel       = lazy(() => import('./pages/AdminPanel/AdminPanel.jsx'));
 
 // Layout do cliente (Sidebar)
 const LayoutCliente          = lazy(() => import('./pages/DashboardCliente/LayoutCliente.jsx'));
@@ -51,28 +50,15 @@ const PaginaAutomacoes       = lazy(() => import('./pages/Automacoes/Automacoes.
 // =============================================================
 const rotaParaUsuario = (usuario) => {
   if (!usuario) return '/login';
-  if (usuario.isSuperAdmin) return '/admin';
   return '/dashboard';
 };
 
 // =============================================================
-// ROTA SUPER ADMIN: apenas super_admin pode acessar
-// =============================================================
-const RotaSuperAdmin = ({ children }) => {
-  const { token, usuario } = useAuthStore();
-  if (!token) return <Navigate to="/login" replace />;
-  if (!usuario?.isSuperAdmin) return <Navigate to="/dashboard" replace />;
-  return children;
-};
-
-// =============================================================
-// ROTA CLIENTE: apenas usuários com tenant (não super_admin)
+// ROTA CLIENTE: apenas usuários logados no portal do cliente
 // =============================================================
 const RotaCliente = ({ children }) => {
-  const { token, usuario } = useAuthStore();
+  const { token } = useAuthStore();
   if (!token) return <Navigate to="/login" replace />;
-  // Super Admin não acessa o dashboard de cliente
-  if (usuario?.isSuperAdmin) return <Navigate to="/admin" replace />;
   return children;
 };
 
@@ -344,18 +330,6 @@ const App = () => {
             <Route path="/modulos/tarefas"         element={<Navigate to="/tarefas" replace />} />
             <Route path="/modulos/chat"            element={<Navigate to="/chat" replace />} />
             <Route path="/modulos/times-pessoas"   element={<Navigate to="/times-pessoas" replace />} />
-
-            {/* ============================================================
-                SUPER ADMIN: Painel Administrativo (invisível para clientes)
-            ============================================================ */}
-            <Route
-              path="/admin/*"
-              element={
-                <RotaSuperAdmin>
-                  <PaginaAdminPanel />
-                </RotaSuperAdmin>
-              }
-            />
 
             {/* --- RAIZ: redireciona baseado no cargo do usuário logado --- */}
             <Route

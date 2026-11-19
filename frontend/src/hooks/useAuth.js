@@ -13,8 +13,7 @@ import { useTenantStore } from '../store/tenantStore.js';
 import { supabase } from '../lib/supabase.js';
 import { useTema } from './useTema.js';
 
-const rotaDestino = (usuario) => {
-  if (usuario?.cargo === 'super_admin') return '/admin';
+const rotaDestino = () => {
   return '/dashboard';
 };
 
