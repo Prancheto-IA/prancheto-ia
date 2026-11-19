@@ -594,6 +594,8 @@ export const LogsSeguranca = () => {
   const [dropdownSortAberto, setDropdownSortAberto] = useState(false);
   const [dropdownEmpresaAberto, setDropdownEmpresaAberto] = useState(false);
   const [dropdownUsuarioAberto, setDropdownUsuarioAberto] = useState(false);
+  const [buscaEmpresa, setBuscaEmpresa] = useState('');
+  const [buscaUsuario, setBuscaUsuario] = useState('');
 
   // Drawer lateral de detalhes (View Details)
   const [registroSelecionado, setRegistroSelecionado] = useState(null);
@@ -622,6 +624,21 @@ export const LogsSeguranca = () => {
     });
     return Array.from(map.entries()).map(([email, nome]) => ({ email, nome }));
   }, [listaAgentes]);
+
+  // Listas filtradas pela busca interna de cada dropdown
+  const listaEmpresasFiltradas = useMemo(() => {
+    if (!buscaEmpresa.trim()) return listaEmpresas;
+    const termo = buscaEmpresa.toLowerCase();
+    return listaEmpresas.filter((emp) => emp.toLowerCase().includes(termo));
+  }, [listaEmpresas, buscaEmpresa]);
+
+  const listaUsuariosFiltrados = useMemo(() => {
+    if (!buscaUsuario.trim()) return listaUsuarios;
+    const termo = buscaUsuario.toLowerCase();
+    return listaUsuarios.filter(
+      (u) => u.nome.toLowerCase().includes(termo) || u.email.toLowerCase().includes(termo)
+    );
+  }, [listaUsuarios, buscaUsuario]);
 
   // Sincroniza logs reais de audit_logs do Supabase se existirem
   const carregarLogsDb = useCallback(async () => {
@@ -838,14 +855,15 @@ export const LogsSeguranca = () => {
             </button>
 
             {dropdownEmpresaAberto && (
-              <div className="absolute right-0 mt-2 w-64 bg-surface-card border border-surface-border rounded-2xl shadow-xl p-2 z-50 text-xs animate-fade-in space-y-1">
-                <div className="flex items-center justify-between pb-1.5 border-b border-surface-border px-1.5">
+              <div className="absolute right-0 mt-2 w-72 bg-surface-card border border-surface-border rounded-2xl shadow-xl p-2.5 z-50 text-xs animate-fade-in space-y-2">
+                <div className="flex items-center justify-between pb-1.5 border-b border-surface-border px-1">
                   <span className="font-bold text-ink-primary">Filtrar por Empresa</span>
                   {filtroEmpresa !== 'all' && (
                     <button
                       type="button"
                       onClick={() => {
                         setFiltroEmpresa('all');
+                        setBuscaEmpresa('');
                         setDropdownEmpresaAberto(false);
                       }}
                       className="text-[11px] text-[#0455BF] hover:underline font-semibold cursor-pointer"
@@ -854,40 +872,75 @@ export const LogsSeguranca = () => {
                     </button>
                   )}
                 </div>
-                <div className="max-h-56 overflow-y-auto space-y-0.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFiltroEmpresa('all');
-                      setDropdownEmpresaAberto(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
-                      filtroEmpresa === 'all'
-                        ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
-                        : 'hover:bg-surface text-ink-primary'
-                    }`}
-                  >
-                    <span>Todas as Empresas</span>
-                    {filtroEmpresa === 'all' && <Check size={14} />}
-                  </button>
-                  {listaEmpresas.map((emp) => (
+
+                {/* Barra de Pesquisa dentro do menu Empresa */}
+                <div className="relative">
+                  <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted pointer-events-none" />
+                  <input
+                    type="text"
+                    value={buscaEmpresa}
+                    onChange={(e) => setBuscaEmpresa(e.target.value)}
+                    placeholder="Pesquisar empresa..."
+                    className="w-full h-8 pl-8 pr-7 text-xs rounded-xl bg-surface-subtle dark:bg-white/5 border border-surface-border text-ink-primary placeholder:text-ink-muted focus:outline-none focus:ring-1 focus:ring-[#0455BF] transition-all"
+                    autoFocus
+                  />
+                  {buscaEmpresa && (
                     <button
-                      key={emp}
+                      type="button"
+                      onClick={() => setBuscaEmpresa('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-primary cursor-pointer"
+                      title="Limpar pesquisa"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="max-h-56 overflow-y-auto space-y-0.5">
+                  {!buscaEmpresa && (
+                    <button
                       type="button"
                       onClick={() => {
-                        setFiltroEmpresa(emp);
+                        setFiltroEmpresa('all');
+                        setBuscaEmpresa('');
                         setDropdownEmpresaAberto(false);
                       }}
                       className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
-                        filtroEmpresa === emp
+                        filtroEmpresa === 'all'
                           ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
                           : 'hover:bg-surface text-ink-primary'
                       }`}
                     >
-                      <span className="truncate">{emp}</span>
-                      {filtroEmpresa === emp && <Check size={14} />}
+                      <span>Todas as Empresas</span>
+                      {filtroEmpresa === 'all' && <Check size={14} />}
                     </button>
-                  ))}
+                  )}
+
+                  {listaEmpresasFiltradas.length === 0 ? (
+                    <div className="py-4 text-center text-ink-muted text-xs">
+                      Nenhuma empresa encontrada
+                    </div>
+                  ) : (
+                    listaEmpresasFiltradas.map((emp) => (
+                      <button
+                        key={emp}
+                        type="button"
+                        onClick={() => {
+                          setFiltroEmpresa(emp);
+                          setBuscaEmpresa('');
+                          setDropdownEmpresaAberto(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
+                          filtroEmpresa === emp
+                            ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
+                            : 'hover:bg-surface text-ink-primary'
+                        }`}
+                      >
+                        <span className="truncate">{emp}</span>
+                        {filtroEmpresa === emp && <Check size={14} />}
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
             )}
@@ -920,14 +973,15 @@ export const LogsSeguranca = () => {
             </button>
 
             {dropdownUsuarioAberto && (
-              <div className="absolute right-0 mt-2 w-72 bg-surface-card border border-surface-border rounded-2xl shadow-xl p-2 z-50 text-xs animate-fade-in space-y-1">
-                <div className="flex items-center justify-between pb-1.5 border-b border-surface-border px-1.5">
+              <div className="absolute right-0 mt-2 w-80 bg-surface-card border border-surface-border rounded-2xl shadow-xl p-2.5 z-50 text-xs animate-fade-in space-y-2">
+                <div className="flex items-center justify-between pb-1.5 border-b border-surface-border px-1">
                   <span className="font-bold text-ink-primary">Filtrar por Usuário</span>
                   {filtroUsuario !== 'all' && (
                     <button
                       type="button"
                       onClick={() => {
                         setFiltroUsuario('all');
+                        setBuscaUsuario('');
                         setDropdownUsuarioAberto(false);
                       }}
                       className="text-[11px] text-[#0455BF] hover:underline font-semibold cursor-pointer"
@@ -936,43 +990,78 @@ export const LogsSeguranca = () => {
                     </button>
                   )}
                 </div>
-                <div className="max-h-56 overflow-y-auto space-y-0.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFiltroUsuario('all');
-                      setDropdownUsuarioAberto(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
-                      filtroUsuario === 'all'
-                        ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
-                        : 'hover:bg-surface text-ink-primary'
-                    }`}
-                  >
-                    <span>Todos os Usuários</span>
-                    {filtroUsuario === 'all' && <Check size={14} />}
-                  </button>
-                  {listaUsuarios.map((usr) => (
+
+                {/* Barra de Pesquisa dentro do menu Usuário */}
+                <div className="relative">
+                  <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted pointer-events-none" />
+                  <input
+                    type="text"
+                    value={buscaUsuario}
+                    onChange={(e) => setBuscaUsuario(e.target.value)}
+                    placeholder="Pesquisar por nome ou e-mail..."
+                    className="w-full h-8 pl-8 pr-7 text-xs rounded-xl bg-surface-subtle dark:bg-white/5 border border-surface-border text-ink-primary placeholder:text-ink-muted focus:outline-none focus:ring-1 focus:ring-[#0455BF] transition-all"
+                    autoFocus
+                  />
+                  {buscaUsuario && (
                     <button
-                      key={usr.email}
+                      type="button"
+                      onClick={() => setBuscaUsuario('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-primary cursor-pointer"
+                      title="Limpar pesquisa"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="max-h-56 overflow-y-auto space-y-0.5">
+                  {!buscaUsuario && (
+                    <button
                       type="button"
                       onClick={() => {
-                        setFiltroUsuario(usr.email);
+                        setFiltroUsuario('all');
+                        setBuscaUsuario('');
                         setDropdownUsuarioAberto(false);
                       }}
                       className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
-                        filtroUsuario === usr.email
+                        filtroUsuario === 'all'
                           ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
                           : 'hover:bg-surface text-ink-primary'
                       }`}
                     >
-                      <div className="min-w-0 pr-2">
-                        <span className="font-medium block truncate text-ink-primary">{usr.nome}</span>
-                        <span className="text-[11px] text-ink-muted block truncate">{usr.email}</span>
-                      </div>
-                      {filtroUsuario === usr.email && <Check size={14} className="flex-shrink-0" />}
+                      <span>Todos os Usuários</span>
+                      {filtroUsuario === 'all' && <Check size={14} />}
                     </button>
-                  ))}
+                  )}
+
+                  {listaUsuariosFiltrados.length === 0 ? (
+                    <div className="py-4 text-center text-ink-muted text-xs">
+                      Nenhum usuário encontrado
+                    </div>
+                  ) : (
+                    listaUsuariosFiltrados.map((usr) => (
+                      <button
+                        key={usr.email}
+                        type="button"
+                        onClick={() => {
+                          setFiltroUsuario(usr.email);
+                          setBuscaUsuario('');
+                          setDropdownUsuarioAberto(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
+                          filtroUsuario === usr.email
+                            ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
+                            : 'hover:bg-surface text-ink-primary'
+                        }`}
+                      >
+                        <div className="min-w-0 pr-2">
+                          <span className="font-medium block truncate text-ink-primary">{usr.nome}</span>
+                          <span className="text-[11px] text-ink-muted block truncate">{usr.email}</span>
+                        </div>
+                        {filtroUsuario === usr.email && <Check size={14} className="flex-shrink-0" />}
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
             )}
