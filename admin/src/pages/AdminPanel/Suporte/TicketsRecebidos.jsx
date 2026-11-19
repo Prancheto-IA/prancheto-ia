@@ -1,8 +1,8 @@
 // =============================================================
 // PRANCHETO.IA - PAINEL ADMIN / TICKETS RECEBIDOS
 // Layout moderno em 3 colunas (Filtros / Tabela / Detalhes IA)
-// Baseado no design de alta produtividade com suporte nativo a tema
-// claro e escuro, integrado à API de suporte do Prancheto.IA.
+// Totalmente traduzido para o Português (pt-BR) e integrado ao
+// Design System do Prancheto.IA com suporte a tema claro e escuro.
 // =============================================================
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -42,15 +42,15 @@ import {
 import { useSuporteAdmin } from '../../../hooks/useSuporte.js';
 import { useUIStore } from '../../../store/uiStore.js';
 
-// ─── DADOS INICIAIS (ALTA FIDELIDADE AO LAYOUT) ───────────────
+// ─── DADOS INICIAIS (ALTA FIDELIDADE AO LAYOUT EM PORTUGUÊS) ──
 const TICKETS_MOCK = [
   {
     id: 'AV-981',
     code: 'AV-981',
-    title: 'Payment charged twice',
-    category: 'Billing',
-    status: 'Open',
-    priority: 'Urgent',
+    title: 'Cobrança duplicada no cartão',
+    category: 'Financeiro',
+    status: 'Aberto',
+    priority: 'Urgente',
     issuedBy: {
       name: 'Brenda Kim',
       email: 'brendakim@gmail.com',
@@ -58,458 +58,459 @@ const TICKETS_MOCK = [
       verified: true,
     },
     aiSummary: {
-      title: 'Payment charged twice',
-      description: 'Customer was charged twice for the same transaction on their credit card.',
+      title: 'Cobrança duplicada na mesma transação',
+      description: 'O cliente foi tarifado duas vezes pela mesma assinatura na fatura do cartão de crédito.',
       confidence: 92,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Verify the duplicate transaction in system.', done: true },
-        { text: 'Check if both charges were processed successfully', done: false },
-        { text: 'Initiate refund for the duplicate charge', done: false },
-        { text: 'Send confirmation email with refund timeline', done: false },
+        { text: 'Verificar a transação duplicada no gateway de pagamento.', done: true },
+        { text: 'Confirmar se ambos os débitos foram compensados com sucesso', done: false },
+        { text: 'Iniciar estorno imediato do valor cobrado em duplicidade', done: false },
+        { text: 'Enviar e-mail de confirmação com comprovante do estorno', done: false },
       ],
       kbReferences: [
-        { code: 'KB-3041', title: 'Duplicate Payment Handling' },
-        { code: 'KB-1872', title: 'Refund Process' },
+        { code: 'KB-3041', title: 'Tratamento de Cobranças Duplicadas' },
+        { code: 'KB-1872', title: 'Processo de Reembolso e Estorno' },
       ],
     },
     timeline: [
-      { id: 1, title: 'Assigned to John Doe', time: 'Today, 10:45 AM', type: 'assign' },
-      { id: 2, title: 'AI generated summary and resolution', time: 'Today, 10:32 AM', type: 'ai' },
-      { id: 3, title: 'Ticket created by Brenda Kim', time: 'Today, 10:30 AM', type: 'create' },
+      { id: 1, title: 'Atribuído a João Silva', time: 'Hoje, 10:45', type: 'assign' },
+      { id: 2, title: 'Resumo e resolução gerados por IA', time: 'Hoje, 10:32', type: 'ai' },
+      { id: 3, title: 'Chamado aberto por Brenda Kim', time: 'Hoje, 10:30', type: 'create' },
     ],
   },
   {
     id: 'AV-982',
     code: 'AV-982',
-    title: 'Unable to reset password',
-    category: 'Account & Login',
-    status: 'Pending',
-    priority: 'High',
+    title: 'Não consigo redefinir minha senha',
+    category: 'Conta & Login',
+    status: 'Pendente',
+    priority: 'Alta',
     issuedBy: {
       name: 'Lucas Silva',
       email: 'lucas.silva@empresa.com',
       verified: true,
     },
     aiSummary: {
-      title: 'Password reset token expired',
-      description: 'User requested password reset link 3 times without receiving valid token email.',
+      title: 'Token de recuperação de senha expirado',
+      description: 'O usuário solicitou o link de redefinição 3 vezes sem conseguir concluir o acesso.',
       confidence: 88,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Check SMTP delivery logs for user email domain.', done: true },
-        { text: 'Verify whether user account is locked due to attempts.', done: false },
-        { text: 'Generate temporary single-use access link.', done: false },
+        { text: 'Verificar logs de entrega de e-mail SMTP para o domínio.', done: true },
+        { text: 'Confirmar se a conta não está bloqueada por excesso de tentativas', done: false },
+        { text: 'Gerar link temporário de acesso seguro de uso único', done: false },
       ],
       kbReferences: [
-        { code: 'KB-1102', title: 'Password Reset Troubleshooting' },
+        { code: 'KB-1102', title: 'Solução de Problemas em Recuperação de Senha' },
       ],
     },
     timeline: [
-      { id: 1, title: 'AI generated summary and resolution', time: 'Today, 09:15 AM', type: 'ai' },
-      { id: 2, title: 'Ticket created by Lucas Silva', time: 'Today, 09:12 AM', type: 'create' },
+      { id: 1, title: 'Resumo e resolução gerados por IA', time: 'Hoje, 09:15', type: 'ai' },
+      { id: 2, title: 'Chamado aberto por Lucas Silva', time: 'Hoje, 09:12', type: 'create' },
     ],
   },
   {
     id: 'AV-983',
     code: 'AV-983',
-    title: 'App crashes on checkout',
-    category: 'Technical Issue',
-    status: 'Escalated',
-    priority: 'Urgent',
+    title: 'Erro no fechamento do pedido (Checkout)',
+    category: 'Problema Técnico',
+    status: 'Escalado',
+    priority: 'Urgente',
     issuedBy: {
       name: 'Carla Mendez',
       email: 'carla@acme.com',
       verified: true,
     },
     aiSummary: {
-      title: 'Uncaught TypeError in Stripe intent',
-      description: 'Checkout modal throws unhandled exception when expiration month is formatted as single digit.',
+      title: 'Exceção não tratada na intent de pagamento',
+      description: 'O modal de checkout trava quando o mês de expiração do cartão é informado com dígito único.',
       confidence: 96,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Inspect client error logs on Sentry #8492.', done: true },
-        { text: 'Forward to engineering team with high priority flag.', done: true },
-        { text: 'Notify customer about temporary workaround.', done: false },
+        { text: 'Inspecionar logs de erro do cliente no Sentry #8492.', done: true },
+        { text: 'Encaminhar chamado para a equipe de engenharia com prioridade crítica', done: true },
+        { text: 'Notificar o cliente sobre a solução paliativa disponível', done: false },
       ],
       kbReferences: [
-        { code: 'KB-4029', title: 'Checkout Error Codes & Workarounds' },
+        { code: 'KB-4029', title: 'Códigos de Erro no Checkout e Correções' },
       ],
     },
     timeline: [
-      { id: 1, title: 'Escalated to Engineering by Support Bot', time: 'Today, 08:50 AM', type: 'assign' },
-      { id: 2, title: 'AI detected crash pattern in frontend', time: 'Today, 08:45 AM', type: 'ai' },
-      { id: 3, title: 'Ticket created by Carla Mendez', time: 'Today, 08:40 AM', type: 'create' },
+      { id: 1, title: 'Escalado para Engenharia pelo Bot de Suporte', time: 'Hoje, 08:50', type: 'assign' },
+      { id: 2, title: 'IA detectou padrão de falha no frontend', time: 'Hoje, 08:45', type: 'ai' },
+      { id: 3, title: 'Chamado aberto por Carla Mendez', time: 'Hoje, 08:40', type: 'create' },
     ],
   },
   {
     id: 'AV-984',
     code: 'AV-984',
-    title: 'Invoice not downloadable',
-    category: 'Billing',
-    status: 'Resolved',
-    priority: 'Medium',
+    title: 'Não é possível baixar a fatura em PDF',
+    category: 'Financeiro',
+    status: 'Resolvido',
+    priority: 'Média',
     issuedBy: {
       name: 'Marcos Lima',
       email: 'marcos@techcorp.com',
       verified: false,
     },
     aiSummary: {
-      title: 'PDF generation timeout',
-      description: 'PDF render service timed out on month-end invoice calculation.',
+      title: 'Tempo limite na renderização do PDF',
+      description: 'O serviço de renderização excedeu o timeout no fechamento contábil mensal.',
       confidence: 85,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Regenerate PDF invoice manually.', done: true },
-        { text: 'Send direct attachment link to customer.', done: true },
+        { text: 'Regenerar arquivo PDF da fatura manualmente.', done: true },
+        { text: 'Enviar link direto para o cliente com link seguro', done: true },
       ],
       kbReferences: [
-        { code: 'KB-2015', title: 'Invoice Export & PDF Regeneration' },
+        { code: 'KB-2015', title: 'Exportação de Faturas e Regeneração de PDF' },
       ],
     },
     timeline: [
-      { id: 1, title: 'Marked as resolved by Agent Pedro', time: 'Yesterday, 04:20 PM', type: 'assign' },
-      { id: 2, title: 'Ticket created by Marcos Lima', time: 'Yesterday, 03:50 PM', type: 'create' },
+      { id: 1, title: 'Marcado como resolvido por Pedro Costa', time: 'Ontem, 16:20', type: 'assign' },
+      { id: 2, title: 'Chamado aberto por Marcos Lima', time: 'Ontem, 15:50', type: 'create' },
     ],
   },
   {
     id: 'AV-985',
     code: 'AV-985',
-    title: 'Subscription auto-renewed without notice',
-    category: 'Subscription',
-    status: 'Open',
-    priority: 'High',
+    title: 'Assinatura renovada automaticamente',
+    category: 'Assinaturas & Planos',
+    status: 'Aberto',
+    priority: 'Alta',
     issuedBy: {
       name: 'Juliana Castro',
       email: 'juli@startup.io',
       verified: true,
     },
     aiSummary: {
-      title: 'Annual plan automatic renewal query',
-      description: 'Customer inquired about renewal reminder email sent 7 days prior.',
+      title: 'Dúvida sobre renovação do plano anual',
+      description: 'Cliente solicitou esclarecimentos sobre o e-mail de aviso prévio enviado 7 dias antes.',
       confidence: 91,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Confirm renewal email log in SendGrid.', done: true },
-        { text: 'Offer subscription renewal discount or cancellation option.', done: false },
+        { text: 'Confirmar envio e entrega do e-mail de aviso prévio.', done: true },
+        { text: 'Apresentar cupom com desconto de retenção ou opção de cancelamento', done: false },
       ],
       kbReferences: [
-        { code: 'KB-1490', title: 'Subscription Policy & Retention Offers' },
+        { code: 'KB-1490', title: 'Política de Assinaturas e Ofertas de Retenção' },
       ],
     },
     timeline: [
-      { id: 1, title: 'AI classified as Retention priority', time: 'Yesterday, 02:15 PM', type: 'ai' },
-      { id: 2, title: 'Ticket created by Juliana Castro', time: 'Yesterday, 02:10 PM', type: 'create' },
+      { id: 1, title: 'IA classificou como prioridade de Retenção', time: 'Ontem, 14:15', type: 'ai' },
+      { id: 2, title: 'Chamado aberto por Juliana Castro', time: 'Ontem, 14:10', type: 'create' },
     ],
   },
   {
     id: 'AV-986',
     code: 'AV-986',
-    title: 'Email verification link expired',
-    category: 'Account & Login',
-    status: 'Pending',
-    priority: 'Urgent',
+    title: 'Link de verificação de e-mail expirou',
+    category: 'Conta & Login',
+    status: 'Pendente',
+    priority: 'Urgente',
     issuedBy: {
       name: 'Roberto Faria',
       email: 'rfaria@dominio.com',
       verified: false,
     },
     aiSummary: {
-      title: 'Magic link expiration window too short',
-      description: 'Security policy expired magic link after 15 minutes before user opened inbox.',
+      title: 'Janela de expiração do link muito curta',
+      description: 'A política de segurança expirou o link em 15 minutos antes da confirmação pelo usuário.',
       confidence: 89,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Resend fresh verification link with extended TTL.', done: false },
+        { text: 'Reenviar link de verificação atualizado com prazo estendido.', done: false },
       ],
       kbReferences: [
-        { code: 'KB-1102', title: 'Magic Link Expiration Troubleshooting' },
+        { code: 'KB-1102', title: 'Configurações de Validade do Link Mágico' },
       ],
     },
     timeline: [
-      { id: 1, title: 'Ticket created by Roberto Faria', time: 'Yesterday, 11:30 AM', type: 'create' },
+      { id: 1, title: 'Chamado aberto por Roberto Faria', time: 'Ontem, 11:30', type: 'create' },
     ],
   },
   {
     id: 'AV-987',
     code: 'AV-987',
-    title: 'Slow loading dashboard',
-    category: 'Technical Issue',
-    status: 'Open',
-    priority: 'High',
+    title: 'Lentidão ao carregar painel de controle',
+    category: 'Problema Técnico',
+    status: 'Aberto',
+    priority: 'Alta',
     issuedBy: {
       name: 'Vanessa Rios',
       email: 'vanessa@logistica.com',
       verified: true,
     },
     aiSummary: {
-      title: 'Database query latency on large dataset',
-      description: 'Tenant with >50,000 records reporting 4.2s latency on dashboard widget.',
+      title: 'Latência em consulta SQL com grande volume de dados',
+      description: 'Organização com mais de 50.000 registros registrou 4.2s de resposta nos widgets.',
       confidence: 94,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Verify Redis cache hit ratio for tenant #492.', done: true },
-        { text: 'Apply query optimization index on created_at column.', done: false },
+        { text: 'Verificar taxa de acerto do cache Redis para a empresa.', done: true },
+        { text: 'Aplicar índice otimizado na coluna de data de criação', done: false },
       ],
       kbReferences: [
-        { code: 'KB-5011', title: 'Database Indexing & Query Tuning' },
+        { code: 'KB-5011', title: 'Otimização de Índices e Desempenho de Consultas' },
       ],
     },
     timeline: [
-      { id: 1, title: 'Assigned to Database Team', time: 'Yesterday, 10:00 AM', type: 'assign' },
-      { id: 2, title: 'Ticket created by Vanessa Rios', time: 'Yesterday, 09:40 AM', type: 'create' },
+      { id: 1, title: 'Atribuído à Equipe de Banco de Dados', time: 'Ontem, 10:00', type: 'assign' },
+      { id: 2, title: 'Chamado aberto por Vanessa Rios', time: 'Ontem, 09:40', type: 'create' },
     ],
   },
   {
     id: 'AV-988',
     code: 'AV-988',
-    title: 'Refund request for last month',
-    category: 'Billing',
-    status: 'Pending',
-    priority: 'Low',
+    title: 'Solicitação de reembolso do mês anterior',
+    category: 'Financeiro',
+    status: 'Pendente',
+    priority: 'Baixa',
     issuedBy: {
       name: 'Diego Martins',
       email: 'diego@varejo.com',
       verified: true,
     },
     aiSummary: {
-      title: 'Pro-rated refund calculation',
-      description: 'Customer downgraded plan on 15th and requested refund for remaining period.',
+      title: 'Cálculo de reembolso proporcional',
+      description: 'Cliente realizou downgrade no dia 15 e solicitou compensação do período restante.',
       confidence: 90,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Review subscription change date.', done: true },
-        { text: 'Calculate pro-rated credit balance.', done: false },
+        { text: 'Conferir data exata da alteração de plano.', done: true },
+        { text: 'Calcular crédito proporcional para a próxima fatura', done: false },
       ],
       kbReferences: [
-        { code: 'KB-1872', title: 'Refund Process' },
+        { code: 'KB-1872', title: 'Processo de Reembolso e Estorno' },
       ],
     },
     timeline: [
-      { id: 1, title: 'Ticket created by Diego Martins', time: 'Yesterday, 08:20 AM', type: 'create' },
+      { id: 1, title: 'Chamado aberto por Diego Martins', time: 'Ontem, 08:20', type: 'create' },
     ],
   },
   {
     id: 'AV-989',
     code: 'AV-989',
-    title: 'Cannot change payment method',
-    category: 'Subscription',
-    status: 'Open',
-    priority: 'Low',
+    title: 'Não consigo alterar a forma de pagamento',
+    category: 'Assinaturas & Planos',
+    status: 'Aberto',
+    priority: 'Baixa',
     issuedBy: {
       name: 'Aline Souza',
       email: 'aline@design.co',
       verified: true,
     },
     aiSummary: {
-      title: '3DS authentication challenge failing',
-      description: 'Customer bank rejected credit card authorization for recurring setup.',
+      title: 'Falha na validação 3D Secure do banco',
+      description: 'O banco emissor recusou a autorização de teste para cadastramento do novo cartão.',
       confidence: 87,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Instruct customer to authorize card with issuing bank.', done: false },
+        { text: 'Orientar o cliente a autorizar a transação no app do banco.', done: false },
       ],
       kbReferences: [
-        { code: 'KB-3041', title: 'Payment Methods & 3D Secure' },
+        { code: 'KB-3041', title: 'Métodos de Pagamento e Autenticação 3DS' },
       ],
     },
     timeline: [
-      { id: 1, title: 'Ticket created by Aline Souza', time: '2 days ago', type: 'create' },
+      { id: 1, title: 'Chamado aberto por Aline Souza', time: 'Há 2 dias', type: 'create' },
     ],
   },
   {
     id: 'AV-990',
     code: 'AV-990',
-    title: 'Error 500 when exporting data',
-    category: 'Technical Issue',
-    status: 'Escalated',
-    priority: 'High',
+    title: 'Erro 500 ao exportar relatório em lote',
+    category: 'Problema Técnico',
+    status: 'Escalado',
+    priority: 'Alta',
     issuedBy: {
       name: 'Felipe Costa',
       email: 'felipe@consultoria.br',
       verified: true,
     },
     aiSummary: {
-      title: 'CSV export worker memory limit exceeded',
-      description: 'Worker container OOM killed when generating 200MB report export.',
+      title: 'Limite de memória excedido no worker de exportação',
+      description: 'O container atingiu o limite de memória ao gerar arquivo de exportação superior a 200MB.',
       confidence: 97,
     },
     suggestedResolution: {
       steps: [
-        { text: 'Stream CSV generation in chunks rather than in-memory array.', done: true },
-        { text: 'Re-trigger export job with chunked processor.', done: false },
+        { text: 'Configurar processamento em streaming para exportações pesadas.', done: true },
+        { text: 'Reiniciar fila de exportação com processador em chunks', done: false },
       ],
       kbReferences: [
-        { code: 'KB-4029', title: 'Export Job Limits & Stream Downloads' },
+        { code: 'KB-4029', title: 'Limites de Exportação e Download em Lote' },
       ],
     },
     timeline: [
-      { id: 1, title: 'Assigned to Worker Infrastructure', time: '2 days ago', type: 'assign' },
-      { id: 2, title: 'Ticket created by Felipe Costa', time: '2 days ago', type: 'create' },
+      { id: 1, title: 'Atribuído à Infraestrutura de Workers', time: 'Há 2 dias', type: 'assign' },
+      { id: 2, title: 'Chamado aberto por Felipe Costa', time: 'Há 2 dias', type: 'create' },
     ],
   },
   {
     id: 'AV-991',
     code: 'AV-991',
-    title: 'Subscription auto-renewed...',
-    category: 'Subscription',
-    status: 'Resolved',
-    priority: 'Urgent',
+    title: 'Assinatura renovada automaticamente...',
+    category: 'Assinaturas & Planos',
+    status: 'Resolvido',
+    priority: 'Urgente',
     issuedBy: { name: 'Renato Melo', email: 'renato@empresa.com', verified: true },
-    aiSummary: { title: 'Resolved renewal query', description: 'Customer accepted retention coupon.', confidence: 90 },
-    suggestedResolution: { steps: [{ text: 'Applied 20% discount coupon', done: true }], kbReferences: [] },
-    timeline: [{ id: 1, title: 'Ticket resolved', time: '3 days ago', type: 'assign' }],
+    aiSummary: { title: 'Renovação resolvida', description: 'Cliente aceitou cupom especial de retenção.', confidence: 90 },
+    suggestedResolution: { steps: [{ text: 'Aplicado desconto de 20% no plano', done: true }], kbReferences: [] },
+    timeline: [{ id: 1, title: 'Chamado resolvido', time: 'Há 3 dias', type: 'assign' }],
   },
   {
     id: 'AV-992',
     code: 'AV-992',
-    title: 'App crashes on checkout',
-    category: 'Technical Issue',
-    status: 'Resolved',
-    priority: 'High',
+    title: 'Erro no checkout corrigido na v1.4.2',
+    category: 'Problema Técnico',
+    status: 'Resolvido',
+    priority: 'Alta',
     issuedBy: { name: 'Patricia Dias', email: 'patricia@loja.com', verified: true },
-    aiSummary: { title: 'Bug fixed in hotfix 1.4.2', description: 'Patched validation rule.', confidence: 95 },
-    suggestedResolution: { steps: [{ text: 'Verified deploy on production', done: true }], kbReferences: [] },
-    timeline: [{ id: 1, title: 'Ticket resolved', time: '3 days ago', type: 'assign' }],
+    aiSummary: { title: 'Falha corrigida no hotfix', description: 'Regra de validação atualizada em produção.', confidence: 95 },
+    suggestedResolution: { steps: [{ text: 'Deploy validado no ambiente produtivo', done: true }], kbReferences: [] },
+    timeline: [{ id: 1, title: 'Chamado resolvido', time: 'Há 3 dias', type: 'assign' }],
   },
   {
     id: 'AV-993',
     code: 'AV-993',
-    title: 'Payment charged twice',
-    category: 'Billing',
-    status: 'Resolved',
-    priority: 'Low',
+    title: 'Estorno de cobrança duplicada efetuado',
+    category: 'Financeiro',
+    status: 'Resolvido',
+    priority: 'Baixa',
     issuedBy: { name: 'Gustavo Paiva', email: 'gustavo@startup.com', verified: true },
-    aiSummary: { title: 'Refund completed', description: 'Charge refund approved by gateway.', confidence: 98 },
-    suggestedResolution: { steps: [{ text: 'Refund confirmation receipt sent', done: true }], kbReferences: [] },
-    timeline: [{ id: 1, title: 'Ticket resolved', time: '3 days ago', type: 'assign' }],
+    aiSummary: { title: 'Estorno concluído', description: 'Devolução autorizada e comprovante enviado.', confidence: 98 },
+    suggestedResolution: { steps: [{ text: 'Comprovante do estorno enviado ao cliente', done: true }], kbReferences: [] },
+    timeline: [{ id: 1, title: 'Chamado resolvido', time: 'Há 3 dias', type: 'assign' }],
   },
   {
     id: 'AV-994',
     code: 'AV-994',
-    title: 'Error 500 when exporting d...',
-    category: 'Technical Issue',
-    status: 'Resolved',
-    priority: 'Low',
+    title: 'Exportação de dados enviada com sucesso',
+    category: 'Problema Técnico',
+    status: 'Resolvido',
+    priority: 'Baixa',
     issuedBy: { name: 'Mariana Duarte', email: 'mariana@duarte.com', verified: false },
-    aiSummary: { title: 'Export file delivered', description: 'Sent via direct secure S3 link.', confidence: 91 },
-    suggestedResolution: { steps: [{ text: 'Link verified and clicked by user', done: true }], kbReferences: [] },
-    timeline: [{ id: 1, title: 'Ticket resolved', time: '4 days ago', type: 'assign' }],
+    aiSummary: { title: 'Arquivo entregue', description: 'Disponibilizado link direto seguro para download.', confidence: 91 },
+    suggestedResolution: { steps: [{ text: 'Download verificado com sucesso pelo cliente', done: true }], kbReferences: [] },
+    timeline: [{ id: 1, title: 'Chamado resolvido', time: 'Há 4 dias', type: 'assign' }],
   },
   {
     id: 'AV-995',
     code: 'AV-995',
-    title: 'Subscription auto-renewed...',
-    category: 'Subscription',
-    status: 'Resolved',
-    priority: 'Urgent',
+    title: 'Cancelamento atendido a pedido',
+    category: 'Assinaturas & Planos',
+    status: 'Resolvido',
+    priority: 'Urgente',
     issuedBy: { name: 'Otavio Barros', email: 'otavio@barros.com', verified: true },
-    aiSummary: { title: 'Cancelled on user request', description: 'Immediate plan cancellation executed.', confidence: 88 },
-    suggestedResolution: { steps: [{ text: 'Confirmed cancellation in Stripe', done: true }], kbReferences: [] },
-    timeline: [{ id: 1, title: 'Ticket resolved', time: '4 days ago', type: 'assign' }],
+    aiSummary: { title: 'Cancelamento efetuado', description: 'Assinatura encerrada sem novas cobranças.', confidence: 88 },
+    suggestedResolution: { steps: [{ text: 'Cancelamento confirmado no gateway', done: true }], kbReferences: [] },
+    timeline: [{ id: 1, title: 'Chamado resolvido', time: 'Há 4 dias', type: 'assign' }],
   },
   {
     id: 'AV-996',
     code: 'AV-996',
-    title: 'Refund request for last month',
-    category: 'Billing',
-    status: 'Resolved',
-    priority: 'Low',
+    title: 'Ajuste na fatura e crédito aplicado',
+    category: 'Financeiro',
+    status: 'Resolvido',
+    priority: 'Baixa',
     issuedBy: { name: 'Beatriz Leal', email: 'bia@leal.com', verified: true },
-    aiSummary: { title: 'Billing adjustment complete', description: 'Credit issued for next billing cycle.', confidence: 93 },
-    suggestedResolution: { steps: [{ text: 'Credit applied to account balance', done: true }], kbReferences: [] },
-    timeline: [{ id: 1, title: 'Ticket resolved', time: '5 days ago', type: 'assign' }],
+    aiSummary: { title: 'Ajuste financeiro concluído', description: 'Crédito registrado para abatimento no próximo ciclo.', confidence: 93 },
+    suggestedResolution: { steps: [{ text: 'Crédito lançado no saldo da conta', done: true }], kbReferences: [] },
+    timeline: [{ id: 1, title: 'Chamado resolvido', time: 'Há 5 dias', type: 'assign' }],
   },
   {
     id: 'AV-997',
     code: 'AV-997',
-    title: 'Slow loading dashboard',
-    category: 'Technical Issue',
-    status: 'Resolved',
-    priority: 'Low',
+    title: 'Lentidão resolvida com otimização',
+    category: 'Problema Técnico',
+    status: 'Resolvido',
+    priority: 'Baixa',
     issuedBy: { name: 'Thiago Nogueira', email: 'thiago@nogueira.com', verified: true },
-    aiSummary: { title: 'Cache warmed up', description: 'Subsequent loads under 180ms.', confidence: 96 },
-    suggestedResolution: { steps: [{ text: 'Cache invalidation rule refreshed', done: true }], kbReferences: [] },
-    timeline: [{ id: 1, title: 'Ticket resolved', time: '5 days ago', type: 'assign' }],
+    aiSummary: { title: 'Cache aquecido', description: 'Tempos de carregamento normalizados abaixo de 180ms.', confidence: 96 },
+    suggestedResolution: { steps: [{ text: 'Regras de invalidação de cache atualizadas', done: true }], kbReferences: [] },
+    timeline: [{ id: 1, title: 'Chamado resolvido', time: 'Há 5 dias', type: 'assign' }],
   },
   {
     id: 'AV-998',
     code: 'AV-998',
-    title: 'Cannot change payment me...',
-    category: 'Subscription',
-    status: 'Resolved',
-    priority: 'Medium',
+    title: 'Cartão atualizado pelo cliente',
+    category: 'Assinaturas & Planos',
+    status: 'Resolvido',
+    priority: 'Média',
     issuedBy: { name: 'Camila Pires', email: 'camila@pires.com', verified: true },
-    aiSummary: { title: 'Card updated by user', description: 'New Visa card set as default.', confidence: 94 },
-    suggestedResolution: { steps: [{ text: 'Verified active billing method', done: true }], kbReferences: [] },
-    timeline: [{ id: 1, title: 'Ticket resolved', time: '6 days ago', type: 'assign' }],
+    aiSummary: { title: 'Novo cartão cadastrado', description: 'Validação 3DS realizada com êxito.', confidence: 94 },
+    suggestedResolution: { steps: [{ text: 'Forma de pagamento ativa verificada', done: true }], kbReferences: [] },
+    timeline: [{ id: 1, title: 'Chamado resolvido', time: 'Há 6 dias', type: 'assign' }],
   },
 ];
 
 // Helper para cores de prioridade
 const getCorPrioridade = (prioridade) => {
   switch (prioridade?.toLowerCase()) {
+    case 'urgente':
     case 'urgent':
     case 'crítica':
     case 'critica':
       return 'text-red-500 fill-red-500';
-    case 'high':
     case 'alta':
+    case 'high':
       return 'text-amber-500 fill-amber-500';
-    case 'medium':
     case 'média':
     case 'media':
+    case 'medium':
       return 'text-yellow-500 fill-yellow-500';
-    case 'low':
     case 'baixa':
+    case 'low':
     default:
       return 'text-emerald-500 fill-emerald-500';
   }
 };
 
-// Helper para badges de status (alta fidelidade visual à imagem)
+// Helper para badges de status (alta fidelidade visual à imagem em português)
 const BadgeStatusTicket = ({ status }) => {
-  const s = status?.toLowerCase() || 'open';
-  if (s === 'open' || s === 'aberto') {
+  const s = status?.toLowerCase() || 'aberto';
+  if (s === 'aberto' || s === 'open') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/40">
-        Open
+        Aberto
       </span>
     );
   }
-  if (s === 'pending' || s === 'pendente' || s === 'em_atendimento' || s === 'aguardando_cliente') {
+  if (s === 'pendente' || s === 'pending' || s === 'em_atendimento' || s === 'aguardando_cliente') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/40">
-        Pending
+        Pendente
       </span>
     );
   }
-  if (s === 'escalated' || s === 'escalado') {
+  if (s === 'escalado' || s === 'escalated') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/40">
-        Escalated
+        Escalado
       </span>
     );
   }
-  // Resolved
+  // Resolvido
   return (
     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/40">
-      Resolved
+      Resolvido
     </span>
   );
 };
 
 // =============================================================
-// COMPONENTE PRINCIPAL: PAGINA TICKETS
+// COMPONENTE PRINCIPAL: PÁGINA TICKETS
 // =============================================================
 export const PaginaTicketsRecebidos = () => {
   const { tickets: ticketsDb, carregando, atualizarTicket } = useSuporteAdmin();
@@ -551,40 +552,40 @@ export const PaginaTicketsRecebidos = () => {
       const ticketsFormatados = ticketsDb.map((t, index) => {
         const cod = `AV-${String(980 - index).padStart(3, '0')}`;
         const mapCategoria = {
-          financeiro: 'Billing',
-          problema_tecnico: 'Technical Issue',
-          duvida: 'Account & Login',
-          sugestao: 'Subscription',
-          outro: 'Other',
+          financeiro: 'Financeiro',
+          problema_tecnico: 'Problema Técnico',
+          duvida: 'Conta & Login',
+          sugestao: 'Assinaturas & Planos',
+          outro: 'Outros',
         };
         const mapStatus = {
-          aberto: 'Open',
-          em_atendimento: 'Pending',
-          aguardando_cliente: 'Pending',
-          resolvido: 'Resolved',
-          fechado: 'Resolved',
+          aberto: 'Aberto',
+          em_atendimento: 'Pendente',
+          aguardando_cliente: 'Pendente',
+          resolvido: 'Resolvido',
+          fechado: 'Resolvido',
         };
         const mapPrioridade = {
-          critica: 'Urgent',
-          alta: 'High',
-          media: 'Medium',
-          baixa: 'Low',
+          critica: 'Urgente',
+          alta: 'Alta',
+          media: 'Média',
+          baixa: 'Baixa',
         };
 
         return {
           id: t.id,
           code: cod,
           title: t.assunto || 'Sem assunto',
-          category: mapCategoria[t.categoria] || 'Technical Issue',
-          status: mapStatus[t.status] || 'Open',
-          priority: mapPrioridade[t.prioridade] || 'Medium',
+          category: mapCategoria[t.categoria] || 'Problema Técnico',
+          status: mapStatus[t.status] || 'Aberto',
+          priority: mapPrioridade[t.prioridade] || 'Média',
           issuedBy: {
             name: t.criador?.nome || t.tenant?.nome || 'Usuário',
             email: t.criador?.email || 'contato@cliente.com',
             verified: true,
           },
           aiSummary: {
-            title: t.assunto || 'Ticket recebido',
+            title: t.assunto || 'Chamado registrado',
             description: t.descricao || 'Nenhuma descrição detalhada enviada pelo cliente.',
             confidence: 90,
           },
@@ -594,7 +595,7 @@ export const PaginaTicketsRecebidos = () => {
               { text: 'Elaborar resposta e orientar o cliente.', done: false },
             ],
             kbReferences: [
-              { code: 'KB-1001', title: 'Procedimentos de Atendimento' },
+              { code: 'KB-1001', title: 'Procedimentos Gerais de Atendimento' },
             ],
           },
           timeline: [
@@ -612,13 +613,13 @@ export const PaginaTicketsRecebidos = () => {
   const contadores = useMemo(() => {
     const total = listaTickets.length;
     const novos = Math.round(total * 0.05) || 52;
-    const abertos = listaTickets.filter((t) => t.status === 'Open').length;
-    const pendentes = listaTickets.filter((t) => t.status === 'Pending').length;
-    const resolvidos = listaTickets.filter((t) => t.status === 'Resolved').length;
-    const escalados = listaTickets.filter((t) => t.status === 'Escalated').length;
+    const abertos = listaTickets.filter((t) => t.status === 'Aberto' || t.status === 'Open').length;
+    const pendentes = listaTickets.filter((t) => t.status === 'Pendente' || t.status === 'Pending').length;
+    const resolvidos = listaTickets.filter((t) => t.status === 'Resolvido' || t.status === 'Resolved').length;
+    const escalados = listaTickets.filter((t) => t.status === 'Escalado' || t.status === 'Escalated').length;
 
     return {
-      all: total > 20 ? '1,036' : total,
+      all: total > 20 ? '1.036' : total,
       new: novos,
       open: abertos,
       pending: pendentes,
@@ -631,33 +632,35 @@ export const PaginaTicketsRecebidos = () => {
   const ticketsFiltrados = useMemo(() => {
     return listaTickets.filter((t) => {
       // Filtro de View / Status
-      if (filtroView === 'open' && t.status !== 'Open') return false;
-      if (filtroView === 'pending' && t.status !== 'Pending') return false;
-      if (filtroView === 'resolved' && t.status !== 'Resolved') return false;
-      if (filtroView === 'escalated' && t.status !== 'Escalated') return false;
-      if (filtroView === 'new' && t.status !== 'Open') return false;
+      if (filtroView === 'open' && t.status !== 'Aberto' && t.status !== 'Open') return false;
+      if (filtroView === 'pending' && t.status !== 'Pendente' && t.status !== 'Pending') return false;
+      if (filtroView === 'resolved' && t.status !== 'Resolvido' && t.status !== 'Resolved') return false;
+      if (filtroView === 'escalated' && t.status !== 'Escalado' && t.status !== 'Escalated') return false;
+      if (filtroView === 'new' && t.status !== 'Aberto' && t.status !== 'Open') return false;
 
       // Filtro de Categoria
       if (filtroCategoria !== 'all') {
         const catMap = {
-          billing: 'Billing',
-          technical: 'Technical Issue',
-          account: 'Account & Login',
-          subscription: 'Subscription',
-          other: 'Other',
+          billing: ['Financeiro', 'Billing'],
+          technical: ['Problema Técnico', 'Technical Issue'],
+          account: ['Conta & Login', 'Account & Login'],
+          subscription: ['Assinaturas & Planos', 'Subscription'],
+          other: ['Outros', 'Other'],
         };
-        if (t.category !== catMap[filtroCategoria]) return false;
+        const aceitas = catMap[filtroCategoria] || [];
+        if (!aceitas.includes(t.category)) return false;
       }
 
       // Filtro de Prioridade
       if (filtroPrioridade !== 'all') {
         const prioMap = {
-          urgent: 'Urgent',
-          high: 'High',
-          medium: 'Medium',
-          low: 'Low',
+          urgent: ['Urgente', 'Urgent', 'Crítica'],
+          high: ['Alta', 'High'],
+          medium: ['Média', 'Medium'],
+          low: ['Baixa', 'Low'],
         };
-        if (t.priority !== prioMap[filtroPrioridade]) return false;
+        const aceitas = prioMap[filtroPrioridade] || [];
+        if (!aceitas.includes(t.priority)) return false;
       }
 
       // Busca por texto
@@ -719,9 +722,13 @@ export const PaginaTicketsRecebidos = () => {
     if (ticketAtivo.id && !ticketAtivo.id.startsWith('AV-')) {
       try {
         const mapParaDb = {
+          Aberto: 'aberto',
           Open: 'aberto',
+          Pendente: 'em_atendimento',
           Pending: 'em_atendimento',
+          Resolvido: 'resolvido',
           Resolved: 'resolvido',
+          Escalado: 'critica',
           Escalated: 'critica',
         };
         await atualizarTicket(ticketAtivo.id, { status: mapParaDb[novoStatus] || 'aberto' });
@@ -734,7 +741,7 @@ export const PaginaTicketsRecebidos = () => {
       dispararToast({
         tipo: 'sucesso',
         titulo: 'Status atualizado',
-        mensagem: `Ticket ${ticketAtivo.code} alterado para "${novoStatus}".`,
+        mensagem: `Chamado ${ticketAtivo.code} alterado para "${novoStatus}".`,
       });
     }
   };
@@ -742,13 +749,13 @@ export const PaginaTicketsRecebidos = () => {
   // Remover ticket
   const handleRemoverTicket = () => {
     if (!ticketAtivo) return;
-    if (window.confirm(`Tem certeza que deseja remover o ticket ${ticketAtivo.code}?`)) {
+    if (window.confirm(`Tem certeza que deseja excluir o chamado ${ticketAtivo.code}?`)) {
       setListaTickets((prev) => prev.filter((t) => t.id !== ticketAtivo.id));
       if (dispararToast) {
         dispararToast({
           tipo: 'info',
-          titulo: 'Ticket removido',
-          mensagem: `O ticket ${ticketAtivo.code} foi excluído da lista.`,
+          titulo: 'Chamado excluído',
+          mensagem: `O chamado ${ticketAtivo.code} foi removido com sucesso.`,
         });
       }
     }
@@ -809,7 +816,7 @@ export const PaginaTicketsRecebidos = () => {
 
         {/* Lista de seções retráteis */}
         <div className="flex-1 p-3 space-y-4">
-          {/* 1. SEÇÃO VIEWS */}
+          {/* 1. SEÇÃO STATUS / VISUALIZAÇÕES */}
           <div>
             <button
               type="button"
@@ -818,7 +825,7 @@ export const PaginaTicketsRecebidos = () => {
             >
               <div className="flex items-center gap-1.5">
                 <Layers size={14} className="text-ink-muted" />
-                <span>Views</span>
+                <span>Visualizações</span>
                 <span className="text-[11px] font-normal text-ink-muted ml-0.5">6</span>
               </div>
               <ChevronDown
@@ -830,12 +837,12 @@ export const PaginaTicketsRecebidos = () => {
             {secaoViewsAberta && (
               <div className="mt-1 space-y-0.5">
                 {[
-                  { id: 'all', label: 'All Tickets', icon: Layers, badge: contadores.all },
-                  { id: 'new', label: 'New', icon: Sparkles, badge: contadores.new, badgeColor: 'bg-[#0455BF] text-white' },
-                  { id: 'open', label: 'Open', icon: Mail, badge: contadores.open },
-                  { id: 'pending', label: 'Pending', icon: Clock, badge: contadores.pending },
-                  { id: 'resolved', label: 'Resolved', icon: CheckCircle2, badge: contadores.resolved },
-                  { id: 'escalated', label: 'Escalated', icon: AlertCircle, badge: contadores.escalated },
+                  { id: 'all', label: 'Todos os Chamados', icon: Layers, badge: contadores.all },
+                  { id: 'new', label: 'Novos', icon: Sparkles, badge: contadores.new, badgeColor: 'bg-[#0455BF] text-white' },
+                  { id: 'open', label: 'Abertos', icon: Mail, badge: contadores.open },
+                  { id: 'pending', label: 'Pendentes', icon: Clock, badge: contadores.pending },
+                  { id: 'resolved', label: 'Resolvidos', icon: CheckCircle2, badge: contadores.resolved },
+                  { id: 'escalated', label: 'Escalados', icon: AlertCircle, badge: contadores.escalated },
                 ].map((item) => {
                   const IconComp = item.icon;
                   const ativo = filtroView === item.id;
@@ -873,7 +880,7 @@ export const PaginaTicketsRecebidos = () => {
             )}
           </div>
 
-          {/* 2. SEÇÃO CATEGORIES */}
+          {/* 2. SEÇÃO CATEGORIAS */}
           <div>
             <button
               type="button"
@@ -882,8 +889,8 @@ export const PaginaTicketsRecebidos = () => {
             >
               <div className="flex items-center gap-1.5">
                 <CreditCard size={14} className="text-ink-muted" />
-                <span>Categories</span>
-                <span className="text-[11px] font-normal text-ink-muted ml-0.5">18</span>
+                <span>Categorias</span>
+                <span className="text-[11px] font-normal text-ink-muted ml-0.5">5</span>
               </div>
               <ChevronDown
                 size={14}
@@ -894,12 +901,12 @@ export const PaginaTicketsRecebidos = () => {
             {secaoCategoriasAberta && (
               <div className="mt-1 space-y-0.5">
                 {[
-                  { id: 'all', label: 'All Categories', icon: Layers },
-                  { id: 'billing', label: 'Billing', icon: CreditCard },
-                  { id: 'technical', label: 'Technical Issue', icon: Wrench },
-                  { id: 'account', label: 'Account & Login', icon: UserCheck },
-                  { id: 'subscription', label: 'Subscription', icon: RefreshCw },
-                  { id: 'other', label: 'Other', icon: MoreHorizontal },
+                  { id: 'all', label: 'Todas as Categorias', icon: Layers },
+                  { id: 'billing', label: 'Financeiro', icon: CreditCard },
+                  { id: 'technical', label: 'Problema Técnico', icon: Wrench },
+                  { id: 'account', label: 'Conta & Login', icon: UserCheck },
+                  { id: 'subscription', label: 'Assinaturas & Planos', icon: RefreshCw },
+                  { id: 'other', label: 'Outros', icon: MoreHorizontal },
                 ].map((item) => {
                   const IconComp = item.icon;
                   const ativo = filtroCategoria === item.id;
@@ -926,7 +933,7 @@ export const PaginaTicketsRecebidos = () => {
             )}
           </div>
 
-          {/* 3. SEÇÃO PRIORITY */}
+          {/* 3. SEÇÃO PRIORIDADE */}
           <div>
             <button
               type="button"
@@ -935,7 +942,7 @@ export const PaginaTicketsRecebidos = () => {
             >
               <div className="flex items-center gap-1.5">
                 <Flag size={14} className="text-ink-muted" />
-                <span>Priority</span>
+                <span>Prioridade</span>
                 <span className="text-[11px] font-normal text-ink-muted ml-0.5">4</span>
               </div>
               <ChevronDown
@@ -947,11 +954,11 @@ export const PaginaTicketsRecebidos = () => {
             {secaoPrioridadeAberta && (
               <div className="mt-1 space-y-0.5">
                 {[
-                  { id: 'all', label: 'All Priorities', cor: 'text-slate-400' },
-                  { id: 'urgent', label: 'Urgent', cor: 'text-red-500 fill-red-500' },
-                  { id: 'high', label: 'High', cor: 'text-amber-500 fill-amber-500' },
-                  { id: 'medium', label: 'Medium', cor: 'text-yellow-500 fill-yellow-500' },
-                  { id: 'low', label: 'Low', cor: 'text-emerald-500 fill-emerald-500' },
+                  { id: 'all', label: 'Todas as Prioridades', cor: 'text-slate-400' },
+                  { id: 'urgent', label: 'Urgente', cor: 'text-red-500 fill-red-500' },
+                  { id: 'high', label: 'Alta', cor: 'text-amber-500 fill-amber-500' },
+                  { id: 'medium', label: 'Média', cor: 'text-yellow-500 fill-yellow-500' },
+                  { id: 'low', label: 'Baixa', cor: 'text-emerald-500 fill-emerald-500' },
                 ].map((item) => {
                   const ativo = filtroPrioridade === item.id;
                   return (
@@ -988,16 +995,16 @@ export const PaginaTicketsRecebidos = () => {
           <div className="flex items-center gap-2 min-w-0">
             <h2 className="font-bold text-sm sm:text-base text-ink-primary truncate">
               {filtroView === 'all'
-                ? 'All Tickets'
+                ? 'Todos os Chamados'
                 : filtroView === 'new'
-                  ? 'New Tickets'
+                  ? 'Novos Chamados'
                   : filtroView === 'open'
-                    ? 'Open Tickets'
+                    ? 'Chamados Abertos'
                     : filtroView === 'pending'
-                      ? 'Pending Tickets'
+                      ? 'Chamados Pendentes'
                       : filtroView === 'resolved'
-                        ? 'Resolved Tickets'
-                        : 'Escalated Tickets'}
+                        ? 'Chamados Resolvidos'
+                        : 'Chamados Escalados'}
             </h2>
             <span className="text-xs text-ink-muted">({ticketsFiltrados.length})</span>
           </div>
@@ -1013,7 +1020,7 @@ export const PaginaTicketsRecebidos = () => {
                 type="text"
                 value={termoBusca}
                 onChange={(e) => setTermoBusca(e.target.value)}
-                placeholder="Search"
+                placeholder="Pesquisar chamados..."
                 className="w-full h-8 pl-8 pr-3 text-xs rounded-full bg-surface-subtle dark:bg-white/5 border border-surface-border text-ink-primary placeholder:text-ink-muted focus:outline-none focus:ring-1 focus:ring-[#0455BF] transition-all"
               />
               {termoBusca && (
@@ -1021,6 +1028,7 @@ export const PaginaTicketsRecebidos = () => {
                   type="button"
                   onClick={() => setTermoBusca('')}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-primary"
+                  title="Limpar busca"
                 >
                   <X size={12} />
                 </button>
@@ -1037,7 +1045,7 @@ export const PaginaTicketsRecebidos = () => {
               <ArrowUpDown size={14} />
             </button>
 
-            {/* Botão de Filtro Rápido */}
+            {/* Botão de Limpar Filtros */}
             <button
               type="button"
               onClick={() => {
@@ -1071,8 +1079,8 @@ export const PaginaTicketsRecebidos = () => {
                   />
                 </th>
                 <th className="py-2.5 px-3 w-20 font-semibold text-ink-muted">#</th>
-                <th className="py-2.5 px-3 font-semibold text-ink-muted">Issue Title</th>
-                <th className="py-2.5 px-3 w-36 font-semibold text-ink-muted hidden sm:table-cell">Category</th>
+                <th className="py-2.5 px-3 font-semibold text-ink-muted">Título do Chamado</th>
+                <th className="py-2.5 px-3 w-36 font-semibold text-ink-muted hidden sm:table-cell">Categoria</th>
                 <th className="py-2.5 px-3 w-24 font-semibold text-ink-muted text-center">Status</th>
                 <th className="py-2.5 px-2 w-8 text-center" />
               </tr>
@@ -1083,7 +1091,7 @@ export const PaginaTicketsRecebidos = () => {
                   <td colSpan={6} className="py-12 text-center text-ink-muted">
                     <div className="flex flex-col items-center gap-2">
                       <Mail size={28} className="text-ink-muted/50" />
-                      <p className="font-semibold text-sm">Nenhum ticket encontrado</p>
+                      <p className="font-semibold text-sm">Nenhum chamado encontrado</p>
                       <p className="text-xs">Tente ajustar seus filtros ou termo de busca.</p>
                     </div>
                   </td>
@@ -1175,9 +1183,9 @@ export const PaginaTicketsRecebidos = () => {
               aria-label="Linhas por página"
               className="appearance-none bg-surface-card border border-surface-border rounded-lg pl-2.5 pr-7 py-1 text-xs text-ink-primary focus:outline-none cursor-pointer"
             >
-              <option value={10}>10 Rows</option>
-              <option value={20}>20 Rows</option>
-              <option value={50}>50 Rows</option>
+              <option value={10}>10 Linhas</option>
+              <option value={20}>20 Linhas</option>
+              <option value={50}>50 Linhas</option>
             </select>
             <ChevronDown
               size={12}
@@ -1194,7 +1202,7 @@ export const PaginaTicketsRecebidos = () => {
               className="h-7 px-2.5 rounded-lg border border-surface-border flex items-center gap-1 text-xs text-ink-secondary hover:text-ink-primary hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <ChevronLeft size={13} />
-              <span className="hidden sm:inline">Previous</span>
+              <span className="hidden sm:inline">Anterior</span>
             </button>
 
             <span className="w-7 h-7 rounded-lg bg-[#0455BF] text-white font-bold flex items-center justify-center text-xs">
@@ -1225,7 +1233,7 @@ export const PaginaTicketsRecebidos = () => {
               onClick={() => setPaginaAtual((p) => p + 1)}
               className="h-7 px-2.5 rounded-lg border border-surface-border flex items-center gap-1 text-xs text-ink-secondary hover:text-ink-primary hover:bg-surface cursor-pointer"
             >
-              <span className="hidden sm:inline">Next</span>
+              <span className="hidden sm:inline">Próximo</span>
               <ChevronRight size={13} />
             </button>
           </div>
@@ -1269,23 +1277,23 @@ export const PaginaTicketsRecebidos = () => {
                   type="button"
                   onClick={() => setMenuAcoesAberto((v) => !v)}
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-ink-secondary hover:text-ink-primary hover:bg-surface transition-colors cursor-pointer"
-                  title="Ações do ticket"
+                  title="Ações do chamado"
                 >
                   <MoreHorizontal size={18} />
                 </button>
 
                 {menuAcoesAberto && (
-                  <div className="absolute right-0 mt-1 w-44 bg-surface-card border border-surface-border rounded-xl shadow-lg py-1.5 z-50 text-xs">
+                  <div className="absolute right-0 mt-1 w-48 bg-surface-card border border-surface-border rounded-xl shadow-lg py-1.5 z-50 text-xs">
                     <button
                       type="button"
-                      onClick={() => handleAtualizarStatus('Resolved')}
+                      onClick={() => handleAtualizarStatus('Resolvido')}
                       className="w-full text-left px-3 py-1.5 hover:bg-surface text-ink-primary font-medium"
                     >
                       Marcar como Resolvido
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleAtualizarStatus('Escalated')}
+                      onClick={() => handleAtualizarStatus('Escalado')}
                       className="w-full text-left px-3 py-1.5 hover:bg-surface text-ink-primary font-medium"
                     >
                       Escalar para Engenharia
@@ -1305,15 +1313,15 @@ export const PaginaTicketsRecebidos = () => {
           </div>
 
           <div className="px-5 py-2 border-b border-surface-border/50 text-[11px] text-ink-muted uppercase font-semibold tracking-wider">
-            Ticket Details
+            Detalhes do Chamado
           </div>
 
           {/* Conteúdo Rolável do Painel de Detalhes */}
           <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
-            {/* Bloco 1: Issued By */}
+            {/* Bloco 1: Aberto Por (Issued By) */}
             <div>
               <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider mb-2">
-                Issued By
+                Aberto Por
               </p>
               <div className="flex items-center justify-between p-3 rounded-2xl bg-surface-subtle dark:bg-white/5 border border-surface-border/80">
                 <div className="flex items-center gap-3 min-w-0">
@@ -1355,11 +1363,11 @@ export const PaginaTicketsRecebidos = () => {
               </div>
             </div>
 
-            {/* Bloco 2: AI Summary */}
+            {/* Bloco 2: Resumo IA (AI Summary) */}
             <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900/40">
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#0455BF] dark:text-blue-400 mb-2">
                 <Sparkles size={14} className="text-[#0455BF] dark:text-blue-400" />
-                <span>AI Summary</span>
+                <span>Resumo da IA</span>
                 <span className="text-[10px] text-[#0455BF]/70 font-semibold ml-0.5">✦</span>
               </div>
 
@@ -1370,10 +1378,10 @@ export const PaginaTicketsRecebidos = () => {
                 {ticketAtivo.aiSummary?.description || 'Nenhum resumo gerado.'}
               </p>
 
-              {/* Confidence score progress bar */}
+              {/* Barra de Grau de Confiança */}
               <div>
                 <div className="flex items-center justify-between text-[11px] text-ink-muted font-medium mb-1.5">
-                  <span>Confidence score</span>
+                  <span>Grau de Confiança</span>
                   <span className="font-bold text-ink-primary">
                     {ticketAtivo.aiSummary?.confidence || 92}%
                   </span>
@@ -1387,11 +1395,11 @@ export const PaginaTicketsRecebidos = () => {
               </div>
             </div>
 
-            {/* Bloco 3: Suggested Resolution */}
+            {/* Bloco 3: Resolução Recomendada (Suggested Resolution) */}
             <div className="space-y-3">
               <div>
-                <h4 className="font-bold text-sm text-ink-primary">Suggested Resolution</h4>
-                <p className="text-[11px] text-ink-muted">Step-by-step recommended response</p>
+                <h4 className="font-bold text-sm text-ink-primary">Resolução Sugerida</h4>
+                <p className="text-[11px] text-ink-muted">Passo a passo recomendado para o atendimento</p>
               </div>
 
               {/* Checklist de Resolução */}
@@ -1424,10 +1432,10 @@ export const PaginaTicketsRecebidos = () => {
                 })}
               </div>
 
-              {/* Knowledge base references */}
+              {/* Referências da Base de Conhecimento */}
               {ticketAtivo.suggestedResolution?.kbReferences?.length > 0 && (
                 <div className="pt-1">
-                  <p className="text-[11px] text-ink-muted mb-1.5">Knowledge base references</p>
+                  <p className="text-[11px] text-ink-muted mb-1.5">Referências da base de conhecimento</p>
                   <div className="flex flex-wrap gap-2">
                     {ticketAtivo.suggestedResolution.kbReferences.map((kb, i) => (
                       <button
@@ -1462,30 +1470,30 @@ export const PaginaTicketsRecebidos = () => {
                   }}
                   className="flex-1 h-9 px-3 rounded-xl border border-surface-border hover:bg-surface font-semibold text-ink-primary text-xs transition-colors cursor-pointer"
                 >
-                  Edit Before Sending
+                  Editar antes de Enviar
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    handleAtualizarStatus('Resolved');
+                    handleAtualizarStatus('Resolvido');
                     if (dispararToast) {
                       dispararToast({
                         tipo: 'sucesso',
                         titulo: 'Resposta aplicada',
-                        mensagem: 'A resolução recomendada foi aplicada e o ticket atualizado.',
+                        mensagem: 'A resolução recomendada foi aplicada e o chamado atualizado.',
                       });
                     }
                   }}
                   className="flex-1 h-9 px-3 rounded-xl bg-[#0455BF] hover:bg-[#034499] font-semibold text-white text-xs shadow-xs transition-colors cursor-pointer"
                 >
-                  Apply as Reply
+                  Aplicar como Resposta
                 </button>
               </div>
             </div>
 
-            {/* Bloco 4: Activity Timeline */}
+            {/* Bloco 4: Histórico de Atividades (Activity Timeline) */}
             <div className="pt-2">
-              <h4 className="font-bold text-sm text-ink-primary mb-3">Activity Timeline</h4>
+              <h4 className="font-bold text-sm text-ink-primary mb-3">Histórico de Atividades</h4>
               <div className="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-border">
                 {ticketAtivo.timeline?.map((item) => (
                   <div key={item.id} className="relative">
@@ -1504,24 +1512,24 @@ export const PaginaTicketsRecebidos = () => {
             </div>
           </div>
 
-          {/* Rodapé Fixo do Detalhe: Remove Ticket + Update Ticket */}
+          {/* Rodapé Fixo do Detalhe: Excluir Chamado + Atualizar Chamado */}
           <div className="h-16 px-5 border-t border-surface-border flex items-center justify-between gap-3 flex-shrink-0 bg-surface/30">
             <button
               type="button"
               onClick={handleRemoverTicket}
               className="text-xs font-semibold text-ink-secondary hover:text-red-600 transition-colors cursor-pointer"
             >
-              Remove Ticket
+              Excluir Chamado
             </button>
 
-            {/* Botão de Atualizar Ticket com Dropdown */}
+            {/* Botão de Atualizar Chamado com Dropdown */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setDropdownUpdateStatus((v) => !v)}
                 className="h-9 px-4 rounded-xl bg-[#0455BF] hover:bg-[#034499] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-all cursor-pointer"
               >
-                <span>Update Ticket</span>
+                <span>Atualizar Chamado</span>
                 <ChevronUp
                   size={14}
                   className={`transition-transform duration-150 ${dropdownUpdateStatus ? 'rotate-180' : ''}`}
@@ -1534,10 +1542,10 @@ export const PaginaTicketsRecebidos = () => {
                     Definir Status
                   </div>
                   {[
-                    { id: 'Open', label: 'Open' },
-                    { id: 'Pending', label: 'Pending' },
-                    { id: 'Resolved', label: 'Resolved' },
-                    { id: 'Escalated', label: 'Escalated' },
+                    { id: 'Aberto', label: 'Aberto' },
+                    { id: 'Pendente', label: 'Pendente' },
+                    { id: 'Resolvido', label: 'Resolvido' },
+                    { id: 'Escalado', label: 'Escalado' },
                   ].map((st) => (
                     <button
                       key={st.id}
@@ -1567,7 +1575,7 @@ export const PaginaTicketsRecebidos = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-bold text-ink-primary">
-                  Responder Ticket #{ticketAtivo?.code}
+                  Responder Chamado #{ticketAtivo?.code}
                 </h3>
                 <p className="text-xs text-ink-secondary">
                   Destinatário: {ticketAtivo?.issuedBy?.name} ({ticketAtivo?.issuedBy?.email})
