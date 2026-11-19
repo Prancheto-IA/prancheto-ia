@@ -33,7 +33,8 @@ import {
   Eye,
   Terminal,
   Activity,
-  ChevronDown
+  ChevronDown,
+  Building2
 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase.js';
 import { useUIStore } from '../../../store/uiStore.js';
@@ -43,7 +44,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-001',
     agentName: 'Sue',
-    agentRole: 'SOC Analyst Agent',
+    agentRole: 'Analista de SOC',
     task: 'Scan de Documentos Internos',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 72,
@@ -74,7 +75,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-002',
     agentName: 'Jose',
-    agentRole: 'Detections Engineering Agent',
+    agentRole: 'Engenheiro de Detecção',
     task: 'Auditoria de API & Tokens',
     taskRaw: 'API Audit',
     urgencyScore: 22,
@@ -105,7 +106,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-003',
     agentName: 'Bob',
-    agentRole: 'Threat Hunter Agent',
+    agentRole: 'Caçador de Ameaças',
     task: 'Scan de Documentos Internos',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 88,
@@ -136,7 +137,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-004',
     agentName: 'Muhammad',
-    agentRole: 'Threat Intelligence Agent',
+    agentRole: 'Inteligência de Ameaças',
     task: 'Scan de Documentos Internos',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 72,
@@ -167,7 +168,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-005',
     agentName: 'Muhammad',
-    agentRole: 'Threat Intelligence Agent',
+    agentRole: 'Inteligência de Ameaças',
     task: 'Tentativa de Acesso Barrada',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 72,
@@ -199,7 +200,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-006',
     agentName: 'Bob',
-    agentRole: 'Threat Hunter Agent',
+    agentRole: 'Caçador de Ameaças',
     task: 'Scan de Documentos Internos',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 72,
@@ -230,7 +231,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-007',
     agentName: 'Sue',
-    agentRole: 'SOC Analyst Agent',
+    agentRole: 'Analista de SOC',
     task: 'Exportação Bloqueada de Base',
     taskRaw: 'Backup User Data',
     urgencyScore: 72,
@@ -262,7 +263,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-008',
     agentName: 'Bob',
-    agentRole: 'Threat Hunter Agent',
+    agentRole: 'Caçador de Ameaças',
     task: 'Backup de Dados LGPD',
     taskRaw: 'Backup User Data',
     urgencyScore: 85,
@@ -298,7 +299,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-009',
     agentName: 'Sue',
-    agentRole: 'SOC Analyst Agent',
+    agentRole: 'Analista de SOC',
     task: 'Auditoria de Logs de Acesso',
     taskRaw: 'Audit Access Logs',
     urgencyScore: 60,
@@ -329,7 +330,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-010',
     agentName: 'Bob',
-    agentRole: 'Threat Hunter Agent',
+    agentRole: 'Caçador de Ameaças',
     task: 'Otimização de Índices e Banco',
     taskRaw: 'Optimize Database',
     urgencyScore: 90,
@@ -360,7 +361,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-011',
     agentName: 'Sue',
-    agentRole: 'SOC Analyst Agent',
+    agentRole: 'Analista de SOC',
     task: 'Deploy de Novas Regras de Segurança',
     taskRaw: 'Deploy New Features',
     urgencyScore: 70,
@@ -391,7 +392,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-012',
     agentName: 'Jose',
-    agentRole: 'Detections Engineering Agent',
+    agentRole: 'Engenheiro de Detecção',
     task: 'Scan de Documentos Internos',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 50,
@@ -422,7 +423,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-013',
     agentName: 'Sue',
-    agentRole: 'SOC Analyst Agent',
+    agentRole: 'Analista de SOC',
     task: 'Scan de Documentos Internos',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 72,
@@ -453,7 +454,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-014',
     agentName: 'Sue',
-    agentRole: 'SOC Analyst Agent',
+    agentRole: 'Analista de SOC',
     task: 'Scan de Documentos Internos',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 72,
@@ -484,7 +485,7 @@ const AGENTES_INICIAIS = [
   {
     id: 'SEC-015',
     agentName: 'Bob',
-    agentRole: 'Threat Hunter Agent',
+    agentRole: 'Caçador de Ameaças',
     task: 'Scan de Documentos Internos',
     taskRaw: 'Scan Internal Docs',
     urgencyScore: 72,
@@ -514,55 +515,60 @@ const AGENTES_INICIAIS = [
   },
 ];
 
-// Helper visual para Badge de Status exatamente como na imagem
+// Helper visual para Badge de Status em Português
 const BadgeStatusLive = ({ status }) => {
   const s = status?.toLowerCase() || 'running';
-  if (s === 'running' || s === 'em execução') {
+  if (s === 'running' || s === 'em execução' || s === 'em execucao') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
-        Running
+        Em Execução
       </span>
     );
   }
   if (s === 'idle' || s === 'ocioso' || s === 'concluído') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 whitespace-nowrap">
-        Idle
+        Ocioso
       </span>
     );
   }
   if (s === 'paused' || s === 'pausado') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 whitespace-nowrap">
-        Paused
+        Pausado
       </span>
     );
   }
   // Blocked
   return (
     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 whitespace-nowrap">
-      Blocked
+      Bloqueado
     </span>
   );
 };
 
-// Helper visual para UrgencyScore
+// Helper visual para Score de Urgência em Português
 const FormatarUrgencyScore = ({ score, level }) => {
   const lvl = level?.toLowerCase() || 'medium';
   let cor = 'text-ink-primary';
-  if (lvl === 'critical' || lvl === 'crítica') {
+  let nivelPt = 'Média';
+  if (lvl === 'critical' || lvl === 'crítica' || lvl === 'critica') {
     cor = 'text-rose-600 dark:text-rose-400 font-bold';
+    nivelPt = 'Crítica';
   } else if (lvl === 'high' || lvl === 'alta') {
     cor = 'text-amber-600 dark:text-amber-400 font-semibold';
-  } else if (lvl === 'medium' || lvl === 'média') {
+    nivelPt = 'Alta';
+  } else if (lvl === 'medium' || lvl === 'média' || lvl === 'media') {
     cor = 'text-yellow-600 dark:text-yellow-400 font-medium';
+    nivelPt = 'Média';
   } else {
     cor = 'text-emerald-600 dark:text-emerald-400 font-medium';
+    nivelPt = 'Baixa';
   }
 
   return (
     <span className={`text-xs whitespace-nowrap ${cor}`}>
-      {score} ({level})
+      {score} ({nivelPt})
     </span>
   );
 };
@@ -579,16 +585,43 @@ export const LogsSeguranca = () => {
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('all'); // all, running, idle, paused, blocked
   const [filtroNivel, setFiltroNivel] = useState('all'); // all, critical, high, medium, low
+  const [filtroEmpresa, setFiltroEmpresa] = useState('all');
+  const [filtroUsuario, setFiltroUsuario] = useState('all');
   const [ordenacao, setOrdenacao] = useState('score-desc'); // score-desc, score-asc, recent, cpu
 
   // Dropdowns da barra superior
   const [filtroModalAberto, setFiltroModalAberto] = useState(false);
   const [dropdownSortAberto, setDropdownSortAberto] = useState(false);
+  const [dropdownEmpresaAberto, setDropdownEmpresaAberto] = useState(false);
+  const [dropdownUsuarioAberto, setDropdownUsuarioAberto] = useState(false);
 
   // Drawer lateral de detalhes (View Details)
   const [registroSelecionado, setRegistroSelecionado] = useState(null);
   const [drawerAberto, setDrawerAberto] = useState(false);
   const [copiadoId, setCopiadoId] = useState(false);
+
+  // Lista dinâmica de empresas (tenants) e usuários para os botões de seleção
+  const listaEmpresas = useMemo(() => {
+    const set = new Set();
+    listaAgentes.forEach((item) => {
+      const tenant = item.user?.tenant;
+      if (tenant && tenant !== 'None') {
+        set.add(tenant);
+      }
+    });
+    return Array.from(set).sort();
+  }, [listaAgentes]);
+
+  const listaUsuarios = useMemo(() => {
+    const map = new Map();
+    listaAgentes.forEach((item) => {
+      const email = item.user?.email;
+      if (email && !email.includes('malicious-ip.net')) {
+        map.set(email, item.user?.nome || email);
+      }
+    });
+    return Array.from(map.entries()).map(([email, nome]) => ({ email, nome }));
+  }, [listaAgentes]);
 
   // Sincroniza logs reais de audit_logs do Supabase se existirem
   const carregarLogsDb = useCallback(async () => {
@@ -611,7 +644,7 @@ export const LogsSeguranca = () => {
           return {
             id: l.id || `DB-${index}`,
             agentName: l.user_email ? l.user_email.split('@')[0] : 'Usuário do Sistema',
-            agentRole: l.user_cargo ? `${l.user_cargo.toUpperCase()} Actor` : 'Identity Actor',
+            agentRole: l.user_cargo ? `${l.user_cargo.toUpperCase()}` : 'Ator do Sistema',
             task: l.descricao || l.acao || 'Ação Auditada no Sistema',
             taskRaw: l.acao,
             urgencyScore: score,
@@ -674,6 +707,16 @@ export const LogsSeguranca = () => {
         return false;
       }
 
+      // Filtro Empresa / Tenant
+      if (filtroEmpresa !== 'all' && item.user?.tenant !== filtroEmpresa) {
+        return false;
+      }
+
+      // Filtro Usuário / Ator
+      if (filtroUsuario !== 'all' && item.user?.email !== filtroUsuario) {
+        return false;
+      }
+
       // Busca textual
       if (busca.trim()) {
         const termo = busca.toLowerCase();
@@ -694,7 +737,7 @@ export const LogsSeguranca = () => {
       if (ordenacao === 'recent') return new Date(b.timestamp) - new Date(a.timestamp);
       return 0;
     });
-  }, [listaAgentes, filtroStatus, filtroNivel, busca, ordenacao]);
+  }, [listaAgentes, filtroStatus, filtroNivel, filtroEmpresa, filtroUsuario, busca, ordenacao]);
 
   // Ação de exportar relatório LGPD (JSON / CSV)
   const handleExportarLogs = () => {
@@ -726,30 +769,27 @@ export const LogsSeguranca = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full w-full min-h-0 overflow-hidden bg-surface text-ink-primary font-sans select-none">
+    <div className="flex-1 flex flex-col h-full w-full min-h-0 overflow-hidden bg-surface text-ink-primary font-sans">
       {/* ═════════════════════════════════════════════════════════════
-          HEADER BAR: LIVE AGENT / AUDITORIA DE SEGURANÇA
+          HEADER BAR: SEGURANÇA E AUDITORIA
           ═════════════════════════════════════════════════════════════ */}
-      <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-4 border-b border-surface-border bg-surface dark:bg-[#111928] flex-shrink-0">
-        {/* Título e Ícone exatamente como na imagem */}
+      <div className="min-h-16 py-2.5 px-4 sm:px-6 flex flex-wrap items-center justify-between gap-3 border-b border-surface-border bg-surface dark:bg-[#111928] flex-shrink-0">
+        {/* Título e Ícone */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-surface border border-surface-border flex items-center justify-center text-ink-primary flex-shrink-0 shadow-2xs">
-            <LayoutGrid size={18} />
+          <div className="w-9 h-9 rounded-xl bg-surface border border-surface-border flex items-center justify-center text-[#0455BF] flex-shrink-0 shadow-2xs">
+            <Shield size={18} />
           </div>
           <div className="min-w-0">
-            <h1 className="font-bold text-base sm:text-lg text-ink-primary flex items-center gap-2 truncate">
-              <span>Live Agent</span>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0455BF]/10 text-[#0455BF] border border-[#0455BF]/20">
-                Auditoria & SOC
-              </span>
+            <h1 className="font-bold text-base sm:text-lg text-ink-primary truncate">
+              Segurança e Auditoria
             </h1>
           </div>
         </div>
 
-        {/* Controles: Busca + Filtro + Ordenação + Adicionar/Exportar */}
-        <div className="flex items-center gap-2.5 flex-1 max-w-xl justify-end">
+        {/* Controles: Busca + Empresa + Usuário + Filtros + Ordenação + Adicionar */}
+        <div className="flex flex-wrap items-center gap-2 flex-1 justify-end">
           {/* Campo de Busca Pill */}
-          <div className="relative w-full max-w-[220px] sm:max-w-[260px]">
+          <div className="relative w-full max-w-[170px] sm:max-w-[210px]">
             <Search
               size={14}
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted pointer-events-none"
@@ -758,14 +798,14 @@ export const LogsSeguranca = () => {
               type="text"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Search"
+              placeholder="Pesquisar..."
               className="w-full h-9 pl-9 pr-3 text-xs rounded-full bg-surface-subtle dark:bg-white/5 border border-surface-border text-ink-primary placeholder:text-ink-muted focus:outline-none focus:ring-1 focus:ring-[#0455BF] transition-all"
             />
             {busca && (
               <button
                 type="button"
                 onClick={() => setBusca('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-primary"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-primary cursor-pointer"
                 title="Limpar busca"
               >
                 <X size={12} />
@@ -773,19 +813,190 @@ export const LogsSeguranca = () => {
             )}
           </div>
 
-          {/* Botão de Filtro com Dropdown */}
+          {/* Botão Selecionar Empresa */}
           <div className="relative">
             <button
               type="button"
-              onClick={() => setFiltroModalAberto((v) => !v)}
-              className={`h-9 px-3 rounded-xl border border-surface-border text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              onClick={() => {
+                setDropdownEmpresaAberto((v) => !v);
+                setDropdownUsuarioAberto(false);
+                setDropdownSortAberto(false);
+                setFiltroModalAberto(false);
+              }}
+              className={`h-9 px-3 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs ${
+                filtroEmpresa !== 'all'
+                  ? 'bg-[#0455BF] text-white border-[#0455BF]'
+                  : 'bg-surface-card hover:bg-surface border-surface-border text-ink-secondary hover:text-ink-primary'
+              }`}
+              title="Filtrar por Empresa / Tenant"
+            >
+              <Building2 size={14} className={filtroEmpresa !== 'all' ? 'text-white' : 'text-ink-muted'} />
+              <span className="max-w-[100px] sm:max-w-[120px] truncate">
+                {filtroEmpresa === 'all' ? 'Empresa' : filtroEmpresa}
+              </span>
+              <ChevronDown size={13} className={`transition-transform duration-150 ${dropdownEmpresaAberto ? 'rotate-180' : ''}`} />
+            </button>
+
+            {dropdownEmpresaAberto && (
+              <div className="absolute right-0 mt-2 w-64 bg-surface-card border border-surface-border rounded-2xl shadow-xl p-2 z-50 text-xs animate-fade-in space-y-1">
+                <div className="flex items-center justify-between pb-1.5 border-b border-surface-border px-1.5">
+                  <span className="font-bold text-ink-primary">Filtrar por Empresa</span>
+                  {filtroEmpresa !== 'all' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFiltroEmpresa('all');
+                        setDropdownEmpresaAberto(false);
+                      }}
+                      className="text-[11px] text-[#0455BF] hover:underline font-semibold cursor-pointer"
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-56 overflow-y-auto space-y-0.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFiltroEmpresa('all');
+                      setDropdownEmpresaAberto(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
+                      filtroEmpresa === 'all'
+                        ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
+                        : 'hover:bg-surface text-ink-primary'
+                    }`}
+                  >
+                    <span>Todas as Empresas</span>
+                    {filtroEmpresa === 'all' && <Check size={14} />}
+                  </button>
+                  {listaEmpresas.map((emp) => (
+                    <button
+                      key={emp}
+                      type="button"
+                      onClick={() => {
+                        setFiltroEmpresa(emp);
+                        setDropdownEmpresaAberto(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
+                        filtroEmpresa === emp
+                          ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
+                          : 'hover:bg-surface text-ink-primary'
+                      }`}
+                    >
+                      <span className="truncate">{emp}</span>
+                      {filtroEmpresa === emp && <Check size={14} />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Botão Selecionar Usuário */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setDropdownUsuarioAberto((v) => !v);
+                setDropdownEmpresaAberto(false);
+                setDropdownSortAberto(false);
+                setFiltroModalAberto(false);
+              }}
+              className={`h-9 px-3 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs ${
+                filtroUsuario !== 'all'
+                  ? 'bg-[#0455BF] text-white border-[#0455BF]'
+                  : 'bg-surface-card hover:bg-surface border-surface-border text-ink-secondary hover:text-ink-primary'
+              }`}
+              title="Filtrar por Usuário / Operador"
+            >
+              <User size={14} className={filtroUsuario !== 'all' ? 'text-white' : 'text-ink-muted'} />
+              <span className="max-w-[100px] sm:max-w-[120px] truncate">
+                {filtroUsuario === 'all'
+                  ? 'Usuário'
+                  : listaUsuarios.find((u) => u.email === filtroUsuario)?.nome || filtroUsuario}
+              </span>
+              <ChevronDown size={13} className={`transition-transform duration-150 ${dropdownUsuarioAberto ? 'rotate-180' : ''}`} />
+            </button>
+
+            {dropdownUsuarioAberto && (
+              <div className="absolute right-0 mt-2 w-72 bg-surface-card border border-surface-border rounded-2xl shadow-xl p-2 z-50 text-xs animate-fade-in space-y-1">
+                <div className="flex items-center justify-between pb-1.5 border-b border-surface-border px-1.5">
+                  <span className="font-bold text-ink-primary">Filtrar por Usuário</span>
+                  {filtroUsuario !== 'all' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFiltroUsuario('all');
+                        setDropdownUsuarioAberto(false);
+                      }}
+                      className="text-[11px] text-[#0455BF] hover:underline font-semibold cursor-pointer"
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-56 overflow-y-auto space-y-0.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFiltroUsuario('all');
+                      setDropdownUsuarioAberto(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
+                      filtroUsuario === 'all'
+                        ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
+                        : 'hover:bg-surface text-ink-primary'
+                    }`}
+                  >
+                    <span>Todos os Usuários</span>
+                    {filtroUsuario === 'all' && <Check size={14} />}
+                  </button>
+                  {listaUsuarios.map((usr) => (
+                    <button
+                      key={usr.email}
+                      type="button"
+                      onClick={() => {
+                        setFiltroUsuario(usr.email);
+                        setDropdownUsuarioAberto(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
+                        filtroUsuario === usr.email
+                          ? 'bg-[#0455BF]/10 text-[#0455BF] font-bold'
+                          : 'hover:bg-surface text-ink-primary'
+                      }`}
+                    >
+                      <div className="min-w-0 pr-2">
+                        <span className="font-medium block truncate text-ink-primary">{usr.nome}</span>
+                        <span className="text-[11px] text-ink-muted block truncate">{usr.email}</span>
+                      </div>
+                      {filtroUsuario === usr.email && <Check size={14} className="flex-shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Botão de Filtro com Dropdown (Status e Urgência) */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setFiltroModalAberto((v) => !v);
+                setDropdownEmpresaAberto(false);
+                setDropdownUsuarioAberto(false);
+                setDropdownSortAberto(false);
+              }}
+              className={`h-9 px-3 rounded-xl border border-surface-border text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs ${
                 filtroStatus !== 'all' || filtroNivel !== 'all'
                   ? 'bg-[#0455BF] text-white border-[#0455BF]'
                   : 'bg-surface-card hover:bg-surface text-ink-secondary hover:text-ink-primary'
               }`}
+              title="Filtros por Status e Urgência"
             >
               <SlidersHorizontal size={14} />
-              <span className="hidden sm:inline">Filter</span>
+              <span>Filtros</span>
             </button>
 
             {filtroModalAberto && (
@@ -799,7 +1010,7 @@ export const LogsSeguranca = () => {
                       setFiltroNivel('all');
                       setFiltroModalAberto(false);
                     }}
-                    className="text-[10px] text-ink-muted hover:text-ink-primary"
+                    className="text-[10px] text-ink-muted hover:text-ink-primary cursor-pointer"
                   >
                     Resetar
                   </button>
@@ -808,18 +1019,24 @@ export const LogsSeguranca = () => {
                 <div>
                   <p className="text-[11px] font-semibold text-ink-muted uppercase mb-1">Status</p>
                   <div className="grid grid-cols-2 gap-1">
-                    {['all', 'Running', 'Idle', 'Paused', 'Blocked'].map((st) => (
+                    {[
+                      { id: 'all', label: 'Todos' },
+                      { id: 'Running', label: 'Em Execução' },
+                      { id: 'Idle', label: 'Ocioso' },
+                      { id: 'Paused', label: 'Pausado' },
+                      { id: 'Blocked', label: 'Bloqueado' },
+                    ].map((st) => (
                       <button
-                        key={st}
+                        key={st.id}
                         type="button"
-                        onClick={() => setFiltroStatus(st)}
-                        className={`px-2 py-1 rounded-lg text-left text-xs font-medium ${
-                          filtroStatus === st
+                        onClick={() => setFiltroStatus(st.id)}
+                        className={`px-2 py-1 rounded-lg text-left text-xs font-medium cursor-pointer transition-colors ${
+                          filtroStatus === st.id
                             ? 'bg-[#0455BF] text-white'
                             : 'hover:bg-surface text-ink-secondary'
                         }`}
                       >
-                        {st === 'all' ? 'Todos' : st}
+                        {st.label}
                       </button>
                     ))}
                   </div>
@@ -828,18 +1045,24 @@ export const LogsSeguranca = () => {
                 <div>
                   <p className="text-[11px] font-semibold text-ink-muted uppercase mb-1">Urgência</p>
                   <div className="grid grid-cols-2 gap-1">
-                    {['all', 'Critical', 'High', 'Medium', 'Low'].map((nv) => (
+                    {[
+                      { id: 'all', label: 'Todas' },
+                      { id: 'Critical', label: 'Crítica' },
+                      { id: 'High', label: 'Alta' },
+                      { id: 'Medium', label: 'Média' },
+                      { id: 'Low', label: 'Baixa' },
+                    ].map((nv) => (
                       <button
-                        key={nv}
+                        key={nv.id}
                         type="button"
-                        onClick={() => setFiltroNivel(nv)}
-                        className={`px-2 py-1 rounded-lg text-left text-xs font-medium ${
-                          filtroNivel === nv
+                        onClick={() => setFiltroNivel(nv.id)}
+                        className={`px-2 py-1 rounded-lg text-left text-xs font-medium cursor-pointer transition-colors ${
+                          filtroNivel === nv.id
                             ? 'bg-[#0455BF] text-white'
                             : 'hover:bg-surface text-ink-secondary'
                         }`}
                       >
-                        {nv === 'all' ? 'Todas' : nv}
+                        {nv.label}
                       </button>
                     ))}
                   </div>
@@ -848,21 +1071,38 @@ export const LogsSeguranca = () => {
             )}
           </div>
 
-          {/* Botão Sort By */}
+          {/* Botão Ordenar Por (Com largura ampliada) */}
           <div className="relative">
             <button
               type="button"
-              onClick={() => setDropdownSortAberto((v) => !v)}
-              className="h-9 px-3 rounded-xl border border-surface-border bg-surface-card hover:bg-surface text-xs font-semibold text-ink-secondary hover:text-ink-primary flex items-center gap-1.5 transition-colors cursor-pointer"
+              onClick={() => {
+                setDropdownSortAberto((v) => !v);
+                setDropdownEmpresaAberto(false);
+                setDropdownUsuarioAberto(false);
+                setFiltroModalAberto(false);
+              }}
+              className="h-9 w-48 sm:w-52 px-3.5 rounded-xl border border-surface-border bg-surface-card hover:bg-surface text-xs font-semibold text-ink-secondary hover:text-ink-primary flex items-center justify-between gap-2 transition-colors cursor-pointer shadow-2xs"
+              title="Ordenar registros"
             >
-              <span>Sort by</span>
-              <ChevronDown size={14} />
+              <div className="flex items-center gap-2 truncate">
+                <ArrowUpDown size={14} className="text-ink-muted flex-shrink-0" />
+                <span className="truncate">
+                  {ordenacao === 'score-desc'
+                    ? 'Maior Risco'
+                    : ordenacao === 'score-asc'
+                      ? 'Menor Risco'
+                      : ordenacao === 'recent'
+                        ? 'Mais Recentes'
+                        : 'Maior Carga CPU'}
+                </span>
+              </div>
+              <ChevronDown size={14} className={`text-ink-muted transition-transform duration-150 ${dropdownSortAberto ? 'rotate-180' : ''}`} />
             </button>
 
             {dropdownSortAberto && (
-              <div className="absolute right-0 mt-2 w-44 bg-surface-card border border-surface-border rounded-xl shadow-xl py-1 z-50 text-xs">
+              <div className="absolute right-0 mt-2 w-52 bg-surface-card border border-surface-border rounded-xl shadow-xl py-1 z-50 text-xs animate-fade-in">
                 {[
-                  { id: 'score-desc', label: 'Maior Risco (UrgencyScore)' },
+                  { id: 'score-desc', label: 'Maior Risco (Urgência)' },
                   { id: 'score-asc', label: 'Menor Risco' },
                   { id: 'recent', label: 'Mais Recentes' },
                   { id: 'cpu', label: 'Maior Carga (CPU)' },
@@ -874,7 +1114,7 @@ export const LogsSeguranca = () => {
                       setOrdenacao(opt.id);
                       setDropdownSortAberto(false);
                     }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-surface ${
+                    className={`w-full text-left px-3 py-2 hover:bg-surface cursor-pointer ${
                       ordenacao === opt.id ? 'font-bold text-[#0455BF]' : 'text-ink-primary'
                     }`}
                   >
@@ -885,7 +1125,7 @@ export const LogsSeguranca = () => {
             )}
           </div>
 
-          {/* Botão de Ação: Exportar Relatório LGPD / Add Agent */}
+          {/* Botão de Ação: Exportar Relatório LGPD / Adicionar Agente */}
           <button
             type="button"
             onClick={handleExportarLogs}
@@ -893,26 +1133,97 @@ export const LogsSeguranca = () => {
             title="Exportar trilha forense em conformidade com LGPD Art. 37"
           >
             <Plus size={14} />
-            <span className="hidden md:inline">Add Agent</span>
-            <span className="md:hidden">Add</span>
+            <span className="hidden md:inline">Adicionar Agente</span>
+            <span className="md:hidden">Adicionar</span>
           </button>
         </div>
       </div>
 
+      {/* Faixa de chips de filtros ativos */}
+      {(filtroEmpresa !== 'all' || filtroUsuario !== 'all' || filtroStatus !== 'all' || filtroNivel !== 'all') && (
+        <div className="px-4 sm:px-6 py-2 bg-surface-subtle dark:bg-white/5 border-b border-surface-border flex items-center gap-2 text-xs flex-wrap flex-shrink-0 animate-fade-in">
+          <span className="text-ink-muted font-medium text-[11px]">Filtros ativos:</span>
+          {filtroEmpresa !== 'all' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0455BF]/10 text-[#0455BF] font-semibold border border-[#0455BF]/20 text-[11px]">
+              Empresa: {filtroEmpresa}
+              <button
+                type="button"
+                onClick={() => setFiltroEmpresa('all')}
+                className="hover:text-red-500 cursor-pointer ml-0.5"
+                title="Remover filtro de empresa"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          )}
+          {filtroUsuario !== 'all' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0455BF]/10 text-[#0455BF] font-semibold border border-[#0455BF]/20 text-[11px]">
+              Usuário: {listaUsuarios.find((u) => u.email === filtroUsuario)?.nome || filtroUsuario}
+              <button
+                type="button"
+                onClick={() => setFiltroUsuario('all')}
+                className="hover:text-red-500 cursor-pointer ml-0.5"
+                title="Remover filtro de usuário"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          )}
+          {filtroStatus !== 'all' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0455BF]/10 text-[#0455BF] font-semibold border border-[#0455BF]/20 text-[11px]">
+              Status: {filtroStatus}
+              <button
+                type="button"
+                onClick={() => setFiltroStatus('all')}
+                className="hover:text-red-500 cursor-pointer ml-0.5"
+                title="Remover filtro de status"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          )}
+          {filtroNivel !== 'all' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0455BF]/10 text-[#0455BF] font-semibold border border-[#0455BF]/20 text-[11px]">
+              Urgência: {filtroNivel}
+              <button
+                type="button"
+                onClick={() => setFiltroNivel('all')}
+                className="hover:text-red-500 cursor-pointer ml-0.5"
+                title="Remover filtro de urgência"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setFiltroEmpresa('all');
+              setFiltroUsuario('all');
+              setFiltroStatus('all');
+              setFiltroNivel('all');
+            }}
+            className="text-[11px] text-ink-muted hover:text-red-500 underline ml-1 cursor-pointer font-medium"
+          >
+            Limpar todos
+          </button>
+        </div>
+      )}
+
       {/* ═════════════════════════════════════════════════════════════
-          TABELA FORENSE LIVE AGENT (CORPO PRINCIPAL)
+          TABELA FORENSE DE SEGURANÇA E AUDITORIA (CORPO PRINCIPAL)
           ═════════════════════════════════════════════════════════════ */}
       <div className="flex-1 overflow-x-auto overflow-y-auto">
         <table className="w-full text-left border-separate border-spacing-0 text-xs">
           <thead className="sticky top-0 z-20">
             <tr className="text-ink-muted font-medium">
-              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Agent</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Task</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">UrgencyScore™</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Agente</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Tarefa</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Score de Urgência™</th>
               <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">CPU</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Memory</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Memória</th>
               <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Status</th>
-              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Last Activity</th>
+              <th className="py-3 px-4 font-semibold text-ink-muted bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Última Atividade</th>
               <th className="py-3 px-4 font-semibold text-ink-muted text-right pr-6 bg-surface dark:bg-[#111928] border-b border-surface-border sticky top-0 z-20 whitespace-nowrap">Ação</th>
             </tr>
           </thead>
@@ -979,7 +1290,7 @@ export const LogsSeguranca = () => {
                       {item.lastActivity}
                     </td>
 
-                    {/* Botão View Details */}
+                    {/* Botão Ver Detalhes */}
                     <td className="py-3.5 px-4 text-right pr-6 whitespace-nowrap border-b border-surface-border/60">
                       <button
                         type="button"
@@ -990,7 +1301,7 @@ export const LogsSeguranca = () => {
                         }}
                         className="text-xs font-semibold text-ink-secondary hover:text-[#0455BF] dark:hover:text-blue-400 hover:underline transition-colors cursor-pointer"
                       >
-                        View Details
+                        Ver Detalhes
                       </button>
                     </td>
                   </tr>
@@ -1135,8 +1446,10 @@ export const LogsSeguranca = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-2 pt-1">
                     <div className="p-2 rounded-xl bg-surface dark:bg-black/20 border border-surface-border text-center">
-                      <span className="text-[10px] text-ink-muted block">UrgencyScore™</span>
-                      <span className="font-bold text-xs">{registroSelecionado.urgencyScore} ({registroSelecionado.urgencyLevel})</span>
+                      <span className="text-[10px] text-ink-muted block">Score de Urgência™</span>
+                      <span className="font-bold text-xs">
+                        <FormatarUrgencyScore score={registroSelecionado.urgencyScore} level={registroSelecionado.urgencyLevel} />
+                      </span>
                     </div>
                     <div className="p-2 rounded-xl bg-surface dark:bg-black/20 border border-surface-border text-center">
                       <span className="text-[10px] text-ink-muted block">Carga CPU</span>
@@ -1204,7 +1517,7 @@ export const LogsSeguranca = () => {
                 onClick={() => setDrawerAberto(false)}
                 className="h-9 px-4 rounded-xl bg-[#0455BF] hover:bg-[#034499] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
               >
-                Concluir Visualização
+                Fechar Detalhes
               </button>
             </div>
           </div>

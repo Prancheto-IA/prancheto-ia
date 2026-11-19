@@ -77,7 +77,7 @@ const ITENS_NAV_ADMIN = [
   },
   {
     slug: 'seguranca',
-    label: 'Segurança & Auditoria',
+    label: 'Segurança e Auditoria',
     rota: '/seguranca',
     icone: Shield01Icon,
   },
