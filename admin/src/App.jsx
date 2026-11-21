@@ -70,6 +70,14 @@ const App = () => {
             }
           />
           <Route
+            path="/chat/*"
+            element={
+              <RotaSuperAdmin>
+                <PaginaAdminPanel />
+              </RotaSuperAdmin>
+            }
+          />
+          <Route
             path="/planos/*"
             element={
               <RotaSuperAdmin>
@@ -94,11 +102,11 @@ const App = () => {
             }
           />
 
-          {/* Redireciona a raiz para /admin */}
-          <Route path="/" element={<Navigate to="/admin" replace />} />
+          {/* Redireciona a raiz para /chat */}
+          <Route path="/" element={<Navigate to="/chat" replace />} />
 
           {/* Redirecionamentos diretos e rotas legadas */}
-          <Route path="/chat" element={<Navigate to="/admin/chat" replace />} />
+          <Route path="/admin/chat" element={<Navigate to="/chat" replace />} />
           <Route path="/admin/usuarios" element={<Navigate to="/usuarios" replace />} />
           <Route path="/admin/clientes" element={<Navigate to="/clientes" replace />} />
           <Route path="/admin/planos" element={<Navigate to="/planos" replace />} />

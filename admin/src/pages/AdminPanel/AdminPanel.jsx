@@ -48,7 +48,7 @@ const ITENS_NAV_ADMIN = [
   {
     slug: 'chat',
     label: 'Chat com IA',
-    rota: '/admin/chat',
+    rota: '/chat',
     icone: BotIcon,
   },
   {
@@ -395,7 +395,7 @@ const PaginaAdminPanel = () => {
                   ) : location.pathname.startsWith('/usuarios') ? (
                     <PaginaGestaoUsuarios />
                   ) : (
-                    <Navigate to="/admin/chat" replace />
+                    <PaginaChatIA />
                   )
                 }
               />
@@ -423,7 +423,7 @@ const PaginaAdminPanel = () => {
                                 ? '/clientes'
                                 : location.pathname.startsWith('/usuarios')
                                   ? '/usuarios'
-                                  : '/admin/chat'
+                                  : '/chat'
                     }
                     replace
                   />

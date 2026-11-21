@@ -1,403 +1,717 @@
 // =============================================================
-// PRANCHETO.IA - TELA DE CHAT COM IA
-// Interface completa de chat integrada ao Painel Admin.
-// Acessível apenas pelo Super Admin.
-// Sub-componentes visuais estão em ChatIAComponentes.jsx
+// PRANCHETO.IA - CHAT COM IA / ASSISTENTE ADMIN
+// Layout idêntico ao Chat do Dashboard do Cliente (ChatMensagens.jsx).
+//
+// Construído com:
+// - Padrão visual de 2 colunas com superfícies arredondadas e limpas
+// - Suporte a histórico com busca, criação e exclusão em lote
+// - Mascote Pranchetinho e renderização Markdown nativa
+//
+// ROTA: /chat (legado: /admin/chat)
+// ACESSO: Super Admin
 // =============================================================
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate }     from 'react-router-dom';
-import { supabase }        from '../../../lib/supabase.js';
-import { useAuthStore }    from '../../../store/authStore.js';
-import { useErrorHandler } from '../../../hooks/useErrorHandler.js';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { supabase } from '../../../lib/supabase.js';
+import { useAuthStore } from '../../../store/authStore.js';
+import { useUIStore } from '../../../store/uiStore.js';
 import {
-  BotaoVoltar,
-  ItemConversa,
-  BolhaMensagem,
-  IndicadorDigitando,
-  TelaVazia,
+  Bolha,
+  LinhaAtividade,
+  CartaoAcao,
+  FaixaIndisponivel,
+  SUGESTOES,
 } from './ChatIAComponentes.jsx';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Add01Icon, SentIcon } from '@hugeicons/core-free-icons';
+import {
+  Search01Icon,
+  Cancel01Icon,
+  Add01Icon,
+  AiSparklesIcon,
+  SentIcon,
+  Comment01Icon,
+  Attachment01Icon,
+  Delete02Icon,
+  PencilEdit01Icon,
+} from '@hugeicons/core-free-icons';
+import pranchetinho from '../../../assets/mascote/pranchetinho-chat.png';
 
-// =============================================================
-// COMPONENTE PRINCIPAL: PaginaChatIA
-// =============================================================
 const PaginaChatIA = () => {
-  const navigate                      = useNavigate();
-  const { tratarErro, tratarSucesso } = useErrorHandler();
-  const { usuario }                   = useAuthStore();
+  const { usuario } = useAuthStore();
+  const adicionarNotificacao = useUIStore((s) => s.adicionarNotificacao);
 
-  // --- Estado ---
-  const [conversas,       setConversas]       = useState([]);
-  const [conversaAtiva,   setConversaAtiva]   = useState(null);
-  const [mensagemInput,   setMensagemInput]   = useState('');
-  const [carregando,      setCarregando]      = useState(false);
-  const [carregandoLista, setCarregandoLista] = useState(true);
-  const [carregandoChat,  setCarregandoChat]  = useState(false);
+  // Estados principais
+  const [conversas, setConversas] = useState([]);
+  const [conversaAtiva, setConversaAtiva] = useState(null);
+  const [mensagens, setMensagens] = useState([]);
+  const [acoesPendentes, setAcoesPendentes] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [enviando, setEnviando] = useState(false);
+  const [resolvendoAcao, setResolvendoAcao] = useState(null);
+  const [erro, setErro] = useState(null);
+
+  // Estados da interface e busca
+  const [texto, setTexto] = useState('');
+  const [busca, setBusca] = useState('');
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [selecionadas, setSelecionadas] = useState(new Set());
+  const [apagando, setApagando] = useState(false);
+  const [anexos, setAnexos] = useState([]);
 
   // Refs
-  const fimDaListaRef = useRef(null);
-  const inputRef      = useRef(null);
+  const fimRef = useRef(null);
+  const inputRef = useRef(null);
+  const arquivoInputRef = useRef(null);
 
   // ----------------------------------------------------------
-  // FUNÇÃO: Carrega lista de conversas da sidebar
+  // CARREGAR CONVERSAS
   // ----------------------------------------------------------
   const carregarConversas = useCallback(async () => {
     if (!usuario?.id) return;
     try {
-      setCarregandoLista(true);
-      const { data, error } = await supabase
+      setCarregando(true);
+      const { data, error: erroQuery } = await supabase
         .from('ai_conversations')
         .select('*')
         .eq('user_id', usuario.id)
         .eq('status', 'ativa')
         .order('atualizado_em', { ascending: false });
 
-      if (error) throw error;
+      if (erroQuery) throw erroQuery;
       setConversas(data || []);
-    } catch (erro) {
-      tratarErro(erro, 'Erro ao carregar conversas');
+
+      // Se não há conversa ativa e existem conversas, seleciona a primeira
+      if (!conversaAtiva && data && data.length > 0) {
+        selecionarConversa(data[0]);
+      }
+    } catch (err) {
+      setErro(err);
     } finally {
-      setCarregandoLista(false);
+      setCarregando(false);
     }
-  }, [usuario?.id, tratarErro]);
+  }, [usuario?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ----------------------------------------------------------
-  // Carrega lista de conversas ao montar (e se o usuário mudar)
+  // SELECIONAR CONVERSA E CARREGAR MENSAGENS
   // ----------------------------------------------------------
+  const selecionarConversa = useCallback(async (conversa) => {
+    if (!conversa?.id) return;
+    setConversaAtiva(conversa);
+    try {
+      const { data, error: erroMsgs } = await supabase
+        .from('ai_messages')
+        .select('*')
+        .eq('conversation_id', conversa.id)
+        .order('criado_em', { ascending: true });
+
+      if (erroMsgs) throw erroMsgs;
+      setMensagens(data || []);
+      setAcoesPendentes([]);
+    } catch (err) {
+      setErro(err);
+    } finally {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, []);
+
   useEffect(() => {
     carregarConversas();
   }, [carregarConversas]);
 
-  // ----------------------------------------------------------
-  // Rola para o final quando chegam novas mensagens
-  // ----------------------------------------------------------
+  // Scroll automático para a última mensagem
   useEffect(() => {
-    fimDaListaRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversaAtiva?.mensagens, carregando]);
+    fimRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [mensagens, enviando, acoesPendentes]);
 
   // ----------------------------------------------------------
-  // FUNÇÃO: Seleciona uma conversa e carrega suas mensagens
+  // CRIAR NOVA CONVERSA
   // ----------------------------------------------------------
-  const selecionarConversa = useCallback(async (conversaId) => {
-    if (conversaAtiva?.id === conversaId) return;
+  const novaConversa = useCallback(async (promptInicial = null) => {
+    if (!usuario?.id) return;
     try {
-      setCarregandoChat(true);
-      // Busca a conversa (opcional, pois já temos na lista, mas garante os dados mais recentes)
-      const { data: conv, error: erroConv } = await supabase
+      const { data, error } = await supabase
         .from('ai_conversations')
+        .insert({
+          user_id: usuario.id,
+          titulo: 'Nova conversa',
+          modelo: 'gpt-4o-mini',
+          status: 'ativa',
+        })
         .select('*')
-        .eq('id', conversaId)
         .single();
-      if (erroConv) throw erroConv;
 
-      // Busca as mensagens
-      const { data: msgs, error: erroMsgs } = await supabase
-        .from('ai_messages')
-        .select('*')
-        .eq('conversation_id', conversaId)
-        .order('criado_em', { ascending: true });
-      if (erroMsgs) throw erroMsgs;
+      if (error) throw error;
 
-      setConversaAtiva({ ...conv, mensagens: msgs || [] });
-      setTimeout(() => inputRef.current?.focus(), 100);
-    } catch (erro) {
-      tratarErro(erro, 'Erro ao carregar conversa');
-    } finally {
-      setCarregandoChat(false);
+      setConversas((prev) => [data, ...prev]);
+      setConversaAtiva(data);
+      setMensagens([]);
+      setAcoesPendentes([]);
+
+      if (promptInicial) {
+        enviar(promptInicial, data.id);
+      } else {
+        setTimeout(() => inputRef.current?.focus(), 100);
+      }
+    } catch (err) {
+      if (adicionarNotificacao) {
+        adicionarNotificacao('error', err?.message || 'Falha ao criar nova conversa.');
+      }
     }
-  }, [conversaAtiva?.id, tratarErro]);
+  }, [usuario?.id, adicionarNotificacao]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ----------------------------------------------------------
-  // FUNÇÃO INTERNA: Envia mensagem para a API
+  // EXCLUIR CONVERSAS SELECIONADAS
   // ----------------------------------------------------------
-  const enviarMensagemParaAPI = useCallback(async (conversaId, texto) => {
-    setMensagemInput('');
-    setCarregando(true);
+  const handleExcluirSelecionadas = async () => {
+    if (selecionadas.size === 0 || apagando) return;
+    setApagando(true);
+    try {
+      const ids = Array.from(selecionadas);
+      const { error } = await supabase
+        .from('ai_conversations')
+        .update({ status: 'arquivada' })
+        .in('id', ids);
+
+      if (error) throw error;
+
+      setConversas((prev) => prev.filter((c) => !selecionadas.has(c.id)));
+      if (conversaAtiva && selecionadas.has(conversaAtiva.id)) {
+        setConversaAtiva(null);
+        setMensagens([]);
+      }
+      setSelecionadas(new Set());
+      setModoEdicao(false);
+
+      if (adicionarNotificacao) {
+        adicionarNotificacao('success', `${ids.length} conversa(s) arquivada(s).`);
+      }
+    } catch (err) {
+      if (adicionarNotificacao) {
+        adicionarNotificacao('error', err?.message || 'Erro ao arquivar conversas.');
+      }
+    } finally {
+      setApagando(false);
+    }
+  };
+
+  // ----------------------------------------------------------
+  // ENVIAR MENSAGEM
+  // ----------------------------------------------------------
+  const enviar = async (textoMsg, convIdManual = null) => {
+    let idAlvo = convIdManual || conversaAtiva?.id;
+
+    // Se não há conversa ativa, cria uma automaticamente
+    if (!idAlvo) {
+      try {
+        const { data, error } = await supabase
+          .from('ai_conversations')
+          .insert({
+            user_id: usuario.id,
+            titulo: textoMsg.slice(0, 36) || 'Nova conversa',
+            modelo: 'gpt-4o-mini',
+            status: 'ativa',
+          })
+          .select('*')
+          .single();
+
+        if (error) throw error;
+        idAlvo = data.id;
+        setConversas((prev) => [data, ...prev]);
+        setConversaAtiva(data);
+      } catch (err) {
+        if (adicionarNotificacao) {
+          adicionarNotificacao('error', err?.message || 'Erro ao inicializar conversa.');
+        }
+        return;
+      }
+    }
+
+    setEnviando(true);
+    setErro(null);
 
     const msgTemp = {
-      id:        `temp-${Date.now()}`,
+      id: `temp-${Date.now()}`,
       remetente: 'user',
-      conteudo:  texto,
+      conteudo: textoMsg,
       criado_em: new Date().toISOString(),
     };
 
-    setConversaAtiva((prev) => ({
-      ...prev,
-      mensagens: [...(prev?.mensagens || []), msgTemp],
-    }));
+    setMensagens((prev) => [...prev, msgTemp]);
 
     try {
-      // Chama a Edge Function no Supabase
       const { data, error } = await supabase.functions.invoke('chat-ai', {
-        // O parametro se chama conversaId. Usar 'conversationId' solto aqui
-        // lancava ReferenceError antes de a requisicao sair, e o catch
-        // abaixo exibia "Erro ao enviar mensagem" — o chat nunca funcionou.
-        body: { conversationId: conversaId, mensagem: texto }
+        body: { conversationId: idAlvo, mensagem: textoMsg },
       });
 
       if (error) throw error;
       if (data?.erro) throw new Error(data.erro);
 
-      setConversaAtiva((prev) => ({
-        ...prev,
-        mensagens: [
-          ...(prev?.mensagens || []).filter((m) => m.id !== msgTemp.id),
-          data.mensagem_usuario,
-          data.resposta_ia,
-        ],
-      }));
+      setMensagens((prev) => [
+        ...prev.filter((m) => m.id !== msgTemp.id),
+        data.mensagem_usuario,
+        data.resposta_ia,
+      ]);
 
-      await carregarConversas();
-    } catch (erro) {
-      setConversaAtiva((prev) => ({
-        ...prev,
-        mensagens: (prev?.mensagens || []).filter((m) => m.id !== msgTemp.id),
-      }));
-      setMensagemInput(texto); 
-      tratarErro(erro, 'Erro ao enviar mensagem');
-    } finally {
-      setCarregando(false);
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [carregarConversas, tratarErro]);
-
-  // ----------------------------------------------------------
-  // FUNÇÃO: Cria nova conversa (com prompt inicial opcional)
-  // ----------------------------------------------------------
-  const criarNovaConversa = useCallback(async (promptInicial = null) => {
-    if (!usuario?.id) return;
-    try {
-      setCarregando(true);
-      const { data: novaoArr, error } = await supabase
-        .from('ai_conversations')
-        .insert({ user_id: usuario.id, titulo: 'Nova conversa', modelo: 'gpt-4o-mini' })
-        .select('*');
-
-      if (error) throw error;
-      const nova = { ...novaoArr[0], mensagens: [] };
-
-      setConversas((prev) => [{ ...nova, total_mensagens: 0, total_tokens: 0 }, ...prev]);
-      setConversaAtiva(nova);
-
-      if (promptInicial) {
-        await enviarMensagemParaAPI(nova.id, promptInicial);
-      } else {
-        setCarregando(false);
-        setTimeout(() => inputRef.current?.focus(), 100);
+      // Atualiza o título na lista se for a primeira mensagem
+      if (conversaAtiva?.titulo === 'Nova conversa' && data.titulo_gerado) {
+        setConversaAtiva((prev) => ({ ...prev, titulo: data.titulo_gerado }));
+        setConversas((prev) =>
+          prev.map((c) => (c.id === idAlvo ? { ...c, titulo: data.titulo_gerado } : c))
+        );
       }
-    } catch (erro) {
-      setCarregando(false);
-      tratarErro(erro, 'Erro ao criar conversa');
-    }
-  }, [usuario?.id, enviarMensagemParaAPI, tratarErro]);
-
-  // ----------------------------------------------------------
-  // FUNÇÃO: Envia mensagem do formulário
-  // ----------------------------------------------------------
-  const enviarMensagem = useCallback(async (e) => {
-    e?.preventDefault();
-    const texto = mensagemInput.trim();
-    if (!texto || carregando || !conversaAtiva) return;
-    await enviarMensagemParaAPI(conversaAtiva.id, texto);
-  }, [mensagemInput, carregando, conversaAtiva, enviarMensagemParaAPI]);
-
-  // ----------------------------------------------------------
-  // FUNÇÃO: Arquiva uma conversa
-  // ----------------------------------------------------------
-  const arquivarConversa = useCallback(async (conversaId) => {
-    try {
-      const { error } = await supabase
-        .from('ai_conversations')
-        .update({ status: 'arquivada' })
-        .eq('id', conversaId);
-        
-      if (error) throw error;
-      
-      setConversas((prev) => prev.filter((c) => c.id !== conversaId));
-      if (conversaAtiva?.id === conversaId) setConversaAtiva(null);
-      tratarSucesso('Conversa arquivada.');
-    } catch (erro) {
-      tratarErro(erro, 'Erro ao arquivar conversa');
-    }
-  }, [conversaAtiva?.id, tratarErro, tratarSucesso]);
-
-  // ----------------------------------------------------------
-  // HANDLER: Enter envia, Shift+Enter = nova linha
-  // ----------------------------------------------------------
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      enviarMensagem();
+    } catch (err) {
+      setMensagens((prev) => prev.filter((m) => m.id !== msgTemp.id));
+      setErro({ mensagem: err?.message || 'Falha ao processar mensagem com a IA.' });
+      setTexto(textoMsg);
+    } finally {
+      setEnviando(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
+  const submeter = (e) => {
+    e.preventDefault();
+    if ((!texto.trim() && anexos.length === 0) || enviando) return;
+
+    let msg = texto.trim();
+    if (anexos.length > 0) {
+      const nomes = anexos.map((a) => a.name).join(', ');
+      msg = msg ? `${msg} [Anexos: ${nomes}]` : `[Anexos: ${nomes}]`;
+    }
+
+    setTexto('');
+    setAnexos([]);
+    enviar(msg);
+  };
+
   // ----------------------------------------------------------
-  // RENDER
+  // ANEXOS
   // ----------------------------------------------------------
+  const handleSelecionarArquivos = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setAnexos((prev) => [...prev, ...files]);
+    }
+    e.target.value = '';
+  };
+
+  const removerAnexo = (index) => {
+    setAnexos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Resposta para ações de confirmação
+  const responderAcao = (acaoId, aprovado) => {
+    setResolvendoAcao(acaoId);
+    setTimeout(() => {
+      setAcoesPendentes((prev) => prev.filter((a) => a.id !== acaoId));
+      setResolvendoAcao(null);
+      if (adicionarNotificacao) {
+        adicionarNotificacao(
+          aprovado ? 'success' : 'info',
+          aprovado ? 'Ação administrativa executada.' : 'Ação descartada.'
+        );
+      }
+    }, 600);
+  };
+
+  // Conversas filtradas pela busca
+  const conversasFiltradas = useMemo(() => {
+    if (!busca.trim()) return conversas;
+    const termo = busca.toLowerCase();
+    return conversas.filter((c) =>
+      c.titulo ? c.titulo.toLowerCase().includes(termo) : false
+    );
+  }, [conversas, busca]);
+
+  const vazio = mensagens.length === 0 && !enviando && !carregando;
+
   return (
-    <div className="flex flex-col h-screen bg-surface">
-
-      {/* HEADER */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-primary-800 bg-primary-950/50 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <BotaoVoltar onClick={() => navigate('/admin')} />
-          <span className="text-slate-600">|</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🤖</span>
-            <span className="text-white font-semibold text-sm">Chat com IA</span>
-            <span className="badge bg-primary-900 text-primary-300 border border-primary-700 text-sm">
-              OpenAI
+    <div className="w-full h-full flex-1 flex gap-4 min-h-0 font-sans overflow-hidden p-4 sm:p-6 bg-surface dark:bg-[#111928] select-text">
+      {/* ─────────────────────────────────────────────────────────
+          COLUNA ESQUERDA: LISTA DE CONVERSAS (BARRA LATERAL)
+         ───────────────────────────────────────────────────────── */}
+      <aside className="w-full md:w-72 lg:w-80 bg-surface-card rounded-2xl border border-surface-border shadow-2xs flex flex-col overflow-hidden shrink-0">
+        {/* Controles no Topo: Campo de Pesquisa + Botão Nova Conversa */}
+        <div className="p-3 border-b border-surface-border flex items-center gap-2 flex-shrink-0">
+          <div className="relative flex-1 flex items-center min-w-0">
+            <span className="absolute left-2.5 text-ink-secondary pointer-events-none">
+              <HugeiconsIcon icon={Search01Icon} size={14} strokeWidth={1.8} />
             </span>
-          </div>
-        </div>
-        <button
-          onClick={() => criarNovaConversa()}
-          disabled={carregando}
-          className="btn-primary text-sm px-3 py-1.5 flex items-center gap-1.5 disabled:opacity-50"
-        >
-          <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2} />
-          <span className="hidden sm:inline">Nova Conversa</span>
-        </button>
-      </header>
-
-      {/* CORPO: Sidebar + Chat */}
-      <div className="flex flex-1 overflow-hidden">
-
-        {/* SIDEBAR */}
-        <aside className="hidden lg:flex flex-col w-72 flex-shrink-0 border-r border-surface-border bg-surface">
-          <div className="p-3 border-b border-surface-border">
-            <p className="text-sm font-semibold text-muted uppercase tracking-wider px-1">
-              Conversas
-            </p>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {carregandoLista ? (
-              Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="p-3 rounded-lg animate-pulse">
-                  <div className="h-3.5 bg-surface-card rounded w-3/4 mb-2" />
-                  <div className="h-2.5 bg-surface-card rounded w-1/2" />
-                </div>
-              ))
-            ) : conversas.length === 0 ? (
-              <div className="p-4 text-center">
-                <p className="text-muted text-sm">Nenhuma conversa ainda.</p>
-                <p className="text-muted text-sm mt-1">Clique em "Nova Conversa" para começar.</p>
-              </div>
-            ) : (
-              conversas.map((conversa) => (
-                <ItemConversa
-                  key={conversa.id}
-                  conversa={conversa}
-                  ativa={conversaAtiva?.id === conversa.id}
-                  onClick={() => selecionarConversa(conversa.id)}
-                  onArquivar={arquivarConversa}
-                />
-              ))
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Pesquisar..."
+              className="w-full bg-surface-subtle hover:bg-surface-card focus:bg-surface-card text-xs text-ink-primary placeholder:text-ink-secondary/60 pl-8 pr-7 py-2 rounded-xl border border-surface-border focus:outline-none focus:border-brand-primary transition-all"
+            />
+            {busca && (
+              <button
+                type="button"
+                onClick={() => setBusca('')}
+                className="absolute right-2 p-0.5 rounded text-ink-secondary hover:text-ink-primary transition-colors cursor-pointer"
+                title="Limpar busca"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={1.8} />
+              </button>
             )}
           </div>
-          <div className="p-3 border-t border-surface-border">
-            <p className="text-sm text-muted text-center">Modelo: gpt-4o-mini</p>
+
+          <button
+            type="button"
+            onClick={() => novaConversa()}
+            title="Iniciar nova conversa"
+            className="flex items-center justify-center gap-1.5 py-2 px-3 bg-brand-primary hover:bg-brand-primary/90 text-white rounded-xl text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer flex-shrink-0"
+          >
+            <HugeiconsIcon icon={Add01Icon} size={15} strokeWidth={2} />
+            <span className="hidden sm:inline">Nova</span>
+          </button>
+        </div>
+
+        {/* Subcabeçalho com Contador e Botão de Editar */}
+        <div className="px-3.5 py-2 bg-surface-subtle border-b border-surface-border flex items-center justify-between flex-shrink-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary">
+            Histórico Recente
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">
+              {conversasFiltradas.length}
+            </span>
+            {conversas.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setModoEdicao(!modoEdicao);
+                  setSelecionadas(new Set());
+                }}
+                className={`text-xs font-semibold px-2 py-0.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
+                  modoEdicao
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-hover'
+                }`}
+                title={modoEdicao ? 'Finalizar modo de seleção' : 'Editar e apagar conversas'}
+              >
+                <HugeiconsIcon icon={PencilEdit01Icon} size={12} strokeWidth={2} />
+                <span>{modoEdicao ? 'Concluir' : 'Editar'}</span>
+              </button>
+            )}
           </div>
-        </aside>
+        </div>
 
-        {/* ÁREA DE CHAT */}
-        <main className="flex-1 flex flex-col overflow-hidden">
-          {!conversaAtiva ? (
-            <TelaVazia onNovaConversa={criarNovaConversa} carregando={carregando} />
-          ) : (
-            <>
-              {/* Cabeçalho do chat */}
-              <div className="flex items-center px-4 py-3 border-b border-surface-border flex-shrink-0">
-                <div>
-                  <h2 className="font-medium text-sm truncate max-w-md">
-                    {conversaAtiva.titulo}
-                  </h2>
-                  <p className="text-sm text-muted mt-0.5">
-                    {(conversaAtiva.mensagens || []).length} mensagens
-                    {conversaAtiva.total_tokens > 0 && (
-                      <> · {conversaAtiva.total_tokens?.toLocaleString()} tokens</>
-                    )}
-                  </p>
-                </div>
+        {/* Barra de Ações do Modo Edição */}
+        {modoEdicao && (
+          <div className="px-3 py-2 bg-rose-500/10 border-b border-rose-500/20 flex items-center justify-between text-xs flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (selecionadas.size === conversasFiltradas.length) {
+                  setSelecionadas(new Set());
+                } else {
+                  setSelecionadas(new Set(conversasFiltradas.map((c) => c.id)));
+                }
+              }}
+              className="text-rose-600 dark:text-rose-400 font-semibold hover:underline cursor-pointer"
+            >
+              {selecionadas.size === conversasFiltradas.length
+                ? 'Desmarcar todas'
+                : 'Selecionar todas'}
+            </button>
+            <button
+              type="button"
+              onClick={handleExcluirSelecionadas}
+              disabled={selecionadas.size === 0 || apagando}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={13} strokeWidth={2} />
+              <span>{apagando ? 'Apagando...' : `Apagar (${selecionadas.size})`}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Lista de Conversas com Scroll */}
+        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+          {carregando && conversas.length === 0 ? (
+            <div className="flex justify-center py-10">
+              <div className="w-6 h-6 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : conversasFiltradas.length === 0 ? (
+            <div className="text-center py-12 px-4">
+              <div className="w-10 h-10 rounded-xl bg-surface-subtle border border-surface-border text-ink-secondary flex items-center justify-center mx-auto mb-2.5">
+                <HugeiconsIcon icon={Comment01Icon} size={18} strokeWidth={1.8} />
               </div>
+              <p className="text-xs font-bold text-ink-primary">
+                {busca ? 'Nenhum resultado' : 'Nenhuma conversa'}
+              </p>
+              <p className="text-[11px] text-ink-secondary mt-0.5">
+                {busca ? 'Tente outro termo de busca' : 'Clique em Nova para iniciar'}
+              </p>
+            </div>
+          ) : (
+            conversasFiltradas.map((c) => {
+              const ativa = conversaAtiva?.id === c.id;
+              const estaSelecionada = selecionadas.has(c.id);
 
-              {/* Lista de mensagens */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {carregandoChat ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className={`flex gap-3 ${i % 2 === 0 ? '' : 'flex-row-reverse'}`}>
-                      <div className="w-8 h-8 rounded-full bg-surface-card animate-pulse flex-shrink-0" />
-                      <div className={`rounded-2xl p-4 animate-pulse ${i % 2 === 0 ? 'bg-surface-card w-2/3' : 'bg-primary-900/30 w-1/2'}`}>
-                        <div className="h-3 bg-[rgb(var(--color-neutro-rgb)/0.25)] rounded w-full mb-2" />
-                        <div className="h-3 bg-[rgb(var(--color-neutro-rgb)/0.25)] rounded w-3/4" />
-                      </div>
-                    </div>
-                  ))
-                ) : (conversaAtiva.mensagens || []).length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
-                    <span className="text-4xl mb-3">💬</span>
-                    <p className="text-muted text-sm">
-                      Conversa criada! Digite sua primeira mensagem abaixo.
+              return (
+                <div
+                  key={c.id}
+                  onClick={() => {
+                    if (modoEdicao) {
+                      const next = new Set(selecionadas);
+                      if (next.has(c.id)) next.delete(c.id);
+                      else next.add(c.id);
+                      setSelecionadas(next);
+                    } else {
+                      selecionarConversa(c);
+                    }
+                  }}
+                  className={`w-full text-left p-3 rounded-xl transition-all border relative flex items-center gap-2.5 cursor-pointer select-none ${
+                    modoEdicao && estaSelecionada
+                      ? 'bg-rose-500/10 border-rose-500/30 text-ink-primary'
+                      : ativa
+                        ? 'bg-blue-500/10 dark:bg-blue-500/15 border-blue-500/30 text-blue-600 dark:text-blue-400 shadow-2xs font-semibold'
+                        : 'bg-surface-card border-transparent hover:bg-surface-subtle text-ink-primary'
+                  }`}
+                >
+                  {modoEdicao ? (
+                    <input
+                      type="checkbox"
+                      checked={estaSelecionada}
+                      onChange={() => {}}
+                      className="h-4 w-4 rounded border-surface-border text-rose-600 focus:ring-rose-500 cursor-pointer shrink-0"
+                    />
+                  ) : (
+                    ativa && (
+                      <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-brand-primary rounded-r-full" />
+                    )
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold truncate text-ink-primary">
+                      {c.titulo || 'Conversa sem título'}
+                    </p>
+                    <p className="text-[10px] text-ink-secondary font-medium mt-1">
+                      {new Date(c.criado_em).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </p>
                   </div>
-                ) : (
-                  (conversaAtiva.mensagens || []).map((msg) => (
-                    <BolhaMensagem key={msg.id} mensagem={msg} />
-                  ))
-                )}
-
-                {/* Indicador de digitação da IA */}
-                {carregando && <IndicadorDigitando />}
-
-                {/* Âncora para scroll automático */}
-                <div ref={fimDaListaRef} />
-              </div>
-
-              {/* INPUT DE MENSAGEM */}
-              <div className="flex-shrink-0 border-t border-surface-border p-4">
-                <form onSubmit={enviarMensagem} className="flex gap-3 items-end">
-                  <textarea
-                    ref={inputRef}
-                    value={mensagemInput}
-                    onChange={(e) => {
-                      setMensagemInput(e.target.value);
-                      // Auto-resize
-                      e.target.style.height = 'auto';
-                      e.target.style.height = `${Math.min(e.target.scrollHeight, 144)}px`;
-                    }}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"
-                    disabled={carregando}
-                    rows={1}
-                    className="input flex-1 resize-none leading-relaxed disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ minHeight: '44px', maxHeight: '144px' }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={carregando || !mensagemInput.trim()}
-                    className="btn-primary px-4 py-2.5 flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {carregando ? (
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                    ) : (
-                      <HugeiconsIcon icon={SentIcon} size={16} strokeWidth={2} />
-                    )}
-                    <span className="hidden sm:inline">{carregando ? 'Enviando...' : 'Enviar'}</span>
-                  </button>
-                </form>
-                <p className="text-sm text-muted mt-2 text-center">
-                  Enter para enviar · Shift+Enter para nova linha
-                </p>
-              </div>
-            </>
+                </div>
+              );
+            })
           )}
-        </main>
-      </div>
+        </div>
+      </aside>
+
+      {/* ─────────────────────────────────────────────────────────
+          COLUNA DIREITA: TELA PRINCIPAL DE MENSAGENS
+         ───────────────────────────────────────────────────────── */}
+      <section className="flex-1 bg-surface-card rounded-2xl border border-surface-border shadow-2xs flex flex-col overflow-hidden min-w-0">
+        {/* Top Bar do Chat */}
+        <div className="px-5 py-3.5 border-b border-surface-border flex items-center justify-between bg-surface-card flex-shrink-0 z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 p-1 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+              <img
+                src={pranchetinho}
+                alt="Pranchetinho"
+                className="w-full h-full object-contain pointer-events-none"
+                draggable={false}
+              />
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-bold text-xs sm:text-sm text-ink-primary truncate">
+                {conversaAtiva?.titulo || 'Assistente IA do Prancheto'}
+              </h3>
+              <p className="text-[11px] text-ink-secondary truncate">
+                Governança, inteligência analítica e automação administrativa
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {erro && <FaixaIndisponivel erro={erro} />}
+
+        {/* Fluxo de Mensagens */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-surface-subtle/30">
+          {vazio && (
+            <div className="flex flex-col items-center justify-center h-full text-center py-12 px-4 max-w-lg mx-auto">
+              <div className="w-16 h-16 rounded-3xl bg-blue-500/10 p-2 flex items-center justify-center mb-3 shadow-xs border border-blue-500/20 overflow-hidden">
+                <img
+                  src={pranchetinho}
+                  alt="Pranchetinho"
+                  className="w-full h-full object-contain pointer-events-none"
+                  draggable={false}
+                />
+              </div>
+              <h3 className="text-sm sm:text-base font-bold text-ink-primary mb-1.5">
+                O que vamos analisar no sistema hoje?
+              </h3>
+              <p className="text-xs text-ink-secondary leading-relaxed mb-6">
+                Peça para consultar o status dos servidores, analisar auditorias de segurança,
+                conferir contas corporativas ou gerar relatórios de uso.
+              </p>
+
+              <div className="flex flex-wrap gap-2 justify-center mb-2">
+                {SUGESTOES.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => enviar(s)}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-surface-card hover:bg-blue-500/10 border border-surface-border hover:border-blue-500/30 text-ink-primary hover:text-blue-600 rounded-full text-xs font-semibold shadow-2xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    <HugeiconsIcon
+                      icon={AiSparklesIcon}
+                      size={13}
+                      strokeWidth={2}
+                      className="text-blue-600 dark:text-blue-400"
+                    />
+                    <span>{s}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {mensagens.map((msg) => {
+            if (msg.remetente === 'tool') {
+              let falhou = false;
+              try {
+                falhou = !!JSON.parse(msg.conteudo)?.recusada;
+              } catch {
+                /* conteudo cru */
+              }
+              return (
+                <LinhaAtividade
+                  key={msg.id}
+                  ferramenta={msg.metadata?.ferramenta}
+                  falhou={falhou}
+                />
+              );
+            }
+            if (msg.remetente === 'assistant' && !msg.conteudo?.trim()) return null;
+            return <Bolha key={msg.id} mensagem={msg} />;
+          })}
+
+          {acoesPendentes.map((acao) => (
+            <CartaoAcao
+              key={acao.id}
+              acao={acao}
+              resolvendo={resolvendoAcao}
+              onResponder={responderAcao}
+            />
+          ))}
+
+          {enviando && (
+            <div className="flex gap-2.5 sm:gap-3 flex-row items-center">
+              <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 shadow-2xs p-1 overflow-hidden">
+                <img
+                  src={pranchetinho}
+                  alt="Pranchetinho"
+                  className="w-full h-full object-contain pointer-events-none"
+                  draggable={false}
+                />
+              </div>
+              <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-surface-card border border-surface-border shadow-2xs flex items-center gap-1.5">
+                <span
+                  className="w-2 h-2 rounded-full bg-brand-primary animate-bounce"
+                  style={{ animationDelay: '0ms' }}
+                />
+                <span
+                  className="w-2 h-2 rounded-full bg-brand-primary animate-bounce"
+                  style={{ animationDelay: '150ms' }}
+                />
+                <span
+                  className="w-2 h-2 rounded-full bg-brand-primary animate-bounce"
+                  style={{ animationDelay: '300ms' }}
+                />
+              </div>
+            </div>
+          )}
+
+          <div ref={fimRef} />
+        </div>
+
+        {/* Formulário de Envio */}
+        <form
+          onSubmit={submeter}
+          className="p-3 sm:p-4 bg-surface-card border-t border-surface-border flex-shrink-0"
+        >
+          {/* Pré-visualização de Anexos */}
+          {anexos.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-2 p-2 bg-surface-subtle rounded-xl border border-surface-border animate-fade-in">
+              {anexos.map((arq, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-1.5 bg-surface-card border border-surface-border px-2.5 py-1 rounded-lg text-xs text-ink-primary shadow-2xs"
+                >
+                  <HugeiconsIcon icon={Attachment01Icon} size={13} className="text-blue-600 shrink-0" />
+                  <span className="truncate max-w-[140px] font-medium">{arq.name}</span>
+                  <span className="text-[10px] text-ink-secondary">
+                    ({(arq.size / 1024).toFixed(0)} KB)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removerAnexo(idx)}
+                    className="p-0.5 text-ink-secondary hover:text-rose-500 rounded transition-colors cursor-pointer ml-0.5"
+                    title="Remover anexo"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-2 items-center">
+            <input
+              ref={inputRef}
+              type="text"
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              placeholder={
+                acoesPendentes.length > 0
+                  ? 'Confirme ou descarte a ação acima...'
+                  : 'Faça uma pergunta sobre o sistema ou solicite uma análise...'
+              }
+              disabled={enviando}
+              aria-label="Mensagem para o assistente"
+              className="flex-1 bg-surface-subtle hover:bg-surface-card focus:bg-surface-card text-xs sm:text-sm text-ink-primary placeholder:text-ink-secondary/60 px-4 py-3 rounded-xl border border-surface-border focus:outline-none focus:border-brand-primary transition-all shadow-2xs"
+            />
+
+            {/* Input Invisível para Anexar Arquivos */}
+            <input
+              type="file"
+              ref={arquivoInputRef}
+              onChange={handleSelecionarArquivos}
+              multiple
+              className="hidden"
+            />
+
+            {/* Botão de Anexar Arquivo */}
+            <button
+              type="button"
+              onClick={() => arquivoInputRef.current?.click()}
+              disabled={enviando}
+              title="Anexar arquivo"
+              aria-label="Anexar arquivo"
+              className="p-3 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer bg-surface-subtle border border-surface-border text-ink-secondary hover:text-brand-primary hover:border-brand-primary/40 shadow-2xs active:scale-95"
+            >
+              <HugeiconsIcon icon={Attachment01Icon} size={17} strokeWidth={2} />
+            </button>
+
+            {/* Botão de Enviar */}
+            <button
+              type="submit"
+              disabled={(!texto.trim() && anexos.length === 0) || enviando}
+              className="px-4 py-3 bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-40 text-white rounded-xl transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed active:scale-95"
+              aria-label="Enviar"
+              title="Enviar mensagem"
+            >
+              <HugeiconsIcon icon={SentIcon} size={17} strokeWidth={2} />
+            </button>
+          </div>
+        </form>
+      </section>
     </div>
   );
 };

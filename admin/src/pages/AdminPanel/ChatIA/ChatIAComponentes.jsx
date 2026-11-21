@@ -1,294 +1,300 @@
 // =============================================================
-// PRANCHETO.IA - SUB-COMPONENTES DO CHAT COM IA
-// Componentes visuais reutilizáveis usados pelo ChatIA.jsx.
-//
-// COMPONENTES EXPORTADOS:
-//   BotaoVoltar       → Botão para retornar ao Painel Admin
-//   ItemConversa      → Card de conversa na sidebar
-//   BolhaMensagem     → Mensagem individual com formatação Markdown
-//   IndicadorDigitando → Animação "IA está digitando..."
-//   TelaVazia         → Tela inicial quando nenhuma conversa está selecionada
+// PRANCHETO.IA - PEÇAS DE APRESENTAÇÃO DO CHAT COM IA (ADMIN)
+// Padrão visual baseado em frontend/.../Chat/ChatMensagens.jsx
+// Suporta Markdown rico, avatares estilizados e Pranchetinho.
 // =============================================================
 
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { useAuthStore } from '../../../store/authStore.js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  ArrowLeft01Icon,
-  Delete02Icon,
-  CheckmarkCircle02Icon,
-  Copy01Icon,
+  Search01Icon,
+  UserIcon,
+  Analytics01Icon,
   Add01Icon,
+  Comment01Icon,
+  Edit02Icon,
+  ArrowRight01Icon,
+  CheckmarkCircle02Icon,
+  Alert02Icon,
+  Settings02Icon,
+  Attachment01Icon,
+  Copy01Icon,
+  CheckmarkCircle01Icon,
 } from '@hugeicons/core-free-icons';
+import pranchetinho from '../../../assets/mascote/pranchetinho-chat.png';
 
-// =============================================================
-// COMPONENTE: BotaoVoltar
-// =============================================================
-export const BotaoVoltar = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
-  >
-    <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2} />
-    Voltar ao Painel
-  </button>
-);
+// Rótulo e ícone de cada ferramenta na linha de atividade
+export const ROTULO_FERRAMENTA = {
+  buscar_clientes:     { icon: Search01Icon, texto: 'Consultou os clientes do sistema' },
+  detalhar_cliente:    { icon: UserIcon, texto: 'Abriu detalhes do cliente' },
+  metricas_sistema:    { icon: Analytics01Icon, texto: 'Consultou métricas de infraestrutura' },
+  criar_cliente:       { icon: Add01Icon, texto: 'Criou novo cliente' },
+  auditoria_seguranca: { icon: Comment01Icon, texto: 'Verificou logs de auditoria' },
+  atualizar_plano:     { icon: Edit02Icon, texto: 'Atualizou plano e limites' },
+  verificar_status:    { icon: ArrowRight01Icon, texto: 'Checou status dos serviços' },
+  redefinir_senha:     { icon: CheckmarkCircle02Icon, texto: 'Redefiniu credencial de acesso' },
+};
 
-// =============================================================
-// COMPONENTE: ItemConversa
-// Card de conversa exibido na sidebar
-// =============================================================
-export const ItemConversa = ({ conversa, ativa, onClick, onArquivar }) => (
-  <div
-    className={`group relative p-3 rounded-lg cursor-pointer transition-all ${
-      ativa
-        ? 'bg-primary-800/60 border border-primary-600/50'
-        : 'hover:bg-surface-card border border-transparent'
-    }`}
-    onClick={onClick}
-  >
-    {/* Título truncado */}
-    <p className={`text-sm font-medium truncate pr-6 ${ativa ? 'text-white' : 'text-muted'}`}>
-      {conversa.titulo}
-    </p>
+export const horario = (iso) =>
+  new Date(iso || Date.now()).toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
-    {/* Metadados: contagem de mensagens e tokens */}
-    <div className="flex items-center gap-2 mt-1">
-      <span className="text-sm text-slate-500">{conversa.total_mensagens || 0} msgs</span>
-      {conversa.total_tokens > 0 && (
-        <>
-          <span className="text-slate-600">·</span>
-          <span className="text-sm text-slate-500">
-            {conversa.total_tokens.toLocaleString()} tokens
-          </span>
-        </>
-      )}
-    </div>
+export const SUGESTOES = [
+  'Quais clientes tiveram mais atividade hoje?',
+  'Resuma as falhas de autenticação recentes no sistema',
+  'Quantos usuários estão próximos do limite de assentos?',
+  'Como está a integridade do cluster e banco de dados?',
+];
 
-    {/* Botão arquivar — visível apenas no hover */}
-    <button
-      onClick={(e) => {
-        e.stopPropagation(); // Evita selecionar a conversa ao clicar em arquivar
-        onArquivar(conversa.id);
-      }}
-      className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-900/50 text-slate-500 hover:text-red-400"
-      title="Arquivar conversa"
-    >
-      <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={2} />
-    </button>
-  </div>
-);
-
-// =============================================================
-// COMPONENTE: BolhaMensagem
-// Renderiza uma mensagem individual com formatação básica de Markdown:
-//   - Blocos de código (```...```) com botão de copiar
-//   - Negrito (**texto**)
-//   - Quebras de linha preservadas
-// =============================================================
-export const BolhaMensagem = ({ mensagem }) => {
-  const [copiado, setCopiado] = useState(false);
+// ----------------------------------------------------------
+// MENSAGEM (BOLHA) COM RENDERIZAÇÃO MARKDOWN
+// ----------------------------------------------------------
+export const Bolha = ({ mensagem }) => {
+  const usuario = useAuthStore((s) => s.usuario);
   const ehUsuario = mensagem.remetente === 'user';
+  const [copiadoIdx, setCopiadoIdx] = useState(null);
 
-  // Copia texto para a área de transferência
-  const copiarTexto = async (texto) => {
+  const handleCopiarCodigo = async (codigo, idx) => {
     try {
-      await navigator.clipboard.writeText(texto);
+      await navigator.clipboard.writeText(codigo);
+      setCopiadoIdx(idx);
+      setTimeout(() => setCopiadoIdx(null), 2000);
     } catch {
-      // Fallback para navegadores sem suporte à Clipboard API moderna
-      const el = document.createElement('textarea');
-      el.value = texto;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
+      // Fallback
     }
-    setCopiado(true);
-    setTimeout(() => setCopiado(false), 2000);
   };
-
-  // Formata o conteúdo da IA separando blocos de código do texto normal
-  const formatarConteudo = (texto) => {
-    // Divide o texto em blocos de código (```...```) e texto normal
-    const partes = texto.split(/(```[\s\S]*?```)/g);
-
-    return partes.map((parte, idx) => {
-      // Bloco de código
-      if (parte.startsWith('```')) {
-        const linhas    = parte.split('\n');
-        const linguagem = linhas[0].replace('```', '').trim() || 'código';
-        const codigo    = linhas.slice(1, -1).join('\n');
-
-        return (
-          <div key={idx} className="my-3 rounded-lg overflow-hidden border border-slate-700">
-            {/* Header do bloco: linguagem + botão copiar */}
-            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800 border-b border-slate-700">
-              <span className="text-sm text-slate-400 font-mono">{linguagem}</span>
-              <button
-                onClick={() => copiarTexto(codigo)}
-                className="text-sm text-slate-400 hover:text-white transition-colors"
-              >
-                Copiar
-              </button>
-            </div>
-            {/* Conteúdo do código */}
-            <pre className="p-3 bg-slate-900 overflow-x-auto text-sm text-slate-200 font-mono leading-relaxed">
-              <code>{codigo}</code>
-            </pre>
-          </div>
-        );
-      }
-
-      // Texto normal: converte **negrito** e preserva quebras de linha
-      return (
-        <span key={idx}>
-          {parte.split('\n').map((linha, i) => (
-            <React.Fragment key={i}>
-              {i > 0 && <br />}
-              {linha.split(/(\*\*.*?\*\*)/g).map((trecho, j) => {
-                if (trecho.startsWith('**') && trecho.endsWith('**')) {
-                  return (
-                    <strong key={j} className="font-semibold">
-                      {trecho.slice(2, -2)}
-                    </strong>
-                  );
-                }
-                return trecho;
-              })}
-            </React.Fragment>
-          ))}
-        </span>
-      );
-    });
-  };
-
-  // Formata a hora da mensagem no padrão HH:MM
-  const formatarHora = (dataISO) =>
-    new Date(dataISO).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className={`flex gap-3 ${ehUsuario ? 'flex-row-reverse' : 'flex-row'}`}>
+    <div
+      className={`flex gap-2.5 sm:gap-3 ${
+        ehUsuario ? 'flex-row-reverse' : 'flex-row'
+      } items-start group`}
+    >
       {/* Avatar */}
-      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-        ehUsuario ? 'bg-primary-700 text-white' : 'bg-slate-700 text-slate-200'
-      }`}>
-        {ehUsuario ? '👤' : '🤖'}
+      {ehUsuario ? (
+        <div className="w-8 h-8 rounded-xl bg-brand-primary text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-xs mt-0.5">
+          {usuario?.nome ? usuario.nome[0].toUpperCase() : 'A'}
+        </div>
+      ) : (
+        <div className="w-8 h-8 rounded-xl bg-brand-accent/40 dark:bg-brand-primary/10 border border-brand-accent/60 dark:border-brand-primary/20 flex items-center justify-center shrink-0 shadow-xs mt-0.5 p-1 overflow-hidden">
+          <img
+            src={pranchetinho}
+            alt="Pranchetinho"
+            className="w-full h-full object-contain select-none pointer-events-none"
+            draggable={false}
+          />
+        </div>
+      )}
+
+      {/* Conteúdo da Mensagem */}
+      {ehUsuario ? (
+        <div className="max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-xs text-xs sm:text-sm leading-relaxed bg-brand-primary text-white shadow-2xs">
+          {mensagem.metadata?.anexos && mensagem.metadata.anexos.length > 0 && (
+            <div className="mb-2 space-y-1">
+              {mensagem.metadata.anexos.map((anexo, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-1.5 text-xs bg-white/15 px-2.5 py-1 rounded-lg"
+                >
+                  <HugeiconsIcon icon={Attachment01Icon} size={13} strokeWidth={2} />
+                  <span className="truncate max-w-[200px]">{anexo.nome || anexo.name}</span>
+                  {anexo.tamanho && (
+                    <span className="text-[10px] opacity-75">({anexo.tamanho})</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          <p className="whitespace-pre-wrap">{mensagem.conteudo}</p>
+          <p className="text-[10px] mt-1.5 text-white/75 text-right font-medium">
+            {horario(mensagem.criado_em)}
+          </p>
+        </div>
+      ) : (
+        <div className="max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl rounded-tl-xs text-xs sm:text-sm leading-relaxed bg-surface-card border border-surface-border text-ink-primary shadow-2xs">
+          <div className="space-y-2 text-ink-primary">
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => (
+                  <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
+                ),
+                ul: ({ children }) => (
+                  <ul className="my-2 space-y-1.5 pl-1 list-none">{children}</ul>
+                ),
+                ol: ({ children }) => (
+                  <ol className="my-2 space-y-1.5 pl-4 list-decimal">{children}</ol>
+                ),
+                li: ({ children }) => (
+                  <li className="flex items-start gap-2 text-ink-primary">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-primary mt-2 shrink-0" />
+                    <span className="flex-1 leading-relaxed">{children}</span>
+                  </li>
+                ),
+                strong: ({ children }) => (
+                  <strong className="font-bold text-ink-primary">{children}</strong>
+                ),
+                em: ({ children }) => <em className="italic">{children}</em>,
+                code: ({ inline, children }) =>
+                  inline ? (
+                    <code className="bg-surface-subtle px-1.5 py-0.5 rounded text-xs font-mono font-semibold text-brand-primary border border-surface-border">
+                      {children}
+                    </code>
+                  ) : (
+                    <div className="my-2 rounded-xl border border-surface-border overflow-hidden bg-surface-subtle">
+                      <div className="flex items-center justify-between px-3 py-1.5 bg-surface-muted/60 border-b border-surface-border text-[11px] font-mono text-ink-secondary">
+                        <span>código</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopiarCodigo(String(children))}
+                          className="flex items-center gap-1 hover:text-ink-primary transition-colors cursor-pointer"
+                        >
+                          <HugeiconsIcon
+                            icon={copiadoIdx !== null ? CheckmarkCircle01Icon : Copy01Icon}
+                            size={12}
+                          />
+                          <span>{copiadoIdx !== null ? 'Copiado!' : 'Copiar'}</span>
+                        </button>
+                      </div>
+                      <pre className="p-3 font-mono text-xs overflow-x-auto text-ink-primary">
+                        <code>{children}</code>
+                      </pre>
+                    </div>
+                  ),
+                table: ({ children }) => (
+                  <div className="overflow-x-auto my-2 rounded-xl border border-surface-border">
+                    <table className="w-full text-left text-xs divide-y divide-surface-border">
+                      {children}
+                    </table>
+                  </div>
+                ),
+                th: ({ children }) => (
+                  <th className="px-3 py-2 bg-surface-subtle font-bold text-ink-primary">
+                    {children}
+                  </th>
+                ),
+                td: ({ children }) => (
+                  <td className="px-3 py-2 border-t border-surface-border">{children}</td>
+                ),
+                h1: ({ children }) => (
+                  <h1 className="text-base font-bold text-ink-primary mt-3 mb-1.5">{children}</h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className="text-sm font-bold text-ink-primary mt-2.5 mb-1">{children}</h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 className="text-xs font-bold text-ink-primary mt-2 mb-1">{children}</h3>
+                ),
+              }}
+            >
+              {mensagem.conteudo}
+            </ReactMarkdown>
+          </div>
+          <p className="text-[10px] mt-2 text-ink-secondary font-medium text-right">
+            {horario(mensagem.criado_em)}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ----------------------------------------------------------
+// ATIVIDADE DE FERRAMENTA
+// ----------------------------------------------------------
+export const LinhaAtividade = ({ ferramenta, falhou }) => {
+  const rotulo = ROTULO_FERRAMENTA[ferramenta] || {
+    icon: Settings02Icon,
+    texto: 'Executou uma ação administrativa no sistema',
+  };
+  const IconComp = rotulo.icon;
+
+  return (
+    <div className="flex items-center gap-2 pl-11 text-xs sm:text-sm text-ink-secondary">
+      <span
+        className={`w-4 h-4 rounded-full flex items-center justify-center ${
+          falhou
+            ? 'text-amber-600 bg-amber-50 dark:text-[#FBBF24] dark:bg-amber-500/15'
+            : 'text-brand-secondary bg-brand-accent'
+        }`}
+      >
+        <HugeiconsIcon icon={falhou ? Alert02Icon : IconComp} size={11} strokeWidth={2} />
+      </span>
+      <span className="font-medium">
+        {falhou ? `Falhou: ${rotulo.texto.toLowerCase()}` : rotulo.texto}
+      </span>
+    </div>
+  );
+};
+
+// ----------------------------------------------------------
+// CARTÃO DE CONFIRMAÇÃO DE AÇÃO
+// ----------------------------------------------------------
+export const CartaoAcao = ({ acao, resolvendo, onResponder }) => {
+  const rotulo = ROTULO_FERRAMENTA[acao.ferramenta] || { icon: Settings02Icon };
+  const IconComp = rotulo.icon;
+  const ocupado = resolvendo === acao.id;
+
+  return (
+    <div className="ml-11 rounded-2xl border border-brand-secondary/30 bg-surface-subtle p-4 shadow-sm max-w-md space-y-3">
+      <div className="flex items-start gap-3">
+        <span className="w-8 h-8 rounded-xl bg-brand-accent text-brand-secondary flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+          <HugeiconsIcon icon={IconComp} size={16} strokeWidth={2} />
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs sm:text-sm font-bold text-ink-primary">{acao.resumo}</p>
+          <p className="text-xs text-ink-secondary mt-0.5">
+            O assistente só executa esta alteração administrativa com sua aprovação.
+          </p>
+        </div>
       </div>
 
-      {/* Bolha da mensagem */}
-      <div className={`group relative max-w-[80%] flex flex-col ${ehUsuario ? 'items-end' : 'items-start'}`}>
-        <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-          ehUsuario
-            ? 'bg-primary-700 text-white rounded-tr-sm'
-            : 'bg-surface-card rounded-tl-sm border border-surface-border'
-        }`}>
-          <div className="whitespace-pre-wrap break-words">
-            {ehUsuario ? mensagem.conteudo : formatarConteudo(mensagem.conteudo)}
-          </div>
-        </div>
-
-        {/* Rodapé: hora + botão copiar (apenas para respostas da IA) */}
-        <div className={`flex items-center gap-2 mt-1 px-1 ${ehUsuario ? 'flex-row-reverse' : 'flex-row'}`}>
-          <span className="text-sm text-muted">{formatarHora(mensagem.criado_em)}</span>
-
-          {!ehUsuario && (
-            <button
-              onClick={() => copiarTexto(mensagem.conteudo)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-sm text-muted hover:text-white flex items-center gap-1"
-            >
-              {copiado ? (
-                <span className="text-green-400 flex items-center gap-1">
-                  <HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} strokeWidth={2} />
-                  Copiado!
-                </span>
-              ) : (
-                <span className="flex items-center gap-1">
-                  <HugeiconsIcon icon={Copy01Icon} size={12} strokeWidth={2} />
-                  Copiar
-                </span>
-              )}
-            </button>
+      <div className="flex gap-2 pt-1">
+        <button
+          onClick={() => onResponder(acao.id, true)}
+          disabled={ocupado}
+          className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-primary hover:bg-brand-primary-hover text-white transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+        >
+          {ocupado ? (
+            <>
+              <span className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+              <span>Executando...</span>
+            </>
+          ) : (
+            <span>Confirmar</span>
           )}
-        </div>
+        </button>
+        <button
+          onClick={() => onResponder(acao.id, false)}
+          disabled={ocupado}
+          className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-surface-card border border-surface-border text-ink-secondary hover:text-ink-primary hover:bg-surface-hover transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          Descartar
+        </button>
       </div>
     </div>
   );
 };
 
-// =============================================================
-// COMPONENTE: IndicadorDigitando
-// Animação de três pontos pulsantes enquanto a IA processa
-// =============================================================
-export const IndicadorDigitando = () => (
-  <div className="flex gap-3">
-    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm">
-      🤖
-    </div>
-    <div className="bg-surface-card border border-surface-border rounded-2xl rounded-tl-sm px-4 py-3">
-      <div className="flex items-center gap-1.5">
-        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-      </div>
-    </div>
-  </div>
-);
-
-// =============================================================
-// COMPONENTE: TelaVazia
-// Exibida quando nenhuma conversa está selecionada.
-// Mostra sugestões de prompts para o usuário começar rapidamente.
-// =============================================================
-const SUGESTOES_PROMPT = [
-  { emoji: '🏗️', texto: 'Criar um novo módulo de Vendas para o CRM' },
-  { emoji: '🗄️', texto: 'Gerar migration Knex para tabela de contratos' },
-  { emoji: '⚛️', texto: 'Criar componente React para dashboard de métricas' },
-  { emoji: '🔐', texto: 'Implementar permissão RBAC customizada para relatórios' },
-];
-
-export const TelaVazia = ({ onNovaConversa, carregando }) => (
-  <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-    <div className="text-6xl mb-4">🤖</div>
-    <h2 className="text-xl font-semibold mb-2">Chat com IA</h2>
-    <p className="text-muted mb-6 max-w-sm">
-      Converse com a IA para criar módulos, gerar código, planejar funcionalidades
-      e resolver problemas técnicos do Prancheto.IA.
-    </p>
-
-    {/* Botão principal de nova conversa */}
-    <button
-      onClick={() => onNovaConversa()}
-      disabled={carregando}
-      className="btn-primary flex items-center gap-2 disabled:opacity-50"
-    >
-      {carregando ? (
-        <>
-          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          Criando...
-        </>
-      ) : (
-        <>
-          <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2} />
-          Nova Conversa
-        </>
-      )}
-    </button>
-
-    {/* Sugestões de prompts rápidos */}
-    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
-      {SUGESTOES_PROMPT.map((s, i) => (
-        <button
-          key={i}
-          onClick={() => onNovaConversa(s.texto)}
-          disabled={carregando}
-          className="text-left p-3 rounded-lg border border-surface-border hover:border-primary-600 bg-surface-card hover:bg-primary-900/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <span className="text-lg mr-2">{s.emoji}</span>
-          <span className="text-sm text-muted">{s.texto}</span>
-        </button>
-      ))}
+// ----------------------------------------------------------
+// FAIXA DE INDISPONIBILIDADE
+// ----------------------------------------------------------
+export const FaixaIndisponivel = ({ erro }) => (
+  <div className="mx-4 my-3 rounded-2xl border border-amber-200 dark:border-amber-500/30 bg-amber-50/80 dark:bg-amber-500/10 px-4 py-3 text-xs sm:text-sm text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
+    <HugeiconsIcon
+      icon={Alert02Icon}
+      size={18}
+      strokeWidth={2}
+      className="text-amber-600 dark:text-[#FBBF24] shrink-0 mt-0.5"
+    />
+    <div>
+      <p className="font-bold">Assistente temporariamente indisponível</p>
+      <p className="text-xs text-amber-800/90 dark:text-amber-300/90 mt-0.5">
+        {erro?.mensagem || erro || 'O serviço de IA está passando por uma oscilação temporária.'}
+      </p>
     </div>
   </div>
 );
