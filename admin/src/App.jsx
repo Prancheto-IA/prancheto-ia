@@ -69,6 +69,14 @@ const App = () => {
               </RotaSuperAdmin>
             }
           />
+          <Route
+            path="/planos/*"
+            element={
+              <RotaSuperAdmin>
+                <PaginaAdminPanel />
+              </RotaSuperAdmin>
+            }
+          />
 
           {/* Redireciona a raiz para /admin */}
           <Route path="/" element={<Navigate to="/admin" replace />} />
@@ -77,7 +85,7 @@ const App = () => {
           <Route path="/chat" element={<Navigate to="/admin/chat" replace />} />
           <Route path="/usuarios" element={<Navigate to="/admin/usuarios" replace />} />
           <Route path="/clientes" element={<Navigate to="/admin/clientes" replace />} />
-          <Route path="/planos" element={<Navigate to="/admin/planos" replace />} />
+          <Route path="/admin/planos" element={<Navigate to="/planos" replace />} />
           <Route path="/admin/seguranca" element={<Navigate to="/seguranca" replace />} />
           <Route path="/admin/monitoramento" element={<Navigate to="/monitoramento" replace />} />
           <Route path="/admin/tickets" element={<Navigate to="/tickets" replace />} />

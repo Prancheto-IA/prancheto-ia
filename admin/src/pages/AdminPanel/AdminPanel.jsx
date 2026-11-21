@@ -66,7 +66,7 @@ const ITENS_NAV_ADMIN = [
   {
     slug: 'planos',
     label: 'Planos e Limites',
-    rota: '/admin/planos',
+    rota: '/planos',
     icone: PackageIcon,
   },
   {
@@ -388,6 +388,8 @@ const PaginaAdminPanel = () => {
                     <PaginaLogsSeguranca />
                   ) : location.pathname.startsWith('/monitoramento') ? (
                     <PaginaMonitoramento />
+                  ) : location.pathname.startsWith('/planos') ? (
+                    <PaginaPlanoLimites />
                   ) : (
                     <Navigate to="/admin/chat" replace />
                   )
@@ -411,7 +413,9 @@ const PaginaAdminPanel = () => {
                           ? '/seguranca'
                           : location.pathname.startsWith('/monitoramento')
                             ? '/monitoramento'
-                            : '/admin/chat'
+                            : location.pathname.startsWith('/planos')
+                              ? '/planos'
+                              : '/admin/chat'
                     }
                     replace
                   />
