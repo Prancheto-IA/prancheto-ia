@@ -498,7 +498,7 @@ const PlanoLimites = () => {
                         type="text"
                         value={busca}
                         onChange={(e) => setBusca(e.target.value)}
-                        placeholder="Buscar por nome ou slug..."
+                        placeholder="Pesquisar"
                         className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl border border-surface-border bg-surface text-ink-primary placeholder:text-ink-secondary/60 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-brand-primary transition-all"
                       />
                       {busca && (
