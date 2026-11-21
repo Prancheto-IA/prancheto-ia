@@ -25,7 +25,6 @@ import {
 import { SimpleTooltip, TooltipProvider } from '@/components/reui/tooltip';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  Analytics01Icon,
   Activity01Icon,
   Database01Icon,
   Building01Icon,
@@ -308,29 +307,22 @@ const Monitoramento = () => {
   return (
     <TooltipProvider>
       <div className="flex-1 flex flex-col min-h-0 bg-surface dark:bg-[#111928] overflow-y-auto select-text">
-        <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
+        <div className="p-4 sm:p-6 space-y-6 w-full">
           {/* ─── CABEÇALHO DA PÁGINA ───────────────────────── */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
-                  <HugeiconsIcon icon={Analytics01Icon} size={22} strokeWidth={2} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <h1 className="text-xl md:text-2xl font-bold text-ink-primary tracking-tight">
-                      Monitoramento & Telemetria
-                    </h1>
-                    <Badge variant="success" size="sm" className="gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      Operacional
-                    </Badge>
-                  </div>
-                  <p className="text-xs md:text-sm text-ink-secondary">
-                    Saúde do cluster Postgres, volume de requisições e telemetria em tempo real.
-                  </p>
-                </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-xl md:text-2xl font-bold text-ink-primary tracking-tight">
+                  Monitoramento & Telemetria
+                </h1>
+                <Badge variant="success" size="sm" className="gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Operacional
+                </Badge>
               </div>
+              <p className="text-xs md:text-sm text-ink-secondary">
+                Saúde do cluster Postgres, volume de requisições e telemetria em tempo real.
+              </p>
             </div>
 
             {/* Ações e Status de Atualização */}
