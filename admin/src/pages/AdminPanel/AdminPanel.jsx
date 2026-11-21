@@ -54,13 +54,13 @@ const ITENS_NAV_ADMIN = [
   {
     slug: 'usuarios',
     label: 'Gestão de Usuários',
-    rota: '/admin/usuarios',
+    rota: '/usuarios',
     icone: UserGroupIcon,
   },
   {
     slug: 'clientes',
     label: 'Clientes & Tenants',
-    rota: '/admin/clientes',
+    rota: '/clientes',
     icone: Building01Icon,
   },
   {
@@ -390,6 +390,10 @@ const PaginaAdminPanel = () => {
                     <PaginaMonitoramento />
                   ) : location.pathname.startsWith('/planos') ? (
                     <PaginaPlanoLimites />
+                  ) : location.pathname.startsWith('/clientes') ? (
+                    <PaginaGestaoClientes />
+                  ) : location.pathname.startsWith('/usuarios') ? (
+                    <PaginaGestaoUsuarios />
                   ) : (
                     <Navigate to="/admin/chat" replace />
                   )
@@ -415,7 +419,11 @@ const PaginaAdminPanel = () => {
                             ? '/monitoramento'
                             : location.pathname.startsWith('/planos')
                               ? '/planos'
-                              : '/admin/chat'
+                              : location.pathname.startsWith('/clientes')
+                                ? '/clientes'
+                                : location.pathname.startsWith('/usuarios')
+                                  ? '/usuarios'
+                                  : '/admin/chat'
                     }
                     replace
                   />

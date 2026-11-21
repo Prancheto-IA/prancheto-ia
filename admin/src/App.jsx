@@ -77,14 +77,30 @@ const App = () => {
               </RotaSuperAdmin>
             }
           />
+          <Route
+            path="/clientes/*"
+            element={
+              <RotaSuperAdmin>
+                <PaginaAdminPanel />
+              </RotaSuperAdmin>
+            }
+          />
+          <Route
+            path="/usuarios/*"
+            element={
+              <RotaSuperAdmin>
+                <PaginaAdminPanel />
+              </RotaSuperAdmin>
+            }
+          />
 
           {/* Redireciona a raiz para /admin */}
           <Route path="/" element={<Navigate to="/admin" replace />} />
 
-          {/* Redirecionamentos diretos caso alguém acesse /chat, /usuarios, etc. */}
+          {/* Redirecionamentos diretos e rotas legadas */}
           <Route path="/chat" element={<Navigate to="/admin/chat" replace />} />
-          <Route path="/usuarios" element={<Navigate to="/admin/usuarios" replace />} />
-          <Route path="/clientes" element={<Navigate to="/admin/clientes" replace />} />
+          <Route path="/admin/usuarios" element={<Navigate to="/usuarios" replace />} />
+          <Route path="/admin/clientes" element={<Navigate to="/clientes" replace />} />
           <Route path="/admin/planos" element={<Navigate to="/planos" replace />} />
           <Route path="/admin/seguranca" element={<Navigate to="/seguranca" replace />} />
           <Route path="/admin/monitoramento" element={<Navigate to="/monitoramento" replace />} />
