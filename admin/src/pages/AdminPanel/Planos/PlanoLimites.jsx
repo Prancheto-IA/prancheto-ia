@@ -334,14 +334,9 @@ const PlanoLimites = () => {
           {/* ─── CABEÇALHO DA PÁGINA (SEM ESPAÇOS LATERAIS) ───── */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
             <div className="space-y-1">
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-xl md:text-2xl font-bold text-ink-primary tracking-tight">
-                  Planos e Limites
-                </h1>
-                <Badge variant="primary" size="sm">
-                  {tenants.length} {tenants.length === 1 ? 'Cliente' : 'Clientes'}
-                </Badge>
-              </div>
+              <h1 className="text-xl md:text-2xl font-bold text-ink-primary tracking-tight">
+                Planos e Limites
+              </h1>
               <p className="text-xs md:text-sm text-ink-secondary">
                 Configuração de modalidades comerciais, cotas de usuários e limites por cliente corporativo.
               </p>
