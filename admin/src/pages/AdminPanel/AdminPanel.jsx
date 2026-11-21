@@ -72,7 +72,7 @@ const ITENS_NAV_ADMIN = [
   {
     slug: 'monitoramento',
     label: 'Monitoramento',
-    rota: '/admin/monitoramento',
+    rota: '/monitoramento',
     icone: Analytics01Icon,
   },
   {
@@ -386,6 +386,8 @@ const PaginaAdminPanel = () => {
                     <PaginaTicketsRecebidos />
                   ) : location.pathname.startsWith('/seguranca') ? (
                     <PaginaLogsSeguranca />
+                  ) : location.pathname.startsWith('/monitoramento') ? (
+                    <PaginaMonitoramento />
                   ) : (
                     <Navigate to="/admin/chat" replace />
                   )
@@ -407,7 +409,9 @@ const PaginaAdminPanel = () => {
                         ? '/tickets'
                         : location.pathname.startsWith('/seguranca')
                           ? '/seguranca'
-                          : '/admin/chat'
+                          : location.pathname.startsWith('/monitoramento')
+                            ? '/monitoramento'
+                            : '/admin/chat'
                     }
                     replace
                   />
